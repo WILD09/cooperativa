@@ -1,0 +1,356 @@
+{% extends 'registration/base_login.html' %}
+{% load i18n %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+<style>
+@media (max-width: 1000px) {
+  .login-card {
+    flex-direction: column !important;
+    max-width: 98vw !important;
+    min-width: unset !important;
+    height: unset !important;
+    margin: 2vh auto !important;
+  }
+  .login-logo-side,
+  .login-form-side {
+    border: none !important;
+    height: auto !important;
+    min-height: unset !important;
+    padding: 20px 12px !important;
+  }
+}
+.login-wrapper {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  position: relative;
+}
+.login-bg-img,
+.login-bg-img-dark {
+  position: fixed;
+  left: 0; top: 0;
+  min-width: 100vw; min-height: 100vh;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  object-fit: cover;
+}
+.login-bg-img-dark { display: none; }
+body.modo-oscuro .login-bg-img { display: none !important; }
+body.modo-oscuro .login-bg-img-dark { display: block !important; }
+
+.login-card {
+  display: flex;
+  width: 97vw;
+  max-width: 850px;
+  min-width: 320px;
+  border-radius: 36px;
+  overflow: hidden;
+  background: #fff;
+  z-index: 1;
+  margin: auto;
+  position: relative;
+  align-items: stretch;
+  height: 465px;
+  border: 2.6px solid #e7fcd6;
+  box-shadow: 0 12px 50px #0c4c1837;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.login-logo-side {
+  flex: 1.09;
+  background: #E3D2C3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 38px 14px 32px 14px;
+  min-width: 220px;
+  height: 100%;
+  transition: background 0.22s, color 0.22s;
+}
+.login-logo-side img {
+  height: 79px;
+  margin-bottom: 17px;
+}
+.login-title {
+  font-family: 'Nunito', sans-serif;
+  color: #238c35;
+  font-weight: 900;
+  text-align: center;
+  font-size: 1.18rem;
+  margin-bottom: 10px;
+  line-height: 1.1;
+}
+.login-org {
+  font-size: 1.44rem;
+  color: #238c35;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+.login-foot {
+  margin-top: 13px;
+  color: #787878;
+  font-size: 14px;
+}
+.login-form-side {
+  flex: 1.18;
+  background: #fff;
+  padding: 44px 30px 31px 31px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 270px;
+  height: 100%;
+  border: none !important;
+  transition: background 0.22s, color 0.22s;
+}
+.login-welcome {
+  color: #238c35;
+  font-weight: 900;
+  font-family: 'Nunito',sans-serif;
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 48px;
+  letter-spacing: 1px;
+  transition: color 0.22s;
+}
+.form-control {
+  border-radius: 20px;
+  padding: 15px 21px;
+  font-size: 1.06rem;
+  border: 2px solid #b6ecad;
+  background: #fff;
+  color: #333;
+  transition: background 0.22s, color 0.22s, border-color 0.22s;
+}
+.btn-green {
+  width: 100%;
+  background: #30ae37;
+  color: #fff;
+  font-weight: bold;
+  padding: 14px 0;
+  font-size: 19px;
+  border-radius: 40px;
+  margin-bottom: 12px;
+  box-shadow: none;
+  border: none;
+  transition: background 0.18s;
+}
+.btn-green:hover,
+.btn-green:focus {
+  background: #258627;
+  color: #fff;
+}
+.login-link, .login-link:visited {
+  color: #238c35;
+  text-decoration: underline;
+  margin-right: 16px;
+  transition: color 0.15s;
+}
+.login-link:hover, .login-link:focus {
+  color: #186324;
+}
+.register-box {
+  margin-top: 12px;
+  font-size: 16px;
+  text-align: center;
+}
+.no-account-text {
+  color: #238c35;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-right: 8px;
+  transition: color 0.22s;
+}
+.register-highlight {
+  background: #30ae37;
+  color: #fff;
+  padding: 2px 12px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.13s, color 0.13s;
+  display: inline-block;
+}
+.register-highlight:hover, .register-highlight:focus {
+  background: #146410;
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* ----------- MODO OSCURO ----------- */
+body.modo-oscuro .login-card {
+  background: #407235ff !important;
+  border-color: #11640dff;
+  box-shadow: 0 0px 70px #14261277;
+}
+body.modo-oscuro .login-logo-side {
+  background: #313F2E !important;
+}
+body.modo-oscuro .login-title,
+body.modo-oscuro .login-org,
+body.modo-oscuro .login-foot {
+  color: #dbdedb !important;
+}
+body.modo-oscuro .login-form-side {
+  background: #284720 !important;
+}
+body.modo-oscuro .login-welcome {
+  color: #dbdedb !important;
+}
+body.modo-oscuro .form-control {
+  background: #fff !important;
+  color: #113010 !important;
+  border: 2px solid #008000 !important;
+}
+body.modo-oscuro .form-control::placeholder {
+  color: #97ae98 !important;
+}
+body.modo-oscuro .btn-green {
+  background: #008000 !important;
+  color: #dbdedb !important;
+  box-shadow: none !important;
+}
+body.modo-oscuro .btn-green:hover,
+body.modo-oscuro .btn-green:focus {
+  background: #146410 !important;
+  color: #fff !important;
+}
+body.modo-oscuro .login-link,
+body.modo-oscuro .login-link:visited,
+body.modo-oscuro .register-box .no-account-text {
+  color: #dbdedb !important;
+}
+body.modo-oscuro .login-link:hover,
+body.modo-oscuro .login-link:focus {
+  color: #96ffb9 !important;
+}
+body.modo-oscuro .register-highlight {
+  background: #008000 !important;
+  color: #fff !important;
+}
+body.modo-oscuro .register-highlight:hover,
+body.modo-oscuro .register-highlight:focus {
+  background: #146410 !important;
+  color: #fff !important;
+}
+.theme-toggle-btn {
+  position: fixed;
+  top: 23px;
+  right: 32px;
+  z-index: 1200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f9f9fb;
+  color: #30ae37;
+  box-shadow: 0 2px 8px #238c3520;
+  border: 2px solid #d8edd6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background 0.18s, color 0.16s, border 0.15s;
+}
+body.modo-oscuro .theme-toggle-btn {
+  background: #232d21;
+  color: #97f088;
+  border: 2px solid #297b36;
+}
+.theme-toggle-btn img, .theme-toggle-btn svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  pointer-events: none;
+}
+.theme-toggle-btn:focus {
+  outline: 3px solid #97f08888;
+}
+</style>
+
+<!-- Fondo día -->
+<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="login-bg-img">
+<!-- Fondo noche -->
+<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="login-bg-img-dark">
+
+<!-- Botón tema claro/oscuro -->
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+</button>
+<script>
+(function(){
+  const btn = document.getElementById("themeToggleBtn");
+  const img = document.getElementById("iconSunMoon");
+  let modo = localStorage.getItem('modo-oscuro') === 'true';
+  if(modo){document.body.classList.add('modo-oscuro'); img.style.filter="invert(0.7)";}
+  btn.onclick = function() {
+    modo = !modo;
+    document.body.classList.toggle('modo-oscuro');
+    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+    img.style.filter = modo ? "invert(0.7)" : "";
+  };
+})();
+</script>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-logo-side">
+            <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
+            <div class="login-title">Asociación Cooperativa</div>
+            <div class="login-org">WILSON TORRES 33 RL</div>
+            <div class="login-foot">2025 © | Política de Privacidad</div>
+        </div>
+        <div class="login-form-side">
+            <div class="login-welcome">¡Bienvenido!</div>
+            {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    Usuario o contraseña incorrectos. Intenta de nuevo.
+                </div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="{% url 'login' %}" style="margin-bottom: 6px;">
+                {% csrf_token %}
+                <div class="form-group mb-4">
+                    {{ form.username|add_class:"form-control"|attr:"placeholder:Usuario o correo"|attr:"autocomplete:off" }}
+                </div>
+                <div class="form-group mb-4">
+                    {{ form.password|add_class:"form-control"|attr:"placeholder:Contraseña" }}
+                </div>
+                <button type="submit" class="btn btn-green">
+                    Iniciar sesión
+                </button>
+            </form>
+            <div style="text-align:center;">
+                <a class="login-link" href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="register-box">
+                <span class="no-account-text">¿No tienes una cuenta?</span>
+                <a href="{% url 'taxis:register' %}" class="register-highlight">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

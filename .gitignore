@@ -1,0 +1,15 @@
+<<<<<<< HEAD
+# Ignorar archivos compilados de Python
+*.pyc
+__pycache__/
+=======
+# Ignorar entornos virtuales
+env/
+env_new/
+.venv/
+
+# Ignorar archivos de entorno si llegas a crearlos
+.env
+*.env
+ .env
+>>>>>>> 1c06153 (Add .gitignore to ignore environment folders)
