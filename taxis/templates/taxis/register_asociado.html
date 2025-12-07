@@ -9,7 +9,7 @@ Crear cuenta - Asociado
 
 {% block content %}
 <style>
-/* Envoltorio general que centra la tarjeta de registro */
+/* Envoltorio general que centra la tarjeta de registro en la pantalla */
 .reg-wrapper {
   min-height: 100vh;
   width: 100vw;
@@ -22,7 +22,7 @@ Crear cuenta - Asociado
   padding: 40px 12px 30px 12px;
 }
 
-/* Fondos (tema claro/oscuro) */
+/* Imágenes de fondo (modo claro y oscuro) */
 .reg-bg-img,
 .reg-bg-img-dark {
   position: fixed;
@@ -35,10 +35,11 @@ Crear cuenta - Asociado
   object-fit: cover;
 }
 .reg-bg-img-dark { display: none; }
+/* En modo oscuro se oculta el fondo claro y se muestra el oscuro */
 body.modo-oscuro .reg-bg-img { display: none !important; }
 body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 
-/* Tarjeta principal: dos columnas (izquierda formulario, derecha info rol) */
+/* Tarjeta principal de registro (dos columnas) */
 .reg-card {
   display: flex;
   width: 100%;
@@ -56,7 +57,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
 }
 
-/* Columna izquierda: formulario */
+/* Columna izquierda: contiene el formulario */
 .reg-left {
   flex: 1.25;
   background: #169A3B;
@@ -70,7 +71,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   position: relative;
 }
 
-/* Columna derecha: descripción del rol y botón continuar */
+/* Columna derecha: info del rol y botón continuar */
 .reg-right {
   flex: 0.9;
   background: #E3D2C3;
@@ -84,7 +85,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   position: relative;
 }
 
-/* Botón “atrás” que vuelve a la selección de rol */
+/* Botón circular para volver a la selección de rol */
 .reg-back {
   position: absolute;
   left: 24px;
@@ -106,7 +107,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   height: 18px;
   border-left: 3px solid #FFFFFF;
   border-bottom: 3px solid #FFFFFF;
-  transform: rotate(45deg);
+  transform: rotate(45deg); /* forma de flecha */
 }
 .reg-back:hover {
   background: #148135;
@@ -114,7 +115,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: translateY(-1px);
 }
 
-/* Título y logo de la cooperativa en el lado izquierdo */
+/* Título y logo en la parte superior izquierda */
 .reg-title {
   display: flex;
   align-items: center;
@@ -130,7 +131,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   color: #FFFFFF;
 }
 
-/* Slot para mensaje de error general del formulario */
+/* Contenedor donde se muestra un mensaje genérico de error del form */
 .reg-alert-slot {
   margin: 0 18px 8px 18px;
   min-height: 0;
@@ -143,7 +144,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   text-align: center;
 }
 
-/* Layout interno del formulario (grid vertical de filas) */
+/* Grid vertical de campos del formulario */
 .reg-form-grid {
   display: flex;
   flex-direction: column;
@@ -152,9 +153,9 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   margin-right: 10px;
 }
 .reg-row { display: flex; gap: 10px; }
-.reg-row-two > * { flex: 1; }
+.reg-row-two > * { flex: 1; }  /* dos columnas iguales */
 
-/* Inputs y selects generales */
+/* Estilo general de inputs y selects */
 .reg-input,
 .reg-select {
   border-radius: 999px;
@@ -164,7 +165,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   color: #333333;
   width: 100%;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.12s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.12s ease;
 }
 .reg-input { padding: 12px 20px; }
 
@@ -180,14 +181,14 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: translateY(-1px);
 }
 
-/* Borde rojo para campos inválidos */
+/* Borde rojo cuando hay error (se añade clase is-invalid desde JS/plantilla) */
 input.is-invalid,
 select.is-invalid,
 .reg-password-flex.is-invalid {
   border-color: #ff4b4b !important;
 }
 
-/* Select con flecha personalizada */
+/* Estilo de select con flecha hecha con gradientes */
 .reg-select {
   padding: 11px 18px;
   -webkit-appearance: none;
@@ -204,13 +205,15 @@ select.is-invalid,
 }
 .reg-select::-ms-expand { display: none; }
 
-/* Wrapper de fecha de nacimiento (input texto + icono calendario + input date nativo oculto) */
+/* Contenedor especial para el campo de fecha (texto + icono + date oculto) */
 .reg-date-wrapper { width:100%; }
 .reg-date-inner{
   position:relative;
   width:100%;
 }
 .reg-date-input { padding-right: 40px; }
+
+/* Botón transparente sobre el icono de calendario */
 .reg-date-icon-btn {
   position: absolute;
   right: 14px;
@@ -226,6 +229,8 @@ select.is-invalid,
   padding: 0;
   cursor: pointer;
 }
+
+/* Icono visual del calendario, dibujado con CSS */
 .reg-date-icon {
   position: relative;
   width: 18px;
@@ -252,9 +257,10 @@ select.is-invalid,
   top: 8px;
   bottom: 2px;
   border-top: 2px solid #2FA24F;
+  border-bottom: 0;
 }
 
-/* Input date nativo oculto (usado solo al abrir calendario) */
+/* Input date nativo oculto; solo se usa para mostrar el selector */
 .reg-native-date {
   position: absolute;
   left: 0;
@@ -265,14 +271,14 @@ select.is-invalid,
   pointer-events: none;
 }
 
-/* Mensaje de error específico de fecha */
+/* Mensaje de error específico para fecha inválida */
 .reg-date-error {
   font-size: 0.8rem;
   margin-top: 0;
   color: #dd1919ff;
 }
 
-/* Contenedor de contraseña + icono de ojo */
+/* Contenedor de contraseña con ojo (input + botón) */
 .reg-password-flex{
   position:relative;
   display:flex;
@@ -284,7 +290,7 @@ select.is-invalid,
   padding-right:10px;
   height:48px;
   overflow:hidden;
-  transition:border-color .2s,box-shadow .2s,transform .12s;
+  transition:border-color .2s,box-shadow .2s,transform .12s ease;
   width:100%;
   max-width:100%;
 }
@@ -296,13 +302,15 @@ select.is-invalid,
   right: 38px;
   width: 1px;
   background: #ffffff;
+  pointer-events: none;
 }
+/* En modo oscuro se mantiene el fondo blanco de la zona de contraseña */
 body.modo-oscuro .reg-password-flex {
   background: #FFFFFF !important;
 }
 body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
 
-/* Input dentro del contenedor de contraseña */
+/* Input real de password dentro del contenedor */
 .reg-password-flex input {
   all: unset;
   box-sizing: border-box;
@@ -319,7 +327,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   box-shadow: none !important;
 }
 
-/* Efectos hover y focus en contenedor contraseña */
+/* Efectos hover y focus del contenedor de contraseña */
 .reg-password-flex:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
   transform: translateY(-1px);
@@ -330,7 +338,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   transform: translateY(-1px);
 }
 
-/* Botón ojo para mostrar/ocultar contraseña */
+/* Botón del “ojito” que alterna mostrar/ocultar contraseña */
 .reg-password-toggle {
   width: 26px;
   height: 26px;
@@ -350,7 +358,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   object-fit: contain;
 }
 
-/* Mensajes de error y ayudas bajo cada campo */
+/* Mensajes de error bajo campos y textos de ayuda */
 .field-error {
   font-size: 0.8rem;
   margin-top: 0;
@@ -358,7 +366,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
 }
 .field-help {
   font-size: 0.8rem;
-  margin-top: 1px;
+  margin-top: 1px;  /* muy pegado al campo */
   color: #ebee59ff;
 }
 .password-help {
@@ -366,12 +374,11 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-top: 1px;
   color: #ebee59ff;
 }
-
-/* Indicador visual de “fuerza” de contraseña */
+/* Texto donde se escribe la fuerza de la contraseña */
 #password-strength {
   margin-top: 4px;
   font-size: 0.8rem;
-  color: #ebee59ff;
+  color: ebee59ff;
 }
 #password-strength-bar {
   height: 6px;
@@ -379,7 +386,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-top: 3px;
 }
 
-/* Icono de info (lado derecho) que abre modal explicando el rol */
+/* Icono de información del rol (lado derecho) */
 .reg-info {
   position: absolute;
   right: 32px;
@@ -403,7 +410,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   box-shadow: 0 3px 8px rgba(0,0,0,0.18);
 }
 
-/* Tarjeta que describe el rol de Asociado */
+/* Tarjeta que describe el rol PRESIDENTE */
 .reg-role-card {
   border-radius: 28px;
   border: 2px solid #2FA24F;
@@ -427,6 +434,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
 .reg-role-icon img {
   width: 34px;
   height: 34px;
+  display: block;
 }
 .reg-role-text {
   text-align: center;
@@ -436,7 +444,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   color: #238C35;
 }
 
-/* Botón principal "Continuar" (envía el formulario de la izquierda) */
+/* Botón principal “Continuar” (envía el formulario) */
 .reg-right-btn {
   width: 100%;
   background: #30AE37;
@@ -456,7 +464,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   transform: translateY(-1px);
 }
 
-/* Bloque “¿Ya tienes una cuenta?” */
+/* Bloque inferior con enlace para iniciar sesión si ya tiene cuenta */
 .reg-register-box {
   margin-top: 14px;
   font-size: 0.95rem;
@@ -486,7 +494,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   box-shadow: 0 0 0 2px #2fa24f33;
 }
 
-/* Modal simple informativo sobre el rol de Asociado */
+/* Backdrop y contenido del modal informativo del rol */
 .reg-info-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -529,7 +537,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   cursor: pointer;
 }
 
-/* Botón flotante de tema */
+/* Botón flotante para tema claro/oscuro */
 .theme-toggle-btn {
   position: fixed;
   top: 23px;
@@ -562,6 +570,68 @@ body.modo-oscuro .theme-toggle-btn {
 }
 .theme-toggle-btn:focus { outline: 3px solid #97F08888; }
 
+/* ==== AJUSTES RESPONSIVE BÁSICOS PARA REGISTRO ==== */
+
+/* Evitar scroll horizontal en móvil */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Asegurar que la tarjeta nunca sea más ancha que la pantalla */
+.reg-card {
+  box-sizing: border-box;
+}
+
+/* Las filas con dos columnas se apilan en pantallas pequeñas */
+@media (max-width: 600px) {
+  .reg-row {
+    flex-wrap: wrap;
+  }
+
+  .reg-row-two > * {
+    flex: 1 1 100%;
+  }
+
+  /* Espacio entre columnas cuando se apilan */
+  .reg-row-two > * + * {
+    margin-top: 8px;
+  }
+
+  /* Inputs/selects/contraseñas ocupan todo el ancho */
+  .reg-input,
+  .reg-select,
+  .reg-password-flex {
+    width: 100%;
+  }
+}
+
+/* Ajustar flecha y título en móviles */
+@media (max-width: 600px) {
+  .reg-back {
+    left: 16px;
+    top: 16px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .reg-title {
+    margin-left: 64px;
+  }
+
+  .reg-title-logo img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reg-title-text {
+    font-size: 1.5rem;
+  }
+}
+</style>
+
+<style>
 /* Estilos de modo oscuro aplicados a la tarjeta y elementos internos */
 body.modo-oscuro .reg-card {
   background: #22322f !important;

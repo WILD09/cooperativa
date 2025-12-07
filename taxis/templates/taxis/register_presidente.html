@@ -572,6 +572,66 @@ body.modo-oscuro .theme-toggle-btn {
 }
 .theme-toggle-btn:focus { outline: 3px solid #97F08888; }
 
+/* ==== AJUSTES RESPONSIVE BÁSICOS PARA REGISTRO ==== */
+
+/* Evitar scroll horizontal en móvil */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Asegurar que la tarjeta nunca sea más ancha que la pantalla */
+.reg-card {
+  box-sizing: border-box;
+}
+
+/* Las filas con dos columnas se apilan en pantallas pequeñas */
+@media (max-width: 600px) {
+  .reg-row {
+    flex-wrap: wrap;
+  }
+
+  .reg-row-two > * {
+    flex: 1 1 100%;
+  }
+
+  /* Espacio entre columnas cuando se apilan */
+  .reg-row-two > * + * {
+    margin-top: 8px;
+  }
+
+  /* Inputs/selects/contraseñas ocupan todo el ancho */
+  .reg-input,
+  .reg-select,
+  .reg-password-flex {
+    width: 100%;
+  }
+}
+
+/* Ajustar flecha y título en móviles */
+@media (max-width: 600px) {
+  .reg-back {
+    left: 16px;
+    top: 16px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .reg-title {
+    margin-left: 64px;
+  }
+
+  .reg-title-logo img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reg-title-text {
+    font-size: 1.5rem;
+  }
+}
+
 </style>
 
 <style>
