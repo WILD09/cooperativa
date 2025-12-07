@@ -1,0 +1,375 @@
+{% extends 'taxis/base.html' %}
+
+{# Título específico para el dashboard administrativo #}
+{% block title %}Dashboard Administrativo - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* -------------------------------
+       VARIABLES Y ESTILOS GENERALES
+       ------------------------------- */
+    :root {
+        --color-primary: #28a745;
+        --color-primary-dark: #218838;
+        --color-secondary: #f8f5e6;
+        --color-accent: #ffc107;
+        --color-danger: #dc3545;
+        --color-info: #17a2b8;
+        --color-warning: #ffc107;
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        --border-radius: 0.5rem;
+    }
+
+    /* Modo oscuro para el body y tarjetas */
+    body.modo-oscuro {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+    body.modo-oscuro .dashboard-card {
+        background-color: #2d2d2d;
+        border-color: #404040;
+    }
+    body.modo-oscuro .dashboard-card h6 {
+        color: #b0b0b0;
+    }
+    body.modo-oscuro .dashboard-card h2 {
+        color: #ffffff;
+    }
+    body.modo-oscuro .table {
+        color: #e0e0e0;
+        background-color: #2d2d2d;
+    }
+    body.modo-oscuro .table thead th {
+        background-color: #3a3a3a;
+        border-color: #404040;
+    }
+    body.modo-oscuro .table td {
+        border-color: #404040;
+    }
+    body.modo-oscuro .quick-link {
+        background-color: #2d2d2d;
+        border-color: #404040;
+    }
+    body.modo-oscuro .quick-link:hover {
+        background-color: #3a3a3a;
+    }
+
+    /* Tarjetas de métricas superiores */
+    .dashboard-card {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #e0e0e0;
+        background-color: #ffffff;
+        height: 100%;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+    }
+    .dashboard-card .card-body {
+        padding: 1.5rem;
+    }
+    .dashboard-card h6 {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    .dashboard-card h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        word-break: break-word;
+    }
+    .dashboard-card .icon {
+        font-size: 2.5rem;
+        opacity: 0.3;
+    }
+
+    /* Bordes de color según tipo de tarjeta */
+    .card-green { border-left: 4px solid var(--color-primary); }
+    .card-blue { border-left: 4px solid var(--color-info); }
+    .card-yellow { border-left: 4px solid var(--color-warning); }
+    .card-red { border-left: 4px solid var(--color-danger); }
+
+    /* Colores de texto */
+    .text-green { color: var(--color-primary); }
+    .text-blue { color: var(--color-info); }
+    .text-yellow { color: var(--color-warning); }
+    .text-red { color: var(--color-danger); }
+
+    /* Enlaces de accesos rápidos (tarjetas de la derecha) */
+    .quick-link {
+        display: block;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        text-decoration: none;
+        color: #333;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+    }
+    .quick-link:hover {
+        background-color: var(--color-secondary);
+        text-decoration: none;
+        color: var(--color-primary);
+        box-shadow: var(--shadow-md);
+        transform: translateX(5px);
+    }
+    .quick-link i {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+    }
+
+    /* Tabla de patentes próximas a vencer */
+    .table-responsive {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+    }
+    .table thead th {
+        background-color: var(--color-primary);
+        color: white;
+        font-weight: 600;
+        border: none;
+        white-space: nowrap;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    /* Badge custom para "vence pronto" */
+    .badge-warning-custom {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* Ajustes responsive para tablets */
+    @media (max-width: 768px) {
+        .dashboard-card h2 { font-size: 1.5rem; }
+        .dashboard-card .icon { font-size: 2rem; }
+
+        .d-sm-flex.align-items-center.justify-content-between.mb-4 {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+        .d-sm-flex .btn,
+        .d-sm-flex form {
+            width: 100%;
+        }
+        .d-sm-flex form button {
+            width: 100%;
+        }
+    }
+
+    /* Ajustes extra para móviles pequeños */
+    @media (max-width: 576px) {
+        .row.mb-4 > [class*="col-"] {
+            margin-bottom: 0.75rem;
+        }
+    }
+</style>
+
+{# Encabezado del dashboard: título + rol + botón de logout #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-tachometer-alt text-primary"></i> Dashboard Administrativo
+        </h1>
+        <span class="badge badge-success">Presidente</span>
+    </div>
+    <div>
+        {# Formulario POST para cerrar sesión usando la vista 'logout' de Django #}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </form>
+    </div>
+</div>
+
+{# Muestra mensajes flash (éxito, error, etc.) si los hay #}
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  {% endfor %}
+{% endif %}
+
+{# Fila de tarjetas de métricas principales #}
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="dashboard-card card-green">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <h6 class="text-green">Total Conductores</h6>
+                        <h2 class="text-gray-800">{{ total_conductores }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users icon text-green"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="dashboard-card card-blue">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <h6 class="text-blue">Total Vehículos</h6>
+                        <h2 class="text-gray-800">{{ total_vehiculos }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-taxi icon text-blue"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="dashboard-card card-green">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <h6 class="text-green">Pagos Este Mes</h6>
+                        <h2 class="text-gray-800">{{ pagos_realizados }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle icon text-green"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="dashboard-card card-red">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <h6 class="text-red">Pagos Pendientes</h6>
+                        <h2 class="text-gray-800">{{ pagos_pendientes }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-circle icon text-red"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Fila principal: tabla de patentes y accesos rápidos #}
+<div class="row">
+    <!-- Columna con tabla de patentes próximas a vencer -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm" style="border-radius: var(--border-radius);">
+            <div class="card-header py-3 bg-warning text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-clock"></i> Patentes Próximas a Vencer (15 días)
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if patentes_por_vencer %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Conductor</th>
+                                <th>Cédula</th>
+                                <th>Fecha Pago</th>
+                                <th>Días Restantes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for conductor in patentes_por_vencer %}
+                            <tr>
+                                <td>{{ conductor.nombre }} {{ conductor.apellido }}</td>
+                                <td>{{ conductor.cedula_identidad }}</td>
+                                <td>{{ conductor.fecha_pago_patente|date:"d/m/Y" }}</td>
+                                <td>
+                                    <span class="badge-warning-custom">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Vence pronto
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">
+                        No hay patentes próximas a vencer en los próximos 15 días.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna con accesos rápidos a funcionalidades clave -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm" style="border-radius: var(--border-radius);">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-bolt"></i> Accesos Rápidos
+                </h6>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'taxis:conductor-list' %}" class="quick-link mb-3">
+                    <i class="fas fa-users text-primary"></i>
+                    <strong>Gestionar Conductores</strong>
+                </a>
+                <a href="{% url 'taxis:taxi-list' %}" class="quick-link mb-3">
+                    <i class="fas fa-taxi text-info"></i>
+                    <strong>Gestionar Vehículos</strong>
+                </a>
+                <a href="{% url 'taxis:conductor-create' %}" class="quick-link mb-3">
+                    <i class="fas fa-user-plus text-success"></i>
+                    <strong>Registrar Conductor</strong>
+                </a>
+                <a href="{% url 'taxis:taxi-create' %}" class="quick-link mb-3">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    <strong>Registrar Vehículo</strong>
+                </a>
+                <a href="#" class="quick-link">
+                    <i class="fas fa-file-alt text-warning"></i>
+                    <strong>Generar Reporte</strong>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Nota informativa al pie del dashboard #}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Nota:</strong> Este dashboard muestra un resumen de las métricas más importantes de la cooperativa.
+            Los datos se actualizan en tiempo real cada vez que accedes a esta página.
+        </div>
+    </div>
+</div>
+
+{% endblock %}

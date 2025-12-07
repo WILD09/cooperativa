@@ -1,0 +1,498 @@
+{% extends 'registration/base_login.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{# Título de la página en el layout base #}
+{% block title %}Verificación por correo{% endblock %}
+
+{% block content %}
+<style>
+/* -----------------------
+   ESTILOS GENERALES
+   Pantalla de verificación por correo
+   ----------------------- */
+
+/* Contenedor principal que centra la tarjeta en la pantalla */
+.vsms-wrapper {
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 12px 30px 12px;
+}
+
+/* Imágenes de fondo para modo claro/oscuro */
+.vsms-bg-img,
+.vsms-bg-img-dark {
+  position: fixed;
+  left: 0; top: 0;
+  min-width: 100vw; min-height: 100vh;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  object-fit: cover;
+}
+.vsms-bg-img-dark { display: none; }
+body.modo-oscuro .vsms-bg-img { display: none !important; }
+body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
+
+/* Tarjeta central que contiene el contenido de verificación */
+.vsms-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  border-radius: 40px;
+  overflow: hidden;
+  background: #f1dfc7;
+  z-index: 1;
+  margin: 0 auto;
+  border: 3px solid #00B543;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+}
+body.modo-oscuro .vsms-card {
+  background: #142620;
+  border-color: #00FF5A;
+  box-shadow: 0 0 70px #000000aa;
+}
+
+/* Contenido interior de la tarjeta */
+.vsms-left {
+  flex: 1;
+  padding: 32px 30px 28px 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Botón de volver atrás (esquina superior izquierda) */
+.vsms-back {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #00B543;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: background .15s, transform .08s, box-shadow .12s;
+  text-decoration: none;
+}
+.vsms-back-icon {
+  width: 18px;
+  height: 18px;
+  border-left: 3px solid #00B543;
+  border-bottom: 3px solid #00B543;
+  transform: rotate(45deg);
+}
+.vsms-back:hover {
+  background: rgba(0,0,0,0.03);
+  box-shadow: 0 3px 9px rgba(0,0,0,0.25);
+  transform: translateY(-1px);
+}
+body.modo-oscuro .vsms-back { border-color: #71FF9E; }
+body.modo-oscuro .vsms-back-icon {
+  border-left-color: #71FF9E;
+  border-bottom-color: #71FF9E;
+}
+
+/* Bloque de título + logo */
+.vsms-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  margin-left: 70px;
+}
+.vsms-title-logo img { width: 44px; height: 44px; }
+.vsms-title-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #149c3e;
+}
+body.modo-oscuro .vsms-title-text { color: #29FF66; }
+
+/* Texto descriptivo principal */
+.vsms-desc {
+  margin-left: 70px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  font-size: 0.92rem;
+  color: #184321;
+  line-height: 1.4;
+}
+.vsms-desc strong { color: #0c3c1b; }
+body.modo-oscuro .vsms-desc { color: #E9FFE9; }
+body.modo-oscuro .vsms-desc strong { color: #b8ffd0; }
+
+/* Texto que muestra intentos de envío usados hoy */
+.vsms-daily {
+  margin-left: 70px;
+  margin-right: 10px;
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  color: #476553;
+}
+body.modo-oscuro .vsms-daily { color: #bfe8c6; }
+
+/* Contenedor del formulario de código */
+.vsms-form {
+  margin-left: 40px;
+  margin-right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Campo para ingresar el código de 6 dígitos */
+.vsms-input {
+  border-radius: 999px;
+  border: 2px solid #6BE899;
+  font-size: 0.96rem;
+  background: #FFFFFF;
+  color: #333333;
+  width: 100%;
+  padding: 12px 20px;
+  outline: none;
+  text-align: center;
+  letter-spacing: 3px;
+  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+}
+.vsms-input:hover {
+  box-shadow: 0 3px 9px rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+.vsms-input:focus {
+  border-color: #00B543;
+  box-shadow: 0 0 0 2px #00b54344;
+  transform: translateY(-1px);
+}
+/* Clase para marcar input inválido (se agrega por JS) */
+input.is-invalid { border-color: #ff4b4b !important; }
+
+/* Mensajes de error para el código */
+.vsms-error {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  color: #cc1f1f;
+  text-align: center;
+}
+
+/* Botón principal "Continuar" */
+.vsms-btn {
+  width: 100%;
+  background: linear-gradient(90deg,#24c34f,#18a83f);
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 13px 0;
+  font-size: 1rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+}
+.vsms-btn:hover,
+.vsms-btn:focus {
+  background: linear-gradient(90deg,#1EA344,#148338);
+  box-shadow: 0 0 0 2px #00b54344;
+  transform: translateY(-1px);
+}
+
+/* Bloque inferior: ayuda y botón de reenviar */
+.vsms-help {
+  margin-top: 10px;
+  font-size: 0.86rem;
+  text-align: center;
+  color: #3c5a46;
+}
+body.modo-oscuro .vsms-help { color: #CFF5D8; }
+
+/* Botón de "Reenviar código" */
+.vsms-resend-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  background: #e3cda6;
+  color: #184321;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+  transition: background 0.16s, color 0.16s, box-shadow 0.16s, transform 0.1s;
+}
+.vsms-resend-btn:hover,
+.vsms-resend-btn:focus {
+  background: #d4b77f;
+  color: #11301a;
+  box-shadow: 0 2px 9px rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+
+/* Botón de reenviar en modo oscuro */
+body.modo-oscuro .vsms-resend-btn {
+  background: #1f3a2f;
+  color: #E9FFE9;
+  box-shadow: 0 1.6px 8px rgba(0,0,0,0.45);
+}
+body.modo-oscuro .vsms-resend-btn:hover,
+body.modo-oscuro .vsms-resend-btn:focus {
+  background: #27503f;
+  color: #ffffff;
+  box-shadow: 0 2.4px 12px rgba(0,0,0,0.6);
+}
+
+/* Botón flotante para alternar tema claro/oscuro */
+.theme-toggle-btn {
+  position: fixed;
+  top: 23px;
+  right: 32px;
+  z-index: 1200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #F9F9FB;
+  color: #30AE37;
+  box-shadow: 0 2px 8px #238c3520;
+  border: 2px solid #D8EDD6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background 0.18s, color 0.16s, border 0.15s;
+}
+body.modo-oscuro .theme-toggle-btn {
+  background: #232D21;
+  color: #97F088;
+  border: 2px solid #297B36;
+}
+.theme-toggle-btn img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  pointer-events: none;
+}
+.theme-toggle-btn:focus { outline: 3px solid #97F08888; }
+
+/* Ajustes responsive tablet */
+@media (max-width: 900px) {
+  .vsms-left {
+    padding: 28px 22px 24px 22px;
+  }
+  .vsms-title { margin-left: 50px; }
+  .vsms-desc,
+  .vsms-daily { margin-left: 50px; margin-right: 16px; }
+}
+
+/* Ajustes responsive móviles pequeños */
+@media (max-width: 480px) {
+  .vsms-card { border-radius: 30px; }
+  .vsms-left { padding: 26px 18px 22px 18px; }
+  .vsms-title { margin-left: 0; justify-content: center; }
+  .vsms-desc,
+  .vsms-daily { margin-left: 0; margin-right: 0; text-align: left; }
+  .vsms-title-text { font-size: 1.6rem; }
+  .vsms-title-logo img { width: 40px; height: 40px; }
+  .vsms-back { left: 18px; top: 18px; width: 38px; height: 38px; }
+  .theme-toggle-btn { top: 18px; right: 18px; }
+  .vsms-form { margin-left: 10px; margin-right: 10px; }
+  .vsms-input { padding: 12px 18px; font-size: 0.95rem; }
+  .vsms-btn { padding: 12px 0; font-size: 0.95rem; }
+  .vsms-help { font-size: 0.8rem; }
+}
+</style>
+
+{# Imágenes de fondo para modo claro y oscuro #}
+<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="vsms-bg-img">
+<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="vsms-bg-img-dark">
+
+{# Botón flotante para alternar tema #}
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+</button>
+
+<script>
+/*
+  Script de alternancia de tema claro/oscuro.
+  Usa localStorage para recordar la preferencia del usuario.
+*/
+(function(){
+  const btn = document.getElementById("themeToggleBtn");
+  const img = document.getElementById("iconSunMoon");
+  let modo = localStorage.getItem('modo-oscuro') === 'true';
+  if (modo) {
+    document.body.classList.add('modo-oscuro');
+    img.style.filter = "invert(0.7)";
+  }
+  btn.onclick = function() {
+    modo = !modo;
+    document.body.classList.toggle('modo-oscuro');
+    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+    img.style.filter = modo ? "invert(0.7)" : "";
+  };
+})();
+</script>
+
+<div class="vsms-wrapper">
+  <div class="vsms-card">
+    <div class="vsms-left">
+
+      {# Botón para volver a la selección de rol #}
+      <a href="{% url 'taxis:select_role' %}" class="vsms-back" aria-label="Volver">
+        <span class="vsms-back-icon"></span>
+      </a>
+
+      {# Encabezado con logo y título de la pantalla #}
+      <div class="vsms-title">
+        <div class="vsms-title-logo">
+          <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
+        </div>
+        <div class="vsms-title-text">Verifica tu correo</div>
+      </div>
+
+      {# Muestra mensajes de Django, excluyendo el texto redundante de envío de código #}
+      {% if messages %}
+        <div class="vsms-error" style="margin-bottom:8px;">
+          {% for message in messages %}
+            {% if "Te hemos enviado un código de 6 dígitos a tu correo." not in message %}
+              {{ message }}<br>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {# Texto de explicación y correo al que se envió el código #}
+      <div class="vsms-desc">
+        Registro iniciado. Te hemos enviado un código de 6 dígitos a tu correo.
+        <br>
+        Hemos enviado un código de 6 dígitos al correo:
+        <strong>{{ user.email }}</strong>. Ingresa el código a continuación para activar tu cuenta.
+      </div>
+
+      {# Información sobre la cantidad de códigos enviados hoy a este correo #}
+      <div class="vsms-daily">
+        Intentos de envío de código por correo usados hoy:
+        {{ email_used_today|default:"0" }} / {{ email_max_per_day|default:"0" }}.
+      </div>
+
+      {# Formulario para introducir el código de 6 dígitos #}
+      <form method="post" class="vsms-form" novalidate autocomplete="off">
+        {% csrf_token %}
+
+        <div>
+          {# Campo de entrada del código (se usa widget_tweaks para aplicar clase y attrs) #}
+          {% render_field form.code class="vsms-input" placeholder="••••••" maxlength="6" %}
+          {# Si hay errores en el campo code, se marca el input y se muestra el mensaje #}
+          {% if form.code.errors %}
+          <script>
+          // Marca el campo como inválido añadiendo la clase is-invalid
+          document.addEventListener('DOMContentLoaded', ()=>{
+            const el = document.getElementsByName('{{ form.code.name }}')[0];
+            if (el) {
+              el.classList.add('is-invalid');
+            }
+          });
+          </script>
+          {% if form.code.errors.0 %}
+            <div class="vsms-error">{{ form.code.errors.0 }}</div>
+          {% endif %}
+          {% endif %}
+        </div>
+
+        {# Botón que envía el código para validación #}
+        <button type="submit" class="vsms-btn">Continuar</button>
+
+      </form>
+
+      {# Bloque inferior con ayuda e interfaz para reenviar código #}
+      <div class="vsms-help">
+        ¿No recibiste el código?
+        <br>
+        {# Formulario separado para reenviar el código al mismo correo #}
+        <form method="post" action="{% url 'taxis:verify_email' user.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit"
+                  name="resend_code"
+                  value="1"
+                  class="vsms-resend-btn"
+                  id="resendBtnEmail">
+            <span class="icon">⟳</span>
+            <span id="resendEmailText">Reenviar código</span>
+            <span id="resendEmailTimer" style="margin-left:4px;"></span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  Restringe el campo de código a solo números y máximo 6 dígitos.
+*/
+document.addEventListener('input', function(e){
+  const el = e.target;
+  if (el.name === '{{ form.code.name }}') {
+    el.value = el.value.replace(/[^0-9]/g,'').slice(0,6);
+  }
+});
+
+/*
+  Script de cuenta regresiva para el botón de "Reenviar código".
+  Usa el valor cooldown_seconds para bloquear el botón durante ese tiempo.
+*/
+(function() {
+  const btn = document.getElementById('resendBtnEmail');
+  const timerSpan = document.getElementById('resendEmailTimer');
+  let remaining = {{ cooldown_seconds|default:0 }};
+
+  // Formatea los segundos como MM:SS
+  function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2,'0');
+    const s = String(sec % 60).padStart(2,'0');
+    return m + ':' + s;
+  }
+
+  // Actualiza el estado del botón y el texto del contador.
+  function update() {
+    if (!btn) return;
+    if (remaining > 0) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+      timerSpan.textContent = ' (' + formatTime(remaining) + ')';
+      remaining -= 1;
+      setTimeout(update, 1000);
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('disabled');
+      timerSpan.textContent = '';
+    }
+  }
+
+  // Si hay cooldown pendiente, inicia la cuenta regresiva.
+  if (remaining > 0) {
+    update();
+  }
+})();
+</script>
+{% endblock %}

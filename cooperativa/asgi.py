@@ -1,16 +1,21 @@
 """
 ASGI config for cooperativa project.
 
-It exposes the ASGI callable as a module-level variable named ``application``.
+Este módulo expone la aplicación ASGI como una variable de nivel de módulo
+llamada ``application``.
 
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+Se usa cuando se despliega el proyecto en un servidor ASGI (Daphne, Uvicorn,
+Hypercorn, etc.), según la documentación oficial de Django.
 """
 
-import os
+import os  # Módulo estándar para trabajar con variables de entorno y rutas.
 
-from django.core.asgi import get_asgi_application
+from django.core.asgi import get_asgi_application  # Crea la instancia ASGI de Django.
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cooperativa.settings')
 
+# Define el módulo de settings por defecto que usará Django al inicializar
+# la aplicación ASGI. Debe apuntar al archivo de configuración principal.
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cooperativa.settings")
+
+# Objeto ASGI que el servidor usará como punto de entrada para atender peticiones.
 application = get_asgi_application()

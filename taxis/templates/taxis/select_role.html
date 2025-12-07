@@ -1,0 +1,577 @@
+{% extends "registration/base_login.html" %}
+{% load static %}
+
+{# Título de la pestaña del navegador #}
+{% block title %}Crear una cuenta - Elige un rol{% endblock %}
+
+{% block content %}
+<style>
+/* Fondos como en login: imágenes de fondo para modo claro y oscuro */
+.role-bg-img,
+.role-bg-img-dark {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  min-width: 100vw; min-height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.role-bg-img-dark { display: none; }
+/* En modo oscuro se oculta el fondo claro y se muestra el oscuro */
+body.modo-oscuro .role-bg-img { display: none !important; }
+body.modo-oscuro .role-bg-img-dark { display: block !important; }
+
+/* Botón de tema igual al del login (flotante arriba a la derecha) */
+.theme-toggle-btn {
+  position: fixed;
+  top: 23px;
+  right: 32px;
+  z-index: 1200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f9f9fb;
+  color: #30ae37;
+  box-shadow: 0 2px 8px #238c3520;
+  border: 2px solid #d8edd6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background 0.18s, color 0.16s, border 0.15s;
+}
+body.modo-oscuro .theme-toggle-btn {
+  background: #232d21;
+  color: #97f088;
+  border: 2px solid #297b36;
+}
+.theme-toggle-btn img {
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  display: block;
+}
+.theme-toggle-btn:focus {
+  outline: 3px solid #97f08888;
+}
+
+/* Contenedor general de la página */
+.role-page-wrapper {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 40px 12px 30px 12px;
+  box-sizing: border-box;
+}
+
+/* Tarjeta central donde se muestran títulos y cards de rol */
+.role-panel {
+  width: 96vw;
+  max-width: 900px;
+  min-height: 380px;
+  background: #f3e8d7;
+  border-radius: 40px;
+  border: 3px solid #108531;
+  box-shadow: 0 18px 55px rgba(9,71,25,0.32);
+  padding: 40px 60px 32px 60px;
+  position: relative;
+}
+
+/* Flecha atrás que lleva al login */
+.role-back {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #108531;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f3e8d7;
+  transition: background .15s, transform .08s, box-shadow .12s;
+}
+.role-back-icon {
+  width: 18px;
+  height: 18px;
+  border-left: 3px solid #108531;
+  border-bottom: 3px solid #108531;
+  transform: rotate(45deg);
+}
+.role-back:hover {
+  background: #e2dccf;
+  box-shadow: 0 3px 9px rgba(5,60,19,0.28);
+  transform: translateY(-1px);
+}
+
+/* Logo de la cooperativa en la esquina superior izquierda de la tarjeta */
+.role-logo {
+  position: absolute;
+  left: 86px;
+  top: 26px;
+}
+.role-logo img {
+  width: 46px;
+  height: 46px;
+}
+
+/* Icono "i" que abre el modal de información de roles */
+.role-info-badge {
+  position: absolute;
+  right: 32px;
+  top: 30px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #108531;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #108531;
+  font-weight: 700;
+  font-size: .9rem;
+  background: #f9f3ea;
+  cursor: pointer;
+  transition: background .15s, box-shadow .12s;
+}
+.role-info-badge:hover {
+  background: #f0e2cf;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+
+/* Backdrop y contenido del modal de información */
+.role-info-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.role-info-modal {
+  background: #fdfaf4;
+  border-radius: 24px;
+  max-width: 520px;
+  width: 90vw;
+  padding: 18px 24px 16px 24px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  border: 2px solid #108531;
+  position: relative;
+}
+.role-info-modal-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #184221;
+  margin-bottom: 8px;
+}
+.role-info-modal-text {
+  font-size: 0.95rem;
+  color: #314235;
+  line-height: 1.45;
+}
+.role-info-modal-close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #245f2f;
+  font-weight: 800;
+  cursor: pointer;
+}
+.role-info-modal-close:hover {
+  background: #e4f1e6;
+}
+
+/* Encabezados de la pantalla (título y subtítulo) */
+.role-header-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #434537;
+  margin-bottom: .3rem;
+}
+.role-header-sub {
+  text-align: center;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #11892f;
+  margin-bottom: 2.1rem;
+}
+
+/* Contenedor fila para las dos tarjetas de rol */
+.role-cards-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 24px;
+}
+
+/* Card de rol (Presidente / Asociado) */
+.role-card {
+  width: 220px;
+  height: 196px;
+  border-radius: 26px;
+  background: #ffffff;
+  border: 2.2px solid #d3ded6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .16s ease-out, box-shadow .16s ease-out, border-color .16s ease-out, opacity .16s;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+.role-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+}
+/* Card seleccionada visualmente */
+.role-card.selected {
+  border-color: #00a744;
+  box-shadow: 0 0 0 3px rgba(0,167,68,0.30);
+}
+
+/* Estado deshabilitado (cuando ya hay presidente) */
+.role-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+}
+.role-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Área para el icono del rol */
+.role-card-icon {
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.role-card-icon img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Texto del nombre del rol en la tarjeta */
+.role-card-title {
+  text-align: center;
+  font-size: .88rem;
+  font-weight: 800;
+  color: #108531;
+  letter-spacing: .6px;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+/* Nota específica debajo de la card de presidente cuando ya existe uno */
+.role-card-note {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #b3261e;
+  text-align: center;
+}
+
+/* Botón “Siguiente” que envía el formulario */
+.role-next-btn {
+  display: block;
+  margin: 4px auto 0 auto;
+  width: 220px;
+  border-radius: 999px;
+  border: none;
+  background: #108531;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 10px 0;
+  letter-spacing: .4px;
+  box-shadow: 0 5px 15px rgba(5,60,19,0.35);
+  transition: background .16s, transform .08s, box-shadow .12s;
+}
+.role-next-btn:hover {
+  background: #0a5a23;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 19px rgba(5,60,19,0.4);
+}
+
+/* Ajustes de modo oscuro para panel, textos, cards, botón, etc. */
+body.modo-oscuro .role-panel {
+  background: #22322f;
+  border-color: #00a744;
+}
+body.modo-oscuro .role-header-title { color: #f7fdf6; }
+body.modo-oscuro .role-header-sub { color: #71ff9e; }
+body.modo-oscuro .role-back {
+  background: #22322f;
+  border-color: #71ff9e;
+}
+body.modo-oscuro .role-back-icon {
+  border-left-color: #71ff9e;
+  border-bottom-color: #71ff9e;
+}
+body.modo-oscuro .role-info-badge {
+  background: #192722;
+  color: #71ff9e;
+  border-color: #71ff9e;
+}
+body.modo-oscuro .role-info-modal {
+  background: #1c2a26;
+  border-color: #00a744;
+  color: #e8fff0;
+}
+body.modo-oscuro .role-info-modal-title { color: #e8fff0; }
+body.modo-oscuro .role-info-modal-text { color: #c9e7d4; }
+body.modo-oscuro .role-card {
+  background: #1a2723;
+  border-color: #3e5c51;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.6);
+}
+body.modo-oscuro .role-card:hover {
+  box-shadow: 0 9px 22px rgba(0,0,0,0.75);
+}
+body.modo-oscuro .role-card.selected {
+  border-color: #20ff83;
+  box-shadow: 0 0 0 3px rgba(32,255,131,0.30);
+}
+body.modo-oscuro .role-card-title { color: #e3ffe9; }
+body.modo-oscuro .role-card-icon { background: #f5fff3; }
+body.modo-oscuro .role-next-btn { background: #00a744; }
+body.modo-oscuro .role-next-btn:hover { background: #0a5a23; }
+body.modo-oscuro .role-card-note { color: #ffb4ab; }
+
+/* Responsive: para pantallas medianas y pequeñas */
+@media (max-width: 900px) {
+  .role-panel {
+    margin: 24px 18px;
+    padding: 30px 26px 24px 26px;
+    max-width: 520px;
+  }
+  .role-cards-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+}
+@media (max-width: 480px) {
+  .role-panel {
+    padding: 26px 18px 20px 18px;
+    border-radius: 30px;
+  }
+  .role-back {
+    left: 16px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+  }
+  .role-logo {
+    left: 70px;
+    top: 20px;
+  }
+  .role-logo img {
+    width: 40px;
+    height: 40px;
+  }
+  .role-info-badge {
+    right: 20px;
+    top: 20px;
+  }
+  .role-header-title {
+    font-size: 1.6rem;
+    margin-top: 32px;
+  }
+  .role-header-sub {
+    font-size: 1.1rem;
+    margin-bottom: 1.4rem;
+  }
+  .role-card {
+    width: 200px;
+    height: 180px;
+  }
+  .role-card-icon {
+    width: 82px;
+    height: 82px;
+  }
+  .role-card-icon img {
+    width: 68px;
+    height: 68px;
+  }
+  .role-card-title {
+    font-size: 0.8rem;
+  }
+  .role-next-btn {
+    width: 200px;
+    font-size: 0.96rem;
+    padding: 9px 0;
+  }
+}
+</style>
+
+<!-- Fondos: una imagen para modo claro y otra para oscuro -->
+<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="role-bg-img">
+<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="role-bg-img-dark">
+
+<!-- Botón para alternar tema claro/oscuro -->
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+</button>
+<script>
+/* Alterna el modo oscuro/claro y guarda la preferencia en localStorage */
+(function(){
+  const btn = document.getElementById("themeToggleBtn");
+  const img = document.getElementById("iconSunMoon");
+  let modo = localStorage.getItem('modo-oscuro') === 'true';
+  if(modo){
+    document.body.classList.add('modo-oscuro');
+    img.style.filter="invert(0.7)";
+  }
+  btn.onclick = function() {
+    modo = !modo;
+    document.body.classList.toggle('modo-oscuro');
+    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+    img.style.filter = modo ? "invert(0.7)" : "";
+  };
+})();
+</script>
+
+<!-- Modal informativo sobre los roles -->
+<div class="role-info-modal-backdrop" id="roleInfoModal">
+  <div class="role-info-modal" role="dialog" aria-modal="true" aria-labelledby="roleInfoTitle">
+    <button type="button" class="role-info-modal-close" id="roleInfoClose" aria-label="Cerrar">×</button>
+    <div class="role-info-modal-title" id="roleInfoTitle">Información sobre los roles</div>
+    <div class="role-info-modal-text">
+      • El rol <strong>Presidente de la cooperativa</strong> está reservado para la persona que representa legalmente a la cooperativa, aprueba decisiones clave y administra los usuarios con mayores permisos dentro del sistema.<br>
+      • El rol <strong>Asociado de la cooperativa</strong> está pensado para los socios conductores o miembros activos, que registran su información, consultan sus aportes y notificaciones internas.<br>
+      • Escoge el rol que realmente te corresponde dentro de la organización.
+    </div>
+  </div>
+</div>
+
+<div class="role-page-wrapper">
+  <div class="role-panel">
+    <!-- Flecha atrás que vuelve al inicio de sesión -->
+    <a href="{% url 'login' %}" class="role-back" aria-label="Volver al inicio de sesión">
+      <span class="role-back-icon"></span>
+    </a>
+
+    <!-- Logo cooperativa -->
+    <div class="role-logo">
+      <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
+    </div>
+
+    <!-- Botón "i" que abre el modal info -->
+    <div class="role-info-badge" id="roleInfoBtn" title="Ver información sobre los roles">
+      i
+    </div>
+
+    <!-- Títulos principales -->
+    <div class="role-header-title">Crear una cuenta</div>
+    <div class="role-header-sub">Elige un Rol</div>
+
+    <!-- Formulario de selección de rol -->
+    <form method="post">
+      {% csrf_token %}
+      <div class="role-cards-row">
+        <!-- Card de Presidente -->
+        <label class="role-card {% if exists_presidente %}disabled{% endif %}" id="card-presidente">
+          <input type="radio"
+                 name="role"
+                 value="presidente"
+                 class="d-none"
+                 {% if exists_presidente %}disabled{% endif %}
+                 required>
+          <div class="role-card-icon">
+            <img src="{% static 'img/icono_presidente.png' %}" alt="Presidente">
+          </div>
+          <div class="role-card-title">
+            PRESIDENTE<br>DE LA COOPERATIVA
+          </div>
+          {% if exists_presidente %}
+          <div class="role-card-note">
+            Ya existe un presidente registrado.
+          </div>
+          {% endif %}
+        </label>
+
+        <!-- Card de Asociado -->
+        <label class="role-card" id="card-asociado">
+          <input type="radio" name="role" value="asociado" class="d-none" required>
+          <div class="role-card-icon">
+            <img src="{% static 'img/icono_asociado.png' %}" alt="Asociado">
+          </div>
+          <div class="role-card-title">
+            ASOCIADO<br>DE LA COOPERATIVA
+          </div>
+        </label>
+      </div>
+
+      <!-- Botón para continuar al formulario de registro según rol -->
+      <button type="submit" class="role-next-btn">Siguiente</button>
+    </form>
+  </div>
+</div>
+
+<script>
+/* Lógica de selección visual de las tarjetas de rol */
+document.querySelectorAll('.role-card').forEach(card => {
+  card.addEventListener('click', function (e) {
+    if (this.classList.contains('disabled')) {
+      // No permitir seleccionar presidente cuando está bloqueado
+      e.preventDefault();
+      return;
+    }
+    // Quita selección previa y marca la nueva tarjeta
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    this.classList.add('selected');
+    // Activa el input radio interno
+    const input = this.querySelector('input[type="radio"]');
+    if (input && !input.disabled) { input.checked = true; }
+  });
+});
+
+/* Lógica del modal de información de roles */
+(function(){
+  const btnInfo  = document.getElementById('roleInfoBtn');
+  const modal    = document.getElementById('roleInfoModal');
+  const btnClose = document.getElementById('roleInfoClose');
+
+  if(btnInfo && modal){
+    const closeModal = () => { modal.style.display = 'none'; };
+    const openModal  = () => { modal.style.display = 'flex'; };
+
+    btnInfo.addEventListener('click', openModal);
+    btnClose.addEventListener('click', closeModal);
+
+    // Cierra al hacer click fuera del contenido
+    modal.addEventListener('click', function(e){
+      if(e.target === modal){ closeModal(); }
+    });
+
+    // Cierra al presionar Escape
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ closeModal(); }
+    });
+  }
+})();
+</script>
+{% endblock %}

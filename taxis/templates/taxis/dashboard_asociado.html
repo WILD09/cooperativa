@@ -1,0 +1,289 @@
+{% extends 'taxis/base.html' %}
+
+{# Título específico para el dashboard de asociado #}
+{% block title %}Dashboard Asociado - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* --------------------------------
+       VARIABLES Y ESTILOS GENERALES
+       -------------------------------- */
+    :root {
+        --color-primary: #28a745;
+        --color-secondary: #f8f5e6;
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        --border-radius: 0.5rem;
+    }
+
+    /* Modo oscuro para fondo y texto */
+    body.modo-oscuro {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+    body.modo-oscuro .assoc-card {
+        background-color: #2d2d2d;
+        border-color: #404040;
+    }
+
+    /* Tarjetas informativas del dashboard de asociado */
+    .assoc-card {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        border: 1px solid #e0e0e0;
+        background-color: #ffffff;
+        height: 100%;
+    }
+    .assoc-card .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Etiquetas de cada dato dentro de las tarjetas */
+    .assoc-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Valores (contenidos) asociados a las etiquetas */
+    .assoc-value {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #343a40;
+        word-break: break-word;
+    }
+
+    /* Ajuste de colores en modo oscuro */
+    body.modo-oscuro .assoc-label { color: #b0b0b0; }
+    body.modo-oscuro .assoc-value { color: #ffffff; }
+
+    /* Título de sección dentro de cada tarjeta */
+    .assoc-section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #28a745;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Contenedores internos con fondo claro dentro de la tarjeta */
+    .assoc-box {
+        border-radius: var(--border-radius);
+        background-color: #f8f9fa;
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+    }
+    body.modo-oscuro .assoc-box {
+        background-color: #303030;
+    }
+
+    /* Enlaces de acciones (perfil, configuración) */
+    .assoc-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: #28a745;
+        font-weight: 600;
+    }
+    .assoc-link:hover {
+        text-decoration: underline;
+        color: #1e7e34;
+    }
+
+    /* Ajustes responsive para cabecera en pantallas medianas/pequeñas */
+    @media (max-width: 768px) {
+        .d-sm-flex.align-items-center.justify-content-between.mb-4 {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+        .d-sm-flex .btn,
+        .d-sm-flex form {
+            width: 100%;
+        }
+        .d-sm-flex form button {
+            width: 100%;
+        }
+    }
+</style>
+
+{# Cabecera del dashboard: título + rol + botón de logout #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user text-success"></i> Dashboard del Asociado
+        </h1>
+        <span class="badge badge-primary">Asociado</span>
+    </div>
+    <div>
+        {# Botón de cerrar sesión (usa la vista 'logout' de Django) #}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </form>
+    </div>
+</div>
+
+{# Mensajes flash (información, error, etc.) si los hubiera #}
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<div class="row">
+    <!-- Columna izquierda: datos básicos y estado de verificación del asociado -->
+    <div class="col-lg-6 mb-4">
+        <div class="assoc-card">
+            <div class="card-body">
+                {# Sección de datos de cuenta #}
+                <div class="assoc-section-title">
+                    <i class="fas fa-id-card"></i> Tus datos de cuenta
+                </div>
+                <div class="assoc-box mb-3">
+                    <div class="assoc-label">Nombre completo</div>
+                    <div class="assoc-value">
+                        {{ request.user.first_name }} {{ request.user.last_name }}
+                    </div>
+
+                    <div class="assoc-label mt-3">Correo electrónico</div>
+                    <div class="assoc-value">{{ request.user.email }}</div>
+
+                    <div class="assoc-label mt-3">Teléfono registrado</div>
+                    <div class="assoc-value">
+                        {% if request.user.phone_number %}
+                            {{ request.user.phone_number }}
+                        {% else %}
+                            <span class="text-muted">No registrado</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Sección de estado de verificación (correo y teléfono) #}
+                <div class="assoc-section-title">
+                    <i class="fas fa-shield-alt"></i> Estado de verificación
+                </div>
+                <div class="assoc-box mb-3">
+                    <div class="assoc-label">Correo principal</div>
+                    <div class="assoc-value">
+                        {% if request.user.is_email_verified %}
+                            <span class="text-success">
+                                <i class="fas fa-check-circle"></i> Verificado
+                            </span>
+                        {% else %}
+                            <span class="text-danger">
+                                <i class="fas fa-times-circle"></i> No verificado
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="assoc-label mt-3">Teléfono (SMS)</div>
+                    <div class="assoc-value">
+                        {% if request.user.is_phone_verified %}
+                            <span class="text-success">
+                                <i class="fas fa-check-circle"></i> Verificado
+                            </span>
+                        {% else %}
+                            <span class="text-danger">
+                                <i class="fas fa-times-circle"></i> No verificado
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Enlaces futuros a configuración/perfil (URLs por definir) #}
+                <div>
+                    <a href="#" class="assoc-link">
+                        <i class="fas fa-user-cog"></i> Ir a mi perfil
+                    </a>
+                    <br>
+                    <a href="#" class="assoc-link mt-1">
+                        <i class="fas fa-sliders-h"></i> Configuración de cuenta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha: vehículos asociados e información general -->
+    <div class="col-lg-6 mb-4">
+        <div class="assoc-card mb-4">
+            <div class="card-body">
+                <div class="assoc-section-title">
+                    <i class="fas fa-taxi"></i> Tus vehículos registrados
+                </div>
+                <div class="assoc-box">
+                    {# Se asume que request.user puede tener un objeto conductor relacionado #}
+                    {% if request.user.conductor %}
+                        {% with mis_taxis=request.user.conductor.taxis.all %}
+                            {% if mis_taxis %}
+                                <ul class="list-unstyled mb-0">
+                                    {% for taxi in mis_taxis %}
+                                    <li class="mb-2">
+                                        <div class="assoc-label">Placa</div>
+                                        <div class="assoc-value">{{ taxi.placa }}</div>
+
+                                        <div class="assoc-label mt-1">Modelo / Nombre</div>
+                                        <div class="assoc-value">
+                                            {{ taxi.modelo }}{% if taxi.nombre_vehiculo %} - {{ taxi.nombre_vehiculo }}{% endif %}
+                                        </div>
+
+                                        <div class="assoc-label mt-1">Año</div>
+                                        <div class="assoc-value">{{ taxi.anio }}</div>
+
+                                        {% if not forloop.last %}
+                                            <hr>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="mb-0 text-muted">
+                                    No tienes vehículos registrados a tu nombre en el sistema.
+                                </p>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <p class="mb-0 text-muted">
+                            Aún no se ha creado tu registro de conductor en el sistema.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="assoc-card">
+            <div class="card-body">
+                <div class="assoc-section-title">
+                    <i class="fas fa-info-circle"></i> Información general
+                </div>
+                <div class="assoc-box">
+                    <p class="mb-2">
+                        Desde este panel puedes consultar el estado de tu cuenta,
+                        tus datos básicos y los vehículos asociados.
+                    </p>
+                    <p class="mb-2">
+                        Para cambios en tus datos, pagos o documentación, debes
+                        comunicarte con la administración o el presidente de la cooperativa.
+                    </p>
+                    <p class="mb-0 text-muted" style="font-size: 0.9rem;">
+                        Este dashboard es solo informativo. No se pueden realizar
+                        modificaciones desde aquí.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

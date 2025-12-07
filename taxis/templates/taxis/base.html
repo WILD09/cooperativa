@@ -2,25 +2,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Codificación de caracteres -->
     <meta charset="utf-8" />
+    <!-- Compatibilidad con IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Diseño responsive en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Título por defecto, sobreescrito en los templates hijos -->
     <title>{% block title %}Cooperativa Django{% endblock %}</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Iconos Font Awesome -->
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- Fuente Nunito de Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+    <!-- CSS principal de la plantilla Admin (SB Admin 2) -->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet" />
 
-    <!-- Puedes agregar aquí más CSS estático que uses -->
+    <!-- Aquí puedes agregar más CSS estático si tuvieras archivos personalizados -->
 </head>
 
 <body id="page-top">
-    <!-- Page Wrapper -->
+    <!-- Page Wrapper: envuelve todo el contenido de la aplicación -->
     <div id="wrapper">
-        <!-- Sidebar -->
+        <!-- Sidebar lateral izquierdo (navegación principal) -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <!-- Sidebar - Brand -->
+            <!-- Marca de la cooperativa en el sidebar -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'taxis:index' %}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-taxi"></i>
@@ -30,7 +36,7 @@
 
             <hr class="sidebar-divider my-0" />
 
-            <!-- Menú principal enfocado -->
+            <!-- Enlace al dashboard principal -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'taxis:index' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -40,44 +46,53 @@
 
             <hr class="sidebar-divider" />
 
+            <!-- Enlace a la lista de conductores -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'taxis:conductor-list' %}">
                     <i class="fas fa-fw fa-user"></i>
                     <span>Conductores</span>
                 </a>
             </li>
+
+            <!-- Enlace a la lista de taxis -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'taxis:taxi-list' %}">
                     <i class="fas fa-fw fa-car"></i>
                     <span>Taxis</span>
                 </a>
             </li>
-            <!-- Puedes agregar aquí otros enlaces relevantes como "Registro", "Login", etc. -->
+            {# Aquí se podrían agregar más enlaces de menú (reportes, ajustes, etc.) #}
 
             <hr class="sidebar-divider d-none d-md-block" />
 
+            <!-- Botón para contraer/expandir el sidebar (en pantallas grandes) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
         <!-- End of Sidebar -->
 
-        <!-- Content Wrapper -->
+        <!-- Content Wrapper: contiene el topbar + contenido + footer -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- Main Content: parte central de la página -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- Topbar: barra superior con búsqueda y posibles iconos de usuario/notificaciones -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <!-- Sidebar Toggle (Topbar) -->
+                    <!-- Botón para togglear sidebar en pantallas pequeñas -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
+
+                    <!-- Formulario de búsqueda (decorativo por ahora) -->
                     <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Buscar..."
-                                aria-label="Search" aria-describedby="basic-addon2" />
+                            <input type="text"
+                                   class="form-control bg-light border-0 small"
+                                   placeholder="Buscar..."
+                                   aria-label="Search"
+                                   aria-describedby="basic-addon2" />
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button">
                                     <i class="fas fa-search fa-sm"></i>
@@ -85,23 +100,25 @@
                             </div>
                         </div>
                     </form>
+
+                    <!-- Espacio para elementos de la barra superior (perfil, notificaciones, etc.) -->
                     <ul class="navbar-nav ml-auto">
-                        <!-- Aquí puedes agregar ítems de navbar como notificaciones, usuario, perfil, etc. -->
+                        {# Aquí puedes añadir dropdown de usuario, notificaciones, etc. #}
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
 
-                <!-- Begin Page Content -->
+                <!-- Contenedor del contenido específico de cada página -->
                 <div class="container-fluid">
                     {% block content %}
-                    <!-- Contenido específico de cada página -->
+                    <!-- Aquí se renderiza el contenido de cada vista hija -->
                     {% endblock %}
                 </div>
                 <!-- /.container-fluid -->
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
+            <!-- Footer fijo en la parte inferior -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -117,19 +134,19 @@
     </div>
     <!-- End of Page Wrapper -->
 
-    <!-- Scroll to Top Button-->
+    <!-- Botón para hacer scroll hasta arriba de la página -->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Scripts locales y de Bootstrap -->
+    <!-- Librerías JavaScript: jQuery, Bootstrap y scripts de SB Admin 2 -->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-    <!-- Chart.js library for charts (si en un futuro quieres gráficos) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    {# Si en el futuro necesitas gráficos, puedes habilitar Chart.js aquí #}
+    {# <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> #}
 
 </body>
 </html>

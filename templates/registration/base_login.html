@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Codificación de caracteres -->
     <meta charset="UTF-8">
+    <!-- Título de la página, sobreescrito por los templates hijos -->
     <title>{% block title %}Cooperativa{% endblock %}</title>
+    <!-- Hace el diseño responsive en dispositivos móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     {% load static %}
-    <!-- Línea clave para que el favicon funcione -->
+
+    <!-- Ícono de la pestaña del navegador -->
     <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
-    <!-- Otros estilos y scripts -->
+
+    <!-- CSS de Bootstrap -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- CSS de la plantilla SB Admin 2 (principal y override) -->
     <link rel="stylesheet" href="{% static 'css/sb-admin-2.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/sb-admin-2.css' %}">
+    <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+    <!-- Fuente Nunito desde Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+    <!-- Estilos personalizados para pantallas de login/registro/verificación -->
     <link rel="stylesheet" href="{% static 'css/custom_login.css' %}">
 </head>
 <body style="background: #f8f8f8;">
-    <div class="container">
+    <!--
+        container-fluid sin padding/margin para que los templates hijos
+        puedan usar todo el ancho/alto disponibles (fondos personalizados, etc.).
+    -->
+    <div class="container-fluid p-0 m-0">
         {% block content %}{% endblock %}
     </div>
-    <!-- JS para Bootstrap y SB Admin 2 -->
+
+    <!-- Dependencias JS: jQuery, Bootstrap y scripts de SB Admin 2 -->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
