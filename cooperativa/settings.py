@@ -4,9 +4,9 @@ Configuración principal del proyecto Django 'cooperativa'.
 
 - Seguridad básica (SECRET_KEY, DEBUG, ALLOWED_HOSTS).
 - Apps instaladas, middlewares, plantillas.
-- Base de datos (PostgreSQL mediante variables de entorno).
+- Base de datos (PostgreSQL vía DATABASE_URL, con fallback a SQLite).
 - Autenticación (usuario personalizado, validador de contraseñas).
-- Internacionalización, estáticos, email, Twilio, mensajes y login.
+- Internacionalización, estáticos (WhiteNoise), email, Twilio, mensajes y login.
 """
 
 from pathlib import Path
@@ -14,13 +14,13 @@ import os
 
 from django.contrib.messages import constants as messages  # Mapeo de niveles de mensajes.
 from decouple import config                                 # Lectura de variables desde .env.
+import dj_database_url                                      # Para parsear DATABASE_URL
 
 
 # -------------------------------------------------------------------
 # RUTA BASE DEL PROYECTO
 # -------------------------------------------------------------------
 
-# BASE_DIR apunta al directorio raíz del proyecto (carpeta que contiene manage.py).
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -41,7 +41,7 @@ SECRET_KEY = config(
 DEBUG = config("DJANGO_DEBUG", default="True").lower() == "true"
 
 # Lista de hosts permitidos para servir la aplicación.
-# Se lee desde DJANGO_ALLOWED_HOSTS (separados por comas); por defecto localhost.
+# Para Render, luego pon algo como: "tu-app.onrender.com"
 ALLOWED_HOSTS = config(
     "DJANGO_ALLOWED_HOSTS",
     default="localhost,127.0.0.1",
@@ -52,32 +52,20 @@ ALLOWED_HOSTS = config(
 # CABECERAS Y COOKIES SEGURAS
 # -------------------------------------------------------------------
 
-# Activa filtro de XSS en navegadores compatibles.
 SECURE_BROWSER_XSS_FILTER = True
-
-# Previene que el navegador intente adivinar el tipo de contenido.
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# Cookies de sesión solo accesibles desde HTTP (no por JavaScript).
 SESSION_COOKIE_HTTPONLY = True
-
-# Cookie de CSRF solo accesible desde HTTP.
 CSRF_COOKIE_HTTPONLY = True
-
-# Bloquea carga del sitio en iframes (protección contra clickjacking).
 X_FRAME_OPTIONS = "DENY"
 
-# Redirección a HTTPS (True en producción detrás de HTTPS).
 SECURE_SSL_REDIRECT = config(
     "DJANGO_SECURE_SSL_REDIRECT", default="False"
 ).lower() == "true"
 
-# Marca cookie de CSRF como segura (solo por HTTPS) según entorno.
 CSRF_COOKIE_SECURE = config(
     "DJANGO_CSRF_COOKIE_SECURE", default="False"
 ).lower() == "true"
 
-# Marca cookie de sesión como segura (solo por HTTPS) según entorno.
 SESSION_COOKIE_SECURE = config(
     "DJANGO_SESSION_COOKIE_SECURE", default="False"
 ).lower() == "true"
@@ -97,8 +85,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Apps propias del proyecto.
-    "core",     # (asumiendo que contiene vistas/plantillas generales).
-    "taxis",    # Aplicación principal de la cooperativa de taxis.
+    "core",    # Vistas/plantillas generales.
+    "taxis",   # Aplicación principal de la cooperativa de taxis.
+
     # Apps de terceros.
     "widget_tweaks",  # Para modificar widgets de formularios en plantillas.
 ]
@@ -110,6 +99,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+
+    # WhiteNoise para servir estáticos en producción (Render, etc.)
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -123,10 +116,8 @@ MIDDLEWARE = [
 # CONFIGURACIÓN DE URLS Y TEMPLATES
 # -------------------------------------------------------------------
 
-# Módulo que contiene la configuración principal de URLs del proyecto.
 ROOT_URLCONF = "cooperativa.urls"
 
-# Configuración del motor de plantillas.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -144,25 +135,24 @@ TEMPLATES = [
     },
 ]
 
-# Aplicación WSGI, usada en despliegues tradicionales (Apache, Gunicorn, etc.).
 WSGI_APPLICATION = "cooperativa.wsgi.application"
 
 
 # -------------------------------------------------------------------
 # BASE DE DATOS
 # -------------------------------------------------------------------
+#
+# En Render es típico usar una variable DATABASE_URL (PostgreSQL).
+# En desarrollo, si no hay DATABASE_URL, se usa SQLite por defecto.
+# Si quieres forzar PostgreSQL con variables separadas, puedes ajustar.
 
-# Configuración de la base de datos principal (PostgreSQL).
-# Todos los parámetros se leen desde variables de entorno.
+default_db_url = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",          # Motor de base de datos.
-        "NAME": config("DB_NAME"),                          # Nombre de la base.
-        "USER": config("DB_USER"),                          # Usuario de base de datos.
-        "PASSWORD": config("DB_PASSWORD"),                  # Contraseña.
-        "HOST": config("DB_HOST", default="localhost"),     # Host de la base.
-        "PORT": config("DB_PORT", default="5432"),          # Puerto (5432 por defecto).
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL", default_db_url),
+        conn_max_age=600,
+    )
 }
 
 
@@ -170,8 +160,6 @@ DATABASES = {
 # VALIDACIÓN DE CONTRASEÑAS
 # -------------------------------------------------------------------
 
-# Lista de validadores de contraseñas.
-# Aquí se usa un validador personalizado mínimo (longitud).
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "taxis.validators.CustomMinLengthValidator",
@@ -184,7 +172,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # MODELO DE USUARIO PERSONALIZADO
 # -------------------------------------------------------------------
 
-# Indica a Django que use el modelo CustomUser definido en la app 'taxis'.
 AUTH_USER_MODEL = "taxis.CustomUser"
 
 
@@ -192,35 +179,34 @@ AUTH_USER_MODEL = "taxis.CustomUser"
 # INTERNACIONALIZACIÓN Y ZONA HORARIA
 # -------------------------------------------------------------------
 
-# Código de idioma por defecto (Español de Venezuela).
 LANGUAGE_CODE = "es-ve"
-
-# Zona horaria por defecto.
 TIME_ZONE = "America/Caracas"
-
-# Habilita internazionalización (traducciones).
 USE_I18N = True
-
-# Usa fechas/horas conscientes de zona horaria (timezone-aware).
 USE_TZ = True
 
 
 # -------------------------------------------------------------------
 # ARCHIVOS ESTÁTICOS
 # -------------------------------------------------------------------
+#
+# Configuración compatible con WhiteNoise:
+# - STATICFILES_DIRS: directorio de estáticos en desarrollo.
+# - STATIC_ROOT: carpeta a donde collectstatic reúne todos los estáticos.
+# - STATICFILES_STORAGE: almacenamiento comprimido para producción.
 
-# URL base para servir archivos estáticos.
 STATIC_URL = "/static/"
 
-# Directorios adicionales donde buscar archivos estáticos en desarrollo.
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # -------------------------------------------------------------------
 # CLAVE PRIMARIA POR DEFECTO
 # -------------------------------------------------------------------
 
-# Tipo de campo automático por defecto para claves primarias.
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
@@ -228,24 +214,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # CONFIGURACIÓN DE CORREO (SMTP / EMAIL)
 # -------------------------------------------------------------------
 
-# Backend de email que se usará:
-# - Por defecto, consola (imprime correos en la terminal).
-# - En producción, suele configurarse un backend SMTP real.
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
     default="django.core.mail.backends.console.EmailBackend",
 )
 
-# Parámetros SMTP (solo se usan si EMAIL_BACKEND es SMTP real).
 EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default="True").lower() == "true"
 
-# Credenciales SMTP.
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
-# Dirección de correo por defecto usada en el campo "From" de los emails.
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
     default=f"Cooperativa <{EMAIL_HOST_USER}>",
@@ -256,13 +236,10 @@ DEFAULT_FROM_EMAIL = config(
 # CONFIGURACIÓN DE ACTIVACIÓN / REGISTRO
 # -------------------------------------------------------------------
 
-# Días que dura válida una activación de cuenta (si se usa django-registration).
 ACCOUNT_ACTIVATION_DAYS = config("ACCOUNT_ACTIVATION_DAYS", default=3, cast=int)
-
-# Indica si el usuario se inicia sesión automáticamente tras registro (aquí False).
 REGISTRATION_AUTO_LOGIN = False
 
-# URL adonde redirigir después de login (se usa nombre de URL de la app 'taxis').
+# URL adonde redirigir después de login (según rol, vista en app 'taxis').
 LOGIN_REDIRECT_URL = "taxis:login-redirect"
 
 
@@ -270,17 +247,15 @@ LOGIN_REDIRECT_URL = "taxis:login-redirect"
 # TWILIO (PARA SMS) – ACTUALMENTE NO SE USA EN EL FLUJO DE VERIFICACIÓN
 # -------------------------------------------------------------------
 
-# Credenciales de Twilio (por si se reactivan SMS en el futuro).
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", default="")
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", default="")
-TWILIO_FROM_NUMBER = config("TWILIO_FROM_NUMBER", default="")  # Número emisor
+TWILIO_FROM_NUMBER = config("TWILIO_FROM_NUMBER", default="")
 
 
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE MENSAJES (Bootstrap alerts)
 # -------------------------------------------------------------------
 
-# Mapea los niveles de mensajes de Django a clases de Bootstrap.
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-secondary",
     messages.INFO: "alert-info",
@@ -293,9 +268,8 @@ MESSAGE_TAGS = {
 # -------------------------------------------------------------------
 # LOGIN / LOGOUT
 # -------------------------------------------------------------------
+#
+# Ahora tu login principal está en /login/ (no /accounts/login/).
 
-# URL a la que se redirige después de hacer logout.
-LOGOUT_REDIRECT_URL = "/accounts/login/"
-
-# URL de la página de login (usada por @login_required).
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/login/"
