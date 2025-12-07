@@ -166,7 +166,12 @@ body.modo-oscuro .vs-help { color: #CFF5D8; }
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s;
+  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px #238c3538;
 }
 body.modo-oscuro .theme-toggle-btn {
   background: #232D21;

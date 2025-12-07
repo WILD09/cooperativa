@@ -335,7 +335,14 @@ body.modo-oscuro .register-highlight:focus {
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
+  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
 }
+
+.theme-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px #238c3538;
+}
+
 body.modo-oscuro .theme-toggle-btn {
   background: #232D21;
   color: #97F088;
@@ -401,13 +408,8 @@ body.modo-oscuro .theme-toggle-btn {
 
 <div class="login-wrapper">
   <div class="login-card">
-    <div class="login-logo-side">
-      <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
-      <div class="login-title">Asociación Cooperativa</div>
-      <div class="login-org">WILSON TORRES 33 RL</div>
-      <div class="login-foot">2025 © | Política de Privacidad</div>
-    </div>
 
+    
     <div class="login-form-side {% if form.errors %}has-error{% endif %}">
       <div class="login-welcome">¡Bienvenido de nuevo!</div>
 
@@ -431,7 +433,7 @@ body.modo-oscuro .theme-toggle-btn {
         {% endif %}
       </div>
 
-     <form method="post" action="/login/" style="margin-bottom: 6px;" autocomplete="off">
+      <form method="post" action="/login/" style="margin-bottom: 6px;" autocomplete="off">
         {% csrf_token %}
         <div class="form-group mb-4 login-field-wrap">
           {{ form.username|add_class:"form-control"|attr:"placeholder:Usuario o correo"|attr:"autocomplete:off" }}
@@ -452,15 +454,29 @@ body.modo-oscuro .theme-toggle-btn {
           Iniciar sesión
         </button>
       </form>
+
       <div style="text-align:center;">
-        <a class="login-link" href="{% url 'taxis:password_reset' %}">¿Olvidaste tu contraseña?</a>
+        <a class="login-link" href="{% url 'taxis:password_reset' %}">
+          ¿Olvidaste tu contraseña?
+        </a>
       </div>
 
       <div class="register-box">
         <span class="no-account-text">¿No tienes una cuenta?</span>
-        <a href="{% url 'taxis:select_role' %}" class="register-highlight">Regístrate aquí</a>
+        <a href="{% url 'taxis:select_role' %}" class="register-highlight">
+          Regístrate aquí
+        </a>
       </div>
     </div>
+
+    
+    <div class="login-logo-side">
+      <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
+      <div class="login-title">Asociación Cooperativa</div>
+      <div class="login-org">WILSON TORRES 33 RL</div>
+      <div class="login-foot">2026 © | Política de Privacidad</div>
+    </div>
+
   </div>
 </div>
 
