@@ -46,7 +46,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   min-width: 320px;
   border-radius: 40px;
   overflow: hidden;
-  background: #108531;            
+  background: #108531;
   z-index: 1;
   margin: 0 auto;
   position: relative;
@@ -59,7 +59,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 /* Columna izquierda: formulario */
 .reg-left {
   flex: 1.25;
-  background: #008000;           
+  background: #008000;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,7 +73,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 /* Columna derecha: info rol */
 .reg-right {
   flex: 0.9;
-  background: #F3E1C9;            
+  background: #F3E1C9;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -103,8 +103,8 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 /* Botón circular para volver a la selección de rol */
 .reg-back {
   position: absolute;
-  left: 24px;
-  top: 22px;
+  left: 18px;
+  top: 18px;
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -132,20 +132,23 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: translateY(-1px);
 }
 
-/* Título y logo en la parte superior izquierda */
+/* Título y logo en la parte superior izquierda (ajustado) */
 .reg-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-  margin-left: 86px;
+  gap: 10px;
+  margin-bottom: 18px;
+  margin-left: 40px;
 }
-.reg-title-logo img { width: 46px; height: 46px; }
+.reg-title-logo img {
+  width: 56px;
+  height: 56px;
+}
 .reg-title-text {
   font-family: 'Nunito', sans-serif;
-  font-size: 1.9rem;
+  font-size: 1.7rem;
   font-weight: 900;
-  color: #e9f7ee;                 
+  color: #e9f7ee;
 }
 
 /* Contenedor mensaje genérico de error */
@@ -176,38 +179,33 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 .reg-row-two > * {
   flex: 1;
 }
-
 .reg-form-grid > .reg-row:first-child {
-  margin-bottom: -2px;  /* pega un poco Nombres con Apellidos */
+  margin-bottom: -2px;
 }
 
-/* Afinar en pantallas pequeñas */
+/* Afinar en pantallas pequeñas (formulario) */
 @media (max-width: 600px) {
   .reg-form-grid {
     gap: 6px;
     margin: 0 12px 10px 12px;
   }
-  .reg-row {
-    gap: 6px;
-  }
-  .reg-row-two > * + * {
-    margin-top: 4px;
-  }
+  .reg-row { gap: 6px; }
+  .reg-row-two > * + * { margin-top: 4px; }
 }
 
 /* Estilo general de inputs y selects */
 .reg-input,
 .reg-select {
   border-radius: 999px;
-  border: 2px solid #9BD18B;      /* verde suave */
-  font-size: 0.98rem;
+  border: 2px solid #9BD18B;
+  font-size: 0.9rem;
   background: #FFFFFF;
   color: #233326;
   width: 100%;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.12s ease;
 }
-.reg-input { padding: 12px 20px; }
+.reg-input { padding: 10px 18px; }
 
 .reg-input:hover,
 .reg-select:hover {
@@ -377,10 +375,6 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   transform: translateY(-1px);
 }
 
-.reg-password-flex {
-  max-width: 100%;
-}
-
 /* Botón del “ojito” */
 .reg-password-toggle {
   width: 26px;
@@ -401,22 +395,22 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   object-fit: contain;
 }
 
+/* Fuerza misma anchura en los 2 campos de contraseña */
 .reg-row-passwords > div:first-child,
 .reg-row-passwords > div:last-child {
   max-width: 50%;
 }
-
-/* Evitar que nada se salga lateralmente */
 .reg-row.reg-row-two.reg-row-passwords {
   margin-left: 0;
   margin-right: 0;
 }
+
 /* Textos de ayuda */
 .field-help {
   font-size: 0.8rem;
   margin-top: 12px;
   margin-bottom: 2px;
-  color: #ebee59ff;                  /* dorado */
+  color: #ebee59ff;
 }
 .password-help {
   font-size: 0.8rem;
@@ -434,31 +428,6 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-top: 3px;
 }
 
-/* Icono de información del rol (lado derecho) */
-.reg-info {
-  position: absolute;
-  right: 32px;
-  top: 30px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #108531;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #108531;
-  font-weight: 700;
-  font-size: .9rem;
-  background: #f9f3ea;
-  cursor: pointer;
-  transition: background .15s, box-shadow .12s, transform .08s;
-}
-
-.reg-info:hover {
-  background: #f0e2cf;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
-  transform: translateY(-1px);
-}
 /* Tarjeta que describe el rol */
 .reg-role-card {
   border-radius: 28px;
@@ -469,6 +438,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   flex-direction: column;
   align-items: center;
   margin-bottom: 22px;
+  position: relative;
 }
 .reg-role-icon {
   width: 90px;
@@ -481,14 +451,12 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   box-shadow: 0 6px 18px rgba(0,0,0,0.18);
   margin-bottom: 12px;
 }
-
 .reg-role-icon img {
   width: 70px;
   height: 70px;
   object-fit: contain;
-  margin-top: 2;
+  margin-top: 2px;
 }
-
 .reg-role-text {
   text-align: center;
   font-family: 'Nunito', sans-serif;
@@ -496,10 +464,103 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   font-size: 0.96rem;
   color: #238C35;
 }
+
+/* Botón "i" de información DENTRO de la tarjetita blanca */
+.reg-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #108531;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #108531;
+  font-weight: 700;
+  font-size: .85rem;
+  background: #f9f3ea;
+  cursor: pointer;
+  transition: background .15s, box-shadow .12s, transform .08s;
+}
+.reg-info:hover {
+  background: #dfdcd6ff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+
+/* Modal info rol (fondo oscuro + caja centrada) */
+.reg-info-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+}
+.reg-info-modal {
+  background: #FFFFFF;
+  border-radius: 18px;
+  max-width: 420px;
+  width: 90vw;
+  padding: 20px 22px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  font-size: 0.9rem;
+  color: #333333;
+  position: relative;
+}
+.reg-info-modal h3 {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #008000;
+}
+.reg-info-modal ul {
+  padding-left: 18px;
+  margin-bottom: 10px;
+}
+.reg-info-modal-close {
+  margin-top: 8px;
+  display: inline-block;
+  background: #30AE37;
+  color: #FFFFFF;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* Fila teléfono */
 .reg-phone-row {
   display: flex;
   align-items: center;
-  gap: 4px;   /* antes tenías 8px inline */
+  gap: 4px;
+}
+
+/* Bandera pequeña, redondeada, SIN fusionarse con el select */
+.phone-flag {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  border: 2px solid transparent;
+}
+.reg-phone-row:hover .phone-flag {
+  box-shadow: 0 3px 9px rgba(0,0,0,0.16);
+  transform: translateY(-1px);
+}
+
+#id_phone_country_aso {
+  padding-right: 32px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* Botón principal “Continuar” */
@@ -508,11 +569,12 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   background: #30AE37;
   color: #FFFFFF;
   font-weight: 700;
-  padding: 13px 0;
-  font-size: 1rem;
+  padding: 11px 16px;
+  font-size: 0.98rem;
   border-radius: 999px;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
 }
 .reg-right-btn:hover,
@@ -552,49 +614,6 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   box-shadow: 0 0 0 2px #2fa24f33;
 }
 
-/* Modal info rol */
-.reg-info-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1300;
-}
-.reg-info-modal {
-  background: #FFFFFF;
-  border-radius: 18px;
-  max-width: 420px;
-  width: 90vw;
-  padding: 20px 22px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  font-size: 0.9rem;
-  color: #333333;
-}
-.reg-info-modal h3 {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: #008000;
-}
-.reg-info-modal ul {
-  padding-left: 18px;
-  margin-bottom: 10px;
-}
-.reg-info-modal-close {
-  margin-top: 8px;
-  display: inline-block;
-  background: #30AE37;
-  color: #FFFFFF;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  border: none;
-  cursor: pointer;
-}
-
 /* Botón flotante tema */
 .theme-toggle-btn {
   position: fixed;
@@ -615,12 +634,10 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   font-size: 2rem;
   transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
 }
-
 .theme-toggle-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px #238c3538;
 }
-
 body.modo-oscuro .theme-toggle-btn {
   background: #232D21;
   color: #97F088;
@@ -634,7 +651,7 @@ body.modo-oscuro .theme-toggle-btn {
 }
 .theme-toggle-btn:focus { outline: 3px solid #97F08888; }
 
-/* ==== RESPONSIVE ==== */
+/* ==== RESPONSIVE GENERAL ==== */
 html, body {
   width: 100%;
   max-width: 100%;
@@ -643,48 +660,52 @@ html, body {
 .reg-card {
   box-sizing: border-box;
 }
+
 @media (max-width: 600px) {
-  .reg-form-grid {
-    gap: 6px;
-    margin: 0 12px 10px 12px;
+  .reg-row {
+    flex-wrap: wrap;
   }
-  .reg-row { gap: 6px; }
-  .reg-row-two > * + * { margin-top: 4px; }
+  .reg-row-two > * {
+    flex: 1 1 100%;
+  }
+  .reg-row-two > * + * {
+    margin-top: 8px;
+  }
   .reg-input,
   .reg-select,
-  .reg-password-flex { width: 100%; }
+  .reg-password-flex {
+    width: 100%;
+  }
   .reg-back {
-    left: 16px;
-    top: 16px;
-    width: 36px;
-    height: 36px;
-  }
-  .reg-title {
-    justify-content: center;
-    margin-left: 0;
-  }
-  .reg-title-logo img {
-    width: 40px;
-    height: 40px;
-  }
-  .reg-title-text {
-    font-size: 1.5rem;
-    text-align: center;
+    top: 10px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    border-width: 2px;
   }
 }
 
-.phone-flag {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-  transition: transform .1s ease-out, box-shadow .12s ease-out;
+.reg-title {
+  display: flex;
+  flex-direction: column;       /* logo arriba, texto abajo */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  margin-left: 0;
 }
-.phone-flag:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+.reg-title-logo img {
+  width: 56px;
+  height: 56px;
 }
-
+.reg-title-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #e9f7ee;
+  text-align: center;
+  line-height: 1.05;
+}
 
 /* Estilos de modo oscuro */
 body.modo-oscuro .reg-card {
@@ -737,15 +758,6 @@ body.modo-oscuro .reg-right-btn {
   color: #FFFFFF !important;
 }
 body.modo-oscuro .reg-right-btn:hover { background: #146410 !important; }
-body.modo-oscuro .reg-info-modal {
-  background: #1E2724 !important;
-  color: #E5E5E5 !important;
-}
-body.modo-oscuro .reg-info {
-  background: #192722;
-  color: #71ff9e;
-  border-color: #71ff9e;
-}
 body.modo-oscuro .reg-back {
   background: #22322f;
   border-color: #71ff9e;
@@ -757,72 +769,20 @@ body.modo-oscuro .reg-back-icon {
 body.modo-oscuro .reg-date-icon { border-color: #00FF5A; }
 body.modo-oscuro .reg-date-icon::before { background: #00FF5A; }
 body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
-
-/* Extra móviles pequeños */
-@media (max-width: 480px) {
-  .role-panel {
-    padding: 26px 18px 20px 18px;
-    border-radius: 30px;
-  }
-
-  .role-back {
-    left: 16px;
-    top: 18px;
-    width: 38px;
-    height: 38px;
-  }
-
-  /* Logo más centrado horizontalmente */
-  .role-logo {
-    left: 50%;
-    top: 20px;
-    transform: translateX(-50%);
-  }
-  .role-logo img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .role-info-badge {
-    right: 20px;
-    top: 20px;
-  }
-
-  /* Títulos centrados bajo el logo */
-  .role-header-title {
-    font-size: 1.6rem;
-    margin-top: 72px;     /* baja el título para dejar espacio al logo centrado */
-    text-align: center;
-  }
-  .role-header-sub {
-    font-size: 1.1rem;
-    margin-bottom: 1.4rem;
-    text-align: center;
-  }
-
-  .role-card {
-    width: 200px;
-    height: 180px;
-  }
-  .role-card-icon {
-    width: 82px;
-    height: 82px;
-  }
-  .role-card-icon img {
-    width: 68px;
-    height: 68px;
-  }
-  .role-card-title {
-    font-size: 0.8rem;
-  }
-  .role-next-btn {
-    width: 200px;
-    font-size: 0.96rem;
-    padding: 9px 0;
-  }
+body.modo-oscuro .reg-info-modal {
+  background: #070808ff !important;
+  color: #E5E5E5 !important;
 }
-
-
+body.modo-oscuro .reg-info {
+  background: #192722;
+  color: #71ff9e;
+  border-color: #71ff9e;
+}
+body.modo-oscuro .reg-info:hover {
+  background: #121b17ff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
 
 /* Error en una sola línea */
 .field-error {
@@ -835,27 +795,32 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
 }
 </style>
 
-{# Fondos de la página de registro #}
+{# Fondos de la página #}
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="reg-bg-img">
 <img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="reg-bg-img-dark">
-
 {# Botón tema (claro/oscuro) #}
 <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
   <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
 </button>
+
 <script>
 /* Alterna modo oscuro/claro y guarda preferencia en localStorage */
-(function(){
+(function () {
   const btn = document.getElementById("themeToggleBtn");
   const img = document.getElementById("iconSunMoon");
-  let modo = localStorage.getItem('modo-oscuro') === 'true';
-  if(modo){document.body.classList.add('modo-oscuro'); img.style.filter="invert(0.7)";}
-  btn.onclick = function() {
+  let modo = localStorage.getItem("modo-oscuro") === "true";
+
+  if (modo) {
+    document.body.classList.add("modo-oscuro");
+    img.style.filter = "invert(0.7)";
+  }
+
+  btn.addEventListener("click", function () {
     modo = !modo;
-    document.body.classList.toggle('modo-oscuro');
-    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+    document.body.classList.toggle("modo-oscuro");
+    localStorage.setItem("modo-oscuro", modo ? "true" : "");
     img.style.filter = modo ? "invert(0.7)" : "";
-  };
+  });
 })();
 </script>
 
@@ -877,16 +842,21 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
 <div class="reg-wrapper">
   <div class="reg-card">
 
-    
+    {# Flecha para volver a seleccionar rol #}
     <a href="{% url 'taxis:select_role' %}" class="reg-back" aria-label="Volver a elegir rol">
       <span class="reg-back-icon"></span>
     </a>
 
-    {# COLUMNA DERECHA: info rol + botón submit + enlace login #}
+    {# COLUMNA DERECHA #}
     <div class="reg-right">
-      <button type="button" class="reg-info" id="infoBtn">i</button>
-
       <div class="reg-role-card">
+        <button type="button"
+                class="reg-info"
+                id="infoBtn"
+                aria-label="Información sobre el rol de asociado">
+          i
+        </button>
+
         <div class="reg-role-icon">
           <img src="{% static 'img/icono_asociado.png' %}" alt="Asociado">
         </div>
@@ -895,7 +865,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
         </div>
       </div>
 
-      {# Botón “Continuar” que envía el formulario de la columna verde (.reg-left) #}
       <button type="submit"
               class="reg-right-btn"
               onclick="document.querySelector('.reg-left form').submit();">
@@ -908,18 +877,18 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
       </div>
     </div>
 
-    {# COLUMNA IZQUIERDA: formulario completo #}
+    {# COLUMNA IZQUIERDA: TODO EL FORMULARIO #}
     <div class="reg-left">
 
-      {# Título y logo del formulario #}
       <div class="reg-title">
         <div class="reg-title-logo">
           <img src="{% static 'img/logo.png' %}" alt="Logo">
         </div>
-        <div class="reg-title-text">Crear una cuenta</div>
+        <div class="reg-title-text">
+          Crear una cuenta
+        </div>
       </div>
 
-      {# Mensaje de error general si el form tiene errores #}
       <div class="reg-alert-slot">
         {% if form.errors %}
           <div class="alert alert-danger" role="alert">
@@ -928,40 +897,34 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
         {% endif %}
       </div>
 
-      {# Formulario que usa AsociadoRegisterForm #}
       <form method="post" novalidate autocomplete="off">
         {% csrf_token %}
-        {# username y role vienen ocultos en el form base #}
         {{ form.username }} {{ form.role }}
 
         <div class="reg-form-grid">
+          <div class="reg-row reg-row-two">
+            <div>
+              {% render_field form.first_name class="reg-input" placeholder="Nombres" autocomplete="off" %}
+              {% if form.first_name.errors %}
+              <script>
+              document.addEventListener('DOMContentLoaded',()=>{
+                document.getElementsByName('{{ form.first_name.name }}')[0]?.classList.add('is-invalid');
+              });
+              </script>
+              {% endif %}
+            </div>
+            <div>
+              {% render_field form.last_name class="reg-input" placeholder="Apellidos" autocomplete="off" %}
+              {% if form.last_name.errors %}
+              <script>
+              document.addEventListener('DOMContentLoaded',()=>{
+                document.getElementsByName('{{ form.last_name.name }}')[0]?.classList.add('is-invalid');
+              });
+              </script>
+              {% endif %}
+            </div>
+          </div>
 
-          {# Nombres y apellidos #}
-<div class="reg-row reg-row-two">
-  <div>
-    {% render_field form.first_name class="reg-input" placeholder="Nombres" autocomplete="off" %}
-    {% if form.first_name.errors %}
-    <script>
-    document.addEventListener('DOMContentLoaded',()=>{
-      document.getElementsByName('{{ form.first_name.name }}')[0]?.classList.add('is-invalid');
-    });
-    </script>
-    {% endif %}
-  </div>
-  <div>
-    {% render_field form.last_name class="reg-input" placeholder="Apellidos" autocomplete="off" %}
-    {% if form.last_name.errors %}
-    <script>
-    document.addEventListener('DOMContentLoaded',()=>{
-      document.getElementsByName('{{ form.last_name.name }}')[0]?.classList.add('is-invalid');
-    });
-    </script>
-    {% endif %}
-  </div>
-</div>
-
-
-          {# Fecha de nacimiento (texto + calendario nativo oculto) #}
           <div class="reg-row">
             <div class="reg-date-wrapper">
               <div class="reg-date-inner">
@@ -984,7 +947,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
                 </button>
               </div>
 
-              {# Mensaje de fecha inválida (salvo si el error es “obligatorio”) #}
               {% if form.fecha_nacimiento.errors %}
                 {% for e in form.fecha_nacimiento.errors %}
                   {% if "obligatorio" not in e %}
@@ -997,7 +959,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           </div>
 
-          {# Género #}
           <div class="reg-row">
             <div style="width:100%;">
               {% render_field form.sexo class="reg-select" %}
@@ -1011,40 +972,38 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           </div>
 
-          {# Teléfono: país (con bandera) + número #}
-<div class="reg-row reg-row-two">
-  <div class="reg-phone-row">
-    {% if form.phone_country %}
-      {% render_field form.phone_country class="reg-select" id="id_phone_country_aso" %}
-      <img id="phoneFlagAsociado"
-           class="phone-flag"
-           src="{% static 'img/flags/ve.png' %}"
-           alt="Bandera país">
-      {% if form.phone_country.errors %}
-      <script>
-      document.addEventListener('DOMContentLoaded',()=>{
-        document.getElementsByName('{{ form.phone_country.name }}')[0]?.classList.add('is-invalid');
-      });
-      </script>
-      {% endif %}
-    {% endif %}
-  </div>
-  <div>
-    {% if form.phone_number %}
-      {% render_field form.phone_number class="reg-input" autocomplete="off" placeholder="Número de teléfono" %}
-      {% if form.phone_number.errors %}
-      <script>
-      document.addEventListener('DOMContentLoaded',()=>{
-        document.getElementsByName('{{ form.phone_number.name }}')[0]?.classList.add('is-invalid');
-      });
-      </script>
-      <div class="field-error">{{ form.phone_number.errors.0 }}</div>
-      {% endif %}
-    {% endif %}
-  </div>
-</div>
+          <div class="reg-row reg-row-two">
+            <div class="reg-phone-row">
+              {% if form.phone_country %}
+                {% render_field form.phone_country class="reg-select" id="id_phone_country_aso" %}
+                <img id="phoneFlagAsociado"
+     class="phone-flag"
+     src="{% static 'img/flags/ve.png' %}"
+     alt="Bandera país">
+                {% if form.phone_country.errors %}
+                <script>
+                document.addEventListener('DOMContentLoaded',()=>{
+                  document.getElementsByName('{{ form.phone_country.name }}')[0]?.classList.add('is-invalid');
+                });
+                </script>
+                {% endif %}
+              {% endif %}
+            </div>
+            <div>
+              {% if form.phone_number %}
+                {% render_field form.phone_number class="reg-input" autocomplete="off" placeholder="Número de teléfono" %}
+                {% if form.phone_number.errors %}
+                <script>
+                document.addEventListener('DOMContentLoaded',()=>{
+                  document.getElementsByName('{{ form.phone_number.name }}')[0]?.classList.add('is-invalid');
+                });
+                </script>
+                <div class="field-error">{{ form.phone_number.errors.0 }}</div>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
 
-          {# Correo electrónico #}
           <div class="reg-row">
             <div style="width:100%;">
               {% render_field form.email class="reg-input" placeholder="Correo electrónico" autocomplete="off" %}
@@ -1059,7 +1018,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           </div>
 
-          {# Contraseñas: contraseña + confirmación, cada una con ojo #}
           <div class="reg-row reg-row-two reg-row-passwords">
             <div>
               <div class="reg-password-flex
@@ -1090,7 +1048,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           </div>
 
-          {# Mensaje de error único para las contraseñas, debajo de ambos campos #}
           {% if form.password1.errors or form.password2.errors %}
             <div class="field-error">
               {% if form.password2.errors %}
@@ -1101,7 +1058,6 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           {% endif %}
 
-          {# Indicaciones de seguridad de contraseña + medidor visual #}
           <div class="reg-row">
             <div style="width:100%;">
               <div class="field-help">
@@ -1115,21 +1071,16 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
           </div>
 
         </div>  {# fin reg-form-grid #}
-      </form>   {# fin form #}
-    </div>      {# fin reg-left #}
+      </form>    {# fin form #}
+    </div>       {# fin reg-left #}
 
   </div>
 </div>
 
 <script>
-/*
-  Máscaras para fecha y teléfono,
-  y limpieza de errores visuales solo en contraseñas al escribir.
-*/
+/* Máscaras, fuerza, calendario, banderas, ojos: igual que en presidente */
 document.addEventListener('input', function(e){
   const el = e.target;
-
-  // Máscara dd/mm/aaaa para fecha
   if (el.hasAttribute('data-mask-fecha')) {
     let v = el.value.replace(/[^0-9]/g,'').slice(0,8);
     if (v.length >= 5) {
@@ -1140,18 +1091,12 @@ document.addEventListener('input', function(e){
       el.value = v;
     }
   }
-
-  // Solo dígitos en teléfono, con guión después de los 3 primeros
   if (el.name === '{{ form.phone_number.name }}') {
     let v = el.value.replace(/[^0-9]/g,'').slice(0,11);
     el.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3) : v;
   }
-
-  // Limpiar errores visuales en contraseñas al escribir
   if (el.name === '{{ form.password1.name }}' || el.name === '{{ form.password2.name }}') {
-    if (el.classList.contains('is-invalid')) {
-      el.classList.remove('is-invalid');
-    }
+    if (el.classList.contains('is-invalid')) el.classList.remove('is-invalid');
     const pwdWrapper = el.closest('.reg-password-flex');
     if (pwdWrapper && pwdWrapper.classList.contains('is-invalid')) {
       pwdWrapper.classList.remove('is-invalid');
@@ -1159,7 +1104,6 @@ document.addEventListener('input', function(e){
   }
 });
 
-/* Indicador de fuerza de contraseña (solo informativo, no bloquea) */
 document.addEventListener('input', function(e){
   if (e.target.name === '{{ form.password1.name }}') {
     const pwd = e.target.value || '';
@@ -1182,9 +1126,7 @@ document.addEventListener('input', function(e){
   }
 });
 
-/* Inicialización: calendario, modal info y banderas de país */
 document.addEventListener('DOMContentLoaded', function() {
-  // Calendario nativo enlazado al campo de texto
   const textDate = document.getElementsByName('{{ form.fecha_nacimiento.name }}')[0];
   const nativeDate = document.getElementById('nativeDate');
   const iconBtn = document.getElementById('dateIconBtn');
@@ -1201,7 +1143,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!nativeDate.value) return;
       const [y,m,d] = nativeDate.value.split('-');
       textDate.value = d + '/' + m + '/' + y;
-      // Limpiar error de fecha al elegir una válida
       const wrapper = textDate.closest('.reg-date-wrapper');
       if (wrapper) {
         const err = wrapper.querySelector('.reg-date-error');
@@ -1211,19 +1152,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Modal de información sobre Asociado
-  const infoBtn = document.getElementById('infoBtn');
-  const modal = document.getElementById('infoModal');
-  const closeBtn = document.getElementById('infoModalClose');
-  if (infoBtn && modal) infoBtn.addEventListener('click', ()=> modal.style.display = 'flex');
-  if (closeBtn && modal) closeBtn.addEventListener('click', ()=> modal.style.display = 'none');
-  if (modal) {
-    modal.addEventListener('click', function(e){
-      if (e.target === modal) modal.style.display = 'none';
-    });
-  }
-
-  // Actualizar bandera según teléfono (Asociado)
   const select = document.getElementById('id_phone_country_aso');
   const flagImg = document.getElementById('phoneFlagAsociado');
   if (select && flagImg) {
@@ -1249,19 +1177,16 @@ document.addEventListener('DOMContentLoaded', function() {
       "+1809": "{% static 'img/flags/do.png' %}",
       "+1787": "{% static 'img/flags/pr.png' %}",
     };
-
     function updateFlag() {
       const code = select.value;
-      if (flagMap[code]) {
-        flagImg.src = flagMap[code];
-      }
+      if (flagMap[code]) flagImg.src = flagMap[code];
     }
     select.addEventListener('change', updateFlag);
     updateFlag();
   }
 });
 
-/* Lógica de los “ojos” de contraseña (mostrar/ocultar) */
+/* Ojos contraseña */
 document.addEventListener('click', function(e){
   const btn = e.target.closest('.reg-password-toggle');
   if (!btn) return;
@@ -1280,6 +1205,29 @@ document.addEventListener('click', function(e){
     btn.setAttribute('data-visible', 'true');
     img.src = "{% static 'img/ocultar_contrasena.png' %}";
     img.alt = "Ocultar contraseña";
+  }
+});
+
+/* Modal info Asociado */
+document.addEventListener('DOMContentLoaded', function() {
+  const infoBtn = document.getElementById('infoBtn');
+  const modal = document.getElementById('infoModal');
+  const closeBtn = document.getElementById('infoModalClose');
+
+  if (infoBtn && modal) {
+    infoBtn.addEventListener('click', function() {
+      modal.style.display = 'flex';
+    });
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+  }
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) modal.style.display = 'none';
+    });
   }
 });
 </script>

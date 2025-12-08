@@ -532,7 +532,8 @@ def password_reset_request_view(request):
     """
     Paso 1 del flujo de restablecimiento de contraseña:
     - El usuario introduce su correo.
-    - Se envía (o reutiliza) un código de verificación al correo.
+    - Si existe un usuario con ese correo, se envía (o reutiliza) un código.
+    - Si NO existe, se muestra un mensaje genérico (sin revelar nada).
     - Se aplica límite diario por email y reintentos.
     """
     form = PasswordResetRequestForm(request.POST or None)
@@ -543,9 +544,20 @@ def password_reset_request_view(request):
     max_per_day = MAX_DAILY_RESENDS
 
     if request.method == "POST" and form.is_valid():
-        email = form.cleaned_data["email"]
-        # Obtiene el usuario por correo (ya validado en el form).
-        user = CustomUser.objects.get(email=email)
+        # Normaliza el correo a minúsculas
+        email = (form.cleaned_data["email"] or "").lower()
+
+        # Busca el usuario por correo SIN lanzar excepción si no existe
+        user = CustomUser.objects.filter(email=email).first()
+
+        if not user:
+            # No se revela si el correo existe o no
+            messages.info(
+                request,
+                "Si el correo está registrado, te hemos enviado un código de recuperación.",
+            )
+            # Se redirige al mismo paso 1 para no dar pistas
+            return redirect("taxis:password_reset")
 
         # 1) Comprueba límite diario de envíos de código para este email.
         puede_env, error_msg, used_today, max_per_day = can_resend_email_code(
@@ -597,10 +609,10 @@ def password_reset_request_view(request):
         # 4) Guarda el ID del usuario en sesión para el siguiente paso.
         request.session["password_reset_user_id"] = user.id
 
-        # Mensaje informando que se envió el código de recuperación.
+        # Mensaje informando que (si el correo es válido) se envió el código.
         messages.info(
             request,
-            "Te hemos enviado un código de 6 dígitos a tu correo para restablecer tu contraseña.",
+            "Si el correo está registrado, te hemos enviado un código de 6 dígitos para restablecer tu contraseña.",
         )
         # Redirige al paso 2: verificación del código.
         return redirect("taxis:password_reset_verify")
