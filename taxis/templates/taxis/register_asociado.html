@@ -46,7 +46,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   min-width: 320px;
   border-radius: 40px;
   overflow: hidden;
-  background: #108531;            /* marco verde */
+  background: #108531;            
   z-index: 1;
   margin: 0 auto;
   position: relative;
@@ -59,7 +59,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 /* Columna izquierda: formulario */
 .reg-left {
   flex: 1.25;
-  background: #008000;            /* verde más oscuro */
+  background: #008000;           
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,7 +73,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 /* Columna derecha: info rol */
 .reg-right {
   flex: 0.9;
-  background: #F3E1C9;            /* beige cálido */
+  background: #F3E1C9;            
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -109,7 +109,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   height: 42px;
   border-radius: 50%;
   border: 2px solid #108531;
-  background: #2FA24F;
+  background: #008000;
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -126,7 +126,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: rotate(45deg);
 }
 .reg-back:hover {
-  background: #148135;
+  background: #0f6b2bff;
   border-color: #008000;
   box-shadow: 0 4px 10px rgba(5,60,19,0.32);
   transform: translateY(-1px);
@@ -145,7 +145,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   font-family: 'Nunito', sans-serif;
   font-size: 1.9rem;
   font-weight: 900;
-  color: #e9f7ee;                 /* texto claro sobre verde oscuro */
+  color: #e9f7ee;                 
 }
 
 /* Contenedor mensaje genérico de error */
@@ -165,7 +165,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 .reg-form-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin: 0 18px 12px 18px;
 }
 .reg-row {
@@ -175,6 +175,10 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 }
 .reg-row-two > * {
   flex: 1;
+}
+
+.reg-form-grid > .reg-row:first-child {
+  margin-bottom: -2px;  /* pega un poco Nombres con Apellidos */
 }
 
 /* Afinar en pantallas pequeñas */
@@ -373,6 +377,10 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   transform: translateY(-1px);
 }
 
+.reg-password-flex {
+  max-width: 100%;
+}
+
 /* Botón del “ojito” */
 .reg-password-toggle {
   width: 26px;
@@ -393,15 +401,16 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   object-fit: contain;
 }
 
-.reg-row-passwords {
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 0;
-}
-.reg-row-passwords > div {
-  flex: 1 1 100%;
+.reg-row-passwords > div:first-child,
+.reg-row-passwords > div:last-child {
+  max-width: 50%;
 }
 
+/* Evitar que nada se salga lateralmente */
+.reg-row.reg-row-two.reg-row-passwords {
+  margin-left: 0;
+  margin-right: 0;
+}
 /* Textos de ayuda */
 .field-help {
   font-size: 0.8rem;
@@ -480,13 +489,17 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-top: 2;
 }
 
-
 .reg-role-text {
   text-align: center;
   font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 0.96rem;
   color: #238C35;
+}
+.reg-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;   /* antes tenías 8px inline */
 }
 
 /* Botón principal “Continuar” */
@@ -631,20 +644,15 @@ html, body {
   box-sizing: border-box;
 }
 @media (max-width: 600px) {
-  .reg-row {
-    flex-wrap: wrap;
+  .reg-form-grid {
+    gap: 6px;
+    margin: 0 12px 10px 12px;
   }
-  .reg-row-two > * {
-    flex: 1 1 100%;
-  }
-  .reg-row-two > * + * {
-    margin-top: 8px;
-  }
+  .reg-row { gap: 6px; }
+  .reg-row-two > * + * { margin-top: 4px; }
   .reg-input,
   .reg-select,
-  .reg-password-flex {
-    width: 100%;
-  }
+  .reg-password-flex { width: 100%; }
   .reg-back {
     left: 16px;
     top: 16px;
@@ -652,7 +660,8 @@ html, body {
     height: 36px;
   }
   .reg-title {
-    margin-left: 64px;
+    justify-content: center;
+    margin-left: 0;
   }
   .reg-title-logo img {
     width: 40px;
@@ -660,6 +669,7 @@ html, body {
   }
   .reg-title-text {
     font-size: 1.5rem;
+    text-align: center;
   }
 }
 
@@ -674,6 +684,7 @@ html, body {
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
+
 
 /* Estilos de modo oscuro */
 body.modo-oscuro .reg-card {
@@ -749,24 +760,69 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
 
 /* Extra móviles pequeños */
 @media (max-width: 480px) {
-  .reg-card { border-radius: 30px; }
-  .reg-left { padding: 24px 18px 18px 18px !important; }
-  .reg-right { padding: 22px 18px 24px 18px !important; }
-  .reg-title { margin-left: 72px; }
-  .reg-title-text { font-size: 1.6rem; }
-  .reg-title-logo img { width: 40px; height: 40px; }
-  .reg-back { left: 18px; top: 18px; width: 38px; height: 38px; }
-  .theme-toggle-btn { top: 18px; right: 18px; }
-  .reg-input { padding: 11px 18px; font-size: 0.94rem; }
-  .reg-select { padding: 10px 16px; font-size: 0.94rem; }
-  .password-help, #password-strength { font-size: 0.75rem; }
-  .reg-role-card { padding: 18px 14px; }
-  .reg-role-icon { width: 54px; height: 54px; }
-  .reg-role-icon img { width: 30px; height: 30px; }
-  .reg-role-text { font-size: 0.9rem; }
-  .reg-register-box { font-size: 0.9rem; }
-  .reg-no-account-text { display: block; margin-bottom: 4px; }
+  .role-panel {
+    padding: 26px 18px 20px 18px;
+    border-radius: 30px;
+  }
+
+  .role-back {
+    left: 16px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+  }
+
+  /* Logo más centrado horizontalmente */
+  .role-logo {
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+  }
+  .role-logo img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .role-info-badge {
+    right: 20px;
+    top: 20px;
+  }
+
+  /* Títulos centrados bajo el logo */
+  .role-header-title {
+    font-size: 1.6rem;
+    margin-top: 72px;     /* baja el título para dejar espacio al logo centrado */
+    text-align: center;
+  }
+  .role-header-sub {
+    font-size: 1.1rem;
+    margin-bottom: 1.4rem;
+    text-align: center;
+  }
+
+  .role-card {
+    width: 200px;
+    height: 180px;
+  }
+  .role-card-icon {
+    width: 82px;
+    height: 82px;
+  }
+  .role-card-icon img {
+    width: 68px;
+    height: 68px;
+  }
+  .role-card-title {
+    font-size: 0.8rem;
+  }
+  .role-next-btn {
+    width: 200px;
+    font-size: 0.96rem;
+    padding: 9px 0;
+  }
 }
+
+
 
 /* Error en una sola línea */
 .field-error {
@@ -881,28 +937,29 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
         <div class="reg-form-grid">
 
           {# Nombres y apellidos #}
-          <div class="reg-row reg-row-two">
-            <div>
-              {% render_field form.first_name class="reg-input" placeholder="Nombres" autocomplete="off" %}
-              {% if form.first_name.errors %}
-              <script>
-              document.addEventListener('DOMContentLoaded',()=>{
-                document.getElementsByName('{{ form.first_name.name }}')[0]?.classList.add('is-invalid');
-              });
-              </script>
-              {% endif %}
-            </div>
-            <div>
-              {% render_field form.last_name class="reg-input" placeholder="Apellidos" autocomplete="off" %}
-              {% if form.last_name.errors %}
-              <script>
-              document.addEventListener('DOMContentLoaded',()=>{
-                document.getElementsByName('{{ form.last_name.name }}')[0]?.classList.add('is-invalid');
-              });
-              </script>
-              {% endif %}
-            </div>
-          </div>
+<div class="reg-row reg-row-two">
+  <div>
+    {% render_field form.first_name class="reg-input" placeholder="Nombres" autocomplete="off" %}
+    {% if form.first_name.errors %}
+    <script>
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.getElementsByName('{{ form.first_name.name }}')[0]?.classList.add('is-invalid');
+    });
+    </script>
+    {% endif %}
+  </div>
+  <div>
+    {% render_field form.last_name class="reg-input" placeholder="Apellidos" autocomplete="off" %}
+    {% if form.last_name.errors %}
+    <script>
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.getElementsByName('{{ form.last_name.name }}')[0]?.classList.add('is-invalid');
+    });
+    </script>
+    {% endif %}
+  </div>
+</div>
+
 
           {# Fecha de nacimiento (texto + calendario nativo oculto) #}
           <div class="reg-row">
@@ -954,9 +1011,9 @@ body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
             </div>
           </div>
 
-         {# Teléfono: país (con bandera) + número #}
+          {# Teléfono: país (con bandera) + número #}
 <div class="reg-row reg-row-two">
-  <div style="display:flex; align-items:center; gap:8px;">
+  <div class="reg-phone-row">
     {% if form.phone_country %}
       {% render_field form.phone_country class="reg-select" id="id_phone_country_aso" %}
       <img id="phoneFlagAsociado"

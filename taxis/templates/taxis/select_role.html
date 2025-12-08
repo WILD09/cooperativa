@@ -385,32 +385,42 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
     padding: 26px 18px 20px 18px;
     border-radius: 30px;
   }
+
   .role-back {
     left: 16px;
     top: 18px;
     width: 38px;
     height: 38px;
   }
+
+  /* Logo más centrado horizontalmente */
   .role-logo {
-    left: 70px;
+    left: 50%;
     top: 20px;
+    transform: translateX(-50%);
   }
   .role-logo img {
     width: 40px;
     height: 40px;
   }
+
   .role-info-badge {
     right: 20px;
     top: 20px;
   }
+
+  /* Títulos centrados bajo el logo */
   .role-header-title {
     font-size: 1.6rem;
-    margin-top: 32px;
+    margin-top: 72px;     /* baja el título para dejar espacio al logo centrado */
+    text-align: center;
   }
   .role-header-sub {
     font-size: 1.1rem;
     margin-bottom: 1.4rem;
+    text-align: center;
   }
+
   .role-card {
     width: 200px;
     height: 180px;
@@ -432,6 +442,23 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
     padding: 9px 0;
   }
 }
+
+
+@media (max-width: 600px) {
+  .reg-title {
+    justify-content: center;  /* centra logo + texto */
+    margin-left: 0;           /* quita desplazamiento fijo */
+  }
+  .reg-title-logo img {
+    width: 40px;
+    height: 40px;
+  }
+  .reg-title-text {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+}
+
 </style>
 
 <!-- Fondos: una imagen para modo claro y otra para oscuro -->
