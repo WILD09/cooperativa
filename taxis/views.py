@@ -545,7 +545,7 @@ def eliminar_cuenta_presidente(request):
             user.delete()
             logout(request)
             # Cambia 'taxis:index' por la vista que quieras como landing pública
-            return redirect("taxis:index")
+            return redirect("login")
         # Si no cumple condiciones, lo devolvemos a su dashboard
         return redirect("taxis:dashboard-admin")
 
