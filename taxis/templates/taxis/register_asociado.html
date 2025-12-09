@@ -9,7 +9,9 @@ Crear cuenta - Asociado
 
 {% block content %}
 <style>
-/* Envoltorio general que centra la tarjeta de registro en la pantalla */
+/* ==== LAYOUT GENERAL ==== */
+
+/* Contenedor que centra la tarjeta de registro en la pantalla */
 .reg-wrapper {
   min-height: 100vh;
   width: 100vw;
@@ -22,23 +24,29 @@ Crear cuenta - Asociado
   padding: 40px 12px 30px 12px;
 }
 
-/* Imágenes de fondo (modo claro y oscuro) */
+/* Fondos de la página en modo claro / oscuro */
 .reg-bg-img,
 .reg-bg-img-dark {
   position: fixed;
-  left: 0; top: 0;
-  min-width: 100vw; min-height: 100vh;
-  width: 100vw; height: 100vh;
+  left: 0;
+  top: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   pointer-events: none;
   user-select: none;
   object-fit: cover;
 }
-.reg-bg-img-dark { display: none; }
-body.modo-oscuro .reg-bg-img { display: none !important; }
-body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 
-/* Tarjeta principal de registro (dos columnas) */
+/* Mostrar solo el fondo claro por defecto */
+.reg-bg-img { display: block; }
+.reg-bg-img-dark { display: none; }
+
+/* ==== TARJETA PRINCIPAL ==== */
+
+/* Tarjeta principal con dos columnas (formulario + info rol) */
 .reg-card {
   display: flex;
   width: 100%;
@@ -56,7 +64,7 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
 }
 
-/* Columna izquierda: formulario */
+/* Columna izquierda: formulario (presidente/asociado) */
 .reg-left {
   flex: 1.25;
   background: #008000;
@@ -68,10 +76,9 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   min-width: 260px;
   position: relative;
   z-index: 2;
-  border-radius: 0;
 }
 
-/* Columna derecha: info rol */
+/* Columna derecha: descripción del rol + botón + login */
 .reg-right {
   flex: 0.9;
   background: #F3E1C9;
@@ -82,26 +89,11 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   min-width: 250px;
   position: relative;
   z-index: 1;
-  border-radius: 0;
 }
 
-@media (max-width: 1000px) {
-  .reg-card {
-    flex-direction: column !important;
-    max-width: 98vw !important;
-    min-width: unset !important;
-    height: unset !important;
-    margin: 2vh auto !important;
-  }
-  .reg-left,
-  .reg-right {
-    height: auto !important;
-    min-height: unset !important;
-    padding: 24px 20px !important;
-  }
-}
+/* ==== BOTÓN FLECHA VOLVER ==== */
 
-/* Botón circular para volver a la selección de rol */
+/* Botón circular arriba a la izquierda, solo contorno y flecha */
 .reg-back {
   position: absolute;
   left: 18px;
@@ -110,52 +102,63 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   height: 42px;
   border-radius: 50%;
   border: 2px solid #108531;
-  background: #008000;
-  z-index: 9999;
+  background: transparent;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background .15s, transform .08s, box-shadow .12s, border-color .15s;
+  transition: background .15s, transform .08s,
+              box-shadow .12s, border-color .15s;
   text-decoration: none;
 }
+
+/* Flecha interna con el mismo verde de la tarjeta */
 .reg-back-icon {
   width: 18px;
   height: 18px;
-  border-left: 3px solid #FFFFFF;
-  border-bottom: 3px solid #FFFFFF;
+  border-left: 3px solid #108531;
+  border-bottom: 3px solid #108531;
   transform: rotate(45deg);
 }
+
+/* Hover suave con halo verde y ligera elevación */
 .reg-back:hover {
-  background: #0f6b2bff;
-  border-color: #008000;
+  background: rgba(15,179,65,0.09);
+  border-color: #108531;
   box-shadow: 0 4px 10px rgba(5,60,19,0.32);
   transform: translateY(-1px);
 }
 
-/* Título y logo: centrados como en la captura */
+/* ==== TÍTULO FORMULARIO ==== */
+
+/* Contenedor logo + texto del título del formulario */
 .reg-title {
   display: flex;
   align-items: center;
-  justify-content: center;   /* centra logo + texto */
+  justify-content: center;
   gap: 10px;
-  margin: 0 18px 18px 18px;  /* mismo margen que el formulario */
+  margin: 0 18px 18px 18px;
 }
+
+/* Logo pequeño redondo superior */
 .reg-title-logo img {
   width: 56px;
   height: 56px;
 }
 
+/* Texto “Crear una cuenta” grande y centrado */
 .reg-title-text {
   font-family: 'Nunito', sans-serif;
   font-size: 1.55rem;
   font-weight: 900;
   color: #e9f7ee;
-  text-align: center;        /* centro óptico mejor */
+  text-align: center;
   line-height: 1.1;
 }
 
-/* Contenedor mensaje genérico de error */
+/* ==== MENSAJE GENERAL DE ERROR ==== */
+
 .reg-alert-slot {
   margin: 0 18px 8px 18px;
   min-height: 0;
@@ -168,36 +171,34 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   text-align: center;
 }
 
-/* Grid vertical de campos del formulario */
+/* ==== FORMULARIO: GRID Y CAMPOS ==== */
+
+/* Estructura vertical de las filas del formulario */
 .reg-form-grid {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin: 0 18px 12px 18px;
 }
+
+/* Fila genérica horizontal */
 .reg-row {
   display: flex;
   gap: 8px;
   align-items: center;
 }
+
+/* Fila con dos columnas (ej. nombre/apellido, contraseñas) */
 .reg-row-two > * {
   flex: 1;
 }
+
+/* Pequeño ajuste a la primera fila para compactar */
 .reg-form-grid > .reg-row:first-child {
   margin-bottom: -2px;
 }
 
-/* Afinar en pantallas pequeñas (formulario) */
-@media (max-width: 600px) {
-  .reg-form-grid {
-    gap: 6px;
-    margin: 0 12px 10px 12px;
-  }
-  .reg-row { gap: 6px; }
-  .reg-row-two > * + * { margin-top: 4px; }
-}
-
-/* Estilo general de inputs y selects */
+/* Inputs y selects con bordes redondos tipo píldora */
 .reg-input,
 .reg-select {
   border-radius: 999px;
@@ -207,10 +208,14 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   color: #233326;
   width: 100%;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.12s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+              background 0.2s ease, transform 0.12s ease;
 }
-.reg-input { padding: 10px 18px; }
+.reg-input {
+  padding: 10px 18px;
+}
 
+/* Hover y focus con leve sombra y desplazamiento */
 .reg-input:hover,
 .reg-select:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
@@ -223,14 +228,14 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: translateY(-1px);
 }
 
-/* Borde rojo cuando hay error */
+/* Borde rojo cuando hay error de validación */
 input.is-invalid,
 select.is-invalid,
 .reg-password-flex.is-invalid {
   border-color: #c02424ff !important;
 }
 
-/* Select con flecha */
+/* Select con flecha personalizada */
 .reg-select {
   padding: 11px 18px;
   -webkit-appearance: none;
@@ -245,16 +250,24 @@ select.is-invalid,
   background-size: 8px 8px, 8px 8px;
   background-repeat: no-repeat;
 }
-.reg-select::-ms-expand { display: none; }
-
-/* Fecha */
-.reg-date-wrapper { width:100%; }
-.reg-date-inner{
-  position:relative;
-  width:100%;
+.reg-select::-ms-expand {
+  display: none;
 }
-.reg-date-input { padding-right: 40px; }
 
+/* ==== FECHA DE NACIMIENTO ==== */
+
+.reg-date-wrapper {
+  width: 100%;
+}
+.reg-date-inner {
+  position: relative;
+  width: 100%;
+}
+.reg-date-input {
+  padding-right: 40px;
+}
+
+/* Botón de calendario sobre el input de fecha */
 .reg-date-icon-btn {
   position: absolute;
   right: 14px;
@@ -275,6 +288,8 @@ select.is-invalid,
   transform: translateY(-52%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
+
+/* Icono cuadrado de calendario */
 .reg-date-icon {
   position: relative;
   width: 18px;
@@ -304,7 +319,7 @@ select.is-invalid,
   border-bottom: 0;
 }
 
-/* Input date nativo oculto */
+/* Input date nativo oculto pero funcional */
 .reg-native-date {
   position: absolute;
   left: 0;
@@ -315,29 +330,33 @@ select.is-invalid,
   pointer-events: none;
 }
 
-/* Error de fecha */
+/* Mensaje de error para fecha incorrecta */
 .reg-date-error {
   font-size: 0.8rem;
   margin-top: 0;
   color: #c02424ff;
 }
 
-/* Contenedor de contraseña con ojo */
-.reg-password-flex{
-  position:relative;
-  display:flex;
-  align-items:center;
-  border-radius:999px;
-  border:2px solid #9BD18B;
-  background:#FFF;
-  box-sizing:border-box;
-  padding-right:10px;
-  height:48px;
-  overflow:hidden;
-  transition:border-color .2s,box-shadow .2s,transform .12s ease;
-  width:100%;
-  max-width:100%;
+/* ==== CONTRASEÑAS ==== */
+
+/* Contenedor tipo píldora con ojo a la derecha */
+.reg-password-flex {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 2px solid #9BD18B;
+  background: #FFF;
+  box-sizing: border-box;
+  padding-right: 10px;
+  height: 48px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s, transform .12s ease;
+  width: 100%;
+  max-width: 100%;
 }
+
+/* Línea separadora interna antes del ojo */
 .reg-password-flex::before {
   content: "";
   position: absolute;
@@ -348,11 +367,8 @@ select.is-invalid,
   background: #ffffff;
   pointer-events: none;
 }
-body.modo-oscuro .reg-password-flex {
-  background: #FFFFFF !important;
-}
-body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
 
+/* Input de contraseña dentro de la píldora */
 .reg-password-flex input {
   all: unset;
   box-sizing: border-box;
@@ -363,12 +379,8 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   color: #333333;
   background: transparent;
 }
-.reg-password-flex input:focus {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
 
+/* Efectos hover/focus del contenedor de contraseña */
 .reg-password-flex:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
   transform: translateY(-1px);
@@ -399,7 +411,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   object-fit: contain;
 }
 
-/* Fuerza misma anchura en los 2 campos de contraseña */
+/* En escritorio, dos contraseñas 50/50 */
 .reg-row-passwords > div:first-child,
 .reg-row-passwords > div:last-child {
   max-width: 50%;
@@ -409,7 +421,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-right: 0;
 }
 
-/* Textos de ayuda */
+/* Textos de ayuda bajo contraseña */
 .field-help {
   font-size: 0.8rem;
   margin-top: 12px;
@@ -432,7 +444,8 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-top: 3px;
 }
 
-/* Tarjeta que describe el rol */
+/* ==== TARJETA DEL ROL (COLUMNA DERECHA) ==== */
+
 .reg-role-card {
   border-radius: 28px;
   border: 2px solid #2FA24F;
@@ -444,6 +457,8 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   margin-bottom: 22px;
   position: relative;
 }
+
+/* Icono grande del rol */
 .reg-role-icon {
   width: 90px;
   height: 90px;
@@ -461,6 +476,8 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   object-fit: contain;
   margin-top: 2px;
 }
+
+/* Texto del rol */
 .reg-role-text {
   text-align: center;
   font-family: 'Nunito', sans-serif;
@@ -469,7 +486,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   color: #238C35;
 }
 
-/* Botón "i" de información DENTRO de la tarjetita blanca */
+/* Botón “i” de información dentro de la tarjeta */
 .reg-info {
   position: absolute;
   top: 10px;
@@ -484,17 +501,18 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   color: #108531;
   font-weight: 700;
   font-size: .85rem;
-  background: #f9f3ea;
+  background: #ffffffff;
   cursor: pointer;
   transition: background .15s, box-shadow .12s, transform .08s;
 }
 .reg-info:hover {
-  background: #dfdcd6ff;
+  background: #ffffffff;
   box-shadow: 0 3px 8px rgba(0,0,0,0.18);
   transform: translateY(-1px);
 }
 
-/* Modal info rol (fondo oscuro + caja centrada) */
+/* ==== MODAL INFORMACIÓN DEL ROL ==== */
+
 .reg-info-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -538,14 +556,15 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   cursor: pointer;
 }
 
-/* Fila teléfono */
+/* ==== TELÉFONO Y BANDERA ==== */
+
 .reg-phone-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-/* Bandera pequeña, redondeada, SIN fusionarse con el select */
+/* Bandera pequeña a la derecha del select de país */
 .phone-flag {
   width: 24px;
   height: 24px;
@@ -560,6 +579,7 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   transform: translateY(-1px);
 }
 
+/* Evitar que el código de país se corte */
 #id_phone_country_aso {
   padding-right: 32px;
   text-overflow: ellipsis;
@@ -567,10 +587,12 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   overflow: hidden;
 }
 
-/* Botón principal “Continuar” */
+/* ==== BOTÓN PRINCIPAL Y LOGIN ==== */
+
+/* Botón verde “Continuar” */
 .reg-right-btn {
   width: 100%;
-  background: #30AE37;
+  background: #108531;
   color: #FFFFFF;
   font-weight: 700;
   padding: 11px 16px;
@@ -583,44 +605,48 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
 }
 .reg-right-btn:hover,
 .reg-right-btn:focus {
-  background: #258627;
+  background: #30AE37;
   box-shadow: 0 0 0 2px #2fa24f33;
   transform: translateY(-1px);
 }
 
-/* Bloque enlace login */
+/* Bloque con texto “ya tienes cuenta / inicia sesión” */
 .reg-register-box {
   margin-top: 14px;
   font-size: 0.95rem;
   text-align: center;
 }
 .reg-no-account-text {
-  color: #238C35;
+  color: #30AE37;
   font-weight: 600;
   letter-spacing: 0.4px;
   margin-right: 6px;
 }
+
+/* Enlace “Inicia sesión aquí” con mismas transiciones del botón */
 .reg-register-highlight {
-  background: #30AE37;
+  background: #108531;
   color: #FFFFFF;
-  padding: 2px 10px;
-  border-radius: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
   display: inline-block;
-  transition: background 0.13s, color 0.13s, box-shadow 0.13s;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.12s, color 0.13s;
 }
 .reg-register-highlight:hover,
 .reg-register-highlight:focus {
-  background: #146410;
+  background: #108531;
   color: #FFFFFF;
   text-decoration: underline;
   box-shadow: 0 0 0 2px #2fa24f33;
+  transform: translateY(-1px);
 }
 
-/* Botón flotante tema */
+/* ==== BOTÓN TEMA CLARO/OSCURO ==== */
+
 .theme-toggle-btn {
-  position: fixed;
+  position: absolute;
   top: 23px;
   right: 32px;
   z-index: 1200;
@@ -636,16 +662,12 @@ body.modo-oscuro .reg-password-flex::before { background: #FFFFFF; }
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
+  transition: background 0.18s, color 0.16s, border 0.15s,
+              transform 0.08s, box-shadow 0.12s;
 }
 .theme-toggle-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px #238c3538;
-}
-body.modo-oscuro .theme-toggle-btn {
-  background: #232D21;
-  color: #97F088;
-  border: 2px solid #297B36;
 }
 .theme-toggle-btn img {
   width: 32px;
@@ -653,9 +675,12 @@ body.modo-oscuro .theme-toggle-btn {
   display: block;
   pointer-events: none;
 }
-.theme-toggle-btn:focus { outline: 3px solid #97F08888; }
+.theme-toggle-btn:focus {
+  outline: 3px solid #97F08888;
+}
 
-/* ==== RESPONSIVE GENERAL ==== */
+/* ==== BASE HTML Y TARJETA ==== */
+
 html, body {
   width: 100%;
   max-width: 100%;
@@ -664,6 +689,26 @@ html, body {
 .reg-card {
   box-sizing: border-box;
 }
+
+/* ==== RESPONSIVE TABLET ==== */
+
+@media (max-width: 1000px) {
+  .reg-card {
+    flex-direction: column !important;
+    max-width: 98vw !important;
+    min-width: unset !important;
+    height: unset !important;
+    margin: 2vh auto !important;
+  }
+  .reg-left,
+  .reg-right {
+    height: auto !important;
+    min-height: unset !important;
+    padding: 24px 20px !important;
+  }
+}
+
+/* ==== RESPONSIVE MÓVIL ==== */
 
 @media (max-width: 600px) {
   .reg-row {
@@ -675,11 +720,13 @@ html, body {
   .reg-row-two > * + * {
     margin-top: 8px;
   }
+
   .reg-input,
   .reg-select,
   .reg-password-flex {
     width: 100%;
   }
+
   .reg-back {
     top: 10px;
     left: 10px;
@@ -687,17 +734,22 @@ html, body {
     height: 32px;
     border-width: 2px;
   }
+
   .reg-title {
     flex-direction: column;
     text-align: center;
   }
 
-  /* Orden en móvil */
-  .reg-card { flex-direction: column; }
-  .reg-left { order: 1; }
-  .reg-right { order: 2; }
+  .reg-card {
+    flex-direction: column;
+  }
+  .reg-left {
+    order: 1;
+  }
+  .reg-right {
+    order: 2;
+  }
 
-  /* Misma separación entre filas SOLO móvil */
   .reg-form-grid .reg-row {
     margin-top: 6px;
   }
@@ -706,39 +758,32 @@ html, body {
     margin-bottom: 0;
   }
 
-  /* Contraseñas ancho completo SOLO móvil */
   .reg-row-two.reg-row-passwords > div {
     flex: 1 1 100%;
     max-width: 100%;
   }
 }
 
- .reg-back {
-    top: 12px;
-    left: 14px;
-    width: 40px;           /* más grande */
-    height: 40px;
-    border-width: 3px;
-    background: #0fb341;   /* verde más vivo */
-    border-color: #0a7f2f;
-  }
+/* ==== MODO OSCURO ==== */
 
-  .reg-back-icon {
-    width: 20px;
-    height: 20px;
-    border-left: 3px solid #ffffff;
-    border-bottom: 3px solid #ffffff;
-  }
+/* Fondos en modo oscuro: se invierten */
+body.modo-oscuro .reg-bg-img { display: none !important; }
+body.modo-oscuro .reg-bg-img-dark { display: block !important; }
 
-/* Estilos de modo oscuro */
 body.modo-oscuro .reg-card {
   background: #22322f !important;
   border-color: #00a744 !important;
   box-shadow: 0 0px 70px #0b141077;
 }
-body.modo-oscuro .reg-left { background: #1E3A33 !important; }
-body.modo-oscuro .reg-right { background: #22322F !important; }
-body.modo-oscuro .reg-title-text { color: #FFFFFF !important; }
+body.modo-oscuro .reg-left {
+  background: #1E3A33 !important;
+}
+body.modo-oscuro .reg-right {
+  background: #22322F !important;
+}
+body.modo-oscuro .reg-title-text {
+  color: #FFFFFF !important;
+}
 body.modo-oscuro .reg-input {
   background: #FFFFFF !important;
   color: #113010 !important;
@@ -775,23 +820,38 @@ body.modo-oscuro .reg-role-card {
   background: #1A2723 !important;
   border-color: #00FF5A !important;
 }
-body.modo-oscuro .reg-role-text { color: #DBDEDB !important; }
+body.modo-oscuro .reg-role-text {
+  color: #DBDEDB !important;
+}
 body.modo-oscuro .reg-right-btn {
   background: #00A53A !important;
   color: #FFFFFF !important;
 }
-body.modo-oscuro .reg-right-btn:hover { background: #146410 !important; }
 body.modo-oscuro .reg-back {
-  background: #22322f;
+  background: transparent;
   border-color: #71ff9e;
 }
 body.modo-oscuro .reg-back-icon {
   border-left-color: #71ff9e;
   border-bottom-color: #71ff9e;
 }
-body.modo-oscuro .reg-date-icon { border-color: #00FF5A; }
-body.modo-oscuro .reg-date-icon::before { background: #00FF5A; }
-body.modo-oscuro .reg-date-icon::after { border-top-color: #00FF5A; }
+body.modo-oscuro .reg-back:hover {
+  background: rgba(113,255,158,0.10);
+}
+body.modo-oscuro .theme-toggle-btn {
+  background: #232D21;
+  color: #97F088;
+  border: 2px solid #297B36;
+}
+body.modo-oscuro .reg-date-icon {
+  border-color: #00FF5A;
+}
+body.modo-oscuro .reg-date-icon::before {
+  background: #00FF5A;
+}
+body.modo-oscuro .reg-date-icon::after {
+  border-top-color: #00FF5A;
+}
 body.modo-oscuro .reg-info-modal {
   background: #070808ff !important;
   color: #E5E5E5 !important;
@@ -807,7 +867,8 @@ body.modo-oscuro .reg-info:hover {
   transform: translateY(-1px);
 }
 
-/* Error en una sola línea */
+/* ==== ERRORES DE CAMPO ==== */
+
 .field-error {
   font-size: 0.8rem;
   margin-top: 0;
