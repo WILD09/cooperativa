@@ -314,10 +314,10 @@ body.modo-oscuro .theme-toggle-btn {
   .vsms-card { border-radius: 30px; }
   .vsms-left { padding: 26px 18px 22px 18px; }
 
-  /* Flecha: la subimos y la separamos del logo */
+  /* Flecha: bajamos ligeramente como en new_password */
   .vsms-back {
     left: 16px;
-    top: 14px;       /* antes 34px: ahora más arriba y lejos del logo */
+    top: 12px;          /* antes 14px */
     width: 40px;
     height: 40px;
   }
@@ -325,7 +325,7 @@ body.modo-oscuro .theme-toggle-btn {
   /* Título y logo centrados abajo del botón */
   .vsms-title {
     margin-left: 0;
-    margin-top: 26px;   /* espacio bajo la flecha para el logo */
+    margin-top: 26px;   /* mantiene espacio cómodo bajo la flecha */
     justify-content: center;
   }
   .vsms-title-logo img {
@@ -343,13 +343,14 @@ body.modo-oscuro .theme-toggle-btn {
     text-align: left;
   }
 
-  /* Intentos: texto un poco más pequeño y más “dentro” de la tarjeta */
+  /* Intentos en una sola línea, centrados un poco más dentro */
   .vsms-daily {
     margin-left: 6px;
     margin-right: 6px;
     margin-bottom: 14px;
-    font-size: 0.74rem;
-    white-space: normal;       /* permite que salte de línea si es largo */
+    font-size: 0.78rem;
+    white-space: nowrap;
+    text-align: center;
   }
 
   /* Botón modo claro/oscuro más arriba y hacia adentro */
