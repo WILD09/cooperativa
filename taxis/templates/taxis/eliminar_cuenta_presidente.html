@@ -1,0 +1,28 @@
+{% extends "taxis/base.html" %}
+
+{% block title %}Eliminar mi cuenta de presidente{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h5 class="mb-0"><i class="fas fa-user-times"></i> Eliminar mi cuenta</h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">
+        Esta acción eliminará tu cuenta de presidente y cerrarás sesión en el sistema.
+        ¿Seguro que quieres continuar?
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mr-2">
+          Sí, eliminar mi cuenta
+        </button>
+        <a href="{% url 'login' %}" class="btn btn-secondary">
+          Cancelar
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
