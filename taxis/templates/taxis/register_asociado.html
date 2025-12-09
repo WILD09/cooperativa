@@ -370,9 +370,8 @@ select.is-invalid,
 }
 
 
-/* ==== CONTRASEÑAS ==== */
+/* ==== CONTRASEÑAS (reemplaza todo este bloque) ==== */
 
-/* Contenedor tipo píldora con ojo a la derecha */
 .reg-password-flex {
   position: relative;
   display: flex;
@@ -381,7 +380,7 @@ select.is-invalid,
   border: 2px solid #9BD18B;
   background: #FFF;
   box-sizing: border-box;
-  padding-right: 48px;          /* espacio fijo para el ojo */
+  padding-right: 48px;
   height: 48px;
   overflow: hidden;
   transition: border-color .2s, box-shadow .2s, transform .12s ease;
@@ -389,13 +388,15 @@ select.is-invalid,
   max-width: 100%;
 }
 
-/* Sin pseudo‑elementos que tapen el borde */
+/* Sin pseudo-elementos ni bordes internos */
 .reg-password-flex::before,
 .reg-password-flex::after {
   content: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* Input de contraseña dentro de la píldora */
+/* Input de contraseña */
 .reg-password-flex input {
   all: unset;
   box-sizing: border-box;
@@ -403,12 +404,14 @@ select.is-invalid,
   height: 100%;
   padding: 0 18px;
   font-size: 0.98rem;
-  color: #333333;
+  color: #333;
   background: transparent;
   outline: none;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* Efectos hover/focus del contenedor de contraseña */
+/* Efectos hover/focus */
 .reg-password-flex:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
   transform: translateY(-1px);
@@ -419,7 +422,7 @@ select.is-invalid,
   transform: translateY(-1px);
 }
 
-/* Botón del “ojito” */
+/* Botón del ojo */
 .reg-password-toggle {
   position: absolute;
   right: 12px;
@@ -443,7 +446,7 @@ select.is-invalid,
   object-fit: contain;
 }
 
-/* En escritorio, dos contraseñas 50/50 */
+/* Distribución 50/50 en escritorio */
 .reg-row-passwords > div:first-child,
 .reg-row-passwords > div:last-child {
   max-width: 50%;
@@ -453,20 +456,10 @@ select.is-invalid,
   margin-right: 0;
 }
 
-/* Textos de ayuda bajo contraseña */
-.field-help {
-  font-size: 0.8rem;
-  margin-top: 12px;
-  margin-bottom: 2px;
-  color: #ebee59ff;
-}
-.password-help {
-  font-size: 0.8rem;
-  margin-top: 4px;
-  color: #ebee59ff;
-}
+/* Textos ayuda */
+.field-help,
+.password-help,
 #password-strength {
-  margin-top: 4px;
   font-size: 0.8rem;
   color: #ebee59ff;
 }
@@ -476,7 +469,7 @@ select.is-invalid,
   margin-top: 3px;
 }
 
-/* Ajuste específico móvil para que el ojo no se corte */
+/* Ajuste móvil */
 @media (max-width: 600px) {
   .reg-password-flex {
     height: 54px;
