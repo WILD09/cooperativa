@@ -23,7 +23,6 @@
 body.modo-oscuro .role-bg-img { display: none !important; }
 body.modo-oscuro .role-bg-img-dark { display: block !important; }
 
-
 /* Botón de tema igual al del login (flotante arriba a la derecha) */
 .theme-toggle-btn {
   position: fixed;
@@ -64,7 +63,6 @@ body.modo-oscuro .theme-toggle-btn {
   outline: 3px solid #97f08888;
 }
 
-
 /* Contenedor general de la página */
 .role-page-wrapper {
   min-height: 100vh;
@@ -78,7 +76,6 @@ body.modo-oscuro .theme-toggle-btn {
   box-sizing: border-box;
 }
 
-
 /* Tarjeta central donde se muestran títulos y cards de rol */
 .role-panel {
   width: 96vw;
@@ -91,7 +88,6 @@ body.modo-oscuro .theme-toggle-btn {
   padding: 40px 60px 32px 60px;
   position: relative;
 }
-
 
 /* Flecha atrás que lleva al login */
 .role-back {
@@ -122,7 +118,6 @@ body.modo-oscuro .theme-toggle-btn {
   transform: translateY(-1px);
 }
 
-
 /* Logo de la cooperativa en la parte superior de la tarjeta */
 .role-logo {
   position: absolute;
@@ -133,7 +128,6 @@ body.modo-oscuro .theme-toggle-btn {
   width: 46px;
   height: 46px;
 }
-
 
 /* Icono "i" que abre el modal de información de roles */
 .role-info-badge {
@@ -159,7 +153,6 @@ body.modo-oscuro .theme-toggle-btn {
   box-shadow: 0 3px 8px rgba(0,0,0,0.18);
   transform: translateY(-1px);
 }
-
 
 /* Backdrop y contenido del modal de información */
 .role-info-modal-backdrop {
@@ -209,7 +202,6 @@ body.modo-oscuro .theme-toggle-btn {
   background: #e4f1e6;
 }
 
-
 /* Encabezados de la pantalla (título y subtítulo) */
 .role-header-title {
   text-align: center;
@@ -226,7 +218,6 @@ body.modo-oscuro .theme-toggle-btn {
   margin-bottom: 2.1rem;
 }
 
-
 /* Contenedor fila para las dos tarjetas de rol */
 .role-cards-row {
   display: flex;
@@ -234,7 +225,6 @@ body.modo-oscuro .theme-toggle-btn {
   gap: 40px;
   margin-bottom: 24px;
 }
-
 
 /* Card de rol (Presidente / Asociado) */
 .role-card {
@@ -332,8 +322,7 @@ body.modo-oscuro .theme-toggle-btn {
   box-shadow: 0 7px 19px rgba(5,60,19,0.4);
 }
 
-
-/* Ajustes de modo oscuro para panel, textos, cards, botón, etc. */
+/* Ajustes de modo oscuro */
 body.modo-oscuro .role-panel {
   background: #22322f;
   border-color: #00a744;
@@ -378,7 +367,6 @@ body.modo-oscuro .role-next-btn { background: #00a744; }
 body.modo-oscuro .role-next-btn:hover { background: #0a5a23; }
 body.modo-oscuro .role-card-note { color: #ffb4ab; }
 
-
 /* Responsive: pantallas medianas */
 @media (max-width: 900px) {
   .role-panel {
@@ -409,10 +397,10 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
     right: 16px;
   }
 
-  /* Flecha atrás más pequeña y cercana al borde */
+  /* Flecha: la subimos un poco para no comerse el logo centrado */
   .role-back {
     left: 16px;
-    top: 18px;
+    top: 10px;   /* antes 18px */
     width: 38px;
     height: 38px;
   }
@@ -420,7 +408,7 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
   /* Logo centrado y más grande */
   .role-logo {
     left: 50%;
-    top: 40px;
+    top: 44px;   /* un pelín más abajo para separarlo bien de la flecha */
     transform: translateX(-50%);
   }
   .role-logo img {
@@ -436,7 +424,7 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
   /* Títulos reubicados bajo el logo */
   .role-header-title {
     font-size: 1.7rem;
-    margin-top: 80px;
+    margin-top: 88px;   /* más espacio para logo + flecha */
     text-align: center;
   }
   .role-header-sub {
@@ -445,7 +433,7 @@ body.modo-oscuro .role-card-note { color: #ffb4ab; }
     text-align: center;
   }
 
-  /* Cards un poco más pequeñas para caber cómodas */
+  /* Cards un poco más pequeñas */
   .role-card {
     width: 210px;
     height: 180px;

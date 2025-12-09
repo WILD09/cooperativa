@@ -72,7 +72,7 @@ body.modo-oscuro .vsms-card {
   justify-content: center;
 }
 
-/* Botón de volver atrás (esquina superior izquierda) */
+/* Botón de volver atrás */
 .vsms-back {
   position: absolute;
   left: 24px;
@@ -88,6 +88,7 @@ body.modo-oscuro .vsms-card {
   background: transparent;
   transition: background .15s, transform .08s, box-shadow .12s;
   text-decoration: none;
+  z-index: 20;
 }
 .vsms-back-icon {
   width: 18px;
@@ -144,7 +145,7 @@ body.modo-oscuro .vsms-desc strong { color: #b8ffd0; }
   margin-bottom: 16px;
   font-size: 0.78rem;
   color: #476553;
-  white-space: nowrap;       /* mantiene “x/5” en la misma línea */
+  white-space: nowrap;
 }
 body.modo-oscuro .vsms-daily { color: #bfe8c6; }
 
@@ -313,19 +314,18 @@ body.modo-oscuro .theme-toggle-btn {
   .vsms-card { border-radius: 30px; }
   .vsms-left { padding: 26px 18px 22px 18px; }
 
-  /* Flecha más abajo para no pisar el logo,
-     pero manteniendo tamaño */
+  /* Flecha: la subimos y la separamos del logo */
   .vsms-back {
     left: 16px;
-    top: 34px;
-    width: 42px;
-    height: 42px;
+    top: 14px;       /* antes 34px: ahora más arriba y lejos del logo */
+    width: 40px;
+    height: 40px;
   }
 
-  /* Título y logo centrados en la parte superior */
+  /* Título y logo centrados abajo del botón */
   .vsms-title {
     margin-left: 0;
-    margin-top: 8px;
+    margin-top: 26px;   /* espacio bajo la flecha para el logo */
     justify-content: center;
   }
   .vsms-title-logo img {
@@ -333,20 +333,28 @@ body.modo-oscuro .theme-toggle-btn {
     height: 40px;
   }
   .vsms-title-text {
-    font-size: 1.6rem;
+    font-size: 1.55rem;
     text-align: center;
   }
 
-  .vsms-desc,
-  .vsms-daily {
-    margin-left: 0;
-    margin-right: 0;
+  .vsms-desc {
+    margin-left: 4px;
+    margin-right: 4px;
     text-align: left;
+  }
+
+  /* Intentos: texto un poco más pequeño y más “dentro” de la tarjeta */
+  .vsms-daily {
+    margin-left: 6px;
+    margin-right: 6px;
+    margin-bottom: 14px;
+    font-size: 0.74rem;
+    white-space: normal;       /* permite que salte de línea si es largo */
   }
 
   /* Botón modo claro/oscuro más arriba y hacia adentro */
   .theme-toggle-btn {
-    top: 10px;
+    top: 8px;
     right: 16px;
   }
 
@@ -366,9 +374,8 @@ body.modo-oscuro .theme-toggle-btn {
     font-size: 0.8rem;
   }
 }
-
-
 </style>
+
 
 {# Imágenes de fondo para modo claro y oscuro #}
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="vsms-bg-img">

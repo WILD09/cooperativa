@@ -372,7 +372,6 @@ select.is-invalid,
 
 /* ==== CONTRASEÑAS ==== */
 
-
 /* Contenedor tipo píldora con ojo a la derecha */
 .reg-password-flex {
   position: relative;
@@ -382,7 +381,7 @@ select.is-invalid,
   border: 2px solid #9BD18B;
   background: #FFF;
   box-sizing: border-box;
-  padding-right: 14px;
+  padding-right: 48px;          /* espacio fijo para el ojo */
   height: 48px;
   overflow: hidden;
   transition: border-color .2s, box-shadow .2s, transform .12s ease;
@@ -390,25 +389,11 @@ select.is-invalid,
   max-width: 100%;
 }
 
-
-/* Eliminar completamente la línea separadora anterior */
-.reg-password-flex::before {
+/* Sin pseudo‑elementos que tapen el borde */
+.reg-password-flex::before,
+.reg-password-flex::after {
   content: none !important;
 }
-
-
-/* Tapar el borde en la zona del ojo para que no se vea raya */
-.reg-password-flex::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  right: 0;
-  width: 42px;              /* ancho de la zona del ojo */
-  background: #ffffff;      /* mismo color que el campo */
-  border-radius: 0 999px 999px 0;
-}
-
 
 /* Input de contraseña dentro de la píldora */
 .reg-password-flex input {
@@ -423,7 +408,6 @@ select.is-invalid,
   outline: none;
 }
 
-
 /* Efectos hover/focus del contenedor de contraseña */
 .reg-password-flex:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
@@ -431,16 +415,18 @@ select.is-invalid,
 }
 .reg-password-flex:focus-within {
   border-color: #2FA24F;
-  box-shadow: none;
+  box-shadow: 0 0 0 2px #2fa24f33;
   transform: translateY(-1px);
 }
 
-
 /* Botón del “ojito” */
 .reg-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 26px;
   height: 26px;
-  margin-left: 6px;
   border: none;
   background: transparent;
   display: flex;
@@ -448,6 +434,7 @@ select.is-invalid,
   justify-content: center;
   cursor: pointer;
   padding: 0;
+  z-index: 2;
 }
 .reg-password-toggle img {
   width: 18px;
@@ -455,11 +442,6 @@ select.is-invalid,
   display: block;
   object-fit: contain;
 }
-.reg-password-toggle {
-  position: relative;
-  z-index: 2;  /* por encima del rectángulo blanco (::after) */
-}
-
 
 /* En escritorio, dos contraseñas 50/50 */
 .reg-row-passwords > div:first-child,
@@ -470,7 +452,6 @@ select.is-invalid,
   margin-left: 0;
   margin-right: 0;
 }
-
 
 /* Textos de ayuda bajo contraseña */
 .field-help {
@@ -493,6 +474,23 @@ select.is-invalid,
   height: 6px;
   border-radius: 999px;
   margin-top: 3px;
+}
+
+/* Ajuste específico móvil para que el ojo no se corte */
+@media (max-width: 600px) {
+  .reg-password-flex {
+    height: 54px;
+    padding-right: 52px;
+  }
+  .reg-password-toggle {
+    right: 14px;
+    width: 30px;
+    height: 30px;
+  }
+  .reg-password-toggle img {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 
