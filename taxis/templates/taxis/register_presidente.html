@@ -690,7 +690,44 @@ html, body {
     flex-direction: column;
     text-align: center;
   }
+
+  /* Orden en móvil */
+  .reg-card { flex-direction: column; }
+  .reg-left { order: 1; }
+  .reg-right { order: 2; }
+
+  /* Misma separación entre filas SOLO móvil */
+  .reg-form-grid .reg-row {
+    margin-top: 6px;
+  }
+  .reg-form-grid .reg-row:first-child {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  /* Contraseñas ancho completo SOLO móvil */
+  .reg-row-two.reg-row-passwords > div {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 }
+
+ .reg-back {
+    top: 12px;
+    left: 14px;
+    width: 40px;           /* más grande */
+    height: 40px;
+    border-width: 3px;
+    background: #0fb341;   /* verde más vivo */
+    border-color: #0a7f2f;
+  }
+
+  .reg-back-icon {
+    width: 20px;
+    height: 20px;
+    border-left: 3px solid #ffffff;
+    border-bottom: 3px solid #ffffff;
+  }
 
 /* Estilos de modo oscuro */
 body.modo-oscuro .reg-card {
