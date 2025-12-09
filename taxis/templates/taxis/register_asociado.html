@@ -11,6 +11,7 @@ Crear cuenta - Asociado
 <style>
 /* ==== LAYOUT GENERAL ==== */
 
+
 /* Contenedor que centra la tarjeta de registro en la pantalla */
 .reg-wrapper {
   min-height: 100vh;
@@ -23,6 +24,7 @@ Crear cuenta - Asociado
   position: relative;
   padding: 40px 12px 30px 12px;
 }
+
 
 /* Fondos de la página en modo claro / oscuro */
 .reg-bg-img,
@@ -40,11 +42,14 @@ Crear cuenta - Asociado
   object-fit: cover;
 }
 
+
 /* Mostrar solo el fondo claro por defecto */
 .reg-bg-img { display: block; }
 .reg-bg-img-dark { display: none; }
 
+
 /* ==== TARJETA PRINCIPAL ==== */
+
 
 /* Tarjeta principal con dos columnas (formulario + info rol) */
 .reg-card {
@@ -64,6 +69,7 @@ Crear cuenta - Asociado
   transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
 }
 
+
 /* Columna izquierda: formulario (presidente/asociado) */
 .reg-left {
   flex: 1.25;
@@ -78,6 +84,7 @@ Crear cuenta - Asociado
   z-index: 2;
 }
 
+
 /* Columna derecha: descripción del rol + botón + login */
 .reg-right {
   flex: 0.9;
@@ -91,7 +98,9 @@ Crear cuenta - Asociado
   z-index: 1;
 }
 
+
 /* ==== BOTÓN FLECHA VOLVER ==== */
+
 
 /* Botón circular arriba a la izquierda, solo contorno y flecha */
 .reg-back {
@@ -113,6 +122,7 @@ Crear cuenta - Asociado
   text-decoration: none;
 }
 
+
 /* Flecha interna con el mismo verde de la tarjeta */
 .reg-back-icon {
   width: 18px;
@@ -122,6 +132,7 @@ Crear cuenta - Asociado
   transform: rotate(45deg);
 }
 
+
 /* Hover suave con halo verde y ligera elevación */
 .reg-back:hover {
   background: rgba(15,179,65,0.09);
@@ -130,7 +141,9 @@ Crear cuenta - Asociado
   transform: translateY(-1px);
 }
 
+
 /* ==== TÍTULO FORMULARIO ==== */
+
 
 /* Contenedor logo + texto del título del formulario */
 .reg-title {
@@ -141,11 +154,13 @@ Crear cuenta - Asociado
   margin: 0 18px 18px 18px;
 }
 
+
 /* Logo pequeño redondo superior */
 .reg-title-logo img {
   width: 56px;
   height: 56px;
 }
+
 
 /* Texto “Crear una cuenta” grande y centrado */
 .reg-title-text {
@@ -157,7 +172,9 @@ Crear cuenta - Asociado
   line-height: 1.1;
 }
 
+
 /* ==== MENSAJE GENERAL DE ERROR ==== */
+
 
 .reg-alert-slot {
   margin: 0 18px 8px 18px;
@@ -171,7 +188,9 @@ Crear cuenta - Asociado
   text-align: center;
 }
 
+
 /* ==== FORMULARIO: GRID Y CAMPOS ==== */
+
 
 /* Estructura vertical de las filas del formulario */
 .reg-form-grid {
@@ -181,6 +200,7 @@ Crear cuenta - Asociado
   margin: 0 18px 12px 18px;
 }
 
+
 /* Fila genérica horizontal */
 .reg-row {
   display: flex;
@@ -188,15 +208,18 @@ Crear cuenta - Asociado
   align-items: center;
 }
 
+
 /* Fila con dos columnas (ej. nombre/apellido, contraseñas) */
 .reg-row-two > * {
   flex: 1;
 }
 
+
 /* Pequeño ajuste a la primera fila para compactar */
 .reg-form-grid > .reg-row:first-child {
   margin-bottom: -2px;
 }
+
 
 /* Inputs y selects con bordes redondos tipo píldora */
 .reg-input,
@@ -215,6 +238,7 @@ Crear cuenta - Asociado
   padding: 10px 18px;
 }
 
+
 /* Hover y focus con leve sombra y desplazamiento */
 .reg-input:hover,
 .reg-select:hover {
@@ -228,12 +252,14 @@ Crear cuenta - Asociado
   transform: translateY(-1px);
 }
 
+
 /* Borde rojo cuando hay error de validación */
 input.is-invalid,
 select.is-invalid,
 .reg-password-flex.is-invalid {
   border-color: #c02424ff !important;
 }
+
 
 /* Select con flecha personalizada */
 .reg-select {
@@ -254,7 +280,9 @@ select.is-invalid,
   display: none;
 }
 
+
 /* ==== FECHA DE NACIMIENTO ==== */
+
 
 .reg-date-wrapper {
   width: 100%;
@@ -266,6 +294,7 @@ select.is-invalid,
 .reg-date-input {
   padding-right: 40px;
 }
+
 
 /* Botón de calendario sobre el input de fecha */
 .reg-date-icon-btn {
@@ -288,6 +317,7 @@ select.is-invalid,
   transform: translateY(-52%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
+
 
 /* Icono cuadrado de calendario */
 .reg-date-icon {
@@ -319,6 +349,7 @@ select.is-invalid,
   border-bottom: 0;
 }
 
+
 /* Input date nativo oculto pero funcional */
 .reg-native-date {
   position: absolute;
@@ -330,6 +361,7 @@ select.is-invalid,
   pointer-events: none;
 }
 
+
 /* Mensaje de error para fecha incorrecta */
 .reg-date-error {
   font-size: 0.8rem;
@@ -337,7 +369,9 @@ select.is-invalid,
   color: #c02424ff;
 }
 
+
 /* ==== CONTRASEÑAS ==== */
+
 
 /* Contenedor tipo píldora con ojo a la derecha */
 .reg-password-flex {
@@ -356,10 +390,12 @@ select.is-invalid,
   max-width: 100%;
 }
 
+
 /* Eliminar completamente la línea separadora anterior */
 .reg-password-flex::before {
   content: none !important;
 }
+
 
 /* Tapar el borde en la zona del ojo para que no se vea raya */
 .reg-password-flex::after {
@@ -372,6 +408,7 @@ select.is-invalid,
   background: #ffffff;      /* mismo color que el campo */
   border-radius: 0 999px 999px 0;
 }
+
 
 /* Input de contraseña dentro de la píldora */
 .reg-password-flex input {
@@ -386,6 +423,7 @@ select.is-invalid,
   outline: none;
 }
 
+
 /* Efectos hover/focus del contenedor de contraseña */
 .reg-password-flex:hover {
   box-shadow: 0 3px 9px rgba(0,0,0,0.12);
@@ -396,6 +434,7 @@ select.is-invalid,
   box-shadow: none;
   transform: translateY(-1px);
 }
+
 
 /* Botón del “ojito” */
 .reg-password-toggle {
@@ -421,6 +460,7 @@ select.is-invalid,
   z-index: 2;  /* por encima del rectángulo blanco (::after) */
 }
 
+
 /* En escritorio, dos contraseñas 50/50 */
 .reg-row-passwords > div:first-child,
 .reg-row-passwords > div:last-child {
@@ -430,6 +470,7 @@ select.is-invalid,
   margin-left: 0;
   margin-right: 0;
 }
+
 
 /* Textos de ayuda bajo contraseña */
 .field-help {
@@ -454,7 +495,9 @@ select.is-invalid,
   margin-top: 3px;
 }
 
+
 /* ==== TARJETA DEL ROL (COLUMNA DERECHA) ==== */
+
 
 .reg-role-card {
   border-radius: 28px;
@@ -467,6 +510,7 @@ select.is-invalid,
   margin-bottom: 22px;
   position: relative;
 }
+
 
 /* Icono grande del rol */
 .reg-role-icon {
@@ -487,6 +531,7 @@ select.is-invalid,
   margin-top: 2px;
 }
 
+
 /* Texto del rol */
 .reg-role-text {
   text-align: center;
@@ -495,6 +540,7 @@ select.is-invalid,
   font-size: 0.96rem;
   color: #238C35;
 }
+
 
 /* Botón “i” de información dentro de la tarjeta */
 .reg-info {
@@ -521,7 +567,9 @@ select.is-invalid,
   transform: translateY(-1px);
 }
 
+
 /* ==== MODAL INFORMACIÓN DEL ROL ==== */
+
 
 .reg-info-modal-backdrop {
   position: fixed;
@@ -566,13 +614,16 @@ select.is-invalid,
   cursor: pointer;
 }
 
+
 /* ==== TELÉFONO Y BANDERA ==== */
+
 
 .reg-phone-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
+
 
 /* Bandera pequeña a la derecha del select de país */
 .phone-flag {
@@ -589,6 +640,7 @@ select.is-invalid,
   transform: translateY(-1px);
 }
 
+
 /* Evitar que el código de país se corte */
 #id_phone_country_aso {
   padding-right: 32px;
@@ -597,7 +649,9 @@ select.is-invalid,
   overflow: hidden;
 }
 
+
 /* ==== BOTÓN PRINCIPAL Y LOGIN ==== */
+
 
 /* Botón verde “Continuar” */
 .reg-right-btn {
@@ -620,6 +674,7 @@ select.is-invalid,
   transform: translateY(-1px);
 }
 
+
 /* Bloque con texto “ya tienes cuenta / inicia sesión” */
 .reg-register-box {
   margin-top: 14px;
@@ -632,6 +687,7 @@ select.is-invalid,
   letter-spacing: 0.4px;
   margin-right: 6px;
 }
+
 
 /* Enlace “Inicia sesión aquí” con mismas transiciones del botón */
 .reg-register-highlight {
@@ -653,7 +709,9 @@ select.is-invalid,
   transform: translateY(-1px);
 }
 
+
 /* ==== BOTÓN TEMA CLARO/OSCURO ==== */
+
 
 .theme-toggle-btn {
   position: absolute;
@@ -692,7 +750,9 @@ select.is-invalid,
     margin-top: 40px;
   }
 
+
 /* ==== BASE HTML Y TARJETA ==== */
+
 
 html, body {
   width: 100%;
@@ -703,7 +763,9 @@ html, body {
   box-sizing: border-box;
 }
 
+
 /* ==== RESPONSIVE TABLET ==== */
+
 
 @media (max-width: 1000px) {
   .reg-card {
@@ -721,7 +783,9 @@ html, body {
   }
 }
 
+
 /* ==== RESPONSIVE MÓVIL ==== */
+
 
 @media (max-width: 600px) {
   .reg-row {
@@ -734,11 +798,13 @@ html, body {
     margin-top: 8px;
   }
 
+
   .reg-input,
   .reg-select,
   .reg-password-flex {
     width: 100%;
   }
+
 
   /* Botón volver solo en móvil */
   .reg-back {
@@ -751,26 +817,31 @@ html, body {
     background: transparent;
   }
 
+
   .reg-back-icon {
     border-left-color: #fff;
     border-bottom-color: #fff;
   }
+
 
   .reg-back:hover {
     background: rgba(255,255,255,0.12);
     border-color: #fff;
   }
 
+
   .reg-title {
     flex-direction: column;
     text-align: center;
   }
+
 
   .reg-card {
     flex-direction: column;
   }
   .reg-left { order: 1; }
   .reg-right { order: 2; }
+
 
   .reg-form-grid .reg-row {
     margin-top: 6px;
@@ -780,37 +851,38 @@ html, body {
     margin-bottom: 0;
   }
 
+
   .reg-row-two.reg-row-passwords > div {
     flex: 1 1 100%;
     max-width: 100%;
   }
+
+  /* FIX SOLO MÓVIL: más espacio para el ojo y sin corte */
+  .reg-password-flex {
+    height: 54px;
+    padding-right: 48px;
+  }
+  .reg-password-flex::after {
+    width: 48px;
+  }
+  .reg-password-toggle {
+    width: 28px;
+    height: 28px;
+  }
+  .reg-password-toggle img {
+    width: 20px;
+    height: 20px;
+  }
 }
 
-/* Más espacio para el icono de ojo en móvil */
-.reg-password-flex {
-    height: 54px;
-    padding-right: 18px;
-  }
-
-  .reg-password-flex::before {
-    right: 44px;  /* corre la rayita separadora un poco a la derecha */
-  }
-
-  .reg-password-toggle {
-    width: 30px;
-    height: 30px;
-  }
-
-  .reg-password-toggle img {
-    width: 22px;
-    height: 22px;
-  }
 
 /* ==== MODO OSCURO ==== */
+
 
 /* Fondos en modo oscuro: se invierten */
 body.modo-oscuro .reg-bg-img { display: none !important; }
 body.modo-oscuro .reg-bg-img-dark { display: block !important; }
+
 
 body.modo-oscuro .reg-card {
   background: #22322f !important;
@@ -909,7 +981,9 @@ body.modo-oscuro .reg-info:hover {
   transform: translateY(-1px);
 }
 
+
 /* ==== ERRORES DE CAMPO ==== */
+
 
 .field-error {
   font-size: 0.8rem;
@@ -920,6 +994,7 @@ body.modo-oscuro .reg-info:hover {
   white-space: nowrap;
 }
 </style>
+
 {# Fondos de la página #}
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="reg-bg-img">
 <img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="reg-bg-img-dark">
