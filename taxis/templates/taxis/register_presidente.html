@@ -61,7 +61,8 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   background: #008000;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
   padding: 30px 32px 24px 32px;
   min-width: 260px;
   position: relative;
@@ -131,23 +132,26 @@ body.modo-oscuro .reg-bg-img-dark { display: block !important; }
   transform: translateY(-1px);
 }
 
-/* Título y logo en la parte superior izquierda (ajustado) */
+/* Título y logo: centrados como en la captura */
 .reg-title {
   display: flex;
   align-items: center;
+  justify-content: center;   /* centra logo + texto */
   gap: 10px;
-  margin-bottom: 18px;
-  margin-left: 40px;
+  margin: 0 18px 18px 18px;  /* mismo margen que el formulario */
 }
 .reg-title-logo img {
   width: 56px;
   height: 56px;
 }
+
 .reg-title-text {
   font-family: 'Nunito', sans-serif;
-  font-size: 1.7rem;
+  font-size: 1.55rem;
   font-weight: 900;
   color: #e9f7ee;
+  text-align: center;        /* centro óptico mejor */
+  line-height: 1.1;
 }
 
 /* Contenedor mensaje genérico de error */
@@ -682,28 +686,10 @@ html, body {
     height: 32px;
     border-width: 2px;
   }
-}
-
-.reg-title {
-  display: flex;
-  flex-direction: column;       /* logo arriba, texto abajo */
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 18px;
-  margin-left: 0;
-}
-.reg-title-logo img {
-  width: 56px;
-  height: 56px;
-}
-.reg-title-text {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.55rem;
-  font-weight: 900;
-  color: #e9f7ee;
-  text-align: center;
-  line-height: 1.05;
+  .reg-title {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 /* Estilos de modo oscuro */
