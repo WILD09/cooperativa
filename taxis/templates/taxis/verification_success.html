@@ -148,7 +148,7 @@ body.modo-oscuro .vs-title-text { color: #29FF66; }
 body.modo-oscuro .vs-desc { color: #E9FFE9; }
 body.modo-oscuro .vs-help { color: #CFF5D8; }
 
-/* Botón flotante para alternar tema claro/oscuro (reutiliza estilo general) */
+/* Botón flotante para alternar tema claro/oscuro */
 .theme-toggle-btn {
   position: fixed;
   top: 23px;
@@ -166,9 +166,9 @@ body.modo-oscuro .vs-help { color: #CFF5D8; }
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
+  transition: background 0.18s, color 0.16s, border 0.15s,
+              transform 0.08s, box-shadow 0.12s;
 }
-
 .theme-toggle-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px #238c3538;
@@ -204,6 +204,12 @@ body.modo-oscuro .theme-toggle-btn {
     font-size: 0.96rem;
     width: 100%;
     max-width: 100%;
+  }
+
+  /* Botón tema recolocado para móvil */
+  .theme-toggle-btn {
+    top: 10px;
+    right: 16px;
   }
 }
 </style>

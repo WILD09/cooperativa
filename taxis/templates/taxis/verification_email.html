@@ -144,6 +144,7 @@ body.modo-oscuro .vsms-desc strong { color: #b8ffd0; }
   margin-bottom: 16px;
   font-size: 0.78rem;
   color: #476553;
+  white-space: nowrap;       /* mantiene “x/5” en la misma línea */
 }
 body.modo-oscuro .vsms-daily { color: #bfe8c6; }
 
@@ -244,7 +245,6 @@ body.modo-oscuro .vsms-help { color: #CFF5D8; }
   background: #d4b77f;
   color: #11301a;
   box-shadow: 0 2px 9px rgba(0,0,0,0.18);
-  transform: translateY(-1px);
 }
 
 /* Botón de reenviar en modo oscuro */
@@ -278,9 +278,9 @@ body.modo-oscuro .vsms-resend-btn:focus {
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
+  transition: background 0.18s, color 0.16s, border 0.15s,
+              transform 0.08s, box-shadow 0.12s;
 }
-
 .theme-toggle-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px #238c3538;
@@ -313,22 +313,29 @@ body.modo-oscuro .theme-toggle-btn {
   .vsms-card { border-radius: 30px; }
   .vsms-left { padding: 26px 18px 22px 18px; }
 
-  /* Flecha un poco más abajo y más pequeña */
+  /* Flecha más abajo para no pisar el logo,
+     pero manteniendo tamaño */
   .vsms-back {
-    left: 14px;
-    top: 26px;
-    width: 32px;
-    height: 32px;
+    left: 16px;
+    top: 34px;
+    width: 42px;
+    height: 42px;
   }
 
-  /* Título y logo más centrados y separados de la flecha */
+  /* Título y logo centrados en la parte superior */
   .vsms-title {
     margin-left: 0;
-    margin-top: 4px;
+    margin-top: 8px;
     justify-content: center;
   }
-  .vsms-title-text { font-size: 1.6rem; }
-  .vsms-title-logo img { width: 40px; height: 40px; }
+  .vsms-title-logo img {
+    width: 40px;
+    height: 40px;
+  }
+  .vsms-title-text {
+    font-size: 1.6rem;
+    text-align: center;
+  }
 
   .vsms-desc,
   .vsms-daily {
@@ -337,12 +344,29 @@ body.modo-oscuro .theme-toggle-btn {
     text-align: left;
   }
 
-  .theme-toggle-btn { top: 18px; right: 18px; }
-  .vsms-form { margin-left: 10px; margin-right: 10px; }
-  .vsms-input { padding: 12px 18px; font-size: 0.95rem; }
-  .vsms-btn { padding: 12px 0; font-size: 0.95rem; }
-  .vsms-help { font-size: 0.8rem; }
+  /* Botón modo claro/oscuro más arriba y hacia adentro */
+  .theme-toggle-btn {
+    top: 10px;
+    right: 16px;
+  }
+
+  .vsms-form {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  .vsms-input {
+    padding: 12px 18px;
+    font-size: 0.95rem;
+  }
+  .vsms-btn {
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+  .vsms-help {
+    font-size: 0.8rem;
+  }
 }
+
 
 </style>
 

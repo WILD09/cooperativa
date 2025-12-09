@@ -225,7 +225,7 @@ body.modo-oscuro .login-bg-img-dark { display: block !important; }
   box-shadow: 0 0 0 2px #2fa24f33;
 }
 
-/* Enlaces secundarios (olvidé mi contraseña, etc.) */
+/* Enlaces secundarios */
 .login-link, .login-link:visited {
   color: #238C35;
   text-decoration: underline;
@@ -236,7 +236,7 @@ body.modo-oscuro .login-bg-img-dark { display: block !important; }
   color: #186324;
 }
 
-/* Bloque de registro (texto + botón) */
+/* Bloque de registro */
 .register-box {
   margin-top: 12px;
   font-size: 16px;
@@ -266,7 +266,7 @@ body.modo-oscuro .login-bg-img-dark { display: block !important; }
   box-shadow: 0 0 0 2px #2fa24f33;
 }
 
-/* Estilos de modo oscuro para la tarjeta de login y sus elementos */
+/* Modo oscuro login */
 body.modo-oscuro .login-card {
   background: #142923 !important;
   border-color: #00FF5A !important;
@@ -335,14 +335,13 @@ body.modo-oscuro .register-highlight:focus {
   justify-content: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s, transform 0.08s, box-shadow 0.12s;
+  transition: background 0.18s, color 0.16s, border 0.15s,
+              transform 0.08s, box-shadow 0.12s;
 }
-
 .theme-toggle-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px #238c3538;
 }
-
 body.modo-oscuro .theme-toggle-btn {
   background: #232D21;
   color: #97F088;
@@ -366,6 +365,8 @@ body.modo-oscuro .theme-toggle-btn {
     padding: 24px 18px !important;
   }
 }
+
+/* Ajustes móviles: recolocar botón tema */
 @media (max-width: 480px) {
   .login-card { border-radius: 28px; }
   .login-logo-side { padding: 26px 10px 18px 10px !important; }
@@ -379,7 +380,14 @@ body.modo-oscuro .theme-toggle-btn {
   .btn-green { padding: 12px 0; font-size: 1rem; }
   .register-box { font-size: 0.9rem; }
   .no-account-text { display: block; margin-bottom: 6px; }
+
+  /* Botón tema más arriba y un poco más adentro */
+  .theme-toggle-btn {
+    top: 10px;
+    right: 16px;
+  }
 }
+
 </style>
 
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="login-bg-img">
