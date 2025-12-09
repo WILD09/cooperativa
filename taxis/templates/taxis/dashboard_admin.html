@@ -1,6 +1,5 @@
 {% extends 'taxis/base.html' %}
 
-{# Título específico para el dashboard administrativo #}
 {% block title %}Dashboard Administrativo - Cooperativa{% endblock %}
 
 {% block content %}
@@ -21,7 +20,6 @@
         --border-radius: 0.5rem;
     }
 
-    /* Modo oscuro para el body y tarjetas */
     body.modo-oscuro {
         background-color: #1a1a1a;
         color: #e0e0e0;
@@ -55,7 +53,6 @@
         background-color: #3a3a3a;
     }
 
-    /* Tarjetas de métricas superiores */
     .dashboard-card {
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-md);
@@ -89,19 +86,16 @@
         opacity: 0.3;
     }
 
-    /* Bordes de color según tipo de tarjeta */
     .card-green { border-left: 4px solid var(--color-primary); }
     .card-blue { border-left: 4px solid var(--color-info); }
     .card-yellow { border-left: 4px solid var(--color-warning); }
     .card-red { border-left: 4px solid var(--color-danger); }
 
-    /* Colores de texto */
     .text-green { color: var(--color-primary); }
     .text-blue { color: var(--color-info); }
     .text-yellow { color: var(--color-warning); }
     .text-red { color: var(--color-danger); }
 
-    /* Enlaces de accesos rápidos (tarjetas de la derecha) */
     .quick-link {
         display: block;
         padding: 1rem;
@@ -125,7 +119,6 @@
         margin-right: 0.75rem;
     }
 
-    /* Tabla de patentes próximas a vencer */
     .table-responsive {
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-sm);
@@ -141,7 +134,6 @@
         background-color: rgba(40, 167, 69, 0.05);
     }
 
-    /* Badge custom para "vence pronto" */
     .badge-warning-custom {
         background-color: #fff3cd;
         color: #856404;
@@ -151,7 +143,6 @@
         white-space: nowrap;
     }
 
-    /* Ajustes responsive para tablets */
     @media (max-width: 768px) {
         .dashboard-card h2 { font-size: 1.5rem; }
         .dashboard-card .icon { font-size: 2rem; }
@@ -170,7 +161,6 @@
         }
     }
 
-    /* Ajustes extra para móviles pequeños */
     @media (max-width: 576px) {
         .row.mb-4 > [class*="col-"] {
             margin-bottom: 0.75rem;
@@ -178,7 +168,6 @@
     }
 </style>
 
-{# Encabezado del dashboard: título + rol + botón de logout #}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <div>
         <h1 class="h3 mb-0 text-gray-800">
@@ -187,7 +176,6 @@
         <span class="badge badge-success">Presidente</span>
     </div>
     <div>
-        {# Formulario POST para cerrar sesión usando la vista 'logout' de Django #}
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -197,7 +185,6 @@
     </div>
 </div>
 
-{# Muestra mensajes flash (éxito, error, etc.) si los hay #}
 {% if messages %}
   {% for message in messages %}
   <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -209,7 +196,6 @@
   {% endfor %}
 {% endif %}
 
-{# Fila de tarjetas de métricas principales #}
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="dashboard-card card-green">
@@ -276,7 +262,6 @@
     </div>
 </div>
 
-{# Fila principal: tabla de patentes y accesos rápidos #}
 <div class="row">
     <!-- Columna con tabla de patentes próximas a vencer -->
     <div class="col-lg-8 mb-4">
@@ -352,16 +337,20 @@
                     <i class="fas fa-plus-circle text-success"></i>
                     <strong>Registrar Vehículo</strong>
                 </a>
-                <a href="#" class="quick-link">
+                <a href="#" class="quick-link mb-3">
                     <i class="fas fa-file-alt text-warning"></i>
                     <strong>Generar Reporte</strong>
+                </a>
+                {# Nuevo: enlace para eliminar la cuenta de presidente #}
+                <a href="{% url 'taxis:eliminar_cuenta_presidente' %}" class="quick-link">
+                    <i class="fas fa-user-times text-danger"></i>
+                    <strong>Eliminar mi cuenta de presidente</strong>
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-{# Nota informativa al pie del dashboard #}
 <div class="row">
     <div class="col-12">
         <div class="alert alert-info" role="alert">

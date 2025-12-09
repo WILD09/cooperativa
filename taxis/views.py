@@ -9,8 +9,9 @@ Vistas de la aplicación 'taxis':
 
 from datetime import timedelta
 
-from django.contrib import messages                              # Sistema de mensajes flash.
+from django.contrib import messages                               # Sistema de mensajes flash.
 from django.contrib.auth.decorators import login_required        # Decorador para exigir login.
+from django.contrib.auth import logout                           # Para cerrar sesión al eliminar cuenta.
 from django.shortcuts import render, redirect, get_object_or_404 # Atajos para vistas.
 from django.urls import reverse_lazy, reverse                    # Utilidades para URLs reversas.
 from django.utils import timezone                                # Manejo de fechas/horas con zona.
@@ -45,6 +46,7 @@ from .utils import (                                             # Funciones de 
     register_email_resend,
     MAX_DAILY_RESENDS,
 )
+
 
 # -------------------------------------------------------------------
 # CRUD CONDUCTORES / TAXIS
@@ -521,6 +523,34 @@ def login_redirect_view(request):
         return redirect("taxis:dashboard-asociado")
     # Rol desconocido: se envía a la página de inicio.
     return redirect("taxis:index")
+
+
+# -------------------------------------------------------------------
+# VISTA: ELIMINAR CUENTA PRESIDENTE (AUTOSERVICIO)
+# -------------------------------------------------------------------
+
+
+@login_required
+def eliminar_cuenta_presidente(request):
+    """
+    Permite que un usuario con rol 'presidente' (que NO sea superusuario)
+    elimine su propia cuenta desde el dashboard.
+    Tras eliminarla, se cierra la sesión y se redirige a la página pública.
+    """
+    user = request.user
+
+    if request.method == "POST":
+        # Solo permitimos que un presidente normal se elimine a sí mismo
+        if isinstance(user, CustomUser) and user.role == "presidente" and not user.is_superuser:
+            user.delete()
+            logout(request)
+            # Cambia 'taxis:index' por la vista que quieras como landing pública
+            return redirect("taxis:index")
+        # Si no cumple condiciones, lo devolvemos a su dashboard
+        return redirect("taxis:dashboard-admin")
+
+    # GET: mostrar página de confirmación
+    return render(request, "taxis/eliminar_cuenta_presidente.html")
 
 
 # -------------------------------------------------------------------

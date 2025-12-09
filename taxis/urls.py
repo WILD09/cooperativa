@@ -35,6 +35,7 @@ from .views import (  # Importa todas las vistas que se usarán en las rutas.
     password_reset_verify_view,     # Paso 2: verificar código de reset.
     password_reset_new_password_view,  # Paso 3: definir nueva contraseña.
     password_reset_complete_view,   # Vista final tras reset exitoso.
+    eliminar_cuenta_presidente,
 )
 
 # Define el espacio de nombres de la app en las URLs reversas: 'taxis:...'
@@ -155,5 +156,11 @@ urlpatterns = [
         "password-reset/complete/",
         password_reset_complete_view,
         name="password_reset_complete",
+    ),
+
+     path(
+        "presidente/eliminar-cuenta/",
+        eliminar_cuenta_presidente,
+        name="eliminar_cuenta_presidente",
     ),
 ]
