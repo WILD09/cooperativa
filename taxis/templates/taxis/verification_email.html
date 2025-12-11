@@ -2,7 +2,6 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{# Título de la página en el layout base #}
 {% block title %}Verificación por correo{% endblock %}
 
 {% block content %}
@@ -12,7 +11,6 @@
    Pantalla de verificación por correo
    ----------------------- */
 
-/* Contenedor principal que centra la tarjeta en la pantalla */
 .vsms-wrapper {
   min-height: 100vh;
   width: 100vw;
@@ -25,7 +23,6 @@
   padding: 40px 12px 30px 12px;
 }
 
-/* Imágenes de fondo para modo claro/oscuro */
 .vsms-bg-img,
 .vsms-bg-img-dark {
   position: fixed;
@@ -41,7 +38,6 @@
 body.modo-oscuro .vsms-bg-img { display: none !important; }
 body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
 
-/* Tarjeta central que contiene el contenido de verificación */
 .vsms-card {
   display: flex;
   flex-direction: column;
@@ -62,7 +58,6 @@ body.modo-oscuro .vsms-card {
   box-shadow: 0 0 70px #000000aa;
 }
 
-/* Contenido interior de la tarjeta */
 .vsms-left {
   flex: 1;
   padding: 32px 30px 28px 30px;
@@ -72,7 +67,6 @@ body.modo-oscuro .vsms-card {
   justify-content: center;
 }
 
-/* Botón de volver atrás */
 .vsms-back {
   position: absolute;
   left: 24px;
@@ -108,7 +102,6 @@ body.modo-oscuro .vsms-back-icon {
   border-bottom-color: #71FF9E;
 }
 
-/* Bloque de título + logo */
 .vsms-title {
   display: flex;
   align-items: center;
@@ -125,7 +118,6 @@ body.modo-oscuro .vsms-back-icon {
 }
 body.modo-oscuro .vsms-title-text { color: #29FF66; }
 
-/* Texto descriptivo principal */
 .vsms-desc {
   margin-left: 70px;
   margin-right: 10px;
@@ -138,7 +130,6 @@ body.modo-oscuro .vsms-title-text { color: #29FF66; }
 body.modo-oscuro .vsms-desc { color: #E9FFE9; }
 body.modo-oscuro .vsms-desc strong { color: #b8ffd0; }
 
-/* Texto que muestra intentos de envío usados hoy */
 .vsms-daily {
   margin-left: 70px;
   margin-right: 10px;
@@ -149,7 +140,6 @@ body.modo-oscuro .vsms-desc strong { color: #b8ffd0; }
 }
 body.modo-oscuro .vsms-daily { color: #bfe8c6; }
 
-/* Contenedor del formulario de código */
 .vsms-form {
   margin-left: 40px;
   margin-right: 40px;
@@ -158,7 +148,6 @@ body.modo-oscuro .vsms-daily { color: #bfe8c6; }
   gap: 10px;
 }
 
-/* Campo para ingresar el código de 6 dígitos */
 .vsms-input {
   border-radius: 999px;
   border: 2px solid #6BE899;
@@ -182,10 +171,8 @@ body.modo-oscuro .vsms-daily { color: #bfe8c6; }
   box-shadow: 0 0 0 2px #00b54344;
   transform: translateY(-1px);
 }
-/* Clase para marcar input inválido (se agrega por JS) */
 input.is-invalid { border-color: #ff4b4b !important; }
 
-/* Mensajes de error para el código */
 .vsms-error {
   font-size: 0.8rem;
   margin-top: 4px;
@@ -193,7 +180,6 @@ input.is-invalid { border-color: #ff4b4b !important; }
   text-align: center;
 }
 
-/* Botón principal "Continuar" */
 .vsms-btn {
   width: 100%;
   background: linear-gradient(90deg,#24c34f,#18a83f);
@@ -213,7 +199,6 @@ input.is-invalid { border-color: #ff4b4b !important; }
   transform: translateY(-1px);
 }
 
-/* Bloque inferior: ayuda y botón de reenviar */
 .vsms-help {
   margin-top: 10px;
   font-size: 0.86rem;
@@ -222,7 +207,6 @@ input.is-invalid { border-color: #ff4b4b !important; }
 }
 body.modo-oscuro .vsms-help { color: #CFF5D8; }
 
-/* Botón de "Reenviar código" */
 .vsms-resend-btn {
   display: inline-flex;
   align-items: center;
@@ -248,7 +232,6 @@ body.modo-oscuro .vsms-help { color: #CFF5D8; }
   box-shadow: 0 2px 9px rgba(0,0,0,0.18);
 }
 
-/* Botón de reenviar en modo oscuro */
 body.modo-oscuro .vsms-resend-btn {
   background: #1f3a2f;
   color: #E9FFE9;
@@ -261,7 +244,6 @@ body.modo-oscuro .vsms-resend-btn:focus {
   box-shadow: 0 2.4px 12px rgba(0,0,0,0.6);
 }
 
-/* Botón flotante para alternar tema claro/oscuro */
 .theme-toggle-btn {
   position: fixed;
   top: 23px;
@@ -299,7 +281,7 @@ body.modo-oscuro .theme-toggle-btn {
 }
 .theme-toggle-btn:focus { outline: 3px solid #97F08888; }
 
-/* Ajustes responsive tablet */
+/* Tablet */
 @media (max-width: 900px) {
   .vsms-left {
     padding: 28px 22px 24px 22px;
@@ -309,23 +291,21 @@ body.modo-oscuro .theme-toggle-btn {
   .vsms-daily { margin-left: 50px; margin-right: 16px; }
 }
 
-/* Ajustes responsive móviles pequeños */
+/* Móvil pequeño */
 @media (max-width: 480px) {
   .vsms-card { border-radius: 30px; }
   .vsms-left { padding: 26px 18px 22px 18px; }
 
-  /* Flecha: bajamos ligeramente como en new_password */
   .vsms-back {
     left: 16px;
-    top: 12px;          /* antes 14px */
+    top: 12px;
     width: 40px;
     height: 40px;
   }
 
-  /* Título y logo centrados abajo del botón */
   .vsms-title {
     margin-left: 0;
-    margin-top: 26px;   /* mantiene espacio cómodo bajo la flecha */
+    margin-top: 26px;
     justify-content: center;
   }
   .vsms-title-logo img {
@@ -343,17 +323,15 @@ body.modo-oscuro .theme-toggle-btn {
     text-align: left;
   }
 
-  /* Intentos en una sola línea, centrados un poco más dentro */
   .vsms-daily {
     margin-left: 6px;
     margin-right: 6px;
     margin-bottom: 14px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     white-space: nowrap;
     text-align: center;
   }
 
-  /* Botón modo claro/oscuro más arriba y hacia adentro */
   .theme-toggle-btn {
     top: 8px;
     right: 16px;
@@ -377,48 +355,21 @@ body.modo-oscuro .theme-toggle-btn {
 }
 </style>
 
-
-{# Imágenes de fondo para modo claro y oscuro #}
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="vsms-bg-img">
 <img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="vsms-bg-img-dark">
 
-{# Botón flotante para alternar tema #}
 <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
   <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
 </button>
-
-<script>
-/*
-  Script de alternancia de tema claro/oscuro.
-  Usa localStorage para recordar la preferencia del usuario.
-*/
-(function(){
-  const btn = document.getElementById("themeToggleBtn");
-  const img = document.getElementById("iconSunMoon");
-  let modo = localStorage.getItem('modo-oscuro') === 'true';
-  if (modo) {
-    document.body.classList.add('modo-oscuro');
-    img.style.filter = "invert(0.7)";
-  }
-  btn.onclick = function() {
-    modo = !modo;
-    document.body.classList.toggle('modo-oscuro');
-    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
-    img.style.filter = modo ? "invert(0.7)" : "";
-  };
-})();
-</script>
 
 <div class="vsms-wrapper">
   <div class="vsms-card">
     <div class="vsms-left">
 
-      {# Botón para volver a la selección de rol #}
       <a href="{% url 'taxis:select_role' %}" class="vsms-back" aria-label="Volver">
         <span class="vsms-back-icon"></span>
       </a>
 
-      {# Encabezado con logo y título de la pantalla #}
       <div class="vsms-title">
         <div class="vsms-title-logo">
           <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
@@ -426,7 +377,6 @@ body.modo-oscuro .theme-toggle-btn {
         <div class="vsms-title-text">Verifica tu correo</div>
       </div>
 
-      {# Muestra mensajes de Django, excluyendo el texto redundante de envío de código #}
       {% if messages %}
         <div class="vsms-error" style="margin-bottom:8px;">
           {% for message in messages %}
@@ -437,7 +387,6 @@ body.modo-oscuro .theme-toggle-btn {
         </div>
       {% endif %}
 
-      {# Texto de explicación y correo al que se envió el código #}
       <div class="vsms-desc">
         Registro iniciado. Te hemos enviado un código de 6 dígitos a tu correo.
         <br>
@@ -445,28 +394,20 @@ body.modo-oscuro .theme-toggle-btn {
         <strong>{{ user.email }}</strong>. Ingresa el código a continuación para activar tu cuenta.
       </div>
 
-      {# Información sobre la cantidad de códigos enviados hoy a este correo #}
       <div class="vsms-daily">
         Intentos de envío de código por correo usados hoy:
         {{ email_used_today|default:"0" }} / {{ email_max_per_day|default:"0" }}.
       </div>
 
-      {# Formulario para introducir el código de 6 dígitos #}
       <form method="post" class="vsms-form" novalidate autocomplete="off">
         {% csrf_token %}
-
         <div>
-          {# Campo de entrada del código (se usa widget_tweaks para aplicar clase y attrs) #}
           {% render_field form.code class="vsms-input" placeholder="••••••" maxlength="6" %}
-          {# Si hay errores en el campo code, se marca el input y se muestra el mensaje #}
           {% if form.code.errors %}
           <script>
-          // Marca el campo como inválido añadiendo la clase is-invalid
           document.addEventListener('DOMContentLoaded', ()=>{
             const el = document.getElementsByName('{{ form.code.name }}')[0];
-            if (el) {
-              el.classList.add('is-invalid');
-            }
+            if (el) { el.classList.add('is-invalid'); }
           });
           </script>
           {% if form.code.errors.0 %}
@@ -475,16 +416,12 @@ body.modo-oscuro .theme-toggle-btn {
           {% endif %}
         </div>
 
-        {# Botón que envía el código para validación #}
         <button type="submit" class="vsms-btn">Continuar</button>
-
       </form>
 
-      {# Bloque inferior con ayuda e interfaz para reenviar código #}
       <div class="vsms-help">
         ¿No recibiste el código?
         <br>
-        {# Formulario separado para reenviar el código al mismo correo #}
         <form method="post" action="{% url 'taxis:verify_email' user.id %}" style="display:inline;">
           {% csrf_token %}
           <button type="submit"
@@ -504,49 +441,62 @@ body.modo-oscuro .theme-toggle-btn {
 </div>
 
 <script>
-/*
-  Restringe el campo de código a solo números y máximo 6 dígitos.
-*/
-document.addEventListener('input', function(e){
+/* Tema claro/oscuro */
+(function () {
+  const btn = document.getElementById("themeToggleBtn");
+  const img = document.getElementById("iconSunMoon");
+  if (!btn || !img) return;
+
+  let modo = localStorage.getItem("modo-oscuro") === "true";
+
+  if (modo) {
+    document.body.classList.add("modo-oscuro");
+    img.style.filter = "invert(0.7)";
+  }
+
+  btn.onclick = function () {
+    modo = !modo;
+    document.body.classList.toggle("modo-oscuro");
+    localStorage.setItem("modo-oscuro", modo ? "true" : "");
+    img.style.filter = modo ? "invert(0.7)" : "";
+  };
+})();
+
+/* Solo números y máximo 6 dígitos */
+document.addEventListener("input", function (e) {
   const el = e.target;
-  if (el.name === '{{ form.code.name }}') {
-    el.value = el.value.replace(/[^0-9]/g,'').slice(0,6);
+  if (el.name === "{{ form.code.name }}") {
+    el.value = el.value.replace(/[^0-9]/g, "").slice(0, 6);
   }
 });
 
-/*
-  Script de cuenta regresiva para el botón de "Reenviar código".
-  Usa el valor cooldown_seconds para bloquear el botón durante ese tiempo.
-*/
-(function() {
-  const btn = document.getElementById('resendBtnEmail');
-  const timerSpan = document.getElementById('resendEmailTimer');
+/* Cooldown botón reenviar código */
+(function () {
+  const btn = document.getElementById("resendBtnEmail");
+  const timerSpan = document.getElementById("resendEmailTimer");
   let remaining = {{ cooldown_seconds|default:0 }};
 
-  // Formatea los segundos como MM:SS
   function formatTime(sec) {
-    const m = String(Math.floor(sec / 60)).padStart(2,'0');
-    const s = String(sec % 60).padStart(2,'0');
-    return m + ':' + s;
+    const m = String(Math.floor(sec / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
+    return m + ":" + s;
   }
 
-  // Actualiza el estado del botón y el texto del contador.
   function update() {
     if (!btn) return;
     if (remaining > 0) {
       btn.disabled = true;
-      btn.classList.add('disabled');
-      timerSpan.textContent = ' (' + formatTime(remaining) + ')';
+      btn.classList.add("disabled");
+      timerSpan.textContent = " (" + formatTime(remaining) + ")";
       remaining -= 1;
       setTimeout(update, 1000);
     } else {
       btn.disabled = false;
-      btn.classList.remove('disabled');
-      timerSpan.textContent = '';
+      btn.classList.remove("disabled");
+      timerSpan.textContent = "";
     }
   }
 
-  // Si hay cooldown pendiente, inicia la cuenta regresiva.
   if (remaining > 0) {
     update();
   }

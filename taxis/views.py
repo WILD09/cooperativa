@@ -296,9 +296,7 @@ def verify_email_view(request, user_id):
     - Muestra el formulario para introducir el código.
     - Permite reenviar el código con límites de seguridad (diario y cooldown).
     """
-    # Obtiene el usuario a partir del ID.
     user = get_object_or_404(CustomUser, pk=user_id)
-    # Formulario para introducir el código (reutilizable en GET/POST).
     form = VerificationCodeForm(request.POST or None)
 
     # Cálculo del cooldown (tiempo de espera entre reenvíos).
@@ -319,61 +317,59 @@ def verify_email_view(request, user_id):
         if remaining > 0:
             cooldown_seconds = remaining
 
-    # Comprueba si hoy se puede enviar/re-enviar otro código a este correo.
+    # Cálculo inicial de envíos diarios para correo primario.
     puede_env, error_msg, used_today, max_per_day = can_resend_email_code(
         user, email_type="primary"
     )
 
     if request.method == "POST":
-        # Si el usuario pulsó el botón de "reenviar código".
+        # Reenviar código
         if "resend_code" in request.POST:
-            form = VerificationCodeForm()  # formulario vacío, se limpia el campo.
+            form = VerificationCodeForm()  # limpiar campo
             if not puede_env:
-                # Si el límite diario se alcanzó, muestra el mensaje y NO envía
                 messages.error(request, error_msg)
             else:
-                # Genera un nuevo código (invalidando el anterior).
+                # Genera nuevo código para email primario
                 code = create_email_verification_code(
                     user, email_type="primary", validity_minutes=15
                 )
-                # Envía el correo con el nuevo código.
-                send_verification_email(user, code, email_type="password_reset")
-                # Registra el reenvío (para el conteo diario y por código).
-                register_email_resend(user, email_type="password_reset")
-                messages.info(request, "Se ha reenviado un nuevo código a tu correo.")
+                # Envía correo para verificación de email primario
+                send_verification_email(user, code, email_type="primary")
+                # Registra el reenvío para ese mismo tipo
+                register_email_resend(user, email_type="primary")
+
+                messages.info(
+                    request,
+                    "Se ha reenviado un nuevo código a tu correo."
+                )
                 cooldown_seconds = 60
 
-                # Recalcula el contador diario después del reenvío.
+                # Recalcular contador diario después del reenvío
                 puede_env, error_msg, used_today, max_per_day = can_resend_email_code(
                     user, email_type="primary"
                 )
+
+        # Verificar código
         else:
-            # Caso en el que el usuario envía el formulario con el código.
             form = VerificationCodeForm(request.POST)
             if form.is_valid():
                 code = form.cleaned_data["code"]
                 if code:
-                    # Verifica si el código es válido, no usado y no vencido.
                     code_obj = verify_email_code(user, code, email_type="primary")
                     if code_obj:
-                        # Marca el código como usado.
                         mark_email_code_as_used(code_obj)
-                        # Marca el correo del usuario como verificado.
                         user.is_email_verified = True
-                        # Activa la cuenta si no lo estaba.
                         if not user.is_active:
                             user.is_active = True
                         user.save()
-                        # Redirige a la pantalla de verificación exitosa.
                         return redirect("taxis:verification_success")
                     else:
-                        # Agrega error al formulario si el código no es válido.
                         form.add_error(
                             "code",
-                            "El código ingresado es incorrecto, ha expirado o se alcanzó el número máximo de intentos.",
+                            "El código ingresado es incorrecto, ha expirado "
+                            "o se alcanzó el número máximo de intentos.",
                         )
 
-    # Contexto para la plantilla de verificación de correo.
     context = {
         "user": user,
         "form": form,
@@ -382,6 +378,7 @@ def verify_email_view(request, user_id):
         "email_max_per_day": max_per_day,
     }
     return render(request, "taxis/verification_email.html", context)
+
 
 
 def verification_success_view(request):
