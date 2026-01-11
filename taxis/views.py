@@ -429,51 +429,6 @@ def panel_general(request):
     return render(request, 'taxis/panel_general.html', context)
 
 
-@login_required
-def dashboard_admin(request):
-    """
-    Dashboard principal para usuarios con rol 'presidente'.
-    """
-    if request.user.role != "presidente":
-        messages.error(
-            request,
-            "No tienes permisos para acceder al dashboard administrativo.",
-        )
-        return redirect("taxis:index")
-
-    hoy = timezone.now().date()
-    inicio_mes = hoy.replace(day=1)
-
-    total_conductores = Conductor.objects.count()
-    total_vehiculos = Taxi.objects.count()
-
-    pagos_realizados = Conductor.objects.filter(
-        pago_patente_realizado=True,
-        fecha_pago_patente__gte=inicio_mes,
-    ).count()
-
-    pagos_pendientes = Conductor.objects.filter(
-        pago_patente_realizado=False
-    ).count()
-
-    fecha_limite_inferior = hoy - timedelta(days=30)
-    fecha_limite_superior = hoy - timedelta(days=15)
-
-    patentes_por_vencer = Conductor.objects.filter(
-        pago_patente_realizado=True,
-        fecha_pago_patente__isnull=False,
-        fecha_pago_patente__gte=fecha_limite_inferior,
-        fecha_pago_patente__lte=fecha_limite_superior,
-    )[:10]
-
-    context = {
-        "total_conductores": total_conductores,
-        "total_vehiculos": total_vehiculos,
-        "pagos_realizados": pagos_realizados,
-        "pagos_pendientes": pagos_pendientes,
-        "patentes_por_vencer": patentes_por_vencer,
-    }
-    return render(request, "taxis/dashboard_admin.html", context)
 
 
 
@@ -498,22 +453,7 @@ def login_redirect_view(request):
 # -------------------------------------------------------------------
 
 
-@login_required
-def eliminar_cuenta_presidente(request):
-    """
-    Permite que un usuario con rol 'presidente' (que NO sea superusuario)
-    elimine su propia cuenta desde el dashboard.
-    """
-    user = request.user
 
-    if request.method == "POST":
-        if isinstance(user, CustomUser) and user.role == "presidente" and not user.is_superuser:
-            user.delete()
-            logout(request)
-            return redirect("login")
-        return redirect("taxis:dashboard-admin")
-
-    return render(request, "taxis/eliminar_cuenta_presidente.html")
 
 
 # -------------------------------------------------------------------

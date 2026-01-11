@@ -28,13 +28,11 @@ from .views import (
     verify_email_view,
     verification_success_view,
     panel_general,
-    dashboard_admin,
     login_redirect_view,
     password_reset_request_view,
     password_reset_verify_view,
     password_reset_new_password_view,
     password_reset_complete_view,
-    eliminar_cuenta_presidente,
     actualizar_avatar_presidente,
 )
 
@@ -53,8 +51,7 @@ urlpatterns = [
     # Panel General - Nuevo dashboard principal del Presidente
     path("panel-general/", panel_general, name="panel-general"),
 
-    # Dashboard para el rol presidente (legacy).
-    path("dashboard/", dashboard_admin, name="dashboard-admin"),
+
 
     # CRUD CONDUCTORES
 
@@ -110,10 +107,5 @@ urlpatterns = [
         name="password_reset_complete",
     ),
 
-    # Eliminar cuenta de presidente
-    path(
-        "presidente/eliminar-cuenta/",
-        eliminar_cuenta_presidente,
-        name="eliminar_cuenta_presidente",
-    ),
+
 ]
