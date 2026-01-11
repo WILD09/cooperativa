@@ -6,7 +6,7 @@ Configuración principal del proyecto Django 'cooperativa'.
 - Apps instaladas, middlewares, plantillas.
 - Base de datos (PostgreSQL vía DATABASE_URL, con fallback a SQLite).
 - Autenticación (usuario personalizado, validador de contraseñas).
-- Internacionalización, estáticos (WhiteNoise), email, Twilio, mensajes y login.
+- Internacionalización, estáticos (WhiteNoise), email, mensajes y login.
 """
 
 from pathlib import Path
@@ -243,13 +243,6 @@ REGISTRATION_AUTO_LOGIN = False
 LOGIN_REDIRECT_URL = "taxis:login-redirect"
 
 
-# -------------------------------------------------------------------
-# TWILIO (PARA SMS) – ACTUALMENTE NO SE USA EN EL FLUJO DE VERIFICACIÓN
-# -------------------------------------------------------------------
-
-TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", default="")
-TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", default="")
-TWILIO_FROM_NUMBER = config("TWILIO_FROM_NUMBER", default="")
 
 
 # -------------------------------------------------------------------
