@@ -1,15 +1,27 @@
-<<<<<<< HEAD
-# Ignorar archivos compilados de Python
+# Python
 *.pyc
 __pycache__/
-=======
-# Ignorar entornos virtuales
+*.py[cod]
+*$py.class
+
+# Environmnet
 env/
 env_new/
 .venv/
-
-# Ignorar archivos de entorno si llegas a crearlos
+venv/
+ENV/
 .env
-*.env
- .env
->>>>>>> 1c06153 (Add .gitignore to ignore environment folders)
+
+# Database
+db.sqlite3
+*.db
+
+# Media & Statics
+media/
+staticfiles/
+avatars/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store

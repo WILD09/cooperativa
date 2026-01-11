@@ -1,73 +1,139 @@
-"""
-models.py
-Modelos de la aplicación 'taxis':
-- Ubicación geográfica
-- Conductor y Taxi
-- Usuario personalizado (CustomUser)
-- Códigos de verificación por correo
-- Log de intentos de verificación
-- Log de envíos diarios de correo
-"""
-
 from datetime import date, timedelta
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager  # Base para usuario personalizado.
-from django.db import models                                           # Clases base de modelos.
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 
 
 class UbicacionGeografica(models.Model):
-    """
-    Representa la dirección física de un conductor.
-    Se guarda separada para poder reutilizar y normalizar datos de ubicación.
-    """
-    ciudad = models.CharField(max_length=100)       # Nombre de la ciudad.
-    estado = models.CharField(max_length=100)       # Estado o provincia.
-    municipio = models.CharField(max_length=100)    # Municipio.
-    sector = models.CharField(max_length=100)       # Sector o barrio.
-    nro_casa = models.CharField(max_length=20)      # Número de casa o lote.
+    direccion = models.CharField(max_length=255, null=True, blank=True)
+    calle_avenida = models.CharField(max_length=100, null=True, blank=True)
+    sector = models.CharField(max_length=100, null=True, blank=True)
+    numero_casa = models.CharField(max_length=20, null=True, blank=True)
+    estado = models.CharField(max_length=100, null=True, blank=True)
+    municipio = models.CharField(max_length=100, null=True, blank=True)
+    parroquia = models.CharField(max_length=100, null=True, blank=True)
+    zona_postal = models.CharField(max_length=10, null=True, blank=True)
+    localidad = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        """Devuelve la dirección leíble en una sola cadena."""
-        return f"{self.ciudad}, {self.estado}, {self.municipio}, {self.sector}, {self.nro_casa}"
+        return (
+            f"{self.direccion}, {self.calle_avenida}, {self.sector}, "
+            f"{self.numero_casa}, {self.parroquia}, {self.municipio}, "
+            f"{self.estado}, {self.zona_postal}"
+        )
 
 
 class Conductor(models.Model):
-    """
-    Representa a un conductor asociado a la cooperativa.
-    Incluye datos personales, contacto y estado de pago de patente.
-    """
     SEXO_CHOICES = [
         ("M", "Masculino"),
         ("F", "Femenino"),
     ]
 
-    nombre = models.CharField(max_length=100)                    # Nombre del conductor.
-    apellido = models.CharField(max_length=100)                  # Apellido del conductor.
-    cedula_identidad = models.CharField(
-        max_length=20,
-        unique=True,                                             # No se permite cédulas repetidas.
-    )
-    fecha_nacimiento = models.DateField(null=True, blank=True)   # Fecha de nacimiento (opcional).
-    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)  # Sexo (M/F).
-    ubicacion = models.OneToOneField(
-        UbicacionGeografica,
-        on_delete=models.CASCADE,                                # Si se borra la ubicación, se borra el conductor.
+    ESTADO_CIVIL_CHOICES = [
+        ("soltero", "Soltero(a)"),
+        ("casado", "Casado(a)"),
+        ("divorciado", "Divorciado(a)"),
+        ("viudo", "Viudo(a)"),
+        ("union", "Unión estable de hecho"),
+    ]
+
+    user = models.OneToOneField(
+        "CustomUser",
+        on_delete=models.CASCADE,
+        related_name="conductor",
+        help_text="Usuario asociado al perfil de conductor.",
         null=True,
         blank=True,
     )
-    telefono = models.CharField(max_length=20)                   # Teléfono de contacto.
 
-    pago_patente_realizado = models.BooleanField(default=False)  # Indica si pagó la patente.
-    fecha_pago_patente = models.DateField(null=True, blank=True) # Fecha del último pago de patente.
+    cedula_identidad = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+    )
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+
+    sexo = models.CharField(
+        max_length=1,
+        choices=SEXO_CHOICES,
+        null=True,
+        blank=True,
+    )
+
+    estado_civil = models.CharField(
+        max_length=20,
+        choices=ESTADO_CIVIL_CHOICES,
+        null=True,
+        blank=True,
+    )
+
+    # Número de RIF escrito (para búsquedas, reportes, etc.)
+    rif = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="Número de RIF tal cual aparece en el documento (Ej: V-12345678-0).",
+    )
+
+    # Documento digital del RIF (PDF o imagen)
+    documento_rif = models.FileField(
+        upload_to="documentos/rif/%Y/%m/",
+        null=True,
+        blank=True,
+        help_text="Archivo PDF o imagen escaneada del RIF vigente.",
+    )
+
+    # Fecha de vencimiento exacta que aparece en el RIF
+    fecha_vencimiento_rif = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Fecha de vencimiento del RIF.",
+    )
+
+    # Teléfono del registro (principal). No se editará en Mi perfil.
+    telefono_principal = models.CharField(max_length=20, null=True, blank=True)
+
+    # Opcionales
+    telefono_secundario = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Opcional.",
+    )
+
+    # Teléfono fijo (opcional)
+    telefono_fijo = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Opcional.",
+    )
+
+    avatar = models.ImageField(
+        upload_to="avatars/",
+        null=True,
+        blank=True,
+        help_text="Foto de perfil del asociado.",
+    )
+
+    ubicacion = models.OneToOneField(
+        UbicacionGeografica,
+        on_delete=models.CASCADE,
+        related_name="conductor",
+        null=True,
+        blank=True,
+    )
+
+    pago_patente_realizado = models.BooleanField(default=False)
+    fecha_pago_patente = models.DateField(null=True, blank=True)
 
     def edad(self):
-        """
-        Calcula la edad actual del conductor a partir de su fecha de nacimiento.
-        Devuelve None si no hay fecha registrada.
-        """
         if self.fecha_nacimiento:
             hoy = date.today()
-            edad = (
+            return (
                 hoy.year
                 - self.fecha_nacimiento.year
                 - (
@@ -75,73 +141,80 @@ class Conductor(models.Model):
                     < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
                 )
             )
-            return edad
         return None
 
     @property
     def patente_vigente(self):
-        """
-        Indica si la patente está vigente.
-        Se considera vigente durante 30 días desde la fecha de pago.
-        """
         if not self.pago_patente_realizado or not self.fecha_pago_patente:
             return False
         return date.today() <= self.fecha_pago_patente + timedelta(days=30)
 
+    def is_profile_complete(self):
+        campos_obligatorios = [
+            self.cedula_identidad,
+            self.nombres,
+            self.apellidos,
+            self.fecha_nacimiento,
+            self.sexo,
+            self.estado_civil,
+            self.rif,                  # debe existir número de RIF
+            self.documento_rif,        # y el archivo cargado
+            self.fecha_vencimiento_rif,# y su fecha de vencimiento
+            self.telefono_principal,   # sigue siendo obligatorio (viene del registro)
+        ]
+
+        if not self.ubicacion:
+            return False
+
+        ubic = self.ubicacion
+        campos_residencia = [
+            ubic.direccion,
+            ubic.calle_avenida,
+            ubic.sector,
+            ubic.numero_casa,
+            ubic.estado,
+            ubic.municipio,
+            ubic.parroquia,
+            ubic.zona_postal,
+        ]
+
+        return all(bool(campo) for campo in campos_obligatorios + campos_residencia)
+
     def __str__(self):
-        """Representación de texto del conductor."""
-        return f"{self.nombre} {self.apellido} - CI: {self.cedula_identidad}"
+        return f"{self.nombres} {self.apellidos} - CI: {self.cedula_identidad}"
 
 
 class Taxi(models.Model):
-    """
-    Representa un vehículo (taxi) asociado a un conductor.
-    """
-    placa = models.CharField(max_length=15, unique=True)  # Placa única del vehículo.
-    modelo = models.CharField(max_length=100)             # Modelo del vehículo.
-    nombre_vehiculo = models.CharField(max_length=100)    # Nombre o alias del vehículo.
-    anio = models.PositiveIntegerField()                  # Año del vehículo.
+    placa = models.CharField(max_length=15, unique=True)
+    modelo = models.CharField(max_length=100)
+    nombre_vehiculo = models.CharField(max_length=100)
+    anio = models.PositiveIntegerField()
     conductor = models.ForeignKey(
         Conductor,
-        on_delete=models.CASCADE,                         # Si se borra el conductor, se borran sus taxis.
-        related_name="taxis",                             # Acceso inverso: conductor.taxis.all()
+        on_delete=models.CASCADE,
+        related_name="taxis",
     )
 
     def __str__(self):
-        """Representación de texto del taxi."""
-        return f"{self.nombre_vehiculo} ({self.placa}) - Conductor: {self.conductor.nombre}"
+        return f"{self.nombre_vehiculo} ({self.placa}) - Conductor: {self.conductor.nombres}"
 
 
 class CustomUserManager(BaseUserManager):
-    """
-    Manager personalizado para el modelo de usuario.
-    Define la creación de usuarios normales y superusuarios.
-    """
-
     def create_user(self, username, email=None, password=None, **extra_fields):
-        """
-        Crea y guarda un usuario regular con nombre de usuario y correo.
-        Por defecto, el usuario queda inactivo hasta verificar el correo.
-        """
         if not username:
             raise ValueError("El nombre de usuario es obligatorio")
         email = self.normalize_email(email)
-        # Crea la instancia de usuario con los campos extra.
         user = self.model(username=username, email=email, **extra_fields)
-        user.set_password(password)  # Encripta la contraseña.
+        user.set_password(password)
         if extra_fields.get("is_active") is None:
-            # Por defecto, se crea inactivo (a la espera de verificación).
             user.is_active = False
         user.save(using=self._db)
         return user
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
-        """
-        Crea y guarda un superusuario con privilegios de staff y superusuario.
-        """
-        extra_fields.setdefault("is_staff", True)       # Marca como personal administrativo.
-        extra_fields.setdefault("is_superuser", True)   # Marca como superusuario.
-        extra_fields.setdefault("is_active", True)      # Activo desde el inicio.
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("El superusuario debe tener is_staff=True")
@@ -152,12 +225,6 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    """
-    Usuario personalizado para la app:
-    - Extiende AbstractUser.
-    - Agrega el rol (presidente / asociado).
-    - Campos de verificación de correo y teléfono.
-    """
     ROLE_CHOICES = [
         ("presidente", "Presidente"),
         ("asociado", "Asociado"),
@@ -166,22 +233,32 @@ class CustomUser(AbstractUser):
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default="asociado",         # Rol por defecto para nuevos usuarios.
+        default="asociado",
     )
 
-    # Estado de verificación.
-    is_email_verified = models.BooleanField(default=False)      # Indica si el correo fue verificado.
-    phone_number = models.CharField(max_length=20, blank=True, null=True)  # Número de teléfono (opcional).
-    is_phone_verified = models.BooleanField(default=False)      # Estado de verificación telefónica (hoy no se usa).
+    is_email_verified = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    is_phone_verified = models.BooleanField(default=False)
 
-    # Asocia el manager personalizado.
+    # Campos nuevos para que el perfil pueda leerlos directo desde request.user
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    sexo = models.CharField(
+        max_length=1,
+        choices=Conductor.SEXO_CHOICES,
+        null=True,
+        blank=True,
+    )
+
+    avatar = models.ImageField(
+        upload_to="avatars/",
+        null=True,
+        blank=True,
+        help_text="Foto de perfil del usuario.",
+    )
+
     objects = CustomUserManager()
 
     def __str__(self):
-        """
-        Representación de texto del usuario.
-        Prioriza mostrar nombre/apellido y rol de presidente si aplica.
-        """
         nombre = (self.first_name or "").strip()
         apellido = (self.last_name or "").strip()
         if self.role == "presidente":
@@ -194,54 +271,38 @@ class CustomUser(AbstractUser):
 
 
 class EmailVerificationCode(models.Model):
-    """
-    Almacena códigos de verificación enviados por correo electrónico.
-    Se usa tanto para:
-    - verificación de registro (email_type='primary'),
-    - restablecimiento de contraseña (email_type='password_reset', aunque no esté en choices).
-    """
     EMAIL_TYPE_CHOICES = [
-        ("primary", "Correo principal"),  # Tipo principal usado en el registro.
-        # Aunque no aparezca aquí, el sistema también usa 'password_reset' en email_type.
+        ("primary", "Correo principal"),
     ]
 
     user = models.ForeignKey(
         CustomUser,
-        on_delete=models.CASCADE,          # Si se borra el usuario, se borran sus códigos.
-        related_name="email_codes",        # Acceso inverso: user.email_codes.all()
+        on_delete=models.CASCADE,
+        related_name="email_codes",
     )
-    code = models.CharField(max_length=6)  # Código de 6 dígitos enviado al correo.
+    code = models.CharField(max_length=6)
     email_type = models.CharField(
         max_length=30,
-        choices=EMAIL_TYPE_CHOICES,        # Tipo de código (registro, etc.).
+        choices=EMAIL_TYPE_CHOICES,
         default="primary",
     )
 
-    created_at = models.DateTimeField()    # Fecha/hora en que se generó el código.
-    expires_at = models.DateTimeField()    # Fecha/hora de expiración del código.
-    is_used = models.BooleanField(default=False)  # Indica si el código ya fue usado.
-    used_at = models.DateTimeField(blank=True, null=True)  # Momento en que se usó el código.
+    created_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    used_at = models.DateTimeField(blank=True, null=True)
 
-    attempt_count = models.PositiveIntegerField(default=0)  # Intentos de validación consumidos.
-    resend_count = models.PositiveIntegerField(default=0)   # Reenvíos realizados de este código.
-    last_resend_at = models.DateTimeField(blank=True, null=True)  # Última vez que se reenvió.
+    attempt_count = models.PositiveIntegerField(default=0)
+    resend_count = models.PositiveIntegerField(default=0)
+    last_resend_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        """Representación de texto del código de verificación."""
         return f"{self.user.username} - {self.email_type} - {self.code}"
 
 
 class VerificationAttemptLog(models.Model):
-    """
-    Registra los intentos de verificación (principalmente de email).
-    Permite auditar:
-    - método usado,
-    - resultado,
-    - IP y User-Agent de quien hizo el intento.
-    """
     METHOD_CHOICES = [
         ("email_primary", "Email principal"),
-        # Antes se usaba también 'sms'; ya no se usa SMS.
     ]
     RESULT_CHOICES = [
         ("success", "Éxito"),
@@ -253,64 +314,38 @@ class VerificationAttemptLog(models.Model):
 
     user = models.ForeignKey(
         CustomUser,
-        on_delete=models.CASCADE,              # Si se borra el usuario, se borran sus logs.
-        related_name="verification_attempts",  # Acceso inverso: user.verification_attempts.all()
+        on_delete=models.CASCADE,
+        related_name="verification_attempts",
     )
-    method = models.CharField(
-        max_length=20,
-        choices=METHOD_CHOICES,                # Método de verificación usado.
-    )
-    code = models.CharField(
-        max_length=6,
-        blank=True,                            # Código que se intentó (si aplica).
-    )
-    result = models.CharField(
-        max_length=30,
-        choices=RESULT_CHOICES,                # Resultado del intento.
-    )
-    reason = models.TextField(
-        blank=True,                            # Detalle adicional del resultado.
-    )
-    ip_address = models.GenericIPAddressField(
-        null=True,
-        blank=True,                            # IP desde donde se hizo el intento.
-    )
-    user_agent = models.TextField(
-        blank=True,                            # User-Agent del cliente (navegador/dispositivo).
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,                     # Fecha/hora en que se registró el intento.
-    )
+    method = models.CharField(max_length=20, choices=METHOD_CHOICES)
+    code = models.CharField(max_length=6, blank=True)
+    result = models.CharField(max_length=30, choices=RESULT_CHOICES)
+    reason = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        """Representación de texto del log de verificación."""
         return f"{self.user.username} - {self.method} - {self.result} - {self.created_at}"
 
 
 class EmailSendLog(models.Model):
-    """
-    Registra cuántos códigos se han enviado a un email en una fecha dada
-    y para un TIPO de email (registro / reset).
-    Permite tener límites diarios separados por tipo.
-    """
     EMAIL_TYPE_CHOICES = [
         ("primary", "Correo principal / registro"),
         ("password_reset", "Restablecimiento de contraseña"),
     ]
 
-    email = models.EmailField()                 # Correo de destino.
-    date = models.DateField()                   # Día del registro.
-    email_type = models.CharField(              # Tipo de código (registro o reset).
+    email = models.EmailField()
+    date = models.DateField()
+    email_type = models.CharField(
         max_length=30,
         choices=EMAIL_TYPE_CHOICES,
         default="primary",
     )
-    count = models.PositiveIntegerField(default=0)  # Cantidad de códigos enviados ese día.
+    count = models.PositiveIntegerField(default=0)
 
     class Meta:
-        # Un registro por (email, fecha, tipo), no solo por email+fecha.
         unique_together = ("email", "date", "email_type")
 
     def __str__(self):
-        """Representación de texto del log de envíos."""
         return f"{self.email} - {self.date} - {self.email_type} - {self.count}"

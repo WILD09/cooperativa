@@ -1,0 +1,924 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>{% block title %}Panel Administrativo - Cooperativa{% endblock %}</title>
+
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
+
+    <style>
+        /* =========================================== 
+       VARIABLES Y COLORES BASE
+       =========================================== */
+        :root {
+            --coop-green: #16a34a;
+            --coop-green-hover: #15803d;
+            --coop-green-vibrant: #00a000;
+
+            /* Colores Modo Oscuro */
+            --coop-dark-bg: #020a1f;
+            --coop-dark-card: #0b1220;
+            --coop-input-bg: #020617;
+
+            /* Dimensiones */
+            --topbar-h: 70px;
+            --sidebar-w: 224px;
+            --sidebar-w-collapsed: 90px;
+        }
+
+        /* =========================================== 
+       SIDEBAR - MODO CLARO
+       =========================================== */
+        .sidebar {
+            background: linear-gradient(180deg, #009900 0%, #00b300 40%, #007700 100%) !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-w);
+            z-index: 1040;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px !important;
+            overflow-y: auto;
+            /* Permite scroll interno si es necesario extreme cases */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari, Opera */
+        }
+
+        body.dark-mode .sidebar {
+            background: linear-gradient(180deg, #022c22 0%, #064e3b 100%) !important;
+            border-right: 1px solid #065f46;
+        }
+
+        /* =========================================== 
+       ICONOS Y TEXTOS
+       =========================================== */
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.95) !important;
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            /* Reducido para mejor encaje */
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .nav-link i,
+        .sidebar .nav-link svg {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #ffffff !important;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            min-width: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .sidebar .sidebar-brand {
+            height: var(--topbar-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+
+        /* Botón Cerrar Sesión en Sidebar */
+        .sidebar .nav-item form .nav-link {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            text-align: center !important;
+            padding: 1rem !important;
+        }
+
+        .sidebar .nav-item form .nav-link div {
+            margin: 0 auto 4px auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .sidebar .nav-item form .nav-link div i {
+            margin-right: 0 !important;
+            font-size: 0.9rem !important;
+        }
+
+        .sidebar .nav-item form .nav-link span {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+        }
+
+        /* =========================================== 
+       TOPBAR Y CONTENIDO
+       =========================================== */
+        .navbar.navbar-light.bg-white {
+            position: fixed !important;
+            top: 0;
+            right: 0;
+            left: var(--sidebar-w);
+            width: calc(100% - var(--sidebar-w));
+            height: var(--topbar-h);
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e3e6f0;
+            z-index: 1030;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.3s ease;
+        }
+
+        body.dark-mode .navbar.navbar-light.bg-white {
+            background-color: #010614 !important;
+            /* Más intenso que el fondo del panel */
+            border-bottom: 2px solid #10b981 !important;
+            color: #ffffff !important;
+        }
+
+        /* Colores quirúrgicos #10b981 en modo oscuro */
+        body.dark-mode .header-panel h1,
+        body.dark-mode .header-panel h1 i,
+        body.dark-mode .seccion-info h3,
+        body.dark-mode .seccion-info h3 i,
+        body.dark-mode .info-card strong {
+            color: #10b981 !important;
+        }
+
+        body.dark-mode .tarjeta-resumen,
+        body.dark-mode .info-card {
+            border-color: #10b981 !important;
+        }
+
+        body.dark-mode .icon-circle {
+            background-color: #10b981 !important;
+        }
+
+        body.dark-mode .icon-circle i {
+            color: #ffffff !important;
+        }
+
+        /* Restauración de blancos y protección de sidebar */
+        body.dark-mode .sidebar .nav-link i,
+        body.dark-mode .sidebar-avatar-link i,
+        body.dark-mode .navbar .ml-2,
+        body.dark-mode h2:not(.header-panel h1),
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6,
+        body.dark-mode label,
+        body.dark-mode th {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .badge-success {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #ffffff !important;
+            /* Texto corregido a blanco */
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        }
+
+        body.dark-mode .modal-content {
+            background-color: #0b1220 !important;
+            color: #ffffff !important;
+            border: 2px solid #10b981 !important;
+            overflow: hidden;
+            /* Fix para bordes "rotos" en esquinas */
+        }
+
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        body.dark-mode .navbar .ml-2 {
+            color: #ffffff !important;
+        }
+
+        #content-wrapper {
+            margin-left: var(--sidebar-w);
+            padding-top: var(--topbar-h);
+            min-height: 100vh;
+            background-color: #f8f9fc;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-mode #content-wrapper {
+            background-color: var(--coop-dark-bg) !important;
+        }
+
+        #content {
+            flex: 1 0 auto;
+            padding-top: 1.5rem;
+        }
+
+        #content>.container-fluid {
+            padding-left: 1.8rem;
+            padding-right: 1.8rem;
+        }
+
+        /* =========================================== 
+       ESTADO COLAPSADO
+       =========================================== */
+        body.sidebar-toggled .sidebar {
+            width: var(--sidebar-w-collapsed);
+        }
+
+        body.sidebar-toggled .sidebar .nav-link span,
+        body.sidebar-toggled .sidebar .sidebar-brand-text {
+            display: none !important;
+        }
+
+        body.sidebar-toggled .sidebar .nav-link {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        body.sidebar-toggled .sidebar .nav-link i {
+            margin-right: 0;
+        }
+
+        body.sidebar-toggled .navbar.navbar-light.bg-white {
+            left: var(--sidebar-w-collapsed);
+            width: calc(100% - var(--sidebar-w-collapsed));
+        }
+
+        body.sidebar-toggled #content-wrapper {
+            margin-left: var(--sidebar-w-collapsed);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+            }
+
+            body.sidebar-toggled .sidebar {
+                width: var(--sidebar-w);
+                z-index: 2000;
+            }
+
+            .navbar.navbar-light.bg-white {
+                left: 0 !important;
+                width: 100% !important;
+            }
+
+            #content-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* =========================================== 
+       MODO OSCURO
+       =========================================== */
+        body.dark-mode {
+            background-color: var(--coop-dark-bg) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .card label,
+        body.dark-mode .card small,
+        body.dark-mode .card .form-text,
+        body.dark-mode .card .text-muted {
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .card-header,
+        body.dark-mode .card-body {
+            background-color: var(--coop-dark-card) !important;
+            border-color: #16a34a !important;
+        }
+
+        /* =========================================== 
+       MODALES Y BOTONES
+       =========================================== */
+        body.dark-mode .modal-content {
+            background-color: var(--coop-dark-card) !important;
+            border: 2px solid var(--coop-green) !important;
+            color: #f8f9fc !important;
+        }
+
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer {
+            border-color: #374151 !important;
+            background-color: var(--coop-dark-card) !important;
+        }
+
+        body.dark-mode .close {
+            color: #fff !important;
+            opacity: 1;
+        }
+
+        /* =========================================== 
+       BOTÓN TOGGLE DE TEMA
+       =========================================== */
+        #themeToggle {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #themeToggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #themeToggle svg,
+        #themeToggle i {
+            width: 18px !important;
+            height: 18px !important;
+            font-size: 18px !important;
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode #themeToggle {
+            background: #10b981 !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transform: rotate(180deg);
+        }
+
+        body.dark-mode #themeToggle:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        body.dark-mode #themeToggle svg,
+        body.dark-mode #themeToggle i {
+            color: #fbbf24 !important;
+        }
+
+        /* =========================================== 
+       BOTÓN EXPANDIR/CONTRAER SIDEBAR
+       =========================================== */
+        #sidebarToggle {
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #sidebarToggle:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.15);
+        }
+
+        body.dark-mode .sticky-footer.bg-white {
+            background-color: var(--coop-dark-bg) !important;
+            border-top: 1px solid #16a34a !important;
+            color: #9ca3af !important;
+        }
+
+        /* =========================================== 
+       EFECTOS BOTONES MODAL AVATAR
+       =========================================== */
+        .modal-btn-action {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 1px solid transparent !important;
+        }
+
+        .modal-btn-action:hover {
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Efecto específico para 'Elegir foto' */
+        #btnSelectFile:hover {
+            background-color: #ecfdf5 !important;
+            /* Emerald 50 hover light */
+            color: #059669 !important;
+            border-color: #10b981 !important;
+        }
+
+        body.dark-mode #btnSelectFile:hover {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            color: #10b981 !important;
+            border-color: #10b981 !important;
+        }
+
+        /* Efecto específico para 'Tomar foto' */
+        #btnCapturePhoto:hover {
+            background-color: #ecfeff !important;
+            /* Cyan 50 hover light */
+            color: #0891b2 !important;
+            border-color: #06b6d4 !important;
+        }
+
+        body.dark-mode #btnCapturePhoto:hover {
+            background-color: rgba(6, 182, 212, 0.1) !important;
+            color: #22d3ee !important;
+            border-color: #06b6d4 !important;
+        }
+
+        #btnSaveAvatar:not(:disabled):hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        /* Estilos específicos del Modal por Tema */
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 2px solid #00b300 !important;
+            /* Verde Modo Claro */
+        }
+
+        #btnSaveAvatar {
+            background-color: #00b300 !important;
+            /* Verde Modo Claro */
+            border-color: #00b300 !important;
+        }
+
+        body.dark-mode .modal-content {
+            border: 2px solid #10b981 !important;
+            /* Verde Modo Oscuro */
+            background-color: #0b1220 !important;
+        }
+
+        body.dark-mode #btnSaveAvatar {
+            background-color: #10b981 !important;
+            /* Verde Modo Oscuro */
+            border-color: #10b981 !important;
+        }
+
+        /* =========================================== 
+       MICRO-INTERACCIONES AVATAR SIDEBAR
+       =========================================== */
+        .sidebar-avatar-link {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        }
+
+        .sidebar-avatar-link:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 10px rgba(0, 179, 0, 0.5));
+        }
+
+        .sidebar-avatar-link:hover img,
+        .sidebar-avatar-link:hover .rounded-circle {
+            border-color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(0, 179, 0, 0.4) !important;
+        }
+
+        /* Ajuste para Modo Oscuro */
+        body.dark-mode .sidebar-avatar-link:hover {
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
+        }
+
+        body.dark-mode .sidebar-avatar-link:hover img,
+        body.dark-mode .sidebar-avatar-link:hover .rounded-circle {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4) !important;
+            border-color: #10b981 !important;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+    <div id="wrapper" class="d-flex">
+        <!-- Sidebar fijo -->
+        <ul class="navbar-nav sidebar sidebar-dark accordion position-fixed" id="accordionSidebar"
+            style="top:0; bottom:0; left:0;">
+
+            <!-- Logo / Título con Avatar -->
+            <div class="sidebar-brand-container d-flex flex-column align-items-center py-3" style="gap: 10px;">
+                <!-- Avatar clicable -->
+                <a href="#" class="sidebar-avatar-link position-relative d-block" data-toggle="modal"
+                    data-target="#avatarModal" style="width: 80px; height: 80px;">
+                    {% if user.avatar %}
+                    <img class="rounded-circle" src="{{ user.avatar.url }}"
+                        style="width: 100%; height: 100%; object-fit: cover; border: 3px solid rgba(255,255,255,0.8); box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    {% else %}
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white"
+                        style="width: 100%; height: 100%; border: 3px solid rgba(255,255,255,0.8); box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                        <i class="fas fa-user text-gray-400 fa-2x"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute"
+                        style="bottom: 0; right: 0; background: var(--coop-green-vibrant); 
+                                border-radius: 50%; width: 24px; height: 24px; border: 2px solid white;
+                                display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        <i class="fas fa-camera" style="color: white; font-size: 10px;"></i>
+                    </div>
+                </a>
+
+                <!-- Rol del Presidente (Sin Nombre) -->
+                <div class="text-center px-1" style="width: 100%;">
+                    <div class="badge badge-success px-2 py-1"
+                        style="font-size: 0.55rem; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.4px; max-width: 85px; overflow: hidden; text-overflow: ellipsis;">
+                        Presidente
+                    </div>
+                </div>
+            </div>
+
+            <hr class="sidebar-divider my-0" />
+
+            <!-- Items de navegación -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'taxis:panel-general' %}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Panel General</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'taxis:conductor-list' %}">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Afiliados</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'taxis:taxi-list' %}">
+                    <i class="fas fa-fw fa-taxi"></i>
+                    <span>Vehículos</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-file-alt"></i>
+                    <span>DT5</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-dollar-sign"></i>
+                    <span>Finanzas</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>Notificaciones</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Movimientos</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Ayuda</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider" />
+
+            <!-- Cerrar Sesión -->
+            <li class="nav-item">
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="nav-link btn btn-link w-100 d-flex flex-column align-items-center text-center p-0">
+                        <div style="height:32px;width:32px;border-radius:50%;border:1px solid #ffffff44;
+                                    display:flex;align-items:center;justify-content:center;color:#ffffff;
+                                    transition:transform 0.15s ease, background 0.15s ease;">
+                            <i class="fas fa-sign-out-alt" style="font-size:0.9rem;"></i>
+                        </div>
+                        <span style="font-size:0.75rem;margin-top:4px;">Cerrar sesión</span>
+                    </button>
+                </form>
+            </li>
+
+            <hr class="sidebar-divider d-none d-md-block" />
+
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+
+        <!-- Contenido principal -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'img/logo.png' %}" style="height:35px;width:auto;" alt="Logo cooperativa">
+                        <span class="ml-2 d-none d-sm-inline"
+                            style="font-weight:700; font-size:1.1rem; color: var(--coop-green);">Presidente</span>
+                    </div>
+
+                    <ul class="navbar-nav ml-auto align-items-center">
+                        <!-- Botón Tema -->
+                        <li class="nav-item">
+                            <button class="nav-link d-flex align-items-center justify-content-center"
+                                style="padding:0.25rem 0.5rem; background:none; border:none;" type="button">
+                                <img src="{% static 'img/theme-toggle.png' %}" alt="Cambiar tema" id="themeToggle">
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="container-fluid">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+
+            <footer class="sticky-footer bg-white">
+                <div class="container-fluid my-auto">
+                    <div class="copyright text-center my-auto" style="padding: 0.75rem 0;">
+                        <span>Asociación Cooperativa Wilson Torres 33 RL 2026 ©</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- Avatar Modal -->
+            <div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="avatarModalLabel"
+                aria-hidden="true" data-backdrop="static">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title w-100 text-center font-weight-bold" id="avatarModalLabel">Foto de
+                                Perfil
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                id="btnCloseModal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-center pt-2">
+                            <!-- Preview Area -->
+                            <div class="mb-4 position-relative mx-auto" style="width: 140px; height: 140px;">
+                                <div id="avatarPlaceholder"
+                                    class="rounded-circle d-flex align-items-center justify-content-center bg-gray-100"
+                                    style="width: 100%; height: 100%; border: 4px dashed #ccc; overflow: hidden;">
+                                    {% if user.avatar %}
+                                    <img id="avatarPreview" src="{{ user.avatar.url }}"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                    <i class="fas fa-user fa-3x text-gray-300" id="defaultUserIcon"></i>
+                                    <img id="avatarPreview" src="" class="d-none"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                                <video id="cameraStream" class="rounded-circle d-none"
+                                    style="width: 100%; height: 100%; object-fit: cover; border: 4px solid #17a2b8; position: absolute; top:0; left:0;"
+                                    autoplay playsinline></video>
+                                <canvas id="photoCanvas" class="d-none"></canvas>
+                            </div>
+
+                            <form id="avatarUploadForm" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" id="avatarInput" name="avatar" accept="image/*" class="d-none">
+
+                                <div class="d-flex flex-column" style="gap: 10px;">
+                                    <button type="button" id="btnSelectFile"
+                                        class="btn btn-light btn-block text-left py-2 px-3 border-0 bg-gray-100 modal-btn-action"
+                                        style="border-radius: 12px; font-weight: 600;">
+                                        <i class="fas fa-images mr-3 text-success"></i>Elegir foto
+                                    </button>
+                                    <button type="button" id="btnCapturePhoto"
+                                        class="btn btn-light btn-block text-left py-2 px-3 border-0 bg-gray-100 modal-btn-action"
+                                        style="border-radius: 12px; font-weight: 600;">
+                                        <i class="fas fa-camera mr-3 text-info"></i>Tomar foto
+                                    </button>
+                                    <button type="button" id="btnTakeSnapshot"
+                                        class="btn btn-info btn-block py-2 d-none"
+                                        style="border-radius: 12px; font-weight: 700;">
+                                        <i class="fas fa-circle mr-2"></i>Capturar
+                                    </button>
+                                    <div class="d-flex justify-content-center w-100 mt-2">
+                                        <button type="button" id="btnSaveAvatar" class="btn btn-success py-2 w-100"
+                                            disabled
+                                            style="border-radius: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(40,167,69,0.3); max-width: 200px;">
+                                            <i class="fas fa-save mr-2"></i>Guardar Foto
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="uploadStatus" class="mt-3 small" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const isDark = !body.classList.contains('dark-mode');
+                const newTheme = isDark ? 'dark' : 'light';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
+
+        // Logic for Avatar Upload Refined
+        const avatarInput = document.getElementById('avatarInput');
+        const btnSelectFile = document.getElementById('btnSelectFile');
+        const btnCapturePhoto = document.getElementById('btnCapturePhoto');
+        const btnTakeSnapshot = document.getElementById('btnTakeSnapshot');
+        const btnSaveAvatar = document.getElementById('btnSaveAvatar');
+
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+        const cameraStream = document.getElementById('cameraStream');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const uploadStatus = document.getElementById('uploadStatus');
+
+        let stream = null;
+
+        // Triggers file selection
+        if (btnSelectFile) {
+            btnSelectFile.addEventListener('click', () => {
+                stopCamera();
+                avatarInput.click();
+            });
+        }
+
+        // Preview local file
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const defaultIcon = document.getElementById('defaultUserIcon');
+                        if (defaultIcon) defaultIcon.classList.add('d-none');
+
+                        avatarPreview.src = event.target.result;
+                        avatarPreview.classList.remove('d-none');
+                        cameraStream.classList.add('d-none');
+                        btnSaveAvatar.disabled = false;
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        // Camera Logic
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+                cameraStream.srcObject = stream;
+                cameraStream.classList.remove('d-none');
+                // Al usar cámara, ocultamos el preview de imagen actual si está visible
+                avatarPreview.classList.add('d-none');
+                btnCapturePhoto.classList.add('d-none');
+                btnSelectFile.classList.add('d-none');
+                btnTakeSnapshot.classList.remove('d-none');
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                alert("No se pudo acceder a la cámara. Verifica los permisos.");
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            cameraStream.classList.add('d-none');
+            btnTakeSnapshot.classList.add('d-none');
+            btnCapturePhoto.classList.remove('d-none');
+            btnSelectFile.classList.remove('d-none');
+        }
+
+        if (btnCapturePhoto) {
+            btnCapturePhoto.addEventListener('click', startCamera);
+        }
+
+        if (btnTakeSnapshot) {
+            btnTakeSnapshot.addEventListener('click', () => {
+                const context = photoCanvas.getContext('2d');
+                photoCanvas.width = cameraStream.videoWidth;
+                photoCanvas.height = cameraStream.videoHeight;
+                context.drawImage(cameraStream, 0, 0, photoCanvas.width, photoCanvas.height);
+
+                photoCanvas.toBlob(blob => {
+                    const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    avatarInput.files = dataTransfer.files;
+
+                    avatarPreview.src = URL.createObjectURL(blob);
+                    avatarPreview.classList.remove('d-none');
+                    stopCamera();
+                    btnSaveAvatar.disabled = false;
+                }, 'image/jpeg');
+            });
+        }
+
+        // Save logic
+        if (btnSaveAvatar) {
+            btnSaveAvatar.addEventListener('click', function () {
+                const formData = new FormData(document.getElementById('avatarUploadForm'));
+
+                btnSaveAvatar.disabled = true;
+                btnSaveAvatar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+                uploadStatus.style.display = 'block';
+                uploadStatus.className = 'mt-3 small text-info';
+                uploadStatus.innerText = 'Guardando foto de perfil...';
+
+                fetch("{% url 'taxis:actualizar_avatar_presidente' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            uploadStatus.className = 'mt-3 small text-success';
+                            uploadStatus.innerText = '¡Foto guardada con éxito!';
+                            setTimeout(() => location.reload(), 800);
+                        } else {
+                            btnSaveAvatar.disabled = false;
+                            btnSaveAvatar.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Foto';
+                            uploadStatus.className = 'mt-3 small text-danger';
+                            uploadStatus.innerText = 'Error: ' + (data.error || 'No se pudo guardar.');
+                        }
+                    })
+                    .catch(err => {
+                        btnSaveAvatar.disabled = false;
+                        btnSaveAvatar.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Foto';
+                        uploadStatus.className = 'mt-3 small text-danger';
+                        uploadStatus.innerText = 'Error de conexión.';
+                    });
+            });
+        }
+
+        // Cleanup camera if modal closes
+        $('#avatarModal').on('hidden.bs.modal', stopCamera);
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        if (btnCloseModal) btnCloseModal.addEventListener('click', stopCamera);
+    </script>
+</body>
+
+</html>

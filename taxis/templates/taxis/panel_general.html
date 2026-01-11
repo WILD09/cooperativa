@@ -1,0 +1,419 @@
+{% extends 'taxis/base_presidente.html' %}
+
+{% block title %}Panel General - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* =========================================== 
+       VARIABLES CSS PARA PANEL GENERAL
+       =========================================== */
+    :root {
+        /* Paleta Verde Cooperativa */
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --coop-green-light: #e6f7e6;
+
+        /* Modo Claro */
+        --bg-color: #f8f9fc;
+        --text-color: #111827;
+        --card-bg: #ffffff;
+        --border-color: #00b300;
+
+        /* Bordes y Sombras */
+        --border-radius: 15px;
+        --border-radius-lg: 20px;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+        /* Transiciones */
+        --transition: all 0.3s ease;
+    }
+
+    body.dark-mode {
+        --bg-color: #020a1f;
+        --text-color: #e2e8f0;
+        --card-bg: #0b1220;
+        --border-color: #10b981;
+        --coop-green-primary: #10b981;
+        --coop-green-light: rgba(16, 185, 129, 0.1);
+    }
+
+    /* =========================================== 
+       HEADER DEL PANEL
+       =========================================== */
+    .header-panel {
+        margin-bottom: 2.5rem;
+    }
+
+    .header-panel h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--coop-green-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-panel h1 i {
+        font-size: 1.5rem;
+    }
+
+    /* =========================================== 
+       TARJETAS DE RESUMEN - DISEÑO HORIZONTAL
+       =========================================== */
+    .tarjetas-grid {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .tarjeta-resumen {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--text-color);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 160px;
+        flex: 1;
+        position: relative;
+    }
+
+    .tarjeta-resumen:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        text-decoration: none;
+        color: var(--text-color);
+        border-color: var(--coop-green-hover);
+    }
+
+    /* Círculo de icono verde */
+    .tarjeta-resumen .icon-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: var(--coop-green-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        transition: var(--transition);
+    }
+
+    .tarjeta-resumen:hover .icon-circle {
+        background: var(--coop-green-hover);
+        transform: scale(1.05);
+    }
+
+    .tarjeta-resumen .icon-circle i {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .tarjeta-resumen h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0.5rem 0 0.25rem 0;
+        color: var(--text-color);
+    }
+
+    .tarjeta-resumen h6 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0.8;
+        margin: 0;
+        color: var(--text-color);
+    }
+
+    /* =========================================== 
+       SECCIÓN ACERCA DE LA COOPERATIVA
+       =========================================== */
+    .seccion-info {
+        margin-top: 3rem;
+    }
+
+    .seccion-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--coop-green-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .seccion-info h3 i {
+        font-size: 1.25rem;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .info-card p {
+        margin: 0.75rem 0;
+        font-size: 1rem;
+        color: var(--text-color);
+    }
+
+    .info-card strong {
+        color: var(--coop-green-primary);
+        font-weight: 700;
+    }
+
+    /* =========================================== 
+       MODAL DE ALERTAS - DISEÑO MEJORADO
+       =========================================== */
+    .modal-content {
+        border-radius: var(--border-radius-lg);
+        border: 2px solid var(--border-color);
+    }
+
+    body.dark-mode .modal-content {
+        background: var(--card-bg);
+        border-color: var(--coop-green-primary);
+    }
+
+    .modal-header {
+        border-bottom: 2px solid var(--border-color);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-header .modal-title {
+        font-weight: 700;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-header .modal-title i {
+        color: var(--coop-green-primary);
+    }
+
+    .alerta-item {
+        padding: 1.25rem;
+        margin: 0.75rem 0;
+        border: 1px solid #fbbf24;
+        border-left: 4px solid #fbbf24;
+        border-radius: 8px;
+        background: #fffbeb;
+        transition: var(--transition);
+    }
+
+    body.dark-mode .alerta-item {
+        background: rgba(251, 191, 36, 0.1);
+        border-color: #fbbf24;
+    }
+
+    .alerta-item-link {
+        display: block;
+        text-decoration: none !important;
+        color: inherit;
+    }
+
+    .alerta-item-link:hover {
+        text-decoration: none !important;
+    }
+
+    .alerta-item-link:hover .alerta-item {
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        transform: translateX(3px);
+        cursor: pointer;
+    }
+
+    .alerta-item p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .alerta-item strong {
+        color: var(--text-color);
+        font-weight: 700;
+    }
+
+    .alerta-item .alert-icon {
+        color: #fbbf24;
+        margin-right: 0.5rem;
+    }
+
+    /* =========================================== 
+       RESPONSIVE MOBILE-FIRST
+       =========================================== */
+    @media (max-width: 992px) {
+        .tarjetas-grid {
+            justify-content: center;
+        }
+
+        .tarjeta-resumen {
+            min-width: 140px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tarjetas-grid {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tarjeta-resumen {
+            min-width: 100%;
+        }
+
+        .header-panel h1 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 320px) {
+        .tarjeta-resumen {
+            padding: 1.25rem;
+        }
+
+        .tarjeta-resumen .icon-circle {
+            width: 60px;
+            height: 60px;
+        }
+
+        .tarjeta-resumen .icon-circle i {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+
+<!-- Header con título "Panel General" -->
+<div class="header-panel">
+    <h1><i class="fas fa-home"></i> Panel General</h1>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Grid de Tarjetas de Resumen -->
+<div class="tarjetas-grid">
+    <!-- Tarjeta: Afiliados -->
+    <a href="{% url 'taxis:conductor-list' %}" class="tarjeta-resumen">
+        <div class="icon-circle">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <h2>{{ total_afiliados }}</h2>
+        <h6>Afiliados</h6>
+    </a>
+
+    <!-- Tarjeta: Vehículos -->
+    <a href="{% url 'taxis:taxi-list' %}" class="tarjeta-resumen">
+        <div class="icon-circle">
+            <i class="fas fa-taxi"></i>
+        </div>
+        <h2>{{ total_vehiculos }}</h2>
+        <h6>Vehículos</h6>
+    </a>
+
+    <!-- Tarjeta: Pagos Pendientes -->
+    <a href="#" class="tarjeta-resumen">
+        <div class="icon-circle">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <h2>{{ pagos_pendientes }}</h2>
+        <h6>Pagos pendientes</h6>
+    </a>
+
+    <!-- Tarjeta: Notificaciones -->
+    <a href="#" class="tarjeta-resumen">
+        <div class="icon-circle">
+            <i class="fas fa-bell"></i>
+        </div>
+        <h2>{{ notificaciones_count }}</h2>
+        <h6>Notificaciones</h6>
+    </a>
+
+    <!-- Tarjeta: Alertas (MODAL) -->
+    <button class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal"
+        style="border:2px solid var(--border-color); background:var(--card-bg);">
+        <div class="icon-circle">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2>{{ alertas.count }}</h2>
+        <h6>Alertas</h6>
+    </button>
+</div>
+
+<!-- Sección: Acerca de la Cooperativa -->
+<div class="seccion-info">
+    <h3><i class="fas fa-info-circle"></i> Acerca de la Cooperativa</h3>
+    <div class="info-card">
+        <p><strong>RIF:</strong> J-XXXXXXXXX-X</p>
+        <p><strong>Nombre:</strong> Asociación Cooperativa Wilson Torres 33 RL</p>
+        <p><strong>Dirección:</strong> [Dirección de la cooperativa - Placeholder]</p>
+        <p><strong>Contacto:</strong> +58 XXX-XXXXXXX</p>
+        <p><strong>Email:</strong> contacto@cooperativa.com</p>
+    </div>
+</div>
+
+<!-- Modal de Alertas -->
+<div class="modal fade" id="alertasModal" tabindex="-1" aria-labelledby="alertasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alertasModalLabel">
+                    <i class="fas fa-exclamation-circle"></i> Total de alertas ({{ alertas.count }})
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if alertas %}
+                {% for alerta in alertas %}
+                <a href="{% url 'taxis:conductor-edit' alerta.pk %}" class="alerta-item-link"
+                    style="text-decoration:none;">
+                    <div class="alerta-item">
+                        <p>
+                            <i class="fas fa-exclamation-triangle alert-icon"></i>
+                            <strong>Afiliado {{ alerta.nombres }} {{ alerta.apellidos }}</strong>
+                            - Patente vence: {{ alerta.fecha_pago_patente|date:"d/m/Y" }}
+                        </p>
+                        <div class="mt-2">
+                            <span class="btn btn-sm"
+                                style="background:#fbbf24; color:#000; font-weight:600; border-radius:6px; pointer-events:none;">
+                                Actualizar documentos →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--coop-green-primary);"></i>
+                    <p class="mt-3" style="font-size:1.1rem; color:var(--text-color);">No hay alertas críticas en este
+                        momento</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -8,7 +8,7 @@ Personaliza cómo se muestran y gestionan en el admin de Django.
 
 from datetime import date
 
-from django.contrib import admin  # Registro y configuración del admin de Django.
+from django.contrib import admin
 
 from .models import Conductor, Taxi
 
@@ -27,34 +27,41 @@ if Conductor in admin.site._registry:
 class ConductorAdmin(admin.ModelAdmin):
     """
     Configuración del modelo Conductor en el panel de administración.
+
+    Adaptado al nuevo modelo:
+    - nombres / apellidos
+    - telefono_principal / telefono_secundario
+    - relación 1–1 con UbicacionGeografica
     """
 
     # Columnas que se muestran en la lista de conductores del admin.
     list_display = (
-        "nombre",
-        "apellido",
-        "telefono",
+        "nombres",
+        "apellidos",
+        "telefono_principal",
         "cedula_identidad",
         "edad_calculada",
         "sexo",
+        "estado_civil",
         "ubicacion_str",
         "patente_vigente",
     )
 
     # Campos por los que se puede buscar desde la barra de búsqueda.
     search_fields = (
-        "nombre",
-        "apellido",
-        "telefono",
+        "nombres",
+        "apellidos",
+        "telefono_principal",
         "cedula_identidad",
-        "ubicacion__ciudad",
+        "ubicacion__direccion",
         "ubicacion__estado",
         "ubicacion__municipio",
+        "ubicacion__parroquia",
         "ubicacion__sector",
     )
 
     # Filtros laterales por sexo y estado de pago de patente.
-    list_filter = ("sexo", "pago_patente_realizado")
+    list_filter = ("sexo", "estado_civil", "pago_patente_realizado")
 
     # Agrupación de campos en secciones dentro del formulario del admin.
     fieldsets = (
@@ -62,12 +69,23 @@ class ConductorAdmin(admin.ModelAdmin):
             "Información Personal",
             {
                 "fields": (
-                    "nombre",
-                    "apellido",
-                    "telefono",
+                    "user",
                     "cedula_identidad",
+                    "nombres",
+                    "apellidos",
                     "sexo",
+                    "estado_civil",
                     "fecha_nacimiento",
+                    "rif",
+                )
+            },
+        ),
+        (
+            "Contacto",
+            {
+                "fields": (
+                    "telefono_principal",
+                    "telefono_secundario",
                 )
             },
         ),
@@ -89,19 +107,10 @@ class ConductorAdmin(admin.ModelAdmin):
         """
         Controla qué campos se muestran en el formulario del admin.
 
-        - Si obj es None (es decir, se está creando un conductor nuevo),
-          se ocultan los campos relacionados con el pago de patente.
-        - Si obj existe (modo edición), se muestran todos los campos definidos.
+        Si obj es None (crear nuevo), igualmente mostramos todo:
+        la lógica de negocio decidirá si se usan o no los campos de patente.
         """
-        fields = super().get_fields(request, obj)
-        if obj is None:
-            # Oculta campos de patente al crear un nuevo conductor.
-            fields = [
-                f
-                for f in fields
-                if f not in ("pago_patente_realizado", "fecha_pago_patente")
-            ]
-        return fields
+        return super().get_fields(request, obj)
 
     def edad_calculada(self, obj):
         """
@@ -115,7 +124,7 @@ class ConductorAdmin(admin.ModelAdmin):
             )
         return None
 
-    edad_calculada.short_description = "Edad"  # Título de la columna en el admin.
+    edad_calculada.short_description = "Edad"
 
     def ubicacion_str(self, obj):
         """
@@ -133,7 +142,7 @@ class ConductorAdmin(admin.ModelAdmin):
         """
         return obj.patente_vigente
 
-    patente_vigente.boolean = True  # Muestra un icono de check/❌ en el admin.
+    patente_vigente.boolean = True
     patente_vigente.short_description = "Patente Vigente"
 
 
@@ -156,7 +165,7 @@ class TaxiAdmin(admin.ModelAdmin):
     list_display = ("placa", "modelo", "anio", "conductor")
 
     # Campos que se pueden buscar desde la barra de búsqueda.
-    search_fields = ("placa", "modelo", "nombre_vehiculo")
+    search_fields = ("placa", "modelo", "nombre_vehiculo", "conductor__cedula_identidad")
 
     # Filtros laterales por año, modelo y conductor.
     list_filter = ("anio", "modelo", "conductor")

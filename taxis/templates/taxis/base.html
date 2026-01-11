@@ -2,151 +2,794 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Codificación de caracteres -->
     <meta charset="utf-8" />
-    <!-- Compatibilidad con IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- Diseño responsive en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <!-- Título por defecto, sobreescrito en los templates hijos -->
     <title>{% block title %}Cooperativa Django{% endblock %}</title>
 
-    <!-- Iconos Font Awesome -->
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css" />
-    <!-- Fuente Nunito de Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
-    <!-- CSS principal de la plantilla Admin (SB Admin 2) -->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
 
-    <!-- Aquí puedes agregar más CSS estático si tuvieras archivos personalizados -->
+<style>
+    /* ===========================================
+       1. VARIABLES Y COLORES BASE
+       =========================================== */
+    :root {
+        --coop-green: #16a34a;
+        --coop-green-hover: #15803d;
+        --coop-green-vibrant: #00a000;
+
+        /* Colores Modo Oscuro */
+        --coop-dark-bg: #020a1f;
+        --coop-dark-card: #0b1220;
+        --coop-input-bg: #020617;
+
+        /* Dimensiones */
+        --topbar-h: 70px;
+        --sidebar-w: 224px;
+        --sidebar-w-collapsed: 90px;
+    }
+
+    /* ===========================================
+       2. SIDEBAR - MODO CLARO
+       =========================================== */
+    .sidebar {
+        background: linear-gradient(180deg, #009900 0%, #00b300 40%, #007700 100%) !important;
+        position: fixed !important;
+        top: 0; left: 0;
+        height: 100vh;
+        width: var(--sidebar-w);
+        z-index: 1040;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 80px !important;
+    }
+
+    body.dark-mode .sidebar {
+        background: linear-gradient(180deg, #022c22 0%, #064e3b 100%) !important;
+        border-right: 1px solid #065f46;
+    }
+
+    /* ===========================================
+       3. ICONOS Y TEXTOS
+       =========================================== */
+    .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.95) !important;
+        display: flex; align-items: center; padding: 1rem;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar .nav-link i,
+    .sidebar .nav-link svg {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #ffffff !important;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        min-width: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #ffffff !important;
+        transform: translateX(5px);
+    }
+
+    .sidebar .sidebar-brand {
+        height: var(--topbar-h);
+        display: flex; align-items: center; justify-content: center;
+        padding: 0 1rem;
+    }
+
+    .sidebar .nav-item form .nav-link {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 1rem !important;
+    }
+
+    .sidebar .nav-item form .nav-link div {
+        margin: 0 auto 4px auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .sidebar .nav-item form .nav-link div i {
+        margin-right: 0 !important;
+        font-size: 0.9rem !important;
+    }
+
+    .sidebar .nav-item form .nav-link span {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* ===========================================
+       4. TOPBAR Y CONTENIDO
+       =========================================== */
+    .navbar.navbar-light.bg-white {
+        position: fixed !important;
+        top: 0; right: 0;
+        left: var(--sidebar-w);
+        width: calc(100% - var(--sidebar-w));
+        height: var(--topbar-h);
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e3e6f0;
+        z-index: 1030;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    background-color 0.3s ease;
+    }
+
+    body.dark-mode .navbar.navbar-light.bg-white {
+        background-color: var(--coop-dark-card) !important;
+        border-color: #16a34a !important;
+        color: #f8f9fc !important;
+    }
+
+    /* FIX: título "Asociado" en modo oscuro (si se oscurece por herencia/inline) */
+    body.dark-mode .navbar .ml-2 {
+        color: #e2e8f0 !important;
+    }
+
+    #content-wrapper {
+        margin-left: var(--sidebar-w);
+        padding-top: var(--topbar-h);
+        min-height: 100vh;
+        background-color: #f8f9fc;
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        display: flex; flex-direction: column;
+    }
+    body.dark-mode #content-wrapper {
+        background-color: var(--coop-dark-bg) !important;
+    }
+
+    #content { flex: 1 0 auto; padding-top: 1.5rem; }
+    #content > .container-fluid { padding-left: 1.8rem; padding-right: 1.8rem; }
+
+    /* ===========================================
+       5. ESTADO COLAPSADO
+       =========================================== */
+    body.sidebar-toggled .sidebar { width: var(--sidebar-w-collapsed); }
+    body.sidebar-toggled .sidebar .nav-link span,
+    body.sidebar-toggled .sidebar .sidebar-brand-text { display: none !important; }
+
+    body.sidebar-toggled .sidebar .nav-link {
+        justify-content: center; padding-left: 0; padding-right: 0;
+    }
+    body.sidebar-toggled .sidebar .nav-link i { margin-right: 0; }
+
+    body.sidebar-toggled .navbar.navbar-light.bg-white {
+        left: var(--sidebar-w-collapsed);
+        width: calc(100% - var(--sidebar-w-collapsed));
+    }
+    body.sidebar-toggled #content-wrapper { margin-left: var(--sidebar-w-collapsed); }
+
+    @media (max-width: 768px) {
+        .sidebar { width: 0; }
+        body.sidebar-toggled .sidebar { width: var(--sidebar-w); z-index: 2000; }
+        .navbar.navbar-light.bg-white { left: 0 !important; width: 100% !important; }
+        #content-wrapper { margin-left: 0 !important; }
+    }
+
+    /* ===========================================
+       6. ALERTAS (TIPO BOOTSTRAP CLÁSICO)
+       =========================================== */
+    .alert.alert-warning,
+    body.dark-mode .alert.alert-warning,
+    .alert-warning,
+    body.dark-mode .alert-warning {
+        background-color: #fff3cd !important;
+        border: 1px solid #ffeeba !important;
+        color: #856404 !important;
+        border-left: 5px solid #ffc107 !important;
+        opacity: 1 !important;
+    }
+
+    /* ===========================================
+       7. MODO OSCURO (SIN PISAR ROJOS)
+       =========================================== */
+    body.dark-mode {
+        background-color: var(--coop-dark-bg) !important;
+        color: #e2e8f0 !important;
+    }
+
+    /* Textos dentro de tarjetas */
+    body.dark-mode .card,
+    body.dark-mode .card label,
+    body.dark-mode .card small,
+    body.dark-mode .card .form-text,
+    body.dark-mode .card .text-muted {
+        color: #e2e8f0 !important;
+    }
+
+    /* Asteriscos / requeridos */
+    body.dark-mode .text-danger,
+    body.dark-mode span.text-danger,
+    body.dark-mode label .text-danger,
+    body.dark-mode .asteriskField,
+    body.dark-mode label sup,
+    body.dark-mode label abbr[title] {
+        color: #ef4444 !important;
+        opacity: 1 !important;
+    }
+
+    /* ===========================================
+       7.1 (OPCIONAL) OCULTAR ASTERISCOS (si usas la clase en <body>)
+       =========================================== */
+    body.profile-complete label .text-danger,
+    body.profile-complete .asteriskField,
+    body.profile-complete label sup,
+    body.profile-complete label abbr[title] {
+        display: none !important;
+    }
+
+    /* ===========================================
+       7.2 “AIRE” EN INPUTS / SELECTS (aplica en claro y oscuro)
+       =========================================== */
+    input.form-control,
+    textarea.form-control,
+    select.form-control,
+    .custom-select {
+        padding-top: 0.65rem !important;
+        padding-bottom: 0.65rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        line-height: 1.35 !important;
+        border-radius: 0.6rem !important;
+    }
+
+    /* ===========================================
+       7.2.1 MODO CLARO: borde leve más visible
+       (para que se diferencien mejor los placeholders)
+       =========================================== */
+    body:not(.dark-mode) input.form-control,
+    body:not(.dark-mode) textarea.form-control,
+    body:not(.dark-mode) select.form-control,
+    body:not(.dark-mode) .custom-select {
+        border: 1px solid #cbd5e1 !important; /* gris suave pero visible */
+        box-shadow: none !important;
+    }
+
+    body:not(.dark-mode) input.form-control:hover,
+    body:not(.dark-mode) textarea.form-control:hover,
+    body:not(.dark-mode) select.form-control:hover,
+    body:not(.dark-mode) .custom-select:hover {
+        border-color: #94a3b8 !important;
+    }
+
+    body:not(.dark-mode) input.form-control:focus,
+    body:not(.dark-mode) textarea.form-control:focus,
+    body:not(.dark-mode) select.form-control:focus,
+    body:not(.dark-mode) .custom-select:focus {
+        border-color: #16a34a !important;
+        box-shadow: 0 0 0 0.15rem rgba(22, 163, 74, 0.15) !important;
+    }
+
+    /* INPUTS NORMALES (EDITABLES) EN MODO OSCURO */
+    body.dark-mode input.form-control:not([readonly]):not(:disabled),
+    body.dark-mode select.form-control:not(:disabled),
+    body.dark-mode textarea.form-control:not([readonly]):not(:disabled),
+    body.dark-mode .custom-select:not(:disabled) {
+        background-color: var(--coop-input-bg) !important;
+        border: 1px solid #374151 !important;
+        color: #f8f9fc !important;
+    }
+
+    /* ===========================================
+       7.3 READONLY / DISABLED “APAGADO” EN MODO OSCURO
+       =========================================== */
+    body.dark-mode input.form-control:disabled,
+    body.dark-mode input.form-control[readonly],
+    body.dark-mode textarea.form-control:disabled,
+    body.dark-mode textarea.form-control[readonly],
+    body.dark-mode select.form-control:disabled,
+    body.dark-mode .custom-select:disabled {
+        box-shadow: inset 0 0 0 9999px rgba(255,255,255,0.10) !important;
+        background-color: var(--coop-input-bg) !important;
+        border-color: rgba(255, 255, 255, 0.22) !important;
+
+        color: rgba(248, 249, 252, 0.65) !important;
+        -webkit-text-fill-color: rgba(248, 249, 252, 0.65) !important;
+
+        cursor: not-allowed;
+        opacity: 1 !important;
+    }
+
+    /* Placeholders en modo oscuro */
+    body.dark-mode ::placeholder { color: #9ca3af !important; opacity: 1 !important; }
+    body.dark-mode :-ms-input-placeholder { color: #9ca3af !important; }
+    body.dark-mode ::-ms-input-placeholder { color: #9ca3af !important; }
+
+    /* Cards */
+    body.dark-mode .card,
+    body.dark-mode .card-header,
+    body.dark-mode .card-body {
+        background-color: var(--coop-dark-card) !important;
+        border-color: #16a34a !important;
+    }
+
+    /* ===========================================
+       8. MODALES Y BOTONES
+       =========================================== */
+    body.dark-mode .modal-content {
+        background-color: var(--coop-dark-card) !important;
+        border: 2px solid var(--coop-green) !important;
+        color: #f8f9fc !important;
+    }
+    body.dark-mode .modal-header,
+    body.dark-mode .modal-footer {
+        border-color: #374151 !important;
+        background-color: var(--coop-dark-card) !important;
+    }
+    body.dark-mode .close { color: #fff !important; opacity: 1; }
+
+    .modal-body .d-flex.flex-column button {
+        width: 100% !important;
+        padding: 0.75rem !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    #btnGuardarAvatar {
+        background-color: var(--coop-green-vibrant) !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+    }
+
+    body.dark-mode #btnGuardarAvatar {
+        background-color: #166534 !important;
+        border: 1px solid #15803d !important;
+        color: #e2e8f0 !important;
+    }
+    body.dark-mode #btnGuardarAvatar:hover {
+        background-color: #15803d !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .btn-outline-primary,
+    body.dark-mode .btn-outline-success {
+        color: #4ade80 !important;
+        border-color: #4ade80 !important;
+        background: transparent !important;
+    }
+    body.dark-mode .btn-outline-primary:hover {
+        background: #4ade80 !important;
+        color: #000 !important;
+    }
+
+    body.dark-mode .btn-secondary {
+        background-color: #374151 !important;
+        border-color: #4b5563 !important;
+        color: #fff !important;
+    }
+
+    body.dark-mode .sticky-footer.bg-white {
+        background-color: var(--coop-dark-bg) !important;
+        border-top: 1px solid #16a34a !important;
+        color: #9ca3af !important;
+    }
+
+    /* ===========================================
+       9. BOTÓN TOGGLE DE TEMA
+       =========================================== */
+    #themeToggle {
+        height: 38px; width: 38px; border-radius: 50%;
+        border: 1px solid #d1d5db; background: #ffffff;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        padding: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #themeToggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #themeToggle svg, #themeToggle i {
+        width: 18px !important; height: 18px !important;
+        font-size: 18px !important; color: #6b7280;
+        transition: color 0.3s ease;
+    }
+
+    body.dark-mode #themeToggle {
+        background: #374151 !important;
+        border-color: #4b5563 !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        transform: rotate(180deg);
+    }
+
+    body.dark-mode #themeToggle:hover {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    body.dark-mode #themeToggle svg,
+    body.dark-mode #themeToggle i {
+        color: #fbbf24 !important;
+    }
+
+    /* ===========================================
+       10. BOTÓN EXPANDIR/CONTRAER SIDEBAR
+       =========================================== */
+    #sidebarToggle {
+        background-color: rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+    }
+
+    #sidebarToggle:hover {
+        background-color: rgba(255,255,255,0.4);
+        transform: scale(1.15);
+    }
+
+    #sidebarToggle::after {
+        display: inline-block;
+        transition: transform 0.4s ease;
+    }
+
+    body.sidebar-toggled #sidebarToggle::after {
+        transform: rotate(180deg);
+    }
+</style>
+
+
+
 </head>
 
 <body id="page-top">
-    <!-- Page Wrapper: envuelve todo el contenido de la aplicación -->
-    <div id="wrapper">
-        <!-- Sidebar lateral izquierdo (navegación principal) -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <!-- Marca de la cooperativa en el sidebar -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'taxis:index' %}">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-taxi"></i>
+    <div id="wrapper" class="d-flex">
+        <!-- Sidebar fijo -->
+        <ul class="navbar-nav sidebar sidebar-dark accordion sidebar-asociado position-fixed"
+            id="accordionSidebar"
+            style="top:0; bottom:0; left:0;">
+            <li class="nav-item mt-3">
+                <div class="nav-link d-flex flex-column align-items-center text-center p-0">
+                    <a href="#"
+                       data-toggle="modal"
+                       data-target="#avatarModal"
+                       class="d-flex align-items-center justify-content-center"
+                       style="height:64px;width:100%;text-decoration:none;">
+                        {% if request.user.is_authenticated and request.user.role == "asociado" and request.user.conductor and request.user.conductor.avatar %}
+                            <div style="height:48px;width:48px;border-radius:50%;
+                                        overflow:hidden;display:flex;align-items:center;justify-content:center;
+                                        margin:0 auto;">
+                                <img src="{{ request.user.conductor.avatar.url }}"
+                                     alt="Avatar"
+                                     style="height:100%;width:100%;object-fit:cover;display:block;">
+                            </div>
+                        {% else %}
+                            <div id="circleAvatar"
+                                 style="height:48px;width:48px;border-radius:50%;background:#ffffff22;
+                                        display:flex;align-items:center;justify-content:center;color:#ffffff;
+                                        transition:background .15s ease;">
+                                <i class="fas fa-user" style="font-size:1.4rem;"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="mt-2 mb-1 text-white" style="font-size:0.75rem;line-height:1.1;">
+                        <div style="opacity:0.9;font-weight:700;">Asociado</div>
+                    </div>
                 </div>
-                <div class="sidebar-brand-text mx-3">Cooperativa</div>
-            </a>
+            </li>
 
             <hr class="sidebar-divider my-0" />
 
-            <!-- Enlace al dashboard principal -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'taxis:index' %}">
+                <a class="nav-link" href="{% url 'taxis:dashboard-asociado' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'taxis:mi_perfil_asociado' %}">
+                    <i class="fas fa-fw fa-id-card"></i>
+                    <span>Perfil</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-taxi"></i>
+                    <span>Mis vehículos</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-wallet"></i>
+                    <span>Finanzas</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>Notificaciones</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Movimientos</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Ayuda</span>
+                </a>
+            </li>
+
             <hr class="sidebar-divider" />
 
-            <!-- Enlace a la lista de conductores -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'taxis:conductor-list' %}">
-                    <i class="fas fa-fw fa-user"></i>
-                    <span>Conductores</span>
-                </a>
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="nav-link btn btn-link w-100 d-flex flex-column align-items-center text-center p-0">
+                        <div style="height:32px;width:32px;border-radius:50%;border:1px solid #ffffff44;
+                                    display:flex;align-items:center;justify-content:center;color:#ffffff;
+                                    transition:transform 0.15s ease, background 0.15s ease;">
+                            <i class="fas fa-sign-out-alt" style="font-size:0.9rem;"></i>
+                        </div>
+                        <span style="font-size:0.75rem;margin-top:4px;">Cerrar sesión</span>
+                    </button>
+                </form>
             </li>
-
-            <!-- Enlace a la lista de taxis -->
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'taxis:taxi-list' %}">
-                    <i class="fas fa-fw fa-car"></i>
-                    <span>Taxis</span>
-                </a>
-            </li>
-            {# Aquí se podrían agregar más enlaces de menú (reportes, ajustes, etc.) #}
 
             <hr class="sidebar-divider d-none d-md-block" />
 
-            <!-- Botón para contraer/expandir el sidebar (en pantallas grandes) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
-        <!-- End of Sidebar -->
 
-        <!-- Content Wrapper: contiene el topbar + contenido + footer -->
+        <!-- Contenido principal -->
         <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content: parte central de la página -->
             <div id="content">
-
-                <!-- Topbar: barra superior con búsqueda y posibles iconos de usuario/notificaciones -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <!-- Botón para togglear sidebar en pantallas pequeñas -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Formulario de búsqueda (decorativo por ahora) -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text"
-                                   class="form-control bg-light border-0 small"
-                                   placeholder="Buscar..."
-                                   aria-label="Search"
-                                   aria-describedby="basic-addon2" />
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'img/logo.png' %}" style="height:40px;width:auto;" alt="Logo cooperativa">
+                        <span class="ml-2" style="font-weight:800; font-size:1.25rem; color:#111827;">Asociado</span>
+                    </div>
 
-                    <!-- Espacio para elementos de la barra superior (perfil, notificaciones, etc.) -->
                     <ul class="navbar-nav ml-auto">
-                        {# Aquí puedes añadir dropdown de usuario, notificaciones, etc. #}
+                        <li class="nav-item">
+                            <button class="nav-link d-flex align-items-center justify-content-center"
+                                    style="padding:0.25rem 0.5rem; background:none; border:none;"
+                                    type="button">
+                                <img src="{% static 'img/theme-toggle.png' %}"
+                                     alt="Cambiar tema"
+                                     id="themeToggle">
+                            </button>
+                        </li>
                     </ul>
                 </nav>
-                <!-- End of Topbar -->
 
-                <!-- Contenedor del contenido específico de cada página -->
                 <div class="container-fluid">
-                    {% block content %}
-                    <!-- Aquí se renderiza el contenido de cada vista hija -->
-                    {% endblock %}
+                    {% block content %}{% endblock %}
                 </div>
-                <!-- /.container-fluid -->
             </div>
-            <!-- End of Main Content -->
 
-            <!-- Footer fijo en la parte inferior -->
             <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Cooperativa Django 2025</span>
+                <div class="container-fluid my-auto">
+                    <div class="copyright text-center my-auto" style="padding: 0.75rem 0;">
+                        <span>Asociación Cooperativa Wilson Torres 33 RL 2026 ©</span>
                     </div>
                 </div>
             </footer>
-            <!-- End of Footer -->
-
         </div>
-        <!-- End of Content Wrapper -->
-
     </div>
-    <!-- End of Page Wrapper -->
 
-    <!-- Botón para hacer scroll hasta arriba de la página -->
+    <!-- Modal avatar -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="avatarModalContent"
+             style="border-radius:18px;border:none;">
+          <div class="modal-body py-4">
+
+            <div class="d-flex flex-column align-items-center mb-2">
+              <div style="height:80px;width:80px;border-radius:50%;
+                          background:linear-gradient(135deg,#00b300 0%,#007700 100%);
+                          display:flex;align-items:center;justify-content:center;
+                          box-shadow:0 10px 25px rgba(0,0,0,0.18);">
+                {% if request.user.is_authenticated and request.user.role == "asociado" and request.user.conductor and request.user.conductor.avatar %}
+                  <img id="avatarPreview"
+                       src="{{ request.user.conductor.avatar.url }}"
+                       alt="Avatar"
+                       style="height:80px;width:80px;border-radius:50%;object-fit:cover;">
+                {% else %}
+                  <img id="avatarPreview"
+                       src=""
+                       alt="Avatar"
+                       style="display:none;height:80px;width:80px;border-radius:50%;object-fit:cover;">
+                  <i id="avatarIconFallback" class="fas fa-user" style="font-size:2.2rem;color:white;"></i>
+                {% endif %}
+              </div>
+              <h6 class="mt-3 mb-0" style="font-weight:700;">Foto de perfil</h6>
+              <small>Actualiza tu imagen como asociado</small>
+            </div>
+
+            <form method="post"
+                  enctype="multipart/form-data"
+                  action="{% url 'taxis:actualizar_avatar' %}">
+              {% csrf_token %}
+              <input type="file"
+                     name="avatar"
+                     accept="image/*"
+                     class="d-none"
+                     id="avatarFileInput">
+
+              <div class="d-flex flex-column">
+                <button type="button"
+                        id="btnElegirFoto"
+                        class="btn mb-2"
+                        style="background:#1f2937;color:#e5e7eb;border:1px solid #4b5563;
+                               transition:background .15s ease, box-shadow .15s ease, transform .15s.ease;">
+                  Elegir foto
+                </button>
+
+                <button type="button"
+                        id="btnTomarFoto"
+                        class="btn mb-3"
+                        style="background:#111827;color:#9ca3af;border:1px solid #4b5563;
+                               transition:background .15s ease, box-shadow .15s ease, transform .15s ease;">
+                  Tomar foto
+                </button>
+
+                <button type="submit"
+                        id="btnGuardarAvatar"
+                        class="btn">
+                  Guardar
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Librerías JavaScript: jQuery, Bootstrap y scripts de SB Admin 2 -->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-    {# Si en el futuro necesitas gráficos, puedes habilitar Chart.js aquí #}
-    {# <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> #}
+    <script>
+      const inputAvatar   = document.getElementById('avatarFileInput');
+      const btnElegir     = document.getElementById('btnElegirFoto');
+      const btnCamara     = document.getElementById('btnTomarFoto');
+      const btnGuardar    = document.getElementById('btnGuardarAvatar');
+      const circleAvatar  = document.getElementById('circleAvatar');
+      const avatarPreview = document.getElementById('avatarPreview');
+      const avatarIcon    = document.getElementById('avatarIconFallback');
+      const formAvatar    = document.querySelector('#avatarModal form');
+      const themeToggle   = document.getElementById('themeToggle');
+      const body          = document.body;
 
+      if (btnElegir && inputAvatar) {
+        btnElegir.addEventListener('click', function () {
+          inputAvatar.click();
+        });
+      }
+      if (inputAvatar && avatarPreview) {
+        inputAvatar.addEventListener('change', function () {
+          if (this.files && this.files[0]) {
+            const url = URL.createObjectURL(this.files[0]);
+            avatarPreview.src = url;
+            avatarPreview.style.display = 'block';
+            if (avatarIcon) avatarIcon.style.display = 'none';
+          }
+        });
+      }
+
+      function addHover(btn) {
+        if (!btn) return;
+        btn.addEventListener('mouseenter', () => {
+          btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          btn.style.transform = 'translateY(-1px)';
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.boxShadow = 'none';
+          btn.style.transform = 'translateY(0)';
+        });
+      }
+      addHover(btnElegir);
+      addHover(btnCamara);
+      addHover(btnGuardar);
+
+      if (circleAvatar) {
+        circleAvatar.addEventListener('mouseenter', () => {
+          circleAvatar.style.background = '#ffffff44';
+        });
+        circleAvatar.addEventListener('mouseleave', () => {
+          circleAvatar.style.background = '#ffffff22';
+        });
+      }
+
+      // Por ahora, el botón "Tomar foto" solo muestra un aviso
+      if (btnCamara) {
+        btnCamara.addEventListener('click', function () {
+          alert('La captura con cámara se implementará más adelante.');
+        });
+      }
+
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        navigator.mediaDevices.enumerateDevices()
+          .then(function (devices) {
+            const tieneCamara = devices.some(d => d.kind === 'videoinput');
+            if (!tieneCamara && btnCamara) {
+              btnCamara.disabled = true;
+              btnCamara.style.opacity = '0.5';
+              btnCamara.style.cursor = 'not-allowed';
+            }
+          })
+          .catch(function () {
+            if (btnCamara) {
+              btnCamara.disabled = true;
+              btnCamara.style.opacity = '0.5';
+              btnCamara.style.cursor = 'not-allowed';
+            }
+          });
+      }
+
+      if (formAvatar && btnGuardar) {
+        formAvatar.addEventListener('submit', function () {
+          btnGuardar.disabled = true;
+          btnGuardar.textContent = 'Guardando...';
+          btnGuardar.style.opacity = '0.85';
+        });
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          body.classList.add('dark-mode');
+        } else {
+          body.classList.remove('dark-mode');
+        }
+      }
+
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      applyTheme(savedTheme);
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isDark = !body.classList.contains('dark-mode');
+          const newTheme = isDark ? 'dark' : 'light';
+          applyTheme(newTheme);
+          localStorage.setItem('theme', newTheme);
+        });
+      }
+    </script>
 </body>
 </html>
