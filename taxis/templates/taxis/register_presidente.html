@@ -2,1546 +2,427 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{# Título que aparecerá en la pestaña del navegador #}
-{% block title %}
-Crear cuenta - Presidente
-{% endblock %}
+{% block title %}Crear Cuenta - Presidente{% endblock %}
+
 {% block content %}
+<!-- FUENTES E ICONOS -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-  /* ==== LAYOUT GENERAL ==== */
+/* ... (MANTÉN TODO TU CSS IGUAL QUE ANTES) ... */
+:root {
+    --coop-green-primary: #00b300;
+    --coop-green-hover: #009900;
+    --coop-green-light: #e6f7e6;
+    --bg-color: #f8f9fc;
+    --text-color: #111827;
+    --card-bg-light: #F8EBD9;
+    --side-bg-light: #E3D2C3;
+    --panel-right-bg: #ffffff;
+    --card-bg-dark: #0f1a2e; 
+    --side-bg-dark: #0f1a2e; 
+    --panel-right-dark: #142035; 
+    --border-color: #00b300;
+    --shadow-sm: 0 12px 50px rgba(0, 179, 0, 0.2);
+    --input-glow: 0 0 12px rgba(0, 179, 0, 0.25); 
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --border-radius-card: 36px;
+    --border-radius-input: 25px;
+}
+body.modo-oscuro {
+    --bg-color: #020a1f;
+    --text-color: #e2e8f0;
+    --border-color: #10b981;
+    --coop-green-primary: #10b981;
+    --coop-green-hover: #059669;
+    --shadow-sm: 0 0px 70px rgba(16, 185, 129, 0.2);
+    --input-glow: 0 0 20px rgba(16, 185, 129, 0.25); 
+}
+body { font-family: 'Nunito', sans-serif; margin: 0; padding: 0; overflow: hidden; background: var(--bg-color); }
+.vsms-bg-img { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; }
+.vsms-bg-img-dark { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; display: none; }
+body.modo-oscuro .vsms-bg-img { display: none !important; }
+body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
+.vsms-wrapper { min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+.register-card { width: 100%; max-width: 1000px; height: 85vh; max-height: 720px; background: var(--card-bg-light); border: 3px solid var(--border-color); border-radius: var(--border-radius-card); box-shadow: var(--shadow-sm); display: flex; overflow: hidden; position: relative; transition: var(--transition); }
+body.modo-oscuro .register-card { background: var(--card-bg-dark); border-color: var(--border-color); }
+.left-panel { width: 35%; background: var(--side-bg-light); padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(0,0,0,0.05); }
+body.modo-oscuro .left-panel { background: var(--side-bg-dark); border-right: none; }
 
-
-  /* Contenedor que centra la tarjeta de registro en la pantalla */
-  .reg-wrapper {
-    min-height: 100vh;
-    width: 100vw;
-    overflow-x: hidden;
-    overflow-y: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 40px 12px 30px 12px;
-  }
-
-
-  /* Fondos de la página en modo claro / oscuro */
-  .reg-bg-img,
-  .reg-bg-img-dark {
-    position: fixed;
-    left: 0;
-    top: 0;
-    min-width: 100vw;
-    min-height: 100vh;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    pointer-events: none;
-    user-select: none;
-    object-fit: cover;
-  }
-
-
-  /* Mostrar solo el fondo claro por defecto */
-  .reg-bg-img {
-    display: block;
-  }
-
-  .reg-bg-img-dark {
-    display: none;
-  }
-
-
-  /* ==== TARJETA PRINCIPAL ==== */
-
-
-  /* Tarjeta principal con dos columnas (formulario + info rol) */
-  .reg-card {
-    display: flex;
-    width: 100%;
-    max-width: 1040px;
-    min-width: 320px;
-    border-radius: 40px;
-    overflow: hidden;
-    background: #108531;
-    z-index: 1;
-    margin: 0 auto;
-    position: relative;
-    align-items: stretch;
-    border: 3px solid #108531;
-    box-shadow: 0 18px 55px rgba(5, 43, 14, 0.32);
-    transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
-  }
-
-
-  /* Columna izquierda: formulario (presidente/asociado) */
-  .reg-left {
-    flex: 1.25;
-    background: #008000;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    padding: 30px 32px 24px 32px;
-    min-width: 260px;
-    position: relative;
-    z-index: 2;
-  }
-
-
-  /* Columna derecha: descripción del rol + botón + login */
-  .reg-right {
-    flex: 0.9;
-    background: #F3E1C9;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 32px 30px 40px 30px;
-    min-width: 250px;
-    position: relative;
-    z-index: 1;
-  }
-
-
-  /* ==== BOTÓN FLECHA VOLVER ==== */
-
-
-  /* Botón circular arriba a la izquierda, solo contorno y flecha */
-  .reg-back {
-    position: absolute;
-    left: 18px;
-    top: 18px;
-    width: 42px;
-    height: 42px;
+/* --- ICONO VERDE PARA COMBINAR --- */
+.panel-icon-box { 
+    width: 100px; 
+    height: 100px; 
+    /* Fondo verde muy suave */
+    background: rgba(0, 179, 0, 0.15); 
     border-radius: 50%;
-    border: 2px solid #108531;
-    background: transparent;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background .15s, transform .08s,
-      box-shadow .12s, border-color .15s;
-    text-decoration: none;
-  }
-
-
-  /* Flecha interna con el mismo verde de la tarjeta */
-  .reg-back-icon {
-    width: 18px;
-    height: 18px;
-    border-left: 3px solid #108531;
-    border-bottom: 3px solid #108531;
-    transform: rotate(45deg);
-  }
-
-
-  /* Hover suave con halo verde y ligera elevación */
-  .reg-back:hover {
-    background: rgba(15, 179, 65, 0.09);
-    border-color: #108531;
-    box-shadow: 0 4px 10px rgba(5, 60, 19, 0.32);
-    transform: translateY(-1px);
-  }
-
-
-  /* ==== TÍTULO FORMULARIO ==== */
-
-
-  /* Contenedor logo + texto del título del formulario */
-  .reg-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 0 18px 18px 18px;
-  }
-
-
-  /* Logo pequeño redondo superior */
-  .reg-title-logo img {
-    width: 56px;
-    height: 56px;
-  }
-
-
-  /* Texto “Crear una cuenta” grande y centrado */
-  .reg-title-text {
-    font-family: 'Nunito', sans-serif;
-    font-size: 1.55rem;
-    font-weight: 900;
-    color: #e9f7ee;
-    text-align: center;
-    line-height: 1.1;
-  }
-
-
-  /* ==== MENSAJE GENERAL DE ERROR ==== */
-
-
-  .reg-alert-slot {
-    margin: 0 18px 8px 18px;
-    min-height: 0;
-  }
-
-  .reg-alert-slot .alert {
-    padding: 6px 14px;
-    margin-bottom: 0;
-    font-size: 0.86rem;
-    border-radius: 999px;
-    text-align: center;
-  }
-
-
-  /* ==== FORMULARIO: GRID Y CAMPOS ==== */
-
-
-  /* Estructura vertical de las filas del formulario */
-  .reg-form-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 0 18px 12px 18px;
-  }
-
-
-  /* Fila genérica horizontal */
-  .reg-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-
-  /* Fila con dos columnas (ej. nombre/apellido, contraseñas) */
-  .reg-row-two>* {
-    flex: 1;
-  }
-
-
-  /* Pequeño ajuste a la primera fila para compactar */
-  .reg-form-grid>.reg-row:first-child {
-    margin-bottom: -2px;
-  }
-
-
-  /* Inputs y selects con bordes redondos tipo píldora */
-  .reg-input,
-  .reg-select {
-    border-radius: 999px;
-    border: 2px solid #9BD18B;
-    font-size: 0.9rem;
-    background: #FFFFFF;
-    color: #233326;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease,
-      background 0.2s ease, transform 0.12s ease;
-  }
-
-  .reg-input {
-    padding: 10px 18px;
-  }
-
-
-  /* Hover y focus con leve sombra y desplazamiento */
-  .reg-input:hover,
-  .reg-select:hover {
-    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
-  }
-
-  .reg-input:focus,
-  .reg-select:focus {
-    border-color: #2FA24F;
-    box-shadow: 0 0 0 2px #2fa24f33;
-    transform: translateY(-1px);
-  }
-
-
-  /* Borde rojo cuando hay error de validación */
-  input.is-invalid,
-  select.is-invalid,
-  .reg-password-flex.is-invalid {
-    border-color: #c02424ff !important;
-  }
-
-
-  /* Select con flecha personalizada */
-  .reg-select {
-    padding: 11px 18px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image:
-      linear-gradient(45deg, transparent 50%, #2FA24F 50%),
-      linear-gradient(135deg, #2FA24F 50%, transparent 50%);
-    background-position:
-      calc(100% - 16px) 50%,
-      calc(100% - 10px) 50%;
-    background-size: 8px 8px, 8px 8px;
-    background-repeat: no-repeat;
-  }
-
-  .reg-select::-ms-expand {
-    display: none;
-  }
-
-
-  /* ==== FECHA DE NACIMIENTO ==== */
-
-
-  .reg-date-wrapper {
-    width: 100%;
-  }
-
-  .reg-date-inner {
-    position: relative;
-    width: 100%;
-  }
-
-  .reg-date-input {
-    padding-right: 40px;
-  }
-
-
-  /* Botón de calendario sobre el input de fecha */
-  .reg-date-icon-btn {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 22px;
-    height: 22px;
-    border: none;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    cursor: pointer;
-    transition: transform .08s, box-shadow .12s;
-  }
-
-  .reg-date-icon-btn:hover {
-    transform: translateY(-52%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-  }
-
-
-  /* Icono cuadrado de calendario */
-  .reg-date-icon {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 2px solid #2FA24F;
-    background: #ffffff;
-    box-sizing: border-box;
-  }
-
-  .reg-date-icon::before,
-  .reg-date-icon::after {
-    content: "";
-    position: absolute;
-    left: 2px;
-    right: 2px;
-  }
-
-  .reg-date-icon::before {
-    top: 2px;
-    height: 4px;
-    background: #2FA24F;
-    border-radius: 2px 2px 0 0;
-  }
-
-  .reg-date-icon::after {
-    top: 8px;
-    bottom: 2px;
-    border-top: 2px solid #2FA24F;
-    border-bottom: 0;
-  }
-
-
-  /* Input date nativo oculto pero funcional */
-  .reg-native-date {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-
-  /* Mensaje de error para fecha incorrecta */
-  .reg-date-error {
-    font-size: 0.8rem;
-    margin-top: 0;
-    color: #c02424ff;
-  }
-
-
-  /* ==== CONTRASEÑAS (reemplaza todo este bloque) ==== */
-
-  .reg-password-flex {
-    position: relative;
-    display: flex;
-    align-items: center;
-    border-radius: 999px;
-    border: 2px solid #9BD18B;
-    background: #FFF;
-    box-sizing: border-box;
-    padding-right: 48px;
-    height: 48px;
-    overflow: hidden;
-    transition: border-color .2s, box-shadow .2s, transform .12s ease;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Sin pseudo-elementos ni bordes internos */
-  .reg-password-flex::before,
-  .reg-password-flex::after {
-    content: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Input de contraseña */
-  .reg-password-flex input {
-    all: unset;
-    box-sizing: border-box;
-    flex: 1;
-    height: 100%;
-    padding: 0 18px;
-    font-size: 0.98rem;
-    color: #333;
-    background: transparent;
-    outline: none;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Efectos hover/focus */
-  .reg-password-flex:hover {
-    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
-  }
-
-  .reg-password-flex:focus-within {
-    border-color: #2FA24F;
-    box-shadow: 0 0 0 2px #2fa24f33;
-    transform: translateY(-1px);
-  }
-
-  /* Botón del ojo */
-  .reg-password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 26px;
-    height: 26px;
-    border: none;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    z-index: 2;
-  }
-
-  .reg-password-toggle img {
-    width: 18px;
-    height: 18px;
-    display: block;
-    object-fit: contain;
-  }
-
-  /* Distribución 50/50 en escritorio */
-  .reg-row-passwords>div:first-child,
-  .reg-row-passwords>div:last-child {
-    max-width: 50%;
-  }
-
-  .reg-row.reg-row-two.reg-row-passwords {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* Textos ayuda */
-  .field-help,
-  .password-help,
-  #password-strength {
-    font-size: 0.8rem;
-    color: #ebee59ff;
-  }
-
-  #password-strength-bar {
-    height: 6px;
-    border-radius: 999px;
-    margin-top: 3px;
-  }
-
-  /* Ajuste móvil */
-  @media (max-width: 600px) {
-    .reg-password-flex {
-      height: 54px;
-      padding-right: 52px;
-    }
-
-    .reg-password-toggle {
-      right: 14px;
-      width: 30px;
-      height: 30px;
-    }
-
-    .reg-password-toggle img {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  /* Ajuste específico móvil para que el ojo no se corte */
-  @media (max-width: 600px) {
-    .reg-password-flex {
-      height: 54px;
-      padding-right: 52px;
-    }
-
-    .reg-password-toggle {
-      right: 14px;
-      width: 30px;
-      height: 30px;
-    }
-
-    .reg-password-toggle img {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-
-  /* ==== TARJETA DEL ROL (COLUMNA DERECHA) ==== */
-
-
-  .reg-role-card {
-    border-radius: 28px;
-    border: 2px solid #2FA24F;
-    background: #FFFFFF;
-    padding: 20px 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 22px;
-    position: relative;
-  }
-
-
-  /* Icono grande del rol */
-  .reg-role-icon {
-    width: 90px;
-    height: 90px;
-    border-radius: 22px;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-    margin-bottom: 12px;
-  }
-
-  .reg-role-icon img {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-    margin-top: 2px;
-  }
-
-
-  /* Texto del rol */
-  .reg-role-text {
-    text-align: center;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 0.96rem;
-    color: #238C35;
-  }
-
-
-  /* Botón “i” de información dentro de la tarjeta */
-  .reg-info {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid #108531;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #108531;
-    font-weight: 700;
-    font-size: .85rem;
-    background: #ffffffff;
-    cursor: pointer;
-    transition: background .15s, box-shadow .12s, transform .08s;
-  }
-
-  .reg-info:hover {
-    background: #ffffffff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
-    transform: translateY(-1px);
-  }
-
-
-  /* ==== MODAL INFORMACIÓN DEL ROL ==== */
-
-
-  .reg-info-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1300;
-  }
-
-  .reg-info-modal {
-    background: #FFFFFF;
-    border-radius: 18px;
-    max-width: 420px;
-    width: 90vw;
-    padding: 20px 22px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-    font-size: 0.9rem;
-    color: #333333;
-    position: relative;
-  }
-
-  .reg-info-modal h3 {
-    font-family: 'Nunito', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    color: #008000;
-  }
-
-  .reg-info-modal ul {
-    padding-left: 18px;
-    margin-bottom: 10px;
-  }
-
-  .reg-info-modal-close {
-    margin-top: 8px;
-    display: inline-block;
-    background: #30AE37;
-    color: #FFFFFF;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    border: none;
-    cursor: pointer;
-  }
-
-
-  /* ==== TELÉFONO Y BANDERA ==== */
-
-
-  .reg-phone-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-
-  /* Bandera pequeña a la derecha del select de país */
-  .phone-flag {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: inline-block;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    border: 2px solid transparent;
-  }
-
-  .reg-phone-row:hover .phone-flag {
-    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.16);
-    transform: translateY(-1px);
-  }
-
-
-  /* Evitar que el código de país se corte */
-  #id_phone_country_aso {
-    padding-right: 32px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-
-  /* ==== BOTÓN PRINCIPAL Y LOGIN ==== */
-
-
-  /* Botón verde “Continuar” */
-  .reg-right-btn {
-    width: 100%;
-    background: #108531;
-    color: #FFFFFF;
-    font-weight: 700;
-    padding: 11px 16px;
-    font-size: 0.98rem;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-  }
-
-  .reg-right-btn:hover,
-  .reg-right-btn:focus {
-    background: #30AE37;
-    box-shadow: 0 0 0 2px #2fa24f33;
-    transform: translateY(-1px);
-  }
-
-
-  /* Bloque con texto “ya tienes cuenta / inicia sesión” */
-  .reg-register-box {
-    margin-top: 14px;
-    font-size: 0.95rem;
-    text-align: center;
-  }
-
-  .reg-no-account-text {
-    color: #30AE37;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    margin-right: 6px;
-  }
-
-
-  /* Enlace “Inicia sesión aquí” con mismas transiciones del botón */
-  .reg-register-highlight {
-    background: #108531;
-    color: #FFFFFF;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.18s, box-shadow 0.18s, transform 0.12s, color 0.13s;
-  }
-
-  .reg-register-highlight:hover,
-  .reg-register-highlight:focus {
-    background: #108531;
-    color: #FFFFFF;
-    text-decoration: underline;
-    box-shadow: 0 0 0 2px #2fa24f33;
-    transform: translateY(-1px);
-  }
-
-
-  /* ==== BOTÓN TEMA CLARO/OSCURO ==== */
-
-
-  .theme-toggle-btn {
-    position: absolute;
-    top: 6px;
-    right: 16px;
-    z-index: 1200;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #F9F9FB;
-    color: #30AE37;
-    box-shadow: 0 2px 8px #238c3520;
-    border: 2px solid #D8EDD6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 2rem;
-    transition: background 0.18s, color 0.16s, border 0.15s,
-      transform 0.08s, box-shadow 0.12s;
-  }
-
-  .theme-toggle-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px #238c3538;
-  }
-
-  .theme-toggle-btn img {
-    width: 32px;
-    height: 32px;
-    display: block;
-    pointer-events: none;
-  }
-
-  .theme-toggle-btn:focus {
-    outline: 3px solid #97F08888;
-  }
-
-  .reg-card {
-    margin-top: 40px;
-  }
-
-
-  /* ==== BASE HTML Y TARJETA ==== */
-
-
-  html,
-  body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .reg-card {
-    box-sizing: border-box;
-  }
-
-
-  /* ==== RESPONSIVE TABLET ==== */
-
-
-  @media (max-width: 1000px) {
-    .reg-card {
-      flex-direction: column !important;
-      max-width: 98vw !important;
-      min-width: unset !important;
-      height: unset !important;
-      margin: 2vh auto !important;
-    }
-
-    .reg-left,
-    .reg-right {
-      height: auto !important;
-      min-height: unset !important;
-      padding: 24px 20px !important;
-    }
-  }
-
-
-  /* ==== RESPONSIVE MÓVIL ==== */
-
-
-  @media (max-width: 600px) {
-    .reg-row {
-      flex-wrap: wrap;
-    }
-
-    .reg-row-two>* {
-      flex: 1 1 100%;
-    }
-
-    .reg-row-two>*+* {
-      margin-top: 8px;
-    }
-
-
-    .reg-input,
-    .reg-select,
-    .reg-password-flex {
-      width: 100%;
-    }
-
-
-    /* Botón volver solo en móvil */
-    .reg-back {
-      top: 18px;
-      /* más separado del borde */
-      left: 18px;
-      width: 40px;
-      /* más grande */
-      height: 40px;
-      border-width: 2px;
-      border-color: #fff;
-      /* blanco */
-      background: transparent;
-    }
-
-
-    .reg-back-icon {
-      border-left-color: #fff;
-      border-bottom-color: #fff;
-    }
-
-
-    .reg-back:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: #fff;
-    }
-
-
-    .reg-title {
-      flex-direction: column;
-      text-align: center;
-    }
-
-
-    .reg-card {
-      flex-direction: column;
-    }
-
-    .reg-left {
-      order: 1;
-    }
-
-    .reg-right {
-      order: 2;
-    }
-
-
-    .reg-form-grid .reg-row {
-      margin-top: 6px;
-    }
-
-    .reg-form-grid .reg-row:first-child {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-
-    .reg-row-two.reg-row-passwords>div {
-      flex: 1 1 100%;
-      max-width: 100%;
-    }
-
-    /* FIX SOLO MÓVIL: más espacio para el ojo y sin corte */
-    .reg-password-flex {
-      height: 54px;
-      padding-right: 48px;
-    }
-
-    .reg-password-flex::after {
-      width: 48px;
-    }
-
-    .reg-password-toggle {
-      width: 28px;
-      height: 28px;
-    }
-
-    .reg-password-toggle img {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-
-  /* ==== MODO OSCURO ==== */
-
-
-  /* Fondos en modo oscuro: se invierten */
-  body.modo-oscuro .reg-bg-img {
-    display: none !important;
-  }
-
-  body.modo-oscuro .reg-bg-img-dark {
-    display: block !important;
-  }
-
-
-  body.modo-oscuro .reg-card {
-    background: #22322f !important;
-    border-color: #00a744 !important;
-    box-shadow: 0 0px 70px #0b141077;
-  }
-
-  body.modo-oscuro .reg-left {
-    background: #1E3A33 !important;
-  }
-
-  body.modo-oscuro .reg-right {
-    background: #22322F !important;
-  }
-
-  body.modo-oscuro .reg-title-text {
-    color: #FFFFFF !important;
-  }
-
-  body.modo-oscuro .reg-input {
-    background: #FFFFFF !important;
-    color: #113010 !important;
-    border-color: #00FF5A !important;
-  }
-
-  body.modo-oscuro .reg-input:focus {
-    box-shadow: 0 0 0 2px #00ff5a44 !important;
-  }
-
-  body.modo-oscuro .reg-select {
-    border-color: #00FF5A !important;
-    background-image:
-      linear-gradient(45deg, transparent 50%, #00FF5A 50%),
-      linear-gradient(135deg, #00FF5A 50%, transparent 50%);
-  }
-
-  body.modo-oscuro .reg-password-flex {
-    border-color: #00FF5A !important;
-    background: #FFFFFF !important;
-    box-shadow: none !important;
-  }
-
-  body.modo-oscuro .reg-password-flex:focus-within {
-    border-color: #00FF5A !important;
-    box-shadow: none !important;
-  }
-
-  body.modo-oscuro input.is-invalid,
-  body.modo-oscuro select.is-invalid,
-  body.modo-oscuro .reg-password-flex.is-invalid {
-    border-color: #c92222ff !important;
-  }
-
-  body.modo-oscuro .password-help,
-  body.modo-oscuro #password-strength {
-    color: #ebee59ff;
-  }
-
-  body.modo-oscuro .reg-role-card {
-    background: #1A2723 !important;
-    border-color: #00FF5A !important;
-  }
-
-  body.modo-oscuro .reg-role-text {
-    color: #DBDEDB !important;
-  }
-
-  body.modo-oscuro .reg-right-btn {
-    background: #00A53A !important;
-    color: #FFFFFF !important;
-  }
-
-  body.modo-oscuro .reg-back {
-    background: transparent;
-    border-color: #71ff9e;
-  }
-
-  body.modo-oscuro .reg-back-icon {
-    border-left-color: #71ff9e;
-    border-bottom-color: #71ff9e;
-  }
-
-  body.modo-oscuro .reg-back:hover {
-    background: rgba(113, 255, 158, 0.10);
-  }
-
-  body.modo-oscuro .theme-toggle-btn {
-    background: #232D21;
-    color: #97F088;
-    border: 2px solid #297B36;
-  }
-
-  body.modo-oscuro .reg-date-icon {
-    border-color: #00FF5A;
-  }
-
-  body.modo-oscuro .reg-date-icon::before {
-    background: #00FF5A;
-  }
-
-  body.modo-oscuro .reg-date-icon::after {
-    border-top-color: #00FF5A;
-  }
-
-  body.modo-oscuro .reg-info-modal {
-    background: #070808ff !important;
-    color: #E5E5E5 !important;
-  }
-
-  body.modo-oscuro .reg-info {
-    background: #192722;
-    color: #71ff9e;
-    border-color: #71ff9e;
-  }
-
-  body.modo-oscuro .reg-info:hover {
-    background: #121b17ff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
-    transform: translateY(-1px);
-  }
-
-
-  /* ==== ERRORES DE CAMPO ==== */
-
-
-  .field-error {
-    font-size: 0.8rem;
-    margin-top: 0;
-    color: #c02424ff;
-  }
-
-  .password-error-one-line {
-    white-space: nowrap;
-  }
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    /* Icono verde principal */
+    color: var(--coop-green-primary); 
+    font-size: 3.5rem;    
+    margin-bottom: 20px; 
+    box-shadow: 0 10px 30px rgba(0, 179, 0, 0.10); 
+    border: 2px solid transparent; /* Reserva espacio para borde opcional */
+}
+
+/* Ajuste específico para modo oscuro */
+body.modo-oscuro .panel-icon-box {
+    /* Fondo verde neón suave y transparente */
+    background: rgba(16, 185, 129, 0.15);
+    /* Icono verde neón */
+    color: #10b981;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+}
+
+.panel-title { font-size: 1.3rem; font-weight: 800; color: #333; text-align: center; line-height: 1.3; margin-bottom: 10px; }
+.panel-desc { font-size: 0.9rem; color: #555; text-align: center; font-weight: 600; }
+body.modo-oscuro .panel-title { color: var(--coop-green-primary); }
+body.modo-oscuro .panel-desc { color: #a0aec0; }
+.vsms-back { position: absolute; top: 25px; left: 25px; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--border-color); text-decoration: none !important; transition: var(--transition); }
+.vsms-back:hover { background: var(--border-color); color: white; transform: scale(1.1); }
+.right-panel { width: 65%; background: var(--panel-right-bg); padding: 35px 45px; overflow-y: auto; display: flex; flex-direction: column; }
+body.modo-oscuro .right-panel { background: var(--panel-right-dark); }
+.right-panel::-webkit-scrollbar { width: 0px; background: transparent; }
+.form-header { margin-bottom: 25px; }
+.form-title { font-size: 1.8rem; font-weight: 900; color: var(--coop-green-primary); display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.full-width { grid-column: span 2; }
+.form-group { margin-bottom: 5px; position: relative; }
+.form-label { display: block; font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 5px; margin-left: 12px; }
+body.modo-oscuro .form-label { color: #ccc; }
+.vsms-input { width: 100%; padding: 12px 20px; border-radius: var(--border-radius-input); border: 2px solid #B6ECAD; background: #FFFFFF; font-size: 0.95rem; color: #333; outline: none; box-sizing: border-box; transition: var(--transition); font-family: 'Nunito', sans-serif; }
+.vsms-input:focus { border-color: var(--coop-green-primary); box-shadow: var(--input-glow); transform: translateY(-1px); }
+body.modo-oscuro .vsms-input { background: #1a2639; border-color: #2d3748; color: white; }
+body.modo-oscuro .vsms-input:focus { border-color: var(--coop-green-primary); }
+body.modo-oscuro .vsms-input::placeholder { color: #6b7280; }
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active{ -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important; -webkit-text-fill-color: #333 !important; transition: background-color 5000s ease-in-out 0s; }
+body.modo-oscuro input:-webkit-autofill, body.modo-oscuro input:-webkit-autofill:hover, body.modo-oscuro input:-webkit-autofill:focus, body.modo-oscuro input:-webkit-autofill:active{ -webkit-box-shadow: 0 0 0 30px #1a2639 inset !important; -webkit-text-fill-color: white !important; transition: background-color 5000s ease-in-out 0s; }
+select.vsms-input { -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background: #FFFFFF url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300b300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center; background-size: 16px; padding-right: 40px; cursor: pointer; }
+select.vsms-input::-ms-expand { display: none; }
+body.modo-oscuro select.vsms-input { background: #1a2639 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center !important; color: white !important; border-color: #2d3748 !important; background-size: 16px !important; }
+body.modo-oscuro select.vsms-input option { background-color: #0f1a2e; color: white; padding: 10px; }
+.flag-container { position: relative; width: 100%; }
+.flag-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10; width: 24px; height: 24px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.2); pointer-events: none; transition: opacity 0.3s ease-in-out; }
+.input-with-flag { padding-left: 50px !important; }
+.submit-btn { width: 100%; padding: 14px; border-radius: 50px; border: none; background: var(--coop-green-primary); color: white; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: 25px; box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25); transition: var(--transition); }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 153, 0, 0.35); background: var(--coop-green-hover); }
+body.modo-oscuro .submit-btn { color: #020a1f; }
+.date-wrapper { position: relative; }
+.calendar-trigger { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--coop-green-primary); cursor: pointer; font-size: 1.2rem; transition: transform 0.2s; z-index: 5; }
+.calendar-trigger:hover { transform: translateY(-50%) scale(1.1); }
+.password-wrapper { position: relative; }
+.toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--coop-green-primary); cursor: pointer; padding: 5px; font-size: 1.1rem; transition: transform 0.2s; }
+.toggle-password i { transition: all 0.3s ease; }
+.toggle-password:hover { transform: translateY(-50%) scale(1.1); }
+.password-help, .password-strength { font-size: 0.8rem; margin-top: 6px; color: #7f8c8d; font-weight: 600; }
+body.modo-oscuro .password-help, body.modo-oscuro .password-strength { color: #a0aec0; }
+#password-strength-bar { height: 6px; border-radius: 999px; margin-top: 6px; width: 0%; background: #ff4b4b; transition: width .25s ease, background-color .25s ease; }
+.login-link-box { margin-top: 15px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; color: #666; font-weight: 600; }
+body.modo-oscuro .login-link-box { color: #a0aec0; }
+.login-ghost-btn { background: transparent; border: 2px solid var(--coop-green-primary); color: var(--coop-green-primary); padding: 6px 18px; border-radius: 50px; font-weight: 700; text-decoration: none !important; font-size: 0.85rem; transition: var(--transition); }
+.login-ghost-btn:hover { background: var(--coop-green-primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+body.modo-oscuro .login-ghost-btn:hover { color: #0b1220; }
+.theme-toggle-btn { position: fixed; top: 20px; right: 20px; z-index: 2000; width: 45px; height: 45px; border-radius: 50%; background: #F9F9FB; color: var(--coop-green-primary); border: 2px solid #B6ECAD; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, border-color 0.3s; }
+.theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.theme-toggle-btn.rotate-active { transform: rotate(360deg); }
+body.modo-oscuro .theme-toggle-btn { background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+.theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; transition: filter 0.3s; }
+body.modo-oscuro .theme-toggle-btn img { filter: invert(1) brightness(200%); }
+.error-msg { color: #e53935; font-size: 0.75rem; margin-left: 15px; margin-top: 2px; font-weight: 700; display: block; }
+@media (max-width: 900px) { .register-card { flex-direction: column; height: auto; max-height: none; overflow: visible; } .left-panel { width: 100%; padding: 25px; border-right: none; } .right-panel { width: 100%; padding: 30px 20px; overflow: visible; } .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } .vsms-wrapper { align-items: flex-start; padding-top: 10px; overflow-y: auto; } body { overflow: auto; } }
 </style>
 
+<!-- FONDOS -->
+<img src="{% static 'img/fondo-ondas.png' %}" class="vsms-bg-img">
+<img src="{% static 'img/fondo-oscuro.png' %}" class="vsms-bg-img-dark">
 
-{# Fondos de la página #}
-<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="reg-bg-img">
-<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="reg-bg-img-dark">
-
-{# Botón de tema claro/oscuro #}
-<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
-  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+<!-- BOTÓN TOGGLE -->
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}">
 </button>
 
-<script>
-  /* Alterna modo oscuro/claro y guarda preferencia en localStorage */
-  (function () {
-    const btn = document.getElementById("themeToggleBtn");
-    const img = document.getElementById("iconSunMoon");
-    let modo = localStorage.getItem("modo-oscuro") === "true";
-
-    if (modo) {
-      document.body.classList.add("modo-oscuro");
-      img.style.filter = "invert(0.7)";
-    }
-
-    btn.addEventListener("click", function () {
-      modo = !modo;
-      document.body.classList.toggle("modo-oscuro");
-      localStorage.setItem("modo-oscuro", modo ? "true" : "");
-      img.style.filter = modo ? "invert(0.7)" : "";
-    });
-  })();
-</script>
-
-{# Modal de información sobre el rol Presidente #}
-<div class="reg-info-modal-backdrop" id="infoModal">
-  <div class="reg-info-modal">
-    <h3>Información sobre el rol Presidente</h3>
-    <ul>
-      <li>Rol para el presidente o representante principal de la cooperativa.</li>
-      <li>Permite gestionar afiliados, vehículos y llevar el control de las finanzas.</li>
-      <li>Acceso a las funciones administrativas y paneles de control del sistema.</li>
-    </ul>
-    <button type="button" class="reg-info-modal-close" id="infoModalClose">
-      Entendido
-    </button>
-  </div>
-</div>
-
-<div class="reg-wrapper">
-  <div class="reg-card">
-
-    {# Flecha para volver a seleccionar rol #}
-    <a href="{% url 'taxis:select_role' %}" class="reg-back" aria-label="Volver a elegir rol">
-      <span class="reg-back-icon"></span>
-    </a>
-
-    {# COLUMNA DERECHA: info rol + botón submit + enlace login #}
-    <div class="reg-right">
-
-      <div class="reg-role-card">
-        {# Botón "i" DENTRO de la tarjetita blanca #}
-        <button type="button" class="reg-info" id="infoBtn" aria-label="Información sobre el rol de presidente">
-          i
-        </button>
-
-        <div class="reg-role-icon">
-          <img src="{% static 'img/icono_presidente.png' %}" alt="Presidente">
-        </div>
-        <div class="reg-role-text">
-          PRESIDENTE<br>DE LA COOPERATIVA
-        </div>
-      </div>
-
-      {# Botón “Continuar” que envía el formulario de la columna verde (.reg-left) #}
-      <button type="submit" class="reg-right-btn" onclick="document.querySelector('.reg-left form').submit();">
-        Continuar
-      </button>
-
-      <div class="reg-register-box">
-        <span class="reg-no-account-text">¿Ya tienes una cuenta?</span>
-        <a href="{% url 'login' %}" class="reg-register-highlight">Inicia sesión aquí</a>
-      </div>
-    </div>
-
-
-    {# COLUMNA IZQUIERDA: formulario completo #}
-    <div class="reg-left">
-
-      {# Título y logo del formulario #}
-      <div class="reg-title">
-        <div class="reg-title-logo">
-          <img src="{% static 'img/logo.png' %}" alt="Logo">
-        </div>
-        <div class="reg-title-text">Crear una cuenta</div>
-      </div>
-
-      {# Mensaje de error general si el form tiene errores #}
-      <div class="reg-alert-slot">
-        {% if form.errors %}
-        <div class="alert alert-danger" role="alert">
-          Revisa los campos resaltados y completa la información requerida.
-        </div>
-        {% endif %}
-      </div>
-
-      {# Formulario que usa PresidenteRegisterForm #}
-      <form method="post" novalidate autocomplete="off">
-        {% csrf_token %}
-        {{ form.username }} {{ form.role }}
-
-        <div class="reg-form-grid">
-
-          {# Nombres y apellidos #}
-          <div class="reg-row reg-row-two">
-            <div>
-              {% render_field form.first_name class="reg-input" placeholder="Nombres" autocomplete="off" %}
-              {% if form.first_name.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.first_name.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              {% endif %}
+<div class="vsms-wrapper">
+    <div class="register-card">
+        <!-- PANEL IZQUIERDO -->
+        <div class="left-panel">
+            <a href="{% url 'taxis:select_role' %}" class="vsms-back"><i class="fas fa-arrow-left"></i></a>
+            <div class="panel-icon-box">
+                <i class="fas fa-user-tie"></i>
             </div>
-            <div>
-              {% render_field form.last_name class="reg-input" placeholder="Apellidos" autocomplete="off" %}
-              {% if form.last_name.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.last_name.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              {% endif %}
-            </div>
-          </div>
+            <div class="panel-title">PRESIDENTE<br>DE LA COOPERATIVA</div>
+            <div class="panel-desc">Estás creando la cuenta de administrador principal.</div>
+        </div>
 
-          {# Fecha de nacimiento (texto + calendario nativo oculto) #}
-          <div class="reg-row">
-            <div class="reg-date-wrapper">
-              <div class="reg-date-inner">
-                {% render_field form.fecha_nacimiento class="reg-input reg-date-input" autocomplete="off" data-mask-fecha="true" placeholder="dd/mm/aaaa" %}
-                {% if form.fecha_nacimiento.errors %}
-                <script>
-                  document.addEventListener('DOMContentLoaded', () => {
-                    const el = document.getElementsByName('{{ form.fecha_nacimiento.name }}')[0];
-                    if (el) el.classList.add('is-invalid');
-                  });
-                </script>
+        <!-- PANEL DERECHO -->
+        <div class="right-panel">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-file-signature"></i> Crear una cuenta
+                </div>
+            </div>
+
+            <!-- FORMULARIO -->
+            <form method="post" novalidate autocomplete="off">
+                {% csrf_token %}
+                
+                <!-- DIAGNÓSTICO DE ERRORES MEJORADO -->
+                {% if form.errors %}
+                <div style="background: #ffebee; color: #c62828; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ef9a9a; font-size: 0.85rem; line-height: 1.4;">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Verifica los siguientes datos:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
                 {% endif %}
 
-                <input type="date" id="nativeDate" class="reg-native-date">
-                <button type="button" class="reg-date-icon-btn" id="dateIconBtn" aria-label="Abrir calendario">
-                  <span class="reg-date-icon"></span>
-                </button>
-              </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nombres</label>
+                        {% render_field form.first_name class="vsms-input" placeholder="Ej. Juan Carlos" autocomplete="new-password" %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Apellidos</label>
+                        {% render_field form.last_name class="vsms-input" placeholder="Ej. Pérez" autocomplete="new-password" %}
+                    </div>
 
-              {% if form.fecha_nacimiento.errors %}
-              {% for e in form.fecha_nacimiento.errors %}
-              {% if "obligatorio" not in e %}
-              <div class="reg-date-error">
-                Fecha inválida. Verifica el día, mes y año.
-              </div>
-              {% endif %}
-              {% endfor %}
-              {% endif %}
-            </div>
-          </div>
+                    <!-- FECHA DE NACIMIENTO -->
+                    <div class="form-group">
+                        <label class="form-label">Fecha de Nacimiento</label>
+                        <div class="date-wrapper">
+                            {% render_field form.fecha_nacimiento class="vsms-input" type="text" id="fechaNacInput" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" %}
+                            <input type="date" id="nativeDatePicker" style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                            <i class="fas fa-calendar-alt calendar-trigger" onclick="openCalendar()"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Género</label>
+                        {% render_field form.sexo class="vsms-input" %}
+                    </div>
 
-          {# Género #}
-          <div class="reg-row">
-            <div style="width:100%;">
-              {% render_field form.sexo class="reg-select" %}
-              {% if form.sexo.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.sexo.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              {% endif %}
-            </div>
-          </div>
+                    <!-- PAIS CON BANDERA -->
+                    <div class="form-group">
+                        <label class="form-label">Código País</label>
+                        <div class="flag-container">
+                            <img src="{% static 'img/flags/ve.png' %}" class="flag-icon" id="countryFlag">
+                            {% render_field form.phone_country class="vsms-input input-with-flag" id="countrySelect" %}
+                        </div>
+                    </div>
 
-          {# Teléfono: país (con bandera) + número #}
-          <div class="reg-row reg-row-two">
-            <div class="reg-phone-row">
-              {% if form.phone_country %}
-              {% render_field form.phone_country class="reg-select" id="id_phone_country_aso" %}
-              <img id="phoneFlagAsociado" class="phone-flag" src="{% static 'img/flags/ve.png' %}" alt="Bandera país">
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        {% render_field form.phone_number class="vsms-input" placeholder="Ej. 4121234567" autocomplete="off" %}
+                    </div>
 
-              {% if form.phone_country.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.phone_country.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              {% endif %}
-              {% endif %}
-            </div>
-            <div>
-              {% if form.phone_number %}
-              {% render_field form.phone_number class="reg-input" autocomplete="off" placeholder="Número de teléfono" %}
-              {% if form.phone_number.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.phone_number.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              <div class="field-error">{{ form.phone_number.errors.0 }}</div>
-              {% endif %}
-              {% endif %}
-            </div>
-          </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Correo Electrónico</label>
+                        {% render_field form.email class="vsms-input" placeholder="correo@ejemplo.com" type="email" autocomplete="off" %}
+                    </div>
 
-          {# Correo electrónico #}
-          <div class="reg-row">
-            <div style="width:100%;">
-              {% render_field form.email class="reg-input" placeholder="Correo electrónico" autocomplete="off" %}
-              {% if form.email.errors %}
-              <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                  document.getElementsByName('{{ form.email.name }}')[0]?.classList.add('is-invalid');
-                });
-              </script>
-              <div class="field-error">{{ form.email.errors.0 }}</div>
-              {% endif %}
-            </div>
-          </div>
+                    <!-- AQUÍ ESTÁ EL CAMBIO CLAVE: form.password1 y form.password2 para que coincida con forms.py -->
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <div class="password-wrapper">
+                            {% render_field form.password1 class="vsms-input" placeholder="Mín. 6 caracteres" type="password" id="pass1" autocomplete="new-password" %}
+                            <button type="button" class="toggle-password" onclick="togglePass('pass1', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                        
+                        <div class="password-help">
+                          La contraseña se considera más segura si incluye mayúsculas, minúsculas, números y símbolos.
+                        </div>
+                        <div id="password-strength" class="password-strength"></div>
+                    </div>
 
-          {# Contraseñas: contraseña + confirmación, cada una con ojo #}
-          <div class="reg-row reg-row-two reg-row-passwords">
-            <div>
-              <div class="reg-password-flex
-                          {% if form.password1.errors or form.password2.errors %} is-invalid{% endif %}">
-                {% render_field form.password1 id="id_password1" placeholder="Contraseña" autocomplete="new-password" minlength="6" maxlength="20" %}
-                <button type="button" class="reg-password-toggle" data-target="id_password1" data-visible="false"
-                  aria-label="Mostrar u ocultar contraseña">
-                  <img src="{% static 'img/mostrar_contrasena.png' %}" alt="Mostrar contraseña">
-                </button>
-              </div>
-            </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmar</label>
+                        <div class="password-wrapper">
+                            {% render_field form.password2 class="vsms-input" placeholder="Repite contraseña" type="password" id="pass2" autocomplete="new-password" %}
+                            <button type="button" class="toggle-password" onclick="togglePass('pass2', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                </div>
 
-            <div>
-              <div class="reg-password-flex
-                          {% if form.password1.errors or form.password2.errors %} is-invalid{% endif %}">
-                {% render_field form.password2 id="id_password2" placeholder="Confirmar contraseña" autocomplete="new-password" minlength="6" maxlength="20" %}
-                <button type="button" class="reg-password-toggle" data-target="id_password2" data-visible="false"
-                  aria-label="Mostrar u ocultar contraseña">
-                  <img src="{% static 'img/mostrar_contrasena.png' %}" alt="Mostrar contraseña">
-                </button>
-              </div>
-            </div>
-          </div>
+                <div style="font-size:0.8rem; color:#666; margin-top:20px; font-weight: 600; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-shield-alt" style="color: var(--coop-green-primary);"></i> 
+                    <span>Datos protegidos por la cooperativa.</span>
+                </div>
 
-          {# Mensaje de error único para las contraseñas #}
-          {% if form.password1.errors or form.password2.errors %}
-          <div class="field-error">
-            {% if form.password2.errors %}
-            {{ form.password2.errors.0 }}
-            {% else %}
-            {{ form.password1.errors.0 }}
-            {% endif %}
-          </div>
-          {% endif %}
-
-          {# Indicaciones de seguridad de contraseña + medidor visual #}
-          <div class="reg-row">
-            <div style="width:100%;">
-              <div class="field-help">
-                Mín. 6 caracteres, máx. 20.
-              </div>
-              <div class="password-help">
-                La contraseña se considera más segura con caracteres, mayúsculas, números y símbolos.
-              </div>
-              <div id="password-strength"></div>
-            </div>
-          </div>
-
-        </div> {# fin reg-form-grid #}
-      </form> {# fin form #}
-    </div> {# fin reg-left #}
-
-  </div>
+                <button type="submit" class="submit-btn">Continuar</button>
+                
+                <div class="login-link-box">
+                    <span>¿Ya tienes una cuenta?</span>
+                    <a href="{% url 'taxis:login' %}" class="login-ghost-btn">Inicia sesión aquí</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-  /*
-    Máscaras para fecha y teléfono,
-    y limpieza de errores visuales solo en contraseñas al escribir.
-  */
-  document.addEventListener('input', function (e) {
-    const el = e.target;
+    // --- CALENDARIO ---
+    function openCalendar() {
+        const picker = document.getElementById('nativeDatePicker');
+        try { picker.showPicker(); } catch (e) { picker.click(); }
+    }
+    document.getElementById('nativeDatePicker').addEventListener('change', function() {
+        if(this.value) {
+            const [y, m, d] = this.value.split('-');
+            document.getElementById('fechaNacInput').value = `${d}/${m}/${y}`;
+        }
+    });
 
-    // Máscara dd/mm/aaaa para fecha
-    if (el.hasAttribute('data-mask-fecha')) {
-      let v = el.value.replace(/[^0-9]/g, '').slice(0, 8);
-      if (v.length >= 5) {
-        el.value = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4);
-      } else if (v.length >= 3) {
-        el.value = v.slice(0, 2) + '/' + v.slice(2);
-      } else {
-        el.value = v;
-      }
+    // --- MÁSCARA FECHA ---
+    const dateInput = document.getElementById('fechaNacInput');
+    dateInput.addEventListener('input', function(e) {
+        let val = this.value.replace(/\D/g, ''); 
+        if (val.length > 8) val = val.substring(0, 8); 
+        let fmt = '';
+        if (val.length > 0) fmt = val.substring(0, 2);
+        if (val.length >= 3) fmt += '/' + val.substring(2, 4);
+        if (val.length >= 5) fmt += '/' + val.substring(4, 8);
+        this.value = fmt;
+    });
+
+    // --- TOGGLE PASSWORD ---
+    function togglePass(id, btn) {
+        const input = document.getElementById(id);
+        const icon = btn.querySelector('i');
+        icon.style.opacity = '0'; 
+        setTimeout(() => {
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye');
+            }
+            icon.style.opacity = '1'; 
+        }, 150);
     }
 
-    // Solo dígitos en teléfono, con guión después de los 3 primeros
-    if (el.name === '{{ form.phone_number.name }}') {
-      let v = el.value.replace(/[^0-9]/g, '').slice(0, 11);
-      el.value = v.length > 3 ? v.slice(0, 3) + '-' + v.slice(3) : v;
+    // --- LOGICA DE BANDERAS COMPLETA ---
+    const countrySelect = document.getElementById('countrySelect');
+    const flagImg = document.getElementById('countryFlag');
+    
+    // Mapeo EXACTO según LATAM_PREFIXES
+    const flags = {
+        '+58': 've.png',    // Venezuela
+        '+54': 'ar.png',    // Argentina
+        '+591': 'bo.png',   // Bolivia
+        '+55': 'br.png',    // Brasil
+        '+56': 'cl.png',    // Chile
+        '+57': 'co.png',    // Colombia
+        '+506': 'cr.png',   // Costa Rica
+        '+53': 'cu.png',    // Cuba
+        '+593': 'ec.png',   // Ecuador
+        '+503': 'sv.png',   // El Salvador
+        '+502': 'gt.png',   // Guatemala
+        '+504': 'hn.png',   // Honduras
+        '+52': 'mx.png',    // México
+        '+505': 'ni.png',   // Nicaragua
+        '+507': 'pa.png',   // Panamá
+        '+595': 'py.png',   // Paraguay
+        '+51': 'pe.png',    // Perú
+        '+1787': 'pr.png',  // Puerto Rico (USA)
+        '+1809': 'do.png',  // Rep. Dominicana
+        '+598': 'uy.png'    // Uruguay
+    };
+
+    function updateFlag() {
+        if (!countrySelect) return;
+        const val = countrySelect.value;
+        
+        flagImg.style.opacity = '0'; 
+        
+        setTimeout(() => {
+            // 1. Búsqueda exacta (prioridad)
+            if (flags[val]) {
+                flagImg.src = "{% static 'img/flags/' %}" + flags[val];
+            } 
+            // 2. Búsqueda por coincidencia
+            else {
+                let found = false;
+                for (const key in flags) {
+                    if (val.includes(key)) {
+                        flagImg.src = "{% static 'img/flags/' %}" + flags[key];
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && val === "") flagImg.src = "{% static 'img/flags/ve.png' %}";
+            }
+            flagImg.style.opacity = '1';
+        }, 200);
     }
 
-    // Limpiar errores visuales en contraseñas al escribir
-    if (el.name === '{{ form.password1.name }}' || el.name === '{{ form.password2.name }}') {
-      if (el.classList.contains('is-invalid')) {
-        el.classList.remove('is-invalid');
-      }
-      const pwdWrapper = el.closest('.reg-password-flex');
-      if (pwdWrapper && pwdWrapper.classList.contains('is-invalid')) {
-        pwdWrapper.classList.remove('is-invalid');
-      }
+    if (countrySelect) {
+        countrySelect.addEventListener('change', updateFlag);
+        document.addEventListener('DOMContentLoaded', updateFlag);
     }
-  });
 
-  /* Indicador de fuerza de contraseña (solo informativo, no bloquea) */
-  document.addEventListener('input', function (e) {
-    if (e.target.name === '{{ form.password1.name }}') {
-      const pwd = e.target.value || '';
+    // --- MEDIDOR DE FUERZA DE CONTRASEÑA ---
+    (function () {
+      const input = document.getElementById('pass1');
       const box = document.getElementById('password-strength');
-      if (!box) return;
-      let score = 0;
-      if (pwd.length >= 8) score++;
-      if (/[A-Z]/.test(pwd)) score++;
-      if (/[0-9]/.test(pwd)) score++;
-      if (/[^A-Za-z0-9]/.test(pwd)) score++;
-      let text = 'Contraseña muy débil';
-      let color = '#ff4b4b';
-      if (score === 2) { text = 'Un poco débil'; color = '#ffb347'; }
-      if (score === 3) { text = 'Aceptable'; color = '#ffd800'; }
-      if (score >= 4) { text = 'Segura'; color = '#8afc08ff'; }
-      box.innerHTML = `
-      <span>${text}</span>
-      <div id="password-strength-bar" style="background:${color}; width:${(score / 4) * 100}%;"></div>
-    `;
-    }
-  });
+      if (!input || !box) return;
 
-  /* Inicialización: calendario y banderas de país */
-  document.addEventListener('DOMContentLoaded', function () {
-    // Calendario nativo enlazado al campo de texto
-    const textDate = document.getElementsByName('{{ form.fecha_nacimiento.name }}')[0];
-    const nativeDate = document.getElementById('nativeDate');
-    const iconBtn = document.getElementById('dateIconBtn');
-    if (iconBtn && nativeDate && textDate) {
-      iconBtn.addEventListener('click', function () {
-        try {
-          if (nativeDate.showPicker) nativeDate.showPicker();
-          else nativeDate.focus();
-        } catch (e) {
-          nativeDate.focus();
-        }
-      });
-      nativeDate.addEventListener('change', function () {
-        if (!nativeDate.value) return;
-        const [y, m, d] = nativeDate.value.split('-');
-        textDate.value = d + '/' + m + '/' + y;
-        const wrapper = textDate.closest('.reg-date-wrapper');
-        if (wrapper) {
-          const err = wrapper.querySelector('.reg-date-error');
-          if (err) err.remove();
-        }
-        textDate.classList.remove('is-invalid');
-      });
-    }
-
-    // Actualizar bandera según teléfono (Presidente)
-    const select = document.getElementById('id_phone_country_aso');
-    const flagImg = document.getElementById('phoneFlagAsociado');
-    if (select && flagImg) {
-      const flagMap = {
-        "+58": "{% static 'img/flags/ve.png' %}",
-        "+57": "{% static 'img/flags/co.png' %}",
-        "+593": "{% static 'img/flags/ec.png' %}",
-        "+51": "{% static 'img/flags/pe.png' %}",
-        "+52": "{% static 'img/flags/mx.png' %}",
-        "+54": "{% static 'img/flags/ar.png' %}",
-        "+55": "{% static 'img/flags/br.png' %}",
-        "+56": "{% static 'img/flags/cl.png' %}",
-        "+505": "{% static 'img/flags/ni.png' %}",
-        "+506": "{% static 'img/flags/cr.png' %}",
-        "+591": "{% static 'img/flags/bo.png' %}",
-        "+598": "{% static 'img/flags/uy.png' %}",
-        "+595": "{% static 'img/flags/py.png' %}",
-        "+502": "{% static 'img/flags/gt.png' %}",
-        "+503": "{% static 'img/flags/sv.png' %}",
-        "+504": "{% static 'img/flags/hn.png' %}",
-        "+507": "{% static 'img/flags/pa.png' %}",
-        "+53": "{% static 'img/flags/cu.png' %}",
-        "+1809": "{% static 'img/flags/do.png' %}",
-        "+1787": "{% static 'img/flags/pr.png' %}",
-      };
-
-      function updateFlag() {
-        const code = select.value;
-        if (flagMap[code]) {
-          flagImg.src = flagMap[code];
-        }
+      function scorePassword(pwd) {
+        let score = 0;
+        if (pwd.length >= 8) score++;              
+        if (/[A-Z]/.test(pwd)) score++;            
+        if (/[0-9]/.test(pwd)) score++;            
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;     
+        return score; 
       }
-      select.addEventListener('change', updateFlag);
-      updateFlag();
-    }
-  });
 
-  /* Lógica de los “ojos” de contraseña (mostrar/ocultar) */
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.reg-password-toggle');
-    if (!btn) return;
-    const targetId = btn.getAttribute('data-target');
-    const input = document.getElementById(targetId);
-    if (!input) return;
-    const visible = btn.getAttribute('data-visible') === 'true';
-    const img = btn.querySelector('img');
-    if (visible) {
-      input.type = 'password';
-      btn.setAttribute('data-visible', 'false');
-      img.src = "{% static 'img/mostrar_contrasena.png' %}";
-      img.alt = "Mostrar contraseña";
-    } else {
-      input.type = 'text';
-      btn.setAttribute('data-visible', 'true');
-      img.src = "{% static 'img/ocultar_contrasena.png' %}";
-      img.alt = "Ocultar contraseña";
-    }
-  });
+      function renderStrength(pwd) {
+        if (!pwd) { box.innerHTML = ''; return; }
 
-  // Modal de información sobre Presidente
-  document.addEventListener('DOMContentLoaded', function () {
-    const infoBtn = document.getElementById('infoBtn');
-    const modal = document.getElementById('infoModal');
-    const closeBtn = document.getElementById('infoModalClose');
+        const score = scorePassword(pwd);
+        let text = 'Contraseña muy débil';
+        let color = '#ff4b4b';
 
-    if (infoBtn && modal) {
-      infoBtn.addEventListener('click', function () {
-        modal.style.display = 'flex';
-      });
-    }
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', function () {
-        modal.style.display = 'none';
-      });
-    }
-    if (modal) {
-      modal.addEventListener('click', function (e) {
-        if (e.target === modal) {
-          modal.style.display = 'none';
-        }
-      });
-    }
-  });
+        if (score === 2) { text = 'Un poco débil'; color = '#ffb347'; }
+        if (score === 3) { text = 'Aceptable';     color = '#ffd800'; }
+        if (score === 4) { text = 'Segura';        color = '#22c55e'; }
 
+        const width = (score / 4) * 100;
+
+        box.innerHTML = `
+          <span>${text}</span>
+          <div id="password-strength-bar" style="background:${color}; width:${width}%"></div>
+        `;
+      }
+
+      input.addEventListener('input', () => renderStrength(input.value));
+      renderStrength(input.value);
+    })();
+
+    // --- THEME TOGGLE ---
+    (function(){
+      const btn = document.getElementById("themeToggleBtn");
+      let modo = localStorage.getItem('modo-oscuro') === 'true';
+      if(modo){ document.body.classList.add('modo-oscuro'); }
+      
+      btn.onclick = function() {
+        btn.classList.add('rotate-active');
+        setTimeout(() => btn.classList.remove('rotate-active'), 500);
+
+        modo = !modo;
+        document.body.classList.toggle('modo-oscuro');
+        localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+      };
+    })();
 </script>
 {% endblock %}

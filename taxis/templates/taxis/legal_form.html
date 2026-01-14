@@ -1,0 +1,47 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Nuevo Documento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-file-upload"></i> Subir Documento Legal</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Renderizado rápido de formulario con estilos Bootstrap -->
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label style="color: var(--text-color); font-weight:bold;">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'legal_list' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success font-weight-bold">
+                            <i class="fas fa-save"></i> Guardar Documento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Ajuste inputs dark mode -->
+<style>
+    input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background: var(--bg-color);
+        color: var(--text-color);
+    }
+</style>
+{% endblock %}

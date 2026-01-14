@@ -1,0 +1,177 @@
+{% extends 'taxis/base_presidente.html' %}
+
+{% block title %}Configuración de la Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    .header-section {
+        margin-bottom: 2rem;
+    }
+
+    .header-section h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--coop-green-primary);
+        margin: 0;
+    }
+
+    .config-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        height: 100%; /* Para que tengan la misma altura */
+    }
+
+    .form-group label {
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.75rem;
+        background: #fdfdfd;
+        transition: all 0.2s ease;
+        color: var(--text-color);
+    }
+
+    body.dark-mode .form-control {
+        background: var(--coop-input-bg);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .form-control:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: 0 0 0 3px var(--coop-green-light);
+    }
+
+    /* Estilo mejorado para input file */
+    .form-control-file {
+        display: block;
+        width: 100%;
+        color: var(--text-muted);
+        background: transparent;
+        padding: 0.5rem 0;
+    }
+
+    .btn-save {
+        background: var(--coop-green-primary);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        background: var(--coop-green-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .doc-preview {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        color: var(--coop-green-primary);
+        display: inline-block;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .doc-preview:hover { text-decoration: underline; }
+</style>
+
+<div class="header-section">
+    <h1><i class="fas fa-cog mr-2"></i> Configuración General</h1>
+    <p class="text-muted">Ajustes globales y documentación legal de la cooperativa.</p>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row">
+        <!-- COLUMNA 1: FINANZAS -->
+        <div class="col-md-6 mb-4">
+            <div class="config-card">
+                <h5 class="mb-4 font-weight-bold" style="color: var(--text-color);">
+                    <i class="fas fa-coins mr-2"></i> Finanzas
+                </h5>
+                
+                <div class="form-group mb-4">
+                    <label>Cuota Mensual (USD)</label>
+                    <!-- CORRECCIÓN: name coincidente con modelo -->
+                    <input type="number" step="0.01" name="monto_cuota_usd" class="form-control"
+                        value="{{ config.monto_cuota_usd|stringformat:'.2f' }}">
+                    <small class="text-muted">Monto base para la generación de deudas.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tasa BCV Actual (Bs/$)</label>
+                    <!-- CORRECCIÓN: name coincidente con modelo -->
+                    <input type="number" step="0.0001" name="tasa_bcv_actual" class="form-control"
+                        value="{{ config.tasa_bcv_actual|stringformat:'.4f' }}">
+                    <small class="text-muted">Se utiliza para calcular los pagos en bolívares.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMNA 2: LEGAL -->
+        <div class="col-md-6 mb-4">
+            <div class="config-card">
+                <h5 class="mb-4 font-weight-bold" style="color: var(--text-color);">
+                    <i class="fas fa-file-contract mr-2"></i> Documentos Legales
+                </h5>
+
+                <div class="form-group mb-4">
+                    <label>Acta Constitutiva</label>
+                    <!-- CORRECCIÓN: name='acta_constitutiva' -->
+                    <input type="file" name="acta_constitutiva" class="form-control-file">
+                    {% if config.acta_constitutiva %}
+                    <a href="{{ config.acta_constitutiva.url }}" target="_blank" class="doc-preview">
+                        <i class="fas fa-external-link-alt mr-1"></i> Ver actual
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-4">
+                    <label>RIF de la Cooperativa</label>
+                    <!-- CORRECCIÓN: name='rif_cooperativa' -->
+                    <input type="file" name="rif_cooperativa" class="form-control-file">
+                    {% if config.rif_cooperativa %}
+                    <a href="{{ config.rif_cooperativa.url }}" target="_blank" class="doc-preview">
+                        <i class="fas fa-external-link-alt mr-1"></i> Ver actual
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Reglamento Interno</label>
+                    <!-- CORRECCIÓN: name='reglamento_interno' -->
+                    <input type="file" name="reglamento_interno" class="form-control-file">
+                    {% if config.reglamento_interno %}
+                    <a href="{{ config.reglamento_interno.url }}" target="_blank" class="doc-preview">
+                        <i class="fas fa-external-link-alt mr-1"></i> Ver actual
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save mr-2"></i> Guardar Configuración
+            </button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

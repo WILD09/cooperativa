@@ -1,0 +1,121 @@
+A. templates/taxis/perfil_usuario.html (Estilo App Moderna)
+Este reemplaza al "Configuración" antiguo. Es un dashboard personal.
+
+xml
+{% extends 'taxis/base_presidente.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0 rounded-lg">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <div class="avatar-wrapper mb-3">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" class="rounded-circle border border-white shadow" width="120" height="120" style="object-fit:cover;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x text-white-50"></i>
+                    {% endif %}
+                </div>
+                <h3 class="mb-0">{{ user.first_name }} {{ user.last_name }}</h3>
+                <small class="text-white-50">{{ user.email }} | {{ user.get_role_display }}</small>
+            </div>
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <h5 class="text-primary mb-4"><i class="fas fa-user-edit"></i> Editar Datos Personales</h5>
+                    
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label>Nombre</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Apellido</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        {{ form.phone_number }}
+                    </div>
+                    <div class="form-group">
+                        <label>Cambiar Foto de Perfil</label>
+                        {{ form.avatar }}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'cambiar_clave' %}" class="btn btn-outline-danger">
+                            <i class="fas fa-key"></i> Cambiar Contraseña
+                        </a>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Pequeño CSS para embellecer inputs -->
+<style>
+    .form-control { border-radius: 10px; padding: 20px 15px; }
+    input[type=file] { padding: 10px; background: #f8f9fa; border-radius: 10px; width: 100%; }
+</style>
+{% endblock %}
+B. templates/taxis/legal_list.html (El Gestor Documental)
+Botón "+" flotante y tarjetas para cada documento.
+
+xml
+{% extends 'taxis/base_presidente.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-dark font-weight-bold"><i class="fas fa-folder-open text-warning"></i> Repositorio Legal</h2>
+    <a href="{% url 'legal_create' %}" class="btn btn-success btn-lg shadow-sm rounded-pill px-4">
+        <i class="fas fa-plus"></i> Subir Documento
+    </a>
+</div>
+
+<div class="row">
+    {% for doc in documentos %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                </div>
+                <h5 class="card-title font-weight-bold">{{ doc.titulo }}</h5>
+                <p class="card-text text-muted small">{{ doc.descripcion|default:"Sin descripción" }}</p>
+                <small class="text-muted d-block mb-3">Subido el: {{ doc.fecha_subida|date:"d M Y" }}</small>
+                
+                <div class="btn-group">
+                    <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver
+                    </a>
+                    <a href="{% url 'legal_delete' doc.pk %}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted">
+            <i class="fas fa-cloud-upload-alt fa-4x mb-3"></i>
+            <h4>No hay documentos legales cargados.</h4>
+            <p>Usa el botón "Subir Documento" para comenzar.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .hover-card { transition: transform 0.2s; cursor: default; }
+    .hover-card:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

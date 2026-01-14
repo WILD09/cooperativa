@@ -1,704 +1,363 @@
-{% extends "registration/base_login.html" %}
+{% extends 'registration/base_login.html' %}
 {% load static %}
 
-{# Título de la pestaña del navegador #}
-{% block title %}Crear una cuenta - Elige un rol{% endblock %}
+{% block title %}Crear una cuenta{% endblock %}
 
 {% block content %}
+<!-- FUENTES -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 <style>
-  /* Fondos como en login: imágenes de fondo para modo claro y oscuro */
-  .role-bg-img,
-  .role-bg-img-dark {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    min-width: 100vw;
-    min-height: 100vh;
-    object-fit: cover;
-    z-index: 0;
-    pointer-events: none;
-    user-select: none;
-  }
+/* =========================
+   ESTILOS BASE
+   ========================= */
+:root {
+  --coop-green-primary: #00b300;
+  --coop-green-hover: #009900;
+  --bg-color: #f8f9fc;
+  --card-bg-light: #F8EBD9;
+  --card-bg-dark: #0b1220;
+  --border-color: #00b300;
+  --shadow-sm: 0 12px 50px rgba(0, 179, 0, 0.20);
+}
 
-  .role-bg-img-dark {
-    display: none;
-  }
+body.modo-oscuro {
+  --bg-color: #020a1f;
+  --border-color: #10b981;
+  --coop-green-primary: #10b981;
+  --coop-green-hover: #059669;
+}
 
-  /* En modo oscuro se oculta el fondo claro y se muestra el oscuro */
-  body.modo-oscuro .role-bg-img {
-    display: none !important;
-  }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-color);
+  margin: 0; overflow: hidden;
+}
 
-  body.modo-oscuro .role-bg-img-dark {
-    display: block !important;
-  }
+/* FONDOS */
+.vsms-bg-img, .vsms-bg-img-dark { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; pointer-events: none; }
+.vsms-bg-img-dark { display: none; }
+body.modo-oscuro .vsms-bg-img { display: none !important; }
+body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
 
-  /* Botón de tema igual al del login (flotante arriba a la derecha) */
-  /* Botón de tema igual al del login (flotante arriba a la derecha) */
-  .theme-toggle-btn {
-    position: fixed;
-    top: 8px;
-    right: 16px;
-    z-index: 1200;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #f9f9fb;
-    color: #30ae37;
-    box-shadow: 0 2px 8px #238c3520;
-    border: 2px solid #d8edd6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 2rem;
-    transition: background 0.18s, color 0.16s, border 0.15s,
-      transform 0.08s, box-shadow 0.12s;
-  }
+/* LAYOUT CENTRAL */
+.vsms-wrapper {
+  min-height: 100vh; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; box-sizing: border-box;
+}
 
-  .theme-toggle-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px #238c3538;
-  }
+.vsms-card {
+  width: 100%; max-width: 580px;
+  background: var(--card-bg-light);
+  border: 3px solid var(--border-color);
+  border-radius: 36px;
+  padding: 40px 30px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  text-align: center;
+}
+body.modo-oscuro .vsms-card { background: var(--card-bg-dark); }
 
-  body.modo-oscuro .theme-toggle-btn {
-    background: #232d21;
-    color: #97f088;
-    border: 2px solid #297b36;
-  }
+/* FLECHA DE RETROCESO */
+.vsms-back {
+  position: absolute; top: 25px; left: 25px;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--border-color);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--border-color); text-decoration: none !important;
+  transition: all 0.3s ease; font-size: 1.2rem;
+}
+.vsms-back:hover {
+  background: var(--border-color); color: white; transform: scale(1.1);
+}
 
-  .theme-toggle-btn img {
-    width: 32px;
-    height: 32px;
-    pointer-events: none;
-    display: block;
-  }
+/* TITULOS */
+.vsms-title-text {
+  font-size: 2rem; font-weight: 900; color: var(--coop-green-primary);
+  margin-top: 10px; margin-bottom: 5px;
+}
+.vsms-desc {
+  font-size: 1rem; font-weight: 700; color: #184321; margin-bottom: 30px;
+}
+body.modo-oscuro .vsms-desc { color: #E9FFE9; }
 
-  .theme-toggle-btn:focus {
-    outline: 3px solid #97f08888;
-  }
+/* ALERTA */
+.role-alert {
+  background: rgba(0, 179, 0, 0.10); border: 2px solid rgba(0, 179, 0, 0.35);
+  color: #184321; border-radius: 18px; padding: 12px; margin-bottom: 25px;
+  font-weight: 700; font-size: 0.95rem;
+}
+body.modo-oscuro .role-alert { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #E9FFE9; }
 
-  /* Contenedor general de la página */
-  .role-page-wrapper {
-    min-height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
-    padding: 40px 12px 30px 12px;
-    box-sizing: border-box;
-  }
+/* TARJETA DE ROL */
+.role-card-label {
+  cursor: pointer; display: block; position: relative;
+  width: 240px; margin: 0 auto; transition: transform 0.2s;
+}
+.role-card-label:hover { transform: translateY(-5px); }
 
-  /* Tarjeta central donde se muestran títulos y cards de rol */
-  .role-panel {
-    width: 96vw;
-    max-width: 900px;
-    min-height: 380px;
-    background: #f3e8d7;
-    border-radius: 40px;
-    border: 3px solid #108531;
-    box-shadow: 0 18px 55px rgba(9, 71, 25, 0.32);
-    padding: 40px 60px 32px 60px;
-    position: relative;
-  }
+.role-radio { display: none; }
 
-  /* Flecha atrás que lleva al login */
-  .role-back {
-    position: absolute;
-    left: 24px;
-    top: 22px;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 2px solid #108531;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: #f3e8d7;
-    transition: background .15s, transform .08s, box-shadow .12s;
-  }
+.role-card-inner {
+  background: #FFFFFF; border: 3px solid transparent; border-radius: 28px;
+  padding: 30px 20px; display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08); position: relative;
+  transition: all 0.2s;
+}
+/* MODO OSCURO PARA LA TARJETA INTERNA */
+body.modo-oscuro .role-card-inner {
+  background: #142035; /* Fondo oscuro para la tarjeta */
+  border-color: transparent;
+}
 
-  .role-back-icon {
-    width: 18px;
-    height: 18px;
-    border-left: 3px solid #108531;
-    border-bottom: 3px solid #108531;
-    transform: rotate(45deg);
-  }
+.role-radio:checked + .role-card-inner {
+  border-color: var(--coop-green-primary);
+  box-shadow: 0 10px 30px rgba(0, 179, 0, 0.25);
+}
+/* BORDE VERDE EN MODO OSCURO AL ESTAR SELECCIONADO */
+body.modo-oscuro .role-radio:checked + .role-card-inner {
+  border-color: var(--coop-green-primary);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+}
 
-  .role-back:hover {
-    background: #e2dccf;
-    box-shadow: 0 3px 9px rgba(5, 60, 19, 0.28);
-    transform: translateY(-1px);
-  }
+.role-card-label.disabled .role-card-inner {
+  opacity: 0.6; background: #e0e0e0; filter: grayscale(100%); pointer-events: none;
+}
+body.modo-oscuro .role-card-label.disabled .role-card-inner {
+   background: #2d3748; /* Gris oscuro deshabilitado */
+}
 
-  /* Logo de la cooperativa en la parte superior de la tarjeta */
-  .role-logo {
-    position: absolute;
-    left: 86px;
-    top: 26px;
-  }
+/* --- ICONO VERDE ADAPTATIVO (NUEVO) --- */
+.role-icon-circle {
+  width: 90px; height: 90px; border-radius: 50%; 
+  /* Modo Claro: Fondo verde muy suave, Icono verde coop */
+  background: rgba(0, 179, 0, 0.15); 
+  color: var(--coop-green-primary);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(0, 179, 0, 0.1);
+  transition: all 0.3s;
+}
+.role-icon-circle i { font-size: 45px; }
 
-  .role-logo img {
-    width: 46px;
-    height: 46px;
-  }
+/* Modo Oscuro: Fondo verde neón suave, Icono verde neón */
+body.modo-oscuro .role-icon-circle {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+}
 
-  /* Icono "i" que abre el modal de información de roles */
-  .role-info-badge {
-    position: absolute;
-    right: 32px;
-    top: 30px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid #108531;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #108531;
-    font-weight: 700;
-    font-size: .9rem;
-    background: #f9f3ea;
-    cursor: pointer;
-    transition: background .15s, box-shadow .12s, transform .08s;
-  }
+.role-title {
+  font-weight: 800; color: #184321; text-transform: uppercase;
+  font-size: 0.95rem; line-height: 1.3;
+}
+body.modo-oscuro .role-title { color: #e2e8f0; }
 
-  .role-info-badge:hover {
-    background: #f0e2cf;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
-    transform: translateY(-1px);
-  }
+/* BOTÓN INFO */
+.info-btn-inner {
+  position: absolute; top: 10px; right: 10px;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--border-color); color: var(--border-color);
+  background: white; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+  z-index: 5;
+}
+body.modo-oscuro .info-btn-inner { background: #1a2634; } /* Fondo oscuro botón info */
+.info-btn-inner:hover {
+  background: var(--coop-green-primary); color: white; transform: scale(1.1);
+}
 
-  /* Backdrop y contenido del modal de información */
-  .role-info-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    z-index: 1300;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
+/* CHECK VERDE */
+.registered-badge {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--coop-green-primary); color: white;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10;
+}
 
-  .role-info-modal {
-    background: #fdfaf4;
-    border-radius: 24px;
-    max-width: 520px;
-    width: 90vw;
-    padding: 18px 24px 16px 24px;
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
-    border: 2px solid #108531;
-    position: relative;
-  }
+/* BOTÓN SIGUIENTE */
+.submit-btn {
+  background: var(--coop-green-primary); color: white; border: none;
+  padding: 14px 60px; border-radius: 50px; font-weight: 800; font-size: 1.1rem;
+  margin-top: 35px; cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25);
+}
+body.modo-oscuro .submit-btn { color: #020a1f; } /* Texto oscuro en botón neón */
+.submit-btn:disabled { background: #bbb; cursor: not-allowed; box-shadow: none; }
+.submit-btn:not(:disabled):hover { background: var(--coop-green-hover); transform: translateY(-3px); }
 
-  .role-info-modal-title {
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: #184221;
-    margin-bottom: 8px;
-  }
+/* TOGGLE */
+.theme-toggle-btn {
+  position: fixed; top: 20px; right: 20px; z-index: 2000;
+  width: 45px; height: 45px; border-radius: 50%;
+  background: #F9F9FB; border: 2px solid #B6ECAD;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+}
+.theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); }
+.theme-toggle-btn.rotate-active { transform: rotate(360deg); }
+.theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; }
+body.modo-oscuro .theme-toggle-btn { background: #142923; border-color: #10b981; }
+body.modo-oscuro .theme-toggle-btn img { filter: invert(1); }
 
-  .role-info-modal-text {
-    font-size: 0.95rem;
-    color: #314235;
-    line-height: 1.45;
-  }
+/* MODAL MEJORADO */
+.reg-info-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+    display: none; align-items: center; justify-content: center; z-index: 3000;
+    backdrop-filter: blur(2px); /* Un toque de desenfoque al fondo */
+}
+.reg-info-modal {
+    background: #FFFFFF; border-radius: 20px; max-width: 420px; width: 90vw;
+    padding: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    text-align: left; position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.reg-info-modal h3 {
+    color: #008000; font-size: 1.2rem; font-weight: 800; margin-top: 0; margin-bottom: 15px;
+}
+.reg-info-modal ul { padding-left: 20px; margin-bottom: 20px; color: #333; }
+.reg-info-modal li { margin-bottom: 8px; font-size: 0.95rem; }
 
-  .role-info-modal-close {
-    position: absolute;
-    right: 12px;
-    top: 10px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    color: #245f2f;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  .role-info-modal-close:hover {
-    background: #e4f1e6;
-  }
-
-  /* Encabezados de la pantalla (título y subtítulo) */
-  .role-header-title {
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #434537;
-    margin-bottom: .3rem;
-  }
-
-  .role-header-sub {
-    text-align: center;
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: #11892f;
-    margin-bottom: 2.1rem;
-  }
-
-  /* Contenedor fila para las dos tarjetas de rol */
-  .role-cards-row {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 24px;
-  }
-
-  /* Card de rol (Presidente / Asociado) */
-  .role-card {
-    width: 220px;
-    height: 196px;
-    border-radius: 26px;
-    background: #ffffff;
-    border: 2.2px solid #d3ded6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform .16s ease-out, box-shadow .16s ease-out,
-      border-color .16s ease-out, opacity .16s;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-  }
-
-  .role-card:hover {
+/* BOTÓN CERRAR MODAL ADAPTATIVO */
+.reg-info-modal-close {
+    background: var(--coop-green-primary); 
+    color: white; border: none;
+    padding: 10px 25px; border-radius: 50px; font-weight: 700;
+    cursor: pointer; float: right;
+    transition: all 0.3s ease; /* Transición suave */
+    box-shadow: 0 4px 10px rgba(0, 179, 0, 0.2);
+}
+.reg-info-modal-close:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
-  }
+    box-shadow: 0 6px 15px rgba(0, 179, 0, 0.3);
+}
 
-  /* Card seleccionada visualmente */
-  .role-card.selected {
-    border-color: #00a744;
-    box-shadow: 0 0 0 3px rgba(0, 167, 68, 0.30);
-  }
-
-  /* Estado deshabilitado (cuando ya hay presidente) */
-  .role-card.disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-    box-shadow: none;
-  }
-
-  .role-card.disabled:hover {
-    transform: none;
-    box-shadow: none;
-  }
-
-  /* Área para el icono del rol */
-  .role-card-icon {
-    width: 92px;
-    height: 92px;
-    border-radius: 24px;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-
-  .role-card-icon img {
-    width: 76px;
-    height: 76px;
-    object-fit: contain;
-    display: block;
-  }
-
-  /* Texto del nombre del rol en la tarjeta */
-  .role-card-title {
-    text-align: center;
-    font-size: .88rem;
-    font-weight: 800;
-    color: #108531;
-    letter-spacing: .6px;
-    line-height: 1.25;
-    margin-top: 2px;
-  }
-
-  /* Nota específica debajo de la card de presidente cuando ya existe uno */
-  .role-card-note {
-    margin-top: 6px;
-    font-size: 0.8rem;
-    color: #b3261e;
-    text-align: center;
-  }
-
-  /* Botón “Siguiente” que envía el formulario */
-  .role-next-btn {
-    display: block;
-    margin: 4px auto 0 auto;
-    width: 220px;
-    border-radius: 999px;
-    border: none;
-    background: #108531;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 10px 0;
-    letter-spacing: .4px;
-    box-shadow: 0 5px 15px rgba(5, 60, 19, 0.35);
-    transition: background .16s, transform .08s, box-shadow .12s;
-  }
-
-  .role-next-btn:hover {
-    background: #0a5a23;
-    transform: translateY(-1px);
-    box-shadow: 0 7px 19px rgba(5, 60, 19, 0.4);
-  }
-
-  /* Ajustes de modo oscuro */
-  body.modo-oscuro .role-panel {
-    background: #22322f;
-    border-color: #00a744;
-  }
-
-  body.modo-oscuro .role-header-title {
-    color: #f7fdf6;
-  }
-
-  body.modo-oscuro .role-header-sub {
-    color: #71ff9e;
-  }
-
-  body.modo-oscuro .role-back {
-    background: #22322f;
-    border-color: #71ff9e;
-  }
-
-  body.modo-oscuro .role-back-icon {
-    border-left-color: #71ff9e;
-    border-bottom-color: #71ff9e;
-  }
-
-  body.modo-oscuro .role-info-badge {
-    background: #192722;
-    color: #71ff9e;
-    border-color: #71ff9e;
-  }
-
-  body.modo-oscuro .role-info-modal {
-    background: #1c2a26;
-    border-color: #00a744;
-    color: #e8fff0;
-  }
-
-  body.modo-oscuro .role-info-modal-title {
-    color: #e8fff0;
-  }
-
-  body.modo-oscuro .role-info-modal-text {
-    color: #c9e7d4;
-  }
-
-  body.modo-oscuro .role-card {
-    background: #1a2723;
-    border-color: #3e5c51;
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.6);
-  }
-
-  body.modo-oscuro .role-card:hover {
-    box-shadow: 0 9px 22px rgba(0, 0, 0, 0.75);
-  }
-
-  body.modo-oscuro .role-card.selected {
-    border-color: #20ff83;
-    box-shadow: 0 0 0 3px rgba(32, 255, 131, 0.30);
-  }
-
-  body.modo-oscuro .role-card-title {
-    color: #e3ffe9;
-  }
-
-  body.modo-oscuro .role-card-icon {
-    background: #f5fff3;
-  }
-
-  body.modo-oscuro .role-next-btn {
-    background: #00a744;
-  }
-
-  body.modo-oscuro .role-next-btn:hover {
-    background: #0a5a23;
-  }
-
-  body.modo-oscuro .role-card-note {
-    color: #ffb4ab;
-  }
-
-  /* Responsive: pantallas medianas */
-  @media (max-width: 900px) {
-    .role-panel {
-      margin: 24px 18px;
-      padding: 30px 26px 24px 26px;
-      max-width: 520px;
-    }
-
-    .role-cards-row {
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
-  }
-
-  /* Responsive móvil */
-  @media (max-width: 480px) {
-
-    /* Panel más compacto y con menos borde redondo */
-    .role-panel {
-      padding: 24px 16px 20px 16px;
-      border-radius: 30px;
-      min-height: auto;
-    }
-
-    /* Botón modo claro/oscuro más arriba y despejado */
-    .theme-toggle-btn {
-      top: 6px;
-      right: 16px;
-    }
-
-    /* Flecha: la subimos un poco para no comerse el logo centrado */
-    .role-back {
-      left: 16px;
-      top: 10px;
-      /* antes 18px */
-      width: 38px;
-      height: 38px;
-    }
-
-    /* Logo centrado y más grande */
-    .role-logo {
-      left: 50%;
-      top: 44px;
-      /* un pelín más abajo para separarlo bien de la flecha */
-      transform: translateX(-50%);
-    }
-
-    .role-logo img {
-      width: 64px;
-      height: 64px;
-    }
-
-    .role-info-badge {
-      right: 20px;
-      top: 22px;
-    }
-
-    /* Títulos reubicados bajo el logo */
-    .role-header-title {
-      font-size: 1.7rem;
-      margin-top: 88px;
-      /* más espacio para logo + flecha */
-      text-align: center;
-    }
-
-    .role-header-sub {
-      font-size: 1.1rem;
-      margin-bottom: 1.6rem;
-      text-align: center;
-    }
-
-    /* Cards un poco más pequeñas */
-    .role-card {
-      width: 210px;
-      height: 180px;
-    }
-
-    .role-card-icon {
-      width: 84px;
-      height: 84px;
-    }
-
-    .role-card-icon img {
-      width: 70px;
-      height: 70px;
-    }
-
-    .role-card-title {
-      font-size: 0.82rem;
-    }
-
-    .role-next-btn {
-      width: 210px;
-      font-size: 0.96rem;
-      padding: 9px 0;
-    }
-  }
+/* MODO OSCURO MODAL */
+body.modo-oscuro .reg-info-modal { 
+    background: #1a2634; /* Fondo oscuro (no blanco) */
+    color: #e2e8f0; 
+    border: 1px solid #2d3748;
+}
+body.modo-oscuro .reg-info-modal h3 { color: #10b981; }
+body.modo-oscuro .reg-info-modal ul { color: #cbd5e0; }
+body.modo-oscuro .reg-info-modal-close {
+    background: #10b981; 
+    color: #020a1f; /* Texto oscuro para contraste */
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
 </style>
 
-<!-- Fondos: una imagen para modo claro y otra para oscuro -->
-<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="role-bg-img">
-<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="role-bg-img-dark">
+<!-- FONDOS -->
+<img src="{% static 'img/fondo-ondas.png' %}" class="vsms-bg-img">
+<img src="{% static 'img/fondo-oscuro.png' %}" class="vsms-bg-img-dark">
 
-<!-- Botón para alternar tema claro/oscuro -->
-<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
-  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+<!-- BOTÓN TEMA -->
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}">
 </button>
-<script>
-  /* Alterna el modo oscuro/claro y guarda la preferencia en localStorage */
-  (function () {
-    const btn = document.getElementById("themeToggleBtn");
-    const img = document.getElementById("iconSunMoon");
-    let modo = localStorage.getItem('modo-oscuro') === 'true';
-    if (modo) {
-      document.body.classList.add('modo-oscuro');
-      img.style.filter = "invert(0.7)";
-    }
-    btn.onclick = function () {
-      modo = !modo;
-      document.body.classList.toggle('modo-oscuro');
-      localStorage.setItem('modo-oscuro', modo ? 'true' : '');
-      img.style.filter = modo ? "invert(0.7)" : "";
-    };
-  })();
-</script>
 
-<!-- Modal informativo sobre los roles -->
-<div class="role-info-modal-backdrop" id="roleInfoModal">
-  <div class="role-info-modal" role="dialog" aria-modal="true" aria-labelledby="roleInfoTitle">
-    <button type="button" class="role-info-modal-close" id="roleInfoClose" aria-label="Cerrar">×</button>
-    <div class="role-info-modal-title" id="roleInfoTitle">Información sobre los roles</div>
-    <div class="role-info-modal-text">
-      • El rol <strong>Presidente de la cooperativa</strong> está reservado para el administrador principal del sistema.
-      <br><br>
-      Como Presidente, tendrás acceso total para gestionar conductores, unidades de taxi, pagos y configuraciones de la
-      cooperativa.<br><br>
-      Solo puede existir un Presidente registrado por sistema.
+<!-- MODAL INFO -->
+<div class="reg-info-modal-backdrop" id="infoModal">
+    <div class="reg-info-modal">
+        <h3>Información sobre el rol Presidente</h3>
+        <ul>
+            <li>Rol para el presidente o representante principal de la cooperativa.</li>
+            <li>Permite gestionar afiliados, vehículos y llevar el control de las finanzas.</li>
+            <li>Acceso a las funciones administrativas y paneles de control del sistema.</li>
+        </ul>
+        <button type="button" class="reg-info-modal-close" id="infoModalClose">Entendido</button>
+        <div style="clear:both"></div>
     </div>
-  </div>
 </div>
 
-<div class="role-page-wrapper">
-  <div class="role-panel">
-    <!-- Flecha atrás que vuelve al inicio de sesión -->
-    <a href="{% url 'login' %}" class="role-back" aria-label="Volver al inicio de sesión">
-      <span class="role-back-icon"></span>
-    </a>
+<div class="vsms-wrapper">
+  <div class="vsms-card">
+    
+    <!-- FLECHA -->
+    <a href="{% url 'taxis:login' %}" class="vsms-back"><i class="fas fa-arrow-left"></i></a>
 
-    <!-- Logo cooperativa -->
-    <div class="role-logo">
-      <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
-    </div>
+    <h2 class="vsms-title-text">Crear una cuenta</h2>
+    <p class="vsms-desc">Registro de Presidente</p>
 
-    <!-- Botón "i" que abre el modal info -->
-    <div class="role-info-badge" id="roleInfoBtn" title="Ver información sobre los roles">
-      i
-    </div>
-
-    <!-- Títulos principales -->
-    <div class="role-header-title">Crear una cuenta</div>
-    <div class="role-header-sub">Registro de Presidente</div>
-
-    <!-- Formulario de selección de rol -->
-    <form method="post">
-      {% csrf_token %}
-      <div class="role-cards-row" style="justify-content: center;">
-
-        {% if presidente_existente %}
-        <!-- Caso A: Presidente YA existe -->
-        <label class="role-card disabled" id="card-presidente">
-          <input type="radio" name="role" value="presidente" class="d-none" disabled checked required>
-          <div class="role-card-icon">
-            <img src="{% static 'img/icono_presidente.png' %}" alt="Presidente">
-          </div>
-          <div class="role-card-title">
-            PRESIDENTE<br>DE LA COOPERATIVA
-          </div>
-          <div class="role-card-note">
-            Registro cerrado.<br>Administrador ya existente.
-          </div>
-        </label>
-        {% else %}
-        <!-- Caso B: Presidente NO existe -->
-        <label class="role-card" id="card-presidente">
-          <input type="radio" name="role" value="presidente" class="d-none" required>
-          <div class="role-card-icon">
-            <img src="{% static 'img/icono_presidente.png' %}" alt="Presidente">
-          </div>
-          <div class="role-card-title">
-            PRESIDENTE<br>DE LA COOPERATIVA
-          </div>
-        </label>
-        {% endif %}
-
+    {% if presidente_existente %}
+      <div class="role-alert">
+        Ya existe un presidente activo en el sistema. Inicia sesión para continuar.
       </div>
+    {% endif %}
 
-      <!-- Botón de acción -->
-      {% if presidente_existente %}
-      <button type="submit" class="role-next-btn" disabled style="opacity:0.5; cursor:not-allowed;">
-        Registro No Disponible
-      </button>
-      {% else %}
-      <button type="submit" class="role-next-btn" id="btnSiguiente" disabled style="opacity:0.5; cursor:not-allowed;">
+    <form method="post" action="{% url 'taxis:select_role' %}" id="roleForm">
+      {% csrf_token %}
+
+      <!-- OPCIÓN PRESIDENTE -->
+      <label class="role-card-label {% if presidente_existente %}disabled{% endif %}">
+          <input type="radio" name="role" value="presidente" class="role-radio" 
+                 {% if presidente_existente %}disabled{% endif %} 
+                 {% if not presidente_existente %}checked{% endif %} required>
+          
+          <div class="role-card-inner">
+            {% if presidente_existente %}
+              <div class="registered-badge"><i class="fas fa-check"></i></div>
+            {% endif %}
+
+            <!-- BOTÓN i -->
+            <div class="info-btn-inner" id="infoBtn">i</div>
+
+            <!-- ICONO VERDE ADAPTADO -->
+            <div class="role-icon-circle">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            
+            <span class="role-title">PRESIDENTE DE LA<br>COOPERATIVA</span>
+          </div>
+      </label>
+
+      <button type="submit" class="submit-btn" id="nextBtn" {% if presidente_existente %}disabled{% endif %}>
         Siguiente
       </button>
-      {% endif %}
+
     </form>
   </div>
 </div>
 
 <script>
-  /* Lógica de selección visual de la tarjeta de rol */
-  document.querySelectorAll('.role-card').forEach(card => {
-    card.addEventListener('click', function (e) {
-      if (this.classList.contains('disabled')) {
-        // No permitir seleccionar presidente cuando está bloqueado
-        e.preventDefault();
-        return;
-      }
+// TEMA
+(function(){
+  const btn = document.getElementById("themeToggleBtn");
+  let modo = localStorage.getItem('modo-oscuro') === 'true';
+  if (modo) document.body.classList.add('modo-oscuro');
 
-      // Remover selección previa visual
-      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  btn.onclick = function() {
+    btn.classList.add('rotate-active');
+    setTimeout(() => btn.classList.remove('rotate-active'), 500);
+    modo = !modo;
+    document.body.classList.toggle('modo-oscuro');
+    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
+  };
+})();
 
-      // Marca esta tarjeta como seleccionada
-      this.classList.add('selected');
+// MODAL
+const infoBtn = document.getElementById('infoBtn');
+const modal = document.getElementById('infoModal');
+const closeBtn = document.getElementById('infoModalClose');
 
-      // Activa el input radio interno
-      const input = this.querySelector('input[type="radio"]');
-      if (input && !input.disabled) {
-        input.checked = true;
+infoBtn.addEventListener('click', (e) => { 
+    e.preventDefault(); e.stopPropagation(); 
+    modal.style.display = 'flex'; 
+});
+closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+modal.addEventListener('click', (e) => { 
+    if (e.target === modal) modal.style.display = 'none'; 
+});
 
-        // Habilitar botón siguiente
-        const btn = document.getElementById('btnSiguiente');
-        if (btn) {
-          btn.disabled = false;
-          btn.style.opacity = '1';
-          btn.style.cursor = 'pointer';
-        }
-      }
-    });
-  });
-
-  /* Lógica del modal de información de roles */
-  (function () {
-    const btnInfo = document.getElementById('roleInfoBtn');
-    const modal = document.getElementById('roleInfoModal');
-    const btnClose = document.getElementById('roleInfoClose');
-
-    if (btnInfo && modal) {
-      const closeModal = () => { modal.style.display = 'none'; };
-      const openModal = () => { modal.style.display = 'flex'; };
-
-      btnInfo.addEventListener('click', openModal);
-      btnClose.addEventListener('click', closeModal);
-
-      // Cierra al hacer click fuera del contenido
-      modal.addEventListener('click', function (e) {
-        if (e.target === modal) { closeModal(); }
-      });
-
-      // Cierra al presionar Escape
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { closeModal(); }
-      });
-    }
-  })();
+// BTN SIGUIENTE
+(function(){
+  const nextBtn = document.getElementById('nextBtn');
+  const checked = document.querySelector('input[name="role"]:checked');
+  if (checked && !checked.disabled) nextBtn.disabled = false;
+})();
 </script>
+
 {% endblock %}

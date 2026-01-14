@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DT5 - Reporte de Flota</title>
+    <style type="text/css">
+        @page {
+            size: letter landscape;
+            margin: 1cm;
+        }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9px; }
+        
+        /* HEADER */
+        .header-box {
+            border: 1px solid #000;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .header-title {
+            text-align: center; font-weight: bold; font-size: 14px;
+            margin-bottom: 5px; background-color: #eee; border-bottom: 1px solid #000;
+        }
+        .row-data { width: 100%; margin-bottom: 4px; }
+        .label { font-weight: bold; }
+        
+        /* TABLA PRINCIPAL */
+        .main-table { width: 100%; border-collapse: collapse; }
+        .main-table th {
+            background-color: #ccc; border: 1px solid #000; padding: 4px;
+            text-align: center; font-size: 8px; vertical-align: middle;
+        }
+        .main-table td {
+            border: 1px solid #000; padding: 3px;
+            text-align: center; font-size: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin-bottom: 10px;">
+        <h1 style="margin:0; font-size: 18px;">DT5</h1>
+    </div>
+
+    <!-- CUADRO DE DATOS DE LA ORGANIZACIÓN -->
+    <div class="header-box">
+        <div class="header-title">DATOS DE LA ORGANIZACIÓN</div>
+        <table width="100%">
+            <tr>
+                <td width="60%"><span class="label">NOMBRE DE LA LÍNEA:</span> {{ nombre_linea|upper }}</td>
+                <td width="20%"><span class="label">FECHA:</span> {{ hoy|date:"d-m-Y" }}</td>
+                <td width="20%"><span class="label">RIF:</span> J-{{ config.rif_cooperativa|default:"0000000" }}</td>
+            </tr>
+        </table>
+        <div class="row-data">
+            <span class="label">DIRECCIÓN:</span> CALLE PRINCIPAL, SECTOR CENTRO, MUNICIPIO ROSCIO, ESTADO GUÁRICO.
+        </div>
+        <table width="100%">
+            <tr>
+                <td width="40%"><span class="label">PRESIDENTE:</span> {{ presidente|upper }}</td>
+                <td width="30%"><span class="label">TELÉFONO:</span> {{ telefono_coop }}</td>
+                <td width="30%"><span class="label">E-MAIL:</span> {{ email_coop }}</td>
+            </tr>
+        </table>
+        <div class="row-data">
+            <span class="label">MUNICIPIO:</span> JUAN GERMÁN ROSCIO NIEVES
+        </div>
+    </div>
+
+    <!-- TABLA DE FLOTA -->
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th rowspan="2">NO.</th>
+                <th rowspan="2">NOMBRE</th>
+                <th rowspan="2">APELLIDO</th>
+                <th rowspan="2">CÉDULA</th>
+                <th rowspan="2">TELÉFONO</th>
+                <th colspan="7">DATOS DEL VEHÍCULO</th>
+                <th colspan="2">CONDICIÓN</th>
+            </tr>
+            <tr>
+                <th>MARCA</th>
+                <th>MODELO</th>
+                <th>AÑO</th>
+                <th>PLACA</th>
+                <th>COLOR</th>
+                <th>CAP.</th>
+                <th>COMB.</th>
+                <th>OPER.</th>
+                <th>INOP.</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in filas %}
+            <tr>
+                <td>{{ fila.no }}</td>
+                <td style="text-align: left;">{{ fila.nombre }}</td>
+                <td style="text-align: left;">{{ fila.apellido }}</td>
+                <td>{{ fila.cedula }}</td>
+                <td>{{ fila.telefono }}</td>
+                <td>{{ fila.marca }}</td>
+                <td>{{ fila.modelo }}</td>
+                <td>{{ fila.anio }}</td>
+                <td style="font-weight: bold;">{{ fila.placa }}</td>
+                <td>{{ fila.color }}</td>
+                <td>{{ fila.capacidad }}</td>
+                <td>{{ fila.combustible }}</td>
+                <td>{% if fila.condicion == 'Operativo' %}X{% endif %}</td>
+                <td>{% if fila.condicion == 'Inoperativo' %}X{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="14" style="padding: 20px;">Sin registros.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 30px; text-align: center;">
+        <p>______________________________________<br>FIRMA Y SELLO DEL PRESIDENTE</p>
+    </div>
+</body>
+</html>

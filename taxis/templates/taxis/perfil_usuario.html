@@ -1,0 +1,146 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos Dark Mode Específicos */
+    .profile-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, var(--coop-green-primary) 0%, #004d00 100%);
+        padding: 3rem 1rem;
+        text-align: center;
+        color: white;
+    }
+
+    .form-control-custom {
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+    .form-control-custom:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: 0 0 0 3px rgba(0, 179, 0, 0.2);
+        background-color: var(--card-bg);
+        color: var(--text-color);
+    }
+
+    /* Input File Bonito */
+    .custom-file-upload {
+        border: 2px dashed var(--border-color);
+        display: block;
+        padding: 1rem;
+        cursor: pointer;
+        border-radius: 12px;
+        text-align: center;
+        transition: 0.3s;
+    }
+    .custom-file-upload:hover { background: rgba(0, 179, 0, 0.05); border-color: var(--coop-green-primary); }
+
+    label { font-weight: 600; color: var(--text-color); margin-bottom: 0.5rem; }
+    h5 { color: var(--text-color); }
+</style>
+
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+        <div class="profile-card shadow-lg">
+            <!-- Header con Avatar -->
+            <div class="profile-header">
+                <div class="position-relative d-inline-block mb-3">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" id="avatarPreview" class="rounded-circle border border-white shadow-lg" width="140" height="140" style="object-fit:cover;">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=random" id="avatarPreview" class="rounded-circle border border-white shadow-lg" width="140" height="140">
+                    {% endif %}
+                    <div class="position-absolute" style="bottom: 5px; right: 5px; background: white; border-radius: 50%; padding: 5px;">
+                        <i class="fas fa-camera text-dark"></i>
+                    </div>
+                </div>
+                <h2 class="font-weight-bold m-0">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p class="opacity-75 mb-0">{{ user.email }} | <span class="badge badge-light text-uppercase">{{ user.get_role_display }}</span></p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fas fa-user-edit fa-lg mr-2" style="color: var(--coop-green-primary);"></i>
+                        <h4 class="mb-0 font-weight-bold" style="color: var(--text-color);">Editar Datos Personales</h4>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="col-md-6 mb-4">
+                            <label>Nombre</label>
+                            <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" class="form-control-custom w-100" required>
+                            {% if form.first_name.errors %}<small class="text-danger">{{ form.first_name.errors }}</small>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label>Apellido</label>
+                            <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" class="form-control-custom w-100" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label>Correo Electrónico (Usuario)</label>
+                        <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-control-custom w-100" required>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" name="phone_number" value="{{ form.phone_number.value|default:'' }}" class="form-control-custom w-100">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label>Actualizar Foto de Perfil</label>
+                        <label class="custom-file-upload">
+                            <input type="file" name="avatar" id="id_avatar" class="d-none" onchange="previewImage(this)">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-muted"></i>
+                            <span class="d-block text-muted">Haz clic para seleccionar una nueva foto</span>
+                        </label>
+                    </div>
+
+                    <hr class="my-4" style="border-color: var(--border-color);">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{% url 'cambiar_clave' %}" class="btn btn-outline-danger font-weight-bold px-4 rounded-pill">
+                            <i class="fas fa-key mr-2"></i> Contraseña
+                        </a>
+                        <button type="submit" class="btn btn-success font-weight-bold px-5 rounded-pill shadow-lg" style="background: var(--coop-green-primary); border:none;">
+                            <i class="fas fa-save mr-2"></i> Guardar Cambios
+                        </button>
+                    </div>
+
+                    <!-- BOTÓN DE ELIMINAR CUENTA (NUEVO) -->
+                    <div class="text-center mt-5">
+                        <a href="{% url 'solicitar_eliminacion' %}" class="text-danger small font-weight-bold" style="text-decoration: underline; opacity:0.8;">
+                            <i class="fas fa-ban mr-1"></i> Quiero eliminar mi cuenta permanentemente
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,1108 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{% if object %}Editar{% else %}Nuevo{% endif %} Vehículo - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ESTILOS VISUALES --- */
+    :root {
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --coop-green-light: #e6f7e6;
+        --input-border: #B6ECAD;
+        --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
+        --error-color: #ef4444;
+        --text-main: #333;
+        --text-muted: #6b7280;
+        --card-bg: #ffffff;
+        --input-bg: #ffffff;
+        --search-bg: var(--coop-green-light);
+        
+        /* Dropzone Colors Light */
+        --dropzone-bg: #f8fafc;
+        --dropzone-border: #d1d5db;
+        --dropzone-hover-bg: #f0fdf4;
+    }
+    
+    body.dark-mode {
+        --coop-green-primary: #10b981; 
+        --coop-green-hover: #059669;
+        --coop-green-light: rgba(16, 185, 129, 0.35); 
+        --input-border: #2d3748;
+        --text-main: #f3f4f6;
+        --text-muted: #9ca3af;
+        --card-bg: #0f1a2e; 
+        --input-bg: #1a2639; 
+        --search-bg: #132034;
+        
+        /* Dropzone Colors Dark */
+        --dropzone-bg: #1a2639; 
+        --dropzone-border: #374151; 
+        --dropzone-hover-bg: #132034; 
+    }
+
+
+    /* WIZARD & FORMS */
+    .wizard-container { max-width: 950px; margin: 0 auto 3rem; }
+    .wizard-progress { display: flex; justify-content: space-between; position: relative; margin-bottom: 3rem; padding: 0 15px; }
+    .wizard-progress::before { content: ''; position: absolute; top: 22px; left: 0; width: 100%; height: 4px; background: #e5e7eb; z-index: 0; border-radius: 2px; }
+    
+    .progress-line-active { position: absolute; top: 22px; left: 0; height: 4px; background: var(--coop-green-primary); z-index: 1; transition: width 0.4s ease; width: 0%; border-radius: 2px; }
+    
+    .step-node { width: 48px; height: 48px; background: var(--card-bg); border: 3px solid #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2; font-weight: 800; color: #9ca3af; transition: all 0.3s ease; position: relative; cursor: default; font-size: 1.1rem; }
+    .step-node.active { border-color: var(--coop-green-primary); color: var(--coop-green-primary); transform: scale(1.1); box-shadow: 0 0 0 5px var(--coop-green-light); background: var(--card-bg); }
+    .step-node.completed { background: var(--coop-green-primary); border-color: var(--coop-green-primary); color: white; transform: scale(1.05); }
+    
+    .step-label { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; white-space: nowrap; }
+    .step-node.active .step-label, .step-node.completed .step-label { color: var(--coop-green-primary); }
+
+
+    .form-card { background: var(--card-bg); border: 2px solid var(--input-border); border-radius: 36px; padding: 2.5rem; box-shadow: 0 12px 50px rgba(0, 0, 0, 0.05); position: relative; color: var(--text-main); }
+    
+    .wizard-step { display: none; animation: fadeIn 0.4s ease; }
+    .wizard-step.active { display: block; }
+
+
+    .section-title { font-size: 1.5rem; font-weight: 900; color: var(--coop-green-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .form-group { margin-bottom: 1.5rem; position: relative; }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; margin-left: 12px; }
+
+
+    /* INPUTS */
+    .vsms-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--input-border); background: var(--input-bg); font-size: 0.95rem; color: var(--text-main); outline: none; transition: all 0.3s ease; }
+    .vsms-input:focus { border-color: var(--coop-green-primary); box-shadow: var(--input-focus-shadow); }
+    .vsms-input[readonly] { background-color: #f9fafb; cursor: not-allowed; color: #6b7280; }
+    body.dark-mode .vsms-input[readonly] { background-color: #2d3748; color: #9ca3af; }
+
+
+    /* FIX AUTOCOMPLETE */
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+        -webkit-text-fill-color: #333 !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+    body.dark-mode input:-webkit-autofill, body.dark-mode input:-webkit-autofill:hover, body.dark-mode input:-webkit-autofill:focus, body.dark-mode input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #1a2639 inset !important;
+        -webkit-text-fill-color: #f3f4f6 !important;
+        caret-color: #f3f4f6;
+    }
+
+
+    /* SELECT STYLE */
+    select.vsms-input {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300b300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right 15px center; background-size: 12px;
+        padding-right: 40px; cursor: pointer;
+    }
+    body.dark-mode select.vsms-input { background-color: var(--input-bg); color: var(--text-main); }
+    body.dark-mode select.vsms-input option { background-color: #1a2639; color: #f3f4f6; }
+
+
+    .no-spinners::-webkit-outer-spin-button, .no-spinners::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    .field-error-text { color: var(--error-color); font-size: 0.8rem; font-weight: 700; margin-top: 5px; margin-left: 15px; display: none; }
+    .field-success-text { color: var(--coop-green-primary); font-size: 0.85rem; font-weight: 700; margin-top: 5px; margin-left: 15px; display: none; }
+    .vsms-input.is-invalid { border-color: var(--error-color) !important; }
+
+
+    /* DROPZONE */
+    .dropzone-label { 
+        display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        border: 2px dashed var(--dropzone-border); 
+        border-radius: 20px; padding: 1.5rem; text-align: center; 
+        background: var(--dropzone-bg); 
+        min-height: 120px; cursor: pointer; transition: all 0.3s ease; width: 100%; margin-bottom: 0; 
+    }
+    .dropzone-label:hover { border-color: var(--coop-green-primary); background: var(--dropzone-hover-bg); transform: scale(1.02); }
+    .dropzone-icon { font-size: 2.5rem; color: #9ca3af; margin-bottom: 0.5rem; transition: color 0.3s; }
+    .dropzone-label:hover .dropzone-icon { color: var(--coop-green-primary); }
+    .hidden-file-input { display: none; }
+    .dropzone-label.border-danger { border-color: var(--error-color) !important; background-color: rgba(239, 68, 68, 0.05); }
+
+
+    /* BOTONES */
+    .wizard-actions { display: flex; justify-content: space-between; margin-top: 2rem; gap: 15px; }
+    .btn-wizard { padding: 0.9rem 2rem; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none !important; transition: all 0.3s ease; }
+    
+    .btn-cancel { background: #fce7e7; color: #d32f2f !important; border: 1px solid #f5c6c6; }
+    .btn-cancel:hover { background: #d32f2f; color: white !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2); }
+    body.dark-mode .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444 !important; }
+    body.dark-mode .btn-cancel:hover { background: #ef4444; color: white !important; }
+
+
+    .btn-prev { background: #e5e7eb; color: #4b5563; }
+    .btn-prev:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
+
+
+    .btn-next, .btn-submit { background: var(--coop-green-primary); color: white; box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25); }
+    .btn-next:hover, .btn-submit:hover { background: var(--coop-green-hover); box-shadow: 0 6px 20px rgba(0, 179, 0, 0.35); transform: translateY(-2px); }
+
+
+    .search-section { background: var(--search-bg); border: 1px solid var(--input-border); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+    .search-icon-inside { position: absolute; right: 15px; top: 13px; color: var(--coop-green-primary); pointer-events: none; }
+    
+    .calendar-icon-inside { 
+        position: absolute; right: 15px; top: 13px; 
+        color: var(--coop-green-primary); 
+        cursor: pointer; transition: transform 0.2s; 
+    }
+    .calendar-icon-inside:hover { transform: scale(1.1); }
+    .native-picker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: -1; pointer-events: none; }
+
+
+    .summary-box { background: rgba(0, 179, 0, 0.04); border-radius: 20px; padding: 20px; border: 1px dashed var(--coop-green-primary); }
+    .sum-label { font-size: 0.85rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+    .sum-value { font-size: 1.1rem; color: #333; font-weight: 800; margin-bottom: 15px; word-break: break-word; }
+    body.dark-mode .sum-value { color: #f3f4f6; }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ============================================
+       OCULTAR TEXTOS DE DJANGO EN ARCHIVOS
+       ============================================ */
+    .django-input-wrapper {
+        position: relative;
+    }
+
+    .django-input-wrapper a,
+    .django-input-wrapper label,
+    .django-input-wrapper span {
+        display: none !important;
+    }
+
+    .django-input-wrapper input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
+/* ============================================
+   OCULTAR TEXTOS DE DJANGO EN ARCHIVOS
+   ============================================ */
+.django-input-wrapper {
+    position: relative;
+}
+
+.django-input-wrapper a,
+.django-input-wrapper label,
+.django-input-wrapper span {
+    display: none !important;
+}
+
+/* OCULTAR EL CHECKBOX QUE GENERA DJANGO */
+.django-input-wrapper input[type="checkbox"] {
+    display: none !important;
+}
+
+.django-input-wrapper input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+
+</style>
+
+<div class="header-section text-center mb-5">
+    <h1 style="color: var(--coop-green-primary); font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">
+        <i class="fas fa-car"></i> {% if object %}Editar{% else %}Nuevo{% endif %} Vehículo
+    </h1>
+    <p class="text-muted fw-bold">Registro de unidad y asignación de conductor</p>
+</div>
+
+
+<!-- BLOQUE DE ERRORES DEL SERVIDOR (GENERAL) -->
+{% if form.errors %}
+<div class="alert alert-danger shadow-sm text-center mb-4" style="border-radius: 20px; max-width: 950px; margin: 0 auto;">
+    <h5 class="fw-bold"><i class="fas fa-exclamation-triangle"></i> Hubo errores en el formulario</h5>
+    <p class="mb-0">Por favor revise los campos marcados en rojo en las secciones correspondientes.</p>
+</div>
+{% endif %}
+
+
+<div class="wizard-container">
+    <div class="wizard-progress">
+        <div class="progress-line-active" id="progressLine"></div>
+        <div class="step-node active" data-step="1">1 <span class="step-label">Básicos</span></div>
+        <div class="step-node" data-step="2">2 <span class="step-label">Técnicos</span></div>
+        <div class="step-node" data-step="3">3 <span class="step-label">Legal</span></div>
+        <div class="step-node" data-step="4">4 <span class="step-label">Resumen</span></div>
+    </div>
+
+
+    <form method="post" enctype="multipart/form-data" id="wizardForm" novalidate autocomplete="off">
+        {% csrf_token %}
+        <input type="hidden" id="current_vehicle_id" value="{{ object.id|default:'' }}">
+        <input type="hidden" id="server_errors" value="{% if form.errors %}yes{% endif %}">
+        
+        <!-- CAMPOS OCULTOS PARA EVITAR ERRORES DE VALIDACIÓN -->
+        <input type="hidden" name="kilometraje_actual" value="0">
+        <input type="hidden" name="tipo_unidad" value="Sedan">
+
+
+        <div class="form-card">
+            <!-- PASO 1: BÁSICOS -->
+            <div class="wizard-step active" id="step1">
+                <h5 class="section-title"><i class="fas fa-id-card-alt"></i> Identificación del Vehículo</h5>
+                
+                <div class="search-section">
+                    <div class="col-12 mb-2"><label class="form-label">Asignar Conductor (Obligatorio)</label></div>
+                    <div class="row g-3">
+                        <div class="col-md-5 form-group mb-md-0">
+                            <div class="position-relative">
+                                <input type="text" class="vsms-input" id="search_cedula" placeholder="Buscar por Cédula" autocomplete="new-password" maxlength="12">
+                                <i class="fas fa-search search-icon-inside"></i>
+                            </div>
+                            <div class="field-error-text" id="cedula_len_msg" style="display:none; margin-top:5px; color:#ef4444;">Mínimo 7 dígitos.</div>
+                            <div class="field-error-text" id="chofer_msg" style="display:none; margin-top:5px;">Conductor no encontrado.</div>
+                            <div class="field-success-text" id="chofer_success_msg" style="display:none;"><i class="fas fa-check-circle"></i> Afiliado encontrado</div>
+                            
+                            <select name="conductor" id="id_conductor" class="d-none" required>
+                                <option value="">---</option>
+                                {% for x, y in form.fields.conductor.choices %}
+                                    <option value="{{ x }}" 
+                                        {% if form.conductor.value|stringformat:"s" == x|stringformat:"s" %}selected
+                                        {% elif form.instance.conductor_id == x %}selected{% endif %}
+                                    >{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-7 form-group mb-0">
+                            <input type="text" class="vsms-input" id="chofer_nombre_display" readonly placeholder="Nombre del conductor..." 
+                                   value="{% if form.instance.conductor %}{{ form.instance.conductor.nombres }} {{ form.instance.conductor.apellidos }}{% endif %}">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Placa *</label> 
+                        {% if form.placa.errors %}
+                            {% render_field form.placa class="vsms-input is-invalid" id="id_placa" placeholder="Ej. AB123CD" style="text-transform: uppercase;" required="required" minlength="7" maxlength="10" autocomplete="new-password" %}
+                            <div class="field-error-text d-block">{{ form.placa.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.placa class="vsms-input" id="id_placa" placeholder="Ej. AB123CD" style="text-transform: uppercase;" required="required" minlength="7" maxlength="10" autocomplete="new-password" %}
+                        {% endif %}
+                        <div class="field-error-text" id="error_placa">Requerido (Mín 7).</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Número de Casco *</label>
+                        {% if form.numero_casco.errors %}
+                            {% render_field form.numero_casco class="vsms-input is-invalid" id="id_numero_casco" placeholder="" required="required" autocomplete="off" %}
+                            <div class="field-error-text d-block">{{ form.numero_casco.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.numero_casco class="vsms-input" id="id_numero_casco" placeholder="" required="required" autocomplete="off" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Serial Carrocería (NIV) *</label>
+                        {% if form.serial_niv.errors %}
+                            {% render_field form.serial_niv class="vsms-input is-invalid" id="id_serial_niv" placeholder="Ej: 8X42..." style="text-transform: uppercase;" required="required" minlength="17" maxlength="20" autocomplete="new-password" %}
+                            <div class="field-error-text d-block">{{ form.serial_niv.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.serial_niv class="vsms-input" id="id_serial_niv" placeholder="Ej: 8X42..." style="text-transform: uppercase;" required="required" minlength="17" maxlength="20" autocomplete="new-password" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido (Mín 17).</div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Marca *</label> 
+                        {% if form.marca.errors %}
+                            {% render_field form.marca class="vsms-input is-invalid" id="id_marca" placeholder="Toyota" required="required" maxlength="15" autocomplete="off" %}
+                            <div class="field-error-text d-block">{{ form.marca.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.marca class="vsms-input" id="id_marca" placeholder="Toyota" required="required" maxlength="15" autocomplete="off" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Modelo *</label> 
+                        {% if form.modelo.errors %}
+                            {% render_field form.modelo class="vsms-input is-invalid" id="id_modelo" placeholder="Corolla" required="required" maxlength="15" autocomplete="off" %}
+                            <div class="field-error-text d-block">{{ form.modelo.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.modelo class="vsms-input" id="id_modelo" placeholder="Corolla" required="required" maxlength="15" autocomplete="off" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Año *</label> 
+                        {% if form.anio.errors %}
+                            {% render_field form.anio class="vsms-input no-spinners is-invalid" id="id_anio" type="number" placeholder="2020" required="required" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" autocomplete="off" %}
+                            <div class="field-error-text d-block">{{ form.anio.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.anio class="vsms-input no-spinners" id="id_anio" type="number" placeholder="2020" required="required" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" autocomplete="off" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Color *</label> 
+                        {% if form.color.errors %}
+                            {% render_field form.color class="vsms-input is-invalid" id="id_color" placeholder="Blanco" required="required" maxlength="15" autocomplete="off" %}
+                            <div class="field-error-text d-block">{{ form.color.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.color class="vsms-input" id="id_color" placeholder="Blanco" required="required" maxlength="15" autocomplete="off" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Condición General *</label> 
+                        {% if form.condicion.errors %}
+                            {% render_field form.condicion class="vsms-input is-invalid" required="required" %}
+                            <div class="field-error-text d-block">{{ form.condicion.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.condicion class="vsms-input" required="required" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+
+
+                <div class="form-group mt-2">
+                    <label class="form-label">Foto del Vehículo (Opcional)</label>
+                    <label for="id_foto" class="dropzone-label">
+                        {% if form.instance.foto and form.instance.foto.name %}
+                            <img src="{{ form.instance.foto.url }}" style="max-height: 120px; border-radius: 10px; display: block;" id="preview_img_main">
+                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:block;"><i class="fas fa-check-circle"></i> Imagen Cargada</span>
+                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:none;"></i>
+                            <div class="dropzone-text mt-2" id="text_main" style="display:none;">Click para subir foto</div>
+                        {% else %}
+                            <img src="" style="max-height: 120px; border-radius: 10px; display: none;" id="preview_img_main">
+                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:none;"></span>
+                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:block;"></i>
+                            <div class="dropzone-text mt-2" id="text_main" style="display:block;">Click para subir foto<br><small class="text-muted">(JPG o PNG, Máx 10MB)</small></div>
+                        {% endif %}
+                    </label>
+                    <div class="django-input-wrapper">
+                        {{ form.foto|attr:"onchange:previewVehiclePhoto(this)"|attr:"accept:image/jpeg,image/png"|add_class:"hidden-file-input"|attr:"id:id_foto" }}
+                    </div>
+                </div>
+
+
+                <div class="wizard-actions">
+                    <a href="{% url 'taxis:vehiculo_list' %}" class="btn-wizard btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                    <button type="button" class="btn-wizard btn-next" onclick="validateAndNextStep1()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+
+            <!-- PASO 2: TÉCNICOS -->
+            <div class="wizard-step" id="step2">
+                <h5 class="section-title"><i class="fas fa-tools"></i> Ficha Mecánica</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Batería (Amperaje) *</label>
+                        {% if form.bateria_amperaje.errors %}
+                            {% render_field form.bateria_amperaje class="vsms-input is-invalid" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
+                            <div class="field-error-text d-block">{{ form.bateria_amperaje.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.bateria_amperaje class="vsms-input" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Aceite Motor (Viscosidad) *</label>
+                        {% if form.aceite_viscosidad.errors %}
+                            {% render_field form.aceite_viscosidad class="vsms-input is-invalid" id="id_aceite" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
+                            <div class="field-error-text d-block">{{ form.aceite_viscosidad.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.aceite_viscosidad class="vsms-input" id="id_aceite" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Combustible (Tipo) *</label>
+                        <select name="combustible_tipo" class="vsms-input {% if form.combustible_tipo.errors %}is-invalid{% endif %}" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Gasolina" {% if form.instance.combustible_tipo == 'Gasolina' %}selected{% endif %}>Gasolina</option>
+                            <option value="Gasoil" {% if form.instance.combustible_tipo == 'Gasoil' %}selected{% endif %}>Gasoil</option>
+                            <option value="Gas" {% if form.instance.combustible_tipo == 'Gas' %}selected{% endif %}>Gas (GNV)</option>
+                        </select>
+                        {% if form.combustible_tipo.errors %}
+                            <div class="field-error-text d-block">{{ form.combustible_tipo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Tanque (Litros) *</label>
+                        {% if form.combustible_litros.errors %}
+                            {% render_field form.combustible_litros class="vsms-input is-invalid" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
+                            <div class="field-error-text d-block">{{ form.combustible_litros.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.combustible_litros class="vsms-input" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Medidas del caucho *</label>
+                            {% if form.cauchos_medida.errors %}
+                                {% render_field form.cauchos_medida class="vsms-input is-invalid" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
+                                <div class="field-error-text d-block">{{ form.cauchos_medida.errors.0 }}</div>
+                            {% else %}
+                                {% render_field form.cauchos_medida class="vsms-input" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
+                            {% endif %}
+                            <div class="field-error-text">Requerido.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Diámetro del rin *</label>
+                            {% if form.diametro_rin.errors %}
+                                {% render_field form.diametro_rin class="vsms-input no-spinners is-invalid" id="id_rin" type="number" placeholder="Ej: 14" autocomplete="new-password" required="required" oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5);" %}
+                                <div class="field-error-text d-block">{{ form.diametro_rin.errors.0 }}</div>
+                            {% else %}
+                                {% render_field form.diametro_rin class="vsms-input no-spinners" id="id_rin" type="number" placeholder="Ej: 14" autocomplete="new-password" required="required" oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5);" %}
+                            {% endif %}
+                            <div class="field-error-text">Requerido.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Capacidad Pasajeros *</label>
+                        {% if form.capacidad.errors %}
+                            {% render_field form.capacidad class="vsms-input no-spinners is-invalid" type="number" placeholder="5" required="required" %}
+                            <div class="field-error-text d-block">{{ form.capacidad.errors.0 }}</div>
+                        {% else %}
+                            {% render_field form.capacidad class="vsms-input no-spinners" type="number" placeholder="5" required="required" %}
+                        {% endif %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
+                    <button type="button" class="btn-wizard btn-next" onclick="validateStep2()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+
+            <!-- PASO 3: LEGAL -->
+            <div class="wizard-step" id="step3">
+                <h5 class="section-title"><i class="fas fa-folder-open"></i> Documentación Legal</h5>
+                
+                <div class="alert alert-warning mb-3" style="font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> Todos los documentos son obligatorios. Si el formulario falla, deberá volver a seleccionarlos.
+                </div>
+
+
+                <div class="row g-4">
+                    <!-- Patente -->
+                    <div class="col-md-6">
+                        <label class="form-label">Patente Vehicular *</label>
+                        <label for="id_patente_archivo" class="dropzone-label {% if form.patente_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-file-invoice-dollar dropzone-icon" id="icon_patente" {% if object.patente_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_patente">
+                                {% if object.patente_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir Patente{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.patente_archivo|attr:"onchange:checkFile(this, 'icon_patente', 'text_patente')"|add_class:"hidden-file-input"|attr:"id:id_patente_archivo" }}
+                        </div>
+                        
+                        {% if form.patente_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.patente_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_patente" style="display:none;">Debe subir este archivo.</div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">Vencimiento Patente *</label>
+                            <div class="position-relative">
+                                {% if form.patente_vencimiento.errors %}
+                                    {% render_field form.patente_vencimiento class="vsms-input date-mask-input is-invalid" placeholder="dd/mm/aaaa" id="patenteVenc" maxlength="10" autocomplete="off" %}
+                                {% else %}
+                                    {% render_field form.patente_vencimiento class="vsms-input date-mask-input" placeholder="dd/mm/aaaa" id="patenteVenc" maxlength="10" autocomplete="off" %}
+                                {% endif %}
+                                <i class="fas fa-calendar-alt calendar-icon-inside" onclick="openCalendar('pickerPatente')"></i>
+                                <input type="date" id="pickerPatente" class="native-picker" onchange="syncDate(this, 'patenteVenc')" tabindex="-1">
+                            </div>
+                            <!-- Contenedor para error de JS -->
+                            <div class="field-error-text" style="display:none; margin-top:5px;"></div>
+                            {% if form.patente_vencimiento.errors %}
+                                <div class="field-error-text d-block">{{ form.patente_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <!-- Licencia -->
+                    <div class="col-md-6">
+                        <label class="form-label">Licencia Conducir *</label>
+                        <label for="id_licencia_archivo" class="dropzone-label {% if form.licencia_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-id-card dropzone-icon" id="icon_licencia" {% if object.licencia_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_licencia">
+                                {% if object.licencia_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir Licencia{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.licencia_archivo|attr:"onchange:checkFile(this, 'icon_licencia', 'text_licencia')"|add_class:"hidden-file-input"|attr:"id:id_licencia_archivo" }}
+                        </div>
+                        
+                        {% if form.licencia_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.licencia_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_licencia" style="display:none;">Debe subir este archivo.</div>
+
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Vencimiento Licencia *</label>
+                            <div class="position-relative">
+                                {% if form.licencia_vencimiento.errors %}
+                                    {% render_field form.licencia_vencimiento class="vsms-input date-mask-input is-invalid" placeholder="dd/mm/aaaa" id="licenciaVenc" maxlength="10" autocomplete="off" %}
+                                {% else %}
+                                    {% render_field form.licencia_vencimiento class="vsms-input date-mask-input" placeholder="dd/mm/aaaa" id="licenciaVenc" maxlength="10" autocomplete="off" %}
+                                {% endif %}
+                                <i class="fas fa-calendar-alt calendar-icon-inside" onclick="openCalendar('pickerLicencia')"></i>
+                                <input type="date" id="pickerLicencia" class="native-picker" onchange="syncDate(this, 'licenciaVenc')" tabindex="-1">
+                            </div>
+                            <div class="field-error-text" style="display:none; margin-top:5px;"></div>
+                            {% if form.licencia_vencimiento.errors %}
+                                <div class="field-error-text d-block">{{ form.licencia_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row g-4 mt-2">
+                    <!-- RCV -->
+                    <div class="col-md-6">
+                        <label class="form-label">RCV *</label>
+                        <label for="id_rcv_archivo" class="dropzone-label {% if form.rcv_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-shield-alt dropzone-icon" id="icon_rcv" {% if object.rcv_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_rcv">
+                                {% if object.rcv_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir RCV{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.rcv_archivo|attr:"onchange:checkFile(this, 'icon_rcv', 'text_rcv')"|add_class:"hidden-file-input"|attr:"id:id_rcv_archivo" }}
+                        </div>
+                        
+                        {% if form.rcv_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.rcv_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_rcv" style="display:none;">Debe subir este archivo.</div>
+
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Vencimiento RCV *</label>
+                            <div class="position-relative">
+                                {% if form.rcv_vencimiento.errors %}
+                                    {% render_field form.rcv_vencimiento class="vsms-input date-mask-input is-invalid" placeholder="dd/mm/aaaa" id="rcvVenc" maxlength="10" autocomplete="off" %}
+                                {% else %}
+                                    {% render_field form.rcv_vencimiento class="vsms-input date-mask-input" placeholder="dd/mm/aaaa" id="rcvVenc" maxlength="10" autocomplete="off" %}
+                                {% endif %}
+                                <i class="fas fa-calendar-alt calendar-icon-inside" onclick="openCalendar('pickerRCV')"></i>
+                                <input type="date" id="pickerRCV" class="native-picker" onchange="syncDate(this, 'rcvVenc')" tabindex="-1">
+                            </div>
+                            <div class="field-error-text" style="display:none; margin-top:5px;"></div>
+                            {% if form.rcv_vencimiento.errors %}
+                                <div class="field-error-text d-block">{{ form.rcv_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <!-- Médico -->
+                    <div class="col-md-6">
+                        <label class="form-label">Certificado Médico *</label>
+                        <label for="id_medico_archivo" class="dropzone-label {% if form.medico_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-user-md dropzone-icon" id="icon_medico" {% if object.medico_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_medico">
+                                {% if object.medico_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir Certificado{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.medico_archivo|attr:"onchange:checkFile(this, 'icon_medico', 'text_medico')"|add_class:"hidden-file-input"|attr:"id:id_medico_archivo" }}
+                        </div>
+                        
+                        {% if form.medico_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.medico_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_medico" style="display:none;">Debe subir este archivo.</div>
+
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Vencimiento Médico *</label>
+                            <div class="position-relative">
+                                {% if form.medico_vencimiento.errors %}
+                                    {% render_field form.medico_vencimiento class="vsms-input date-mask-input is-invalid" placeholder="dd/mm/aaaa" id="medicoVenc" maxlength="10" autocomplete="off" %}
+                                {% else %}
+                                    {% render_field form.medico_vencimiento class="vsms-input date-mask-input" placeholder="dd/mm/aaaa" id="medicoVenc" maxlength="10" autocomplete="off" %}
+                                {% endif %}
+                                <i class="fas fa-calendar-alt calendar-icon-inside" onclick="openCalendar('pickerMedico')"></i>
+                                <input type="date" id="pickerMedico" class="native-picker" onchange="syncDate(this, 'medicoVenc')" tabindex="-1">
+                            </div>
+                            <div class="field-error-text" style="display:none; margin-top:5px;"></div>
+                            {% if form.medico_vencimiento.errors %}
+                                <div class="field-error-text d-block">{{ form.medico_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row g-4 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Carnet Circulación *</label>
+                        <label for="id_circulacion_archivo" class="dropzone-label {% if form.circulacion_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-car-side dropzone-icon" id="icon_circ" {% if object.circulacion_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_circ">
+                                {% if object.circulacion_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir Carnet{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.circulacion_archivo|attr:"onchange:checkFile(this, 'icon_circ', 'text_circ')"|add_class:"hidden-file-input"|attr:"id:id_circulacion_archivo" }}
+                        </div>
+                        
+                        {% if form.circulacion_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.circulacion_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_circ" style="display:none;">Debe subir este archivo.</div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="form-label">Título Propiedad *</label>
+                        <label for="id_registro_archivo" class="dropzone-label {% if form.registro_archivo.errors %}border-danger{% endif %}">
+                            <i class="fas fa-file-contract dropzone-icon" id="icon_prop" {% if object.registro_archivo %}style="color:var(--coop-green-primary)"{% endif %}></i>
+                            <div class="dropzone-text" id="text_prop">
+                                {% if object.registro_archivo %}<span class="text-success fw-bold">Cargado</span>{% else %}Subir Título{% endif %}
+                            </div>
+                        </label>
+                        <div class="django-input-wrapper">
+                            {{ form.registro_archivo|attr:"onchange:checkFile(this, 'icon_prop', 'text_prop')"|add_class:"hidden-file-input"|attr:"id:id_registro_archivo" }}
+                        </div>
+                        
+                        {% if form.registro_archivo.errors %}
+                            <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.registro_archivo.errors.0 }}</div>
+                        {% endif %}
+                        <div class="field-error-text text-center mt-2" id="err_file_prop" style="display:none;">Debe subir este archivo.</div>
+                    </div>
+                </div>
+
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
+                    <!-- CAMBIO: Ahora llama a validation, no es submit -->
+                    <button type="button" class="btn-wizard btn-next" onclick="validateStep3()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+
+            <!-- PASO 4: RESUMEN -->
+            <div class="wizard-step" id="step4">
+                <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Resumen de Datos</h5>
+                
+                <div class="summary-box">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Conductor Asignado</div>
+                            <div class="sum-value" id="sum_conductor">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Placa del Vehículo</div>
+                            <div class="sum-value" id="sum_placa">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Marca / Modelo</div>
+                            <div class="sum-value" id="sum_marca">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Año / Color</div>
+                            <div class="sum-value" id="sum_anio">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Número de Casco</div>
+                            <div class="sum-value" id="sum_casco">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Estado Documentos</div>
+                            <div class="sum-value text-success"><i class="fas fa-check-circle"></i> Verificados en formulario</div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="alert alert-info mt-3" style="border-radius: 15px;">
+                    <i class="fas fa-info-circle"></i> Por favor verifique que todos los datos sean correctos antes de guardar.
+                </div>
+
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
+                    <button type="submit" class="btn-wizard btn-submit">Confirmar y Guardar <i class="fas fa-save"></i></button>
+                </div>
+            </div>
+
+
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // --- LÓGICA RESTAURAR ESTADO ---
+    $(document).ready(function() {
+        restoreState();
+        
+        // FUERZA BRUTA: LIMPIAR CAMPOS AL CARGAR (Solo si es nuevo y no hay errores)
+        if(document.getElementById('current_vehicle_id').value === '' && document.getElementById('server_errors').value !== 'yes') {
+             setTimeout(function() {
+                 $('#search_cedula, #id_placa, #id_serial_niv').val('');
+                 $('#id_aceite, #id_rin').val('');
+             }, 100);
+        }
+        
+        // FIX: REMOVER ERROR AL ESCRIBIR
+        $(document).on('input change', '.vsms-input, select.vsms-input', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid');
+                $(this).next('.field-error-text').hide();
+                $(this).parent().find('.field-error-text').hide();
+            }
+        });
+    });
+
+    function restoreState() {
+        const conductorSelect = document.getElementById('id_conductor');
+        if (conductorSelect.value) {
+            const selectedText = conductorSelect.options[conductorSelect.selectedIndex].text;
+            document.getElementById('chofer_nombre_display').value = selectedText;
+            $('#search_cedula').removeClass('is-invalid');
+            $('#chofer_nombre_display').removeClass('is-invalid');
+            $('#chofer_msg').hide();
+            $('#chofer_success_msg').show();
+        }
+
+        const hasErrors = document.getElementById('server_errors').value === 'yes';
+        if (hasErrors) {
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById('step' + i);
+                const invalidInput = step.querySelector('.is-invalid');
+                const errorMsg = step.querySelector('.field-error-text.d-block');
+                const dangerBorder = step.querySelector('.border-danger');
+                
+                if (invalidInput || errorMsg || dangerBorder) {
+                    showStep(i);
+                    return; 
+                }
+            }
+        }
+    }
+
+    $(document).on('keydown', ':input:not(textarea)', function(event) {
+        if (event.key == "Enter") event.preventDefault();
+    });
+
+    function showStep(step) {
+        document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+        const percent = ((step - 1) / (4 - 1)) * 100;
+        document.getElementById('progressLine').style.width = percent + '%';
+        document.querySelectorAll('.step-node').forEach(node => {
+            const nodeStep = parseInt(node.getAttribute('data-step'));
+            node.classList.remove('active', 'completed');
+            if (nodeStep === step) node.classList.add('active');
+            if (nodeStep < step) node.classList.add('completed');
+        });
+        currentStep = step;
+        window.scrollTo(0, 0);
+    }
+    
+    let currentStep = 1; 
+    function nextStep() { if(currentStep < 4) showStep(currentStep + 1); }
+    function prevStep() { if(currentStep > 1) showStep(currentStep - 1); }
+
+    function validateStep1() {
+        let valid = true;
+        const choferId = document.getElementById('id_conductor').value;
+        const choferMsg = document.getElementById('chofer_msg');
+        const searchInput = document.getElementById('search_cedula');
+        
+        // 1. Validar Chofer
+        if(!choferId) {
+            choferMsg.style.display = 'block';
+            searchInput.classList.add('is-invalid');
+            document.getElementById('chofer_nombre_display').classList.add('is-invalid');
+            valid = false;
+        } else {
+            choferMsg.style.display = 'none';
+        }
+
+        // 2. Validar Campos Requeridos
+        $('#step1 input[required], #step1 select[required]').each(function() {
+            if (!this.value.trim()) {
+                $(this).addClass('is-invalid');
+                $(this).next('.field-error-text').show();
+                valid = false;
+            } else {
+                if(!$(this).next('.field-error-text').text().includes('ya existe') && !$(this).next('.field-error-text').text().includes('ya está registrada')) {
+                     $(this).removeClass('is-invalid');
+                     $(this).next('.field-error-text').hide();
+                }
+            }
+        });
+        
+        if ($('#step1 .is-invalid').length > 0) valid = false;
+        return valid;
+    }
+
+    function validateAndNextStep1() { if(validateStep1()) nextStep(); }
+
+    function validateStep2() {
+        let valid = true;
+        $('#step2 input[required], #step2 select[required]').each(function() {
+            const errorText = $(this).next('.field-error-text').length ? $(this).next('.field-error-text') : $(this).parent().find('.field-error-text');
+            if (!this.value.trim()) {
+                $(this).addClass('is-invalid');
+                errorText.show();
+                valid = false;
+            } else {
+                $(this).removeClass('is-invalid');
+                errorText.hide();
+            }
+        });
+        if(valid) nextStep();
+    }
+
+    function validateStep3() {
+        let valid = true;
+
+        // 1. Validar Inputs de Fecha (Clase date-mask-input)
+        $('.date-mask-input').each(function() {
+             const errorDiv = $(this).parent().next('.field-error-text'); 
+             const val = this.value.trim();
+             
+             // Validar que tenga contenido y longitud completa de fecha (10 caracteres)
+             if(!val || val.length < 10) {
+                 $(this).addClass('is-invalid');
+                 if(errorDiv.length) errorDiv.show().text('Fecha requerida completa');
+                 valid = false;
+             } else {
+                 $(this).removeClass('is-invalid');
+                 if(errorDiv.length) errorDiv.hide();
+             }
+        });
+        
+        // 2. Validar Archivos
+        const filesToCheck = [
+            { id: 'id_patente_archivo', err: 'err_file_patente', txt: 'text_patente' },
+            { id: 'id_licencia_archivo', err: 'err_file_licencia', txt: 'text_licencia' },
+            { id: 'id_rcv_archivo', err: 'err_file_rcv', txt: 'text_rcv' },
+            { id: 'id_medico_archivo', err: 'err_file_medico', txt: 'text_medico' },
+            { id: 'id_circulacion_archivo', err: 'err_file_circ', txt: 'text_circ' },
+            { id: 'id_registro_archivo', err: 'err_file_prop', txt: 'text_prop' }
+        ];
+
+        filesToCheck.forEach(item => {
+            const input = document.getElementById(item.id);
+            const errorMsg = document.getElementById(item.err);
+            const labelText = document.getElementById(item.txt).innerText;
+            
+            if (!labelText.includes('Listo') && !labelText.includes('Cargado') && input.files.length === 0) {
+                 errorMsg.style.display = 'block';
+                 valid = false;
+            } else {
+                 errorMsg.style.display = 'none';
+            }
+        });
+
+        if(valid) {
+             updateSummary();
+             nextStep();
+        }
+    }
+
+    function updateSummary() {
+        document.getElementById('sum_conductor').textContent = document.getElementById('chofer_nombre_display').value || '---';
+        document.getElementById('sum_placa').textContent = document.getElementById('id_placa').value || '---';
+        document.getElementById('sum_marca').textContent = (document.getElementById('id_marca').value || '') + ' / ' + (document.getElementById('id_modelo').value || '');
+        document.getElementById('sum_anio').textContent = (document.getElementById('id_anio').value || '') + ' / ' + (document.getElementById('id_color').value || '');
+        document.getElementById('sum_casco').textContent = document.getElementById('id_numero_casco').value || '---';
+    }
+
+    // --- FUNCIONES AUXILIARES ---
+    function checkFile(input, iconId, textId) {
+        if (input.files && input.files[0]) {
+            document.getElementById(iconId).className = 'fas fa-check-circle dropzone-icon text-success';
+            document.getElementById(textId).innerHTML = '<span class="text-success fw-bold">Listo: ' + input.files[0].name.substring(0, 15) + '...</span>';
+            const errId = input.id.replace('id_', 'err_file_').replace('_archivo', '');
+            const errorDiv = document.getElementById(errId);
+            if(errorDiv) errorDiv.style.display = 'none';
+            
+            $(input).parent().removeClass('border-danger');
+        }
+    }
+
+    function previewVehiclePhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#preview_img_main').attr('src', e.target.result).show();
+                $('#icon_main, #text_main').hide();
+                $('#msg_main').show().html('<i class="fas fa-check-circle"></i> Foto lista');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openCalendar(pickerId) {
+        document.getElementById(pickerId).showPicker();
+    }
+
+    function syncDate(picker, inputId) {
+        const val = picker.value; 
+        if(val) {
+            const parts = val.split('-');
+            document.getElementById(inputId).value = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            $(`#${inputId}`).removeClass('is-invalid');
+            $(`#${inputId}`).parent().next('.field-error-text').hide();
+        }
+    }
+
+    document.querySelectorAll('.date-mask-input').forEach(input => {
+        input.addEventListener('input', function(e) {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 8) v = v.substring(0, 8);
+            if (v.length > 4) {
+                this.value = `${v.substring(0, 2)}/${v.substring(2, 4)}/${v.substring(4)}`;
+            } else if (v.length > 2) {
+                this.value = `${v.substring(0, 2)}/${v.substring(2)}`;
+            } else {
+                this.value = v;
+            }
+        });
+    });
+
+    let timeout = null;
+    document.getElementById('search_cedula').addEventListener('input', function() {
+        clearTimeout(timeout);
+        const val = this.value.trim();
+        const lenMsg = document.getElementById('cedula_len_msg');
+        
+        if(val.length < 7) {
+            lenMsg.style.display = 'block';
+            return;
+        } else {
+            lenMsg.style.display = 'none';
+        }
+
+        timeout = setTimeout(() => {
+            fetch(`{% url 'taxis:buscar_chofer' %}?cedula=${val}`)
+            .then(r => r.json())
+            .then(data => {
+                const msg = document.getElementById('chofer_msg');
+                const successMsg = document.getElementById('chofer_success_msg');
+                const nameDisplay = document.getElementById('chofer_nombre_display');
+                const select = document.getElementById('id_conductor');
+                
+                if (data.encontrado) {
+                    select.value = data.id;
+                    nameDisplay.value = data.nombre;
+                    msg.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    this.classList.remove('is-invalid');
+                    nameDisplay.classList.remove('is-invalid');
+                } else {
+                    select.value = "";
+                    nameDisplay.value = "";
+                    msg.style.display = 'block';
+                    successMsg.style.display = 'none';
+                    nameDisplay.classList.add('is-invalid');
+                }
+            });
+        }, 500);
+    });
+
+    const camposValidar = [
+        { id: 'id_placa', campo: 'placa' },
+        { id: 'id_serial_niv', campo: 'serial_niv' },
+        { id: 'id_numero_casco', campo: 'numero_casco' }
+    ];
+
+    camposValidar.forEach(item => {
+        const input = document.getElementById(item.id);
+        if (!input) return;
+
+        input.addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (!val) return;
+
+            $(this).removeClass('is-invalid');
+            $(this).next('.field-error-text').hide();
+
+            const currentId = document.getElementById('current_vehicle_id').value;
+            fetch(`{% url 'taxis:validar_datos_vehiculo' %}?campo=${item.campo}&valor=${val}&exclude_id=${currentId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.existe) {
+                        $(this).addClass('is-invalid');
+                        let errorDiv = $(this).next('.field-error-text');
+                        if (errorDiv.length === 0) {
+                            if(item.id === 'id_placa') errorDiv = $('#error_placa');
+                            else errorDiv = $('<div class="field-error-text"></div>').insertAfter(this);
+                        }
+                        errorDiv.text(data.mensaje).show();
+                    }
+                });
+        });
+        
+        input.addEventListener('input', function() {
+             $(this).removeClass('is-invalid');
+             $(this).next('.field-error-text').hide();
+             if(item.id === 'id_placa') $('#error_placa').hide();
+        });
+    });
+
+      /* ========================================
+       LIMPIAR BASURA DE DJANGO
+       ======================================== */
+    $(document).ready(function(){
+        // Encontrar los contenedores de input
+        $('.django-input-wrapper').each(function(){
+            // Buscar si hay enlaces o labels generados por Django ClearableFileInput
+            // y ocultarlos explícitamente, pero dejando el input file
+            $(this).find('a, label, span').hide();
+            
+            // Si hay texto suelto (TextNodes) como "Actualmente", "Modificar", elimínalos
+            $(this).contents().filter(function(){
+                return this.nodeType === 3 && $.trim(this.nodeValue) !== '';
+            }).remove();
+        });
+    });
+
+</script>
+{% endblock %}

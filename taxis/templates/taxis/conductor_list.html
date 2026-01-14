@@ -1,0 +1,358 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+
+{% block title %}Afiliados - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ESTILOS GENERALES --- */
+    :root {
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --coop-green-light: #e6f7e6;
+        --border-color: #e5e7eb;
+        --text-color: #1f2937;
+        
+        /* Colores específicos para reportes */
+        --excel-color: #107c41; /* Verde Excel oficial */
+        --pdf-color: #ef4444;   /* Rojo PDF */
+    }
+    body.dark-mode {
+        --coop-green-primary: #10b981;
+        --coop-green-hover: #059669;
+        --coop-green-light: rgba(16, 185, 129, 0.2);
+        --border-color: #374151;
+        --text-color: #f3f4f6;
+    }
+
+    .page-title { 
+        color: var(--coop-green-primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; 
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    /* --- BARRA DE BÚSQUEDA --- */
+    .search-container {
+        display: flex; align-items: center; max-width: 600px; position: relative;
+    }
+    .search-input-group {
+        position: relative; flex-grow: 1; display: flex; align-items: center;
+    }
+    .search-input {
+        width: 100%; height: 48px;
+        border: 2px solid var(--coop-green-primary); border-radius: 25px;
+        padding: 0 1rem 0 3rem; 
+        color: var(--text-color); outline: none; background-color: transparent;
+        transition: all 0.3s ease; font-size: 1rem;
+    }
+    .search-input:focus {
+        box-shadow: 0 0 0 4px var(--coop-green-light); transform: scale(1.01);
+    }
+    .search-icon {
+        position: absolute; left: 15px; z-index: 10; 
+        color: var(--coop-green-primary); font-size: 1.1rem; pointer-events: none;
+    }
+
+    /* --- BOTÓN FILTRO --- */
+    .filter-btn {
+        background-color: var(--coop-green-light); color: var(--coop-green-primary); 
+        border: 2px solid var(--coop-green-primary); border-radius: 12px;
+        width: 48px; height: 48px; margin-left: 15px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.3s ease;
+    }
+    .filter-btn:hover { background-color: var(--coop-green-primary); color: white; transform: rotate(15deg); }
+
+    /* --- MENU DESPLEGABLE MEJORADO --- */
+    .filter-dropdown {
+        position: absolute; top: 115%; right: 0; 
+        background: white; border-radius: 16px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
+        width: 320px; padding: 25px; z-index: 100; 
+        display: none; animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    body.dark-mode .filter-dropdown { 
+        background: #1f2937; border-color: #4b5563; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); 
+    }
+    .filter-dropdown.show { display: block; }
+    
+    .filter-label { 
+        font-size: 0.85rem; font-weight: 700; color: #4b5563; 
+        margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    body.dark-mode .filter-label { color: #d1d5db; }
+    
+    /* INPUTS SELECT ESTILO FORMULARIO */
+    .filter-select {
+        width: 100%; height: 45px; padding: 0 15px; border-radius: 10px;
+        border: 2px solid #d1d5db; background-color: transparent;
+        color: var(--text-color); font-size: 0.95rem; outline: none; cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 15px center;
+    }
+    body.dark-mode .filter-select { 
+        border-color: #4b5563; color: white;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    }
+    body.dark-mode .filter-select option { background-color: #1f2937; color: white; }
+
+    .filter-select:focus { border-color: var(--coop-green-primary); box-shadow: 0 0 0 3px var(--coop-green-light); }
+
+    .btn-apply-filters {
+        width: 100%; background-color: var(--coop-green-primary); color: white; border: none;
+        padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
+        margin-top: 15px; transition: transform 0.2s, background-color 0.2s;
+    }
+    .btn-apply-filters:hover { background-color: var(--coop-green-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 179, 0, 0.2); }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- BOTONES ACCION (REDISEÑADOS) --- */
+    .action-buttons-container { 
+        display: flex; flex-direction: column; gap: 8px; align-items: flex-end; 
+        min-width: 220px;
+    }
+
+    .btn-boceto-outline {
+        border: 2px solid var(--coop-green-primary); color: var(--coop-green-primary); background: transparent;
+        border-radius: 25px; padding: 0.5rem 1.2rem; font-weight: 700; font-size: 0.9rem;
+        text-decoration: none !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.2s ease; white-space: nowrap;
+        width: 100%; box-sizing: border-box; 
+    }
+    .btn-boceto-outline:hover { background-color: var(--coop-green-primary); color: white; transform: translateY(-2px); }
+    
+    /* Botón PDF (Rojo) */
+    .btn-reporte-pdf { border-color: var(--pdf-color) !important; color: var(--pdf-color) !important; }
+    .btn-reporte-pdf:hover { background-color: var(--pdf-color) !important; color: white !important; }
+
+    /* Botón Excel (Verde Oscuro) */
+    .btn-reporte-excel { border-color: var(--excel-color) !important; color: var(--excel-color) !important; }
+    .btn-reporte-excel:hover { background-color: var(--excel-color) !important; color: white !important; }
+
+    /* --- TABLA (GRID FIJO) --- */
+    .list-header-row {
+        display: flex; align-items: center; padding: 0 1.5rem; margin-bottom: 0.8rem;
+        color: #9ca3af; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    
+    .col-num { width: 5%; text-align: center; } 
+    .col-cedula { width: 12%; text-align: left; }
+    .col-nombres { width: 23%; text-align: left; padding-right: 10px; } 
+    .col-apellidos { width: 23%; text-align: left; padding-right: 10px; } 
+    .col-fecha { width: 12%; text-align: center; } 
+    .col-genero { width: 10%; text-align: center; } 
+    .col-civil { width: 15%; text-align: center; } 
+
+    .afiliado-row {
+        background: white; border: 1px solid var(--border-color); border-radius: 12px;
+        padding: 1rem 1.5rem; margin-bottom: 0.8rem;
+        display: flex; align-items: center;
+        transition: all 0.2s ease; cursor: pointer;
+        text-decoration: none !important; 
+        color: var(--text-color); font-size: 0.95rem;
+    }
+    body.dark-mode .afiliado-row { background-color: #1f2937; }
+    
+    .afiliado-row:hover {
+        transform: translateY(-2px); border-left: 5px solid var(--coop-green-primary);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .row-text-main { font-weight: 400; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+    .row-text-sec { color: var(--coop-green-primary); font-weight: 600; }
+    .row-text-muted { color: #6b7280; font-size: 0.9rem; font-weight: 400; } 
+    body.dark-mode .row-text-muted { color: #9ca3af; }
+
+    /* Total Indicator */
+    .total-indicator {
+        font-weight: 800; color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color); padding-bottom: 10px; display: inline-block;
+    }
+    body.dark-mode .total-indicator { color: #9ca3af; }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .col-fecha, .col-genero, .col-civil { display: none; }
+        .list-header-row .col-fecha, .list-header-row .col-genero, .list-header-row .col-civil { display: none; }
+        .col-nombres, .col-apellidos { width: 35%; }
+        .col-cedula { width: 25%; }
+    }
+    
+    @media (max-width: 768px) {
+        .header-controls { flex-direction: column; align-items: stretch; gap: 15px; }
+        .action-buttons-container { flex-direction: column; width: 100%; min-width: 0; align-items: stretch; }
+        .list-header-row { display: none; } 
+        .afiliado-row { flex-direction: column; align-items: flex-start; gap: 5px; position: relative; }
+        .col-num, .col-cedula, .col-nombres, .col-apellidos { width: 100%; text-align: left; }
+        .col-cedula { font-size: 1.1rem; margin-bottom: 4px; }
+        .col-num { position: absolute; top: 1rem; right: 1rem; text-align: right; width: auto; font-size: 1.2rem; opacity: 0.3; }
+        .filter-dropdown { width: 90vw; right: -10px; }
+    }
+</style>
+
+<!-- TITULO -->
+<h1 class="page-title">
+    <i class="fas fa-users"></i> Afiliados
+</h1>
+
+<!-- BARRA DE CONTROL -->
+<div class="d-flex justify-content-between align-items-start mb-4 header-controls flex-wrap">
+    
+    <div class="search-container flex-grow-1 mr-md-4 mb-3 mb-md-0">
+        <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
+            <div class="search-input-group">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" class="search-input" placeholder="Busca por cédula, nombre o apellido" value="{{ request.GET.q|default:'' }}">
+            </div>
+            
+            <div style="position: relative;">
+                <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
+                    <i class="fas fa-filter"></i>
+                </button>
+
+                <div class="filter-dropdown" id="filterDropdown">
+                    <div class="mb-4">
+                        <label class="filter-label">Género</label>
+                        <select name="genero" class="filter-select">
+                            <option value="">Todos</option>
+                            <option value="M" {% if request.GET.genero == 'M' %}selected{% endif %}>Masculino</option>
+                            <option value="F" {% if request.GET.genero == 'F' %}selected{% endif %}>Femenino</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="filter-label">Estado Civil</label>
+                        <select name="edo_civil" class="filter-select">
+                            <option value="">Todos</option>
+                            <option value="soltero" {% if request.GET.edo_civil == 'soltero' %}selected{% endif %}>Soltero/a</option>
+                            <option value="casado" {% if request.GET.edo_civil == 'casado' %}selected{% endif %}>Casado/a</option>
+                            <option value="divorciado" {% if request.GET.edo_civil == 'divorciado' %}selected{% endif %}>Divorciado/a</option>
+                            <option value="viudo" {% if request.GET.edo_civil == 'viudo' %}selected{% endif %}>Viudo/a</option>
+                            <option value="union" {% if request.GET.edo_civil == 'union' %}selected{% endif %}>Unión estable de hecho</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-apply-filters">
+                        Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN (CON LOGICA DE FILTRO CORREGIDA) -->
+    <div class="action-buttons-container">
+        <a href="{% url 'taxis:conductor_create' %}" class="btn-boceto-outline">
+            <i class="fas fa-user-plus"></i> Nuevo Afiliado
+        </a>
+        
+        <!-- Aquí estaba el problema: Falta el ?{{ request.GET.urlencode }} -->
+        <a href="{% url 'taxis:reporte_afiliados_excel' %}?{{ request.GET.urlencode }}" class="btn-boceto-outline btn-reporte-excel">
+            <i class="fas fa-file-excel"></i> Descargar Excel
+        </a>
+        
+        <a href="{% url 'taxis:reporte_afiliados_pdf' %}?{{ request.GET.urlencode }}" class="btn-boceto-outline btn-reporte-pdf" target="_blank">
+            <i class="fas fa-file-pdf"></i> Generar PDF
+        </a>
+    </div>
+
+</div>
+
+<!-- TOTALIZADOR -->
+<div class="total-indicator">
+    {% if request.GET.q or request.GET.genero or request.GET.edo_civil %}
+        <i class="fas fa-filter mr-1"></i> Resultados Filtrados: <span class="text-dark">{{ conductores|length }}</span>
+    {% else %}
+        <i class="fas fa-list mr-1"></i> Total Registrados: <span class="text-dark">{{ conductores|length }}</span>
+    {% endif %}
+</div>
+
+<!-- ENCABEZADOS -->
+<div class="list-header-row">
+    <div class="col-num">#</div>
+    <div class="col-cedula">Cédula</div>
+    <div class="col-nombres">Nombres</div>
+    <div class="col-apellidos">Apellidos</div>
+    <div class="col-fecha">Fecha Nac.</div>
+    <div class="col-genero">Género</div>
+    <div class="col-civil">Edo. Civil</div>
+</div>
+
+<!-- LISTA -->
+<div>
+    {% for cond in conductores %}
+    <a href="{% url 'taxis:conductor_detail' cond.pk %}" class="afiliado-row">
+        
+        <div class="col-num row-text-muted">
+            {{ forloop.counter }}
+        </div>
+        <div class="col-cedula row-text-sec">
+            {{ cond.cedula_prefijo }}-{{ cond.cedula_identidad }}
+        </div>
+        <div class="col-nombres row-text-main">
+            {{ cond.nombres }}
+        </div>
+        <div class="col-apellidos row-text-main">
+            {{ cond.apellidos }}
+        </div>
+        <div class="col-fecha row-text-muted">
+            {{ cond.fecha_nacimiento|date:"d/m/Y" }}
+        </div>
+        <div class="col-genero row-text-muted">
+            {{ cond.get_sexo_display }}
+        </div>
+        <div class="col-civil row-text-muted">
+            {{ cond.get_estado_civil_display }}
+        </div>
+    </a>
+    {% empty %}
+    <div class="text-center py-5 text-muted">
+        <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+        <p class="h5">No se encontraron resultados.</p>
+        {% if request.GET %}
+            <a href="{% url 'taxis:conductor_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar filtros</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- PAGINACIÓN -->
+{% if is_paginated %}
+<div class="d-flex justify-content-center mt-4">
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo; Anterior</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<script>
+    function toggleFilters() {
+        const dropdown = document.getElementById('filterDropdown');
+        dropdown.classList.toggle('show');
+    }
+    // Cerrar click fuera
+    document.addEventListener('mouseup', function(e) {
+        var container = document.getElementById('filterDropdown');
+        var btn = document.querySelector('.filter-btn');
+        if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+            container.classList.remove('show');
+        }
+    });
+</script>
+
+{% endblock %}

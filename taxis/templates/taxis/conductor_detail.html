@@ -1,0 +1,404 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+
+{% block title %}Perfil: {{ conductor.nombres }} {{ conductor.apellidos }}{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ESTRUCTURA GENERAL Y VARIABLES --- */
+    :root {
+        --card-radius: 24px;
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --coop-green-light: #e6f7e6;
+        --text-color: #1f2937;
+        --text-muted: #6b7280;
+        --border-color: #f3f4f6;
+        --bg-input: #f9fafb;
+    }
+    body.dark-mode {
+        --coop-green-primary: #10b981;
+        --coop-green-hover: #059669;
+        --coop-green-light: rgba(16, 185, 129, 0.2);
+        --text-color: #f3f4f6;
+        --text-muted: #9ca3af;
+        --border-color: #374151;
+        --bg-input: #374151;
+    }
+
+    /* TARJETA PRINCIPAL */
+    .detail-card {
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 3.5rem 3rem 3rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        max-width: 1000px; 
+        margin: 0 auto;
+        position: relative;
+    }
+    body.dark-mode .detail-card { background: #1f2937; box-shadow: none; border-color: #374151; }
+
+    /* BOTÓN RETROCESO */
+    .btn-back-card {
+        position: absolute; top: 24px; left: 24px;
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--bg-input); color: var(--text-muted);
+        padding: 8px 16px; border-radius: 20px;
+        font-size: 0.85rem; font-weight: 600; text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+    .btn-back-card:hover { 
+        background: var(--coop-green-light); color: var(--coop-green-primary); 
+        transform: translateX(-3px);
+    }
+
+    /* CABECERA PERFIL */
+    .profile-header-simple {
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+        margin-bottom: 3rem; margin-top: 0.5rem;
+    }
+    .mini-avatar {
+        width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+        border: 4px solid white; 
+        box-shadow: 0 0 0 3px var(--coop-green-primary);
+        margin-bottom: 1.25rem;
+        background: white;
+        display: flex; align-items: center; justify-content: center;
+    }
+    
+    /* ICONO MUÑECO: COLOR VERDE RESTAURADO */
+    .mini-avatar i { 
+        font-size: 3rem; 
+        color: var(--coop-green-primary); /* Color verde principal */
+    }
+    body.dark-mode .mini-avatar { background: #111827; border-color: #1f2937; }
+    
+    .profile-title h2 { 
+        font-weight: 900; color: var(--text-color); margin: 0 0 5px 0; 
+        font-size: 1.8rem; letter-spacing: -0.5px;
+    }
+    
+    /* PILLS DE ESTADO */
+    .status-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 16px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* ACTIVO: Verde */
+    .status-active { 
+        background: #dcfce7; color: #166534; 
+    }
+    body.dark-mode .status-active {
+        background: rgba(16, 185, 129, 0.2); color: #34d399;
+    }
+    .status-active::before { 
+        content:''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; 
+    }
+    
+    /* INACTIVO: Rojo */
+    .status-inactive { 
+        background: #fee2e2; color: #991b1b; 
+    }
+    body.dark-mode .status-inactive {
+        background: rgba(239, 68, 68, 0.2); color: #f87171;
+    }
+    .status-inactive::before { 
+        content:''; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; 
+    }
+
+    /* SECCIONES Y GRID */
+    .section-title {
+        color: var(--coop-green-primary);
+        font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;
+        margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;
+    }
+    
+    .data-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    @media (max-width: 768px) { .data-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+    .data-item label {
+        display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px;
+    }
+    .data-value-box {
+        background: var(--bg-input);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem; font-weight: 500; color: var(--text-color);
+        width: 100%;
+        transition: border-color 0.2s;
+    }
+    body.dark-mode .data-value-box { border-color: #4b5563; }
+
+    /* DOCUMENTOS */
+    .doc-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        padding: 14px 20px; border-radius: 14px;
+        font-size: 0.9rem; font-weight: 700;
+        text-decoration: none !important;
+        border: 2px dashed; width: 100%; 
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .doc-btn.view {
+        background: var(--coop-green-light); 
+        color: var(--coop-green-primary); 
+        border-color: var(--coop-green-primary);
+    }
+    .doc-btn.view:hover { 
+        background: var(--coop-green-primary); 
+        color: white !important;
+        transform: translateY(-3px); 
+        box-shadow: 0 10px 15px -3px rgba(0, 179, 0, 0.2);
+    }
+    .doc-btn.missing {
+        background: #fef2f2; color: #ef4444; border-color: #ef4444; cursor: not-allowed; opacity: 0.7;
+    }
+
+    /* FOOTER ACCIONES */
+    .actions-footer {
+        display: flex; justify-content: center; gap: 20px; margin-top: 4rem;
+        border-top: 1px solid var(--border-color); padding-top: 2.5rem;
+    }
+    
+    .btn-action {
+        padding: 12px 32px; border-radius: 50px; font-weight: 700; 
+        text-decoration: none !important; font-size: 0.95rem;
+        display: inline-flex; align-items: center; gap: 10px;
+        transition: all 0.2s ease; border: none; cursor: pointer;
+    }
+    
+    .btn-edit { 
+        background: var(--coop-green-primary); color: white; 
+        box-shadow: 0 4px 6px -1px rgba(0, 179, 0, 0.3);
+    }
+    .btn-edit:hover { 
+        background: var(--coop-green-hover); 
+        color: white !important;
+        transform: translateY(-2px); 
+        box-shadow: 0 10px 15px -3px rgba(0, 179, 0, 0.4);
+    }
+    
+    .btn-delete { 
+        background: white; color: #ef4444; border: 1px solid #fee2e2;
+    }
+    .btn-delete:hover { 
+        background: #fef2f2; 
+        color: #dc2626 !important; 
+        border-color: #fecaca;
+        transform: translateY(-2px); 
+    }
+
+    /* --- MODAL MODERNO --- */
+    .modal-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        z-index: 9999; display: none; justify-content: center; align-items: center;
+        opacity: 0; transition: opacity 0.15s ease-out;
+    }
+    .modal-backdrop.show { display: flex; opacity: 1; }
+    
+    .modal-card {
+        background: white; width: 90%; max-width: 420px; padding: 2.5rem 2rem;
+        border-radius: 24px; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        text-align: center; transform: scale(0.95); opacity: 0;
+        transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.15s ease;
+    }
+    body.dark-mode .modal-card { background: #1f2937; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .modal-backdrop.show .modal-card { transform: scale(1); opacity: 1; }
+
+    .modal-icon-container {
+        width: 64px; height: 64px; background: #fef2f2; color: #ef4444;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem; font-size: 1.75rem;
+    }
+
+    .modal-actions { display: flex; gap: 12px; justify-content: center; margin-top: 2rem; }
+    
+    .btn-modal {
+        padding: 12px 20px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+        border: none; flex: 1; display: inline-flex; justify-content: center; align-items: center;
+        transition: transform 0.1s ease-out; 
+    }
+
+    .btn-modal-cancel { 
+        background: white; border: 1px solid #d1d5db; color: #374151; 
+    }
+    .btn-modal-cancel:hover { 
+        background: #f9fafb; 
+        transform: scale(1.02); 
+    }
+    .btn-modal-cancel:active { transform: scale(0.98); }
+
+    .btn-modal-confirm { 
+        background: #ef4444; color: white; 
+    }
+    .btn-modal-confirm:hover { 
+        background: #dc2626; 
+        transform: scale(1.02); 
+    }
+    .btn-modal-confirm:active { transform: scale(0.98); }
+</style>
+
+<div class="container-fluid px-2 my-5">
+    
+    <!-- TARJETA ÚNICA DE DETALLE -->
+    <div class="detail-card">
+        
+        <!-- BOTÓN RETROCESO -->
+        <a href="{% url 'taxis:conductor_list' %}" class="btn-back-card">
+            <i class="fas fa-arrow-left"></i> <span class="d-none d-sm-inline">Volver</span>
+        </a>
+
+        <!-- CABECERA -->
+        <div class="profile-header-simple">
+            {% if conductor.avatar %}
+                <img src="{{ conductor.avatar.url }}" class="mini-avatar" alt="Avatar">
+            {% else %}
+                <div class="mini-avatar"><i class="fas fa-user"></i></div>
+            {% endif %}
+            
+            <div class="profile-title">
+                <h2>{{ conductor.nombres }} {{ conductor.apellidos }}</h2>
+                {% if conductor.activo %}
+                    <span class="status-pill status-active">Activo</span>
+                {% else %}
+                    <span class="status-pill status-inactive">Inactivo</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- COLUMNA IZQUIERDA: DATOS -->
+            <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+                <div class="section-title"><i class="fas fa-id-card"></i> Datos del Afiliado</div>
+                
+                <div class="data-grid">
+                    <div class="data-item"><label>Cédula</label><div class="data-value-box">{{ conductor.cedula_prefijo }}-{{ conductor.cedula_identidad }}</div></div>
+                    <div class="data-item"><label>RIF</label><div class="data-value-box">{{ conductor.rif_prefijo }}-{{ conductor.rif }}</div></div>
+                    <div class="data-item"><label>Nacimiento</label><div class="data-value-box">{{ conductor.fecha_nacimiento|date:"d/m/Y" }}</div></div>
+                    <div class="data-item"><label>Género</label><div class="data-value-box">{{ conductor.get_sexo_display }}</div></div>
+                    <div class="data-item" style="grid-column: span 2;"><label>Estado Civil</label><div class="data-value-box">{{ conductor.get_estado_civil_display }}</div></div>
+                </div>
+
+                <!-- DOCUMENTOS -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Doc. Cédula</label>
+                        {% if conductor.cedula_archivo %}
+                            <a href="{{ conductor.cedula_archivo.url }}" target="_blank" class="doc-btn view">
+                                <i class="fas fa-file-alt"></i> Ver Archivo
+                            </a>
+                        {% else %}
+                            <div class="doc-btn missing"><i class="fas fa-times-circle"></i> No cargado</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Doc. RIF</label>
+                        {% if conductor.rif_archivo %}
+                            <a href="{{ conductor.rif_archivo.url }}" target="_blank" class="doc-btn view">
+                                <i class="fas fa-file-alt"></i> Ver Archivo
+                            </a>
+                        {% else %}
+                            <div class="doc-btn missing"><i class="fas fa-times-circle"></i> No cargado</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: CONTACTO -->
+            <div class="col-lg-6 ps-lg-5 border-start-lg" style="border-color: var(--border-color) !important;">
+                <div class="section-title"><i class="fas fa-map-marker-alt"></i> Contacto y Residencia</div>
+                
+                <div class="data-grid">
+                    <div class="data-item" style="grid-column: span 2;"><label>Email</label><div class="data-value-box text-lowercase">{{ conductor.email|default:"No registrado" }}</div></div>
+                    <div class="data-item" style="grid-column: span 2;"><label>Teléfono Principal</label><div class="data-value-box">{{ conductor.telefono_principal }}</div></div>
+                    
+                    <div class="data-item"><label>Estado</label><div class="data-value-box">{{ conductor.ubicacion.estado }}</div></div>
+                    <div class="data-item"><label>Ciudad</label><div class="data-value-box">{{ conductor.ubicacion.localidad }}</div></div>
+                    <div class="data-item"><label>Municipio</label><div class="data-value-box">{{ conductor.ubicacion.municipio }}</div></div>
+                    <div class="data-item"><label>Parroquia</label><div class="data-value-box">{{ conductor.ubicacion.parroquia }}</div></div>
+                    
+                    <div class="data-item" style="grid-column: span 2;">
+                        <label>Dirección Exacta</label>
+                        <div class="data-value-box" style="line-height: 1.6;">
+                            {{ conductor.ubicacion.sector }}, {{ conductor.ubicacion.calle_avenida }}, Casa {{ conductor.ubicacion.numero_casa }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER ACCIONES -->
+        <div class="actions-footer">
+            <a href="{% url 'taxis:conductor_update' conductor.pk %}" class="btn-action btn-edit">
+                <i class="fas fa-pen"></i> Editar Perfil
+            </a>
+            <button onclick="openModal()" class="btn-action btn-delete">
+                <i class="fas fa-trash-alt"></i> Eliminar Afiliado
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL MODERNO (OPTIMIZADO) -->
+<div id="deleteModal" class="modal-backdrop">
+    <div class="modal-card">
+        <div class="modal-icon-container"><i class="fas fa-exclamation-triangle"></i></div>
+        
+        <h3 class="fw-bold text-dark mb-2" style="font-size: 1.5rem;">¿Eliminar Afiliado?</h3>
+        
+        <!-- ALERTA INFORMATIVA -->
+        <div class="alert alert-danger border-0 d-inline-block text-start p-3 mb-4 rounded-3" style="background-color: #fef2f2; color: #991b1b; width: 100%;">
+            <div class="d-flex">
+                <i class="fas fa-info-circle mt-1 me-2 flex-shrink-0"></i>
+                <span class="small" style="line-height: 1.4;">
+                    Al eliminar a <span class="fw-bold">{{ conductor.nombres }} {{ conductor.apellidos }}</span>, se borrarán permanentemente también sus <strong style="font-weight: 800;">vehículos y registros financieros</strong>.
+                </span>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'taxis:conductor_delete' conductor.pk %}">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="button" class="btn-modal btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn-modal btn-modal-confirm">Sí, Eliminar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('deleteModal');
+    
+    function openModal() {
+        modal.style.display = 'flex';
+        // Forzar reflow mínimo
+        requestAnimationFrame(() => {
+            modal.classList.add('show');
+        });
+    }
+    
+    function closeModal() {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 150); // Tiempo exacto de la transición
+    }
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+
+{% endblock %}

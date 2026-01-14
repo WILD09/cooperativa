@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Flota Vehicular</title>
+    <style>
+        @page {
+            size: letter landscape;
+            margin: 1cm;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm; width: 26cm; top: 1cm; height: 3cm;
+            }
+            @frame content_frame {
+                left: 1cm; width: 26cm; top: 4cm; height: 16cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; width: 26cm; top: 20cm; height: 1cm;
+            }
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        td, th { border: 1px solid #000; padding: 4px; vertical-align: middle; }
+        
+        th {
+            background-color: #cc0000;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        tr.data-row td { text-align: center; font-size: 9px; }
+        tr.data-row td.text-left { text-align: left; }
+
+        .info-table td { border: 1px solid #000; }
+        .label { font-weight: bold; background-color: #f0f0f0; width: 15%; }
+        .value { width: 35%; }
+
+        .header-imgs { width: 100%; border: none; margin-bottom: 10px; }
+        .header-imgs td { border: none; vertical-align: top; }
+        .logo { width: 150px; height: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER CONTENT (Se repite en cada página) -->
+    <div id="header_content">
+        <table class="header-imgs">
+            <tr>
+                <td style="text-align: left; width: 20%;">
+                    <img src="{{ logo_transporte }}" class="logo">
+                </td>
+                <td style="text-align: center; width: 60%; padding-top: 15px;">
+                    <h2 style="margin:0; text-transform: uppercase;">FLOTA VEHICULAR DE LA COOPERATIVA</h2>
+                    <p style="margin:5px 0 0 0; font-weight:bold;">{{ fecha_hoy|date:"d-m-Y" }}</p>
+                </td>
+                <td style="text-align: right; width: 20%;">
+                    <img src="{{ logo_mision }}" class="logo">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    
+    <!-- Datos Cooperativa -->
+    <table class="info-table" style="margin-bottom: 15px;">
+        <tr>
+            <td class="label">NOMBRE DE LA LÍNEA:</td>
+            <td colspan="3" style="font-weight: bold; text-transform: uppercase;">{{ coop.nombre }}</td>
+        </tr>
+        <tr>
+            <td class="label">RIF:</td>
+            <td colspan="3">{{ coop.rif }}</td>
+        </tr>
+        <tr>
+            <td class="label">DIRECCIÓN:</td>
+            <td colspan="3">{{ coop.direccion }}</td>
+        </tr>
+        <tr>
+            <td class="label">PRESIDENTE:</td>
+            <td>{{ coop.presidente }}</td>
+            <td class="label">TELÉFONO:</td>
+            <td>{{ coop.telefono }}</td>
+        </tr>
+        <tr>
+            <td class="label">E-MAIL:</td>
+            <td style="color: blue;">{{ coop.email }}</td>
+            <td class="label">MUNICIPIO:</td>
+            <td>{{ coop.municipio }}</td>
+        </tr>
+    </table>
+
+    <!-- Tabla Vehículos -->
+    <table repeat="1"> <!-- repeat="1" repite el encabezado en cada hoja -->
+        <thead>
+            <tr>
+                <th style="width: 3%;">N°</th>
+                <th style="width: 18%;">AFILIADO</th>
+                <th style="width: 10%;">CÉDULA</th>
+                <th style="width: 10%;">MARCA</th>
+                <th style="width: 10%;">MODELO</th>
+                <th style="width: 5%;">AÑO</th>
+                <th style="width: 8%;">COLOR</th>
+                <th style="width: 10%;">PLACA</th>
+                <th style="width: 18%;">SERIAL NIV</th>
+                <th style="width: 8%;">CAPACIDAD</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vehiculos %}
+            <tr class="data-row">
+                <td>{{ forloop.counter }}</td>
+                <td class="text-left">{{ v.conductor.nombres }} {{ v.conductor.apellidos }}</td>
+                <td>{{ v.conductor.cedula_prefijo }}-{{ v.conductor.cedula_identidad }}</td>
+                <td class="text-left">{{ v.marca }}</td>
+                <td class="text-left">{{ v.modelo }}</td>
+                <td>{{ v.anio }}</td>
+                <td class="text-left">{{ v.color }}</td>
+                <td>{{ v.placa }}</td>
+                <td class="text-left">{{ v.serial_niv }}</td>
+                <td>{{ v.capacidad }} pax</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" style="padding: 20px; text-align: center;">No hay vehículos registrados con los filtros aplicados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- FOOTER CONTENT -->
+    <div id="footer_content" style="text-align: right;">
+        Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+
+</body>
+</html>

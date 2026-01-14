@@ -1,0 +1,77 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Cambiar Contraseña{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0" style="background: var(--card-bg); border-radius: 20px;">
+                
+                <!-- Encabezado de Seguridad -->
+                <div class="card-header border-0 text-center py-4" style="background: linear-gradient(45deg, #dc3545, #a71d2a); border-radius: 20px 20px 0 0;">
+                    <i class="fas fa-shield-alt fa-3x text-white mb-2"></i>
+                    <h4 class="text-white font-weight-bold m-0">Seguridad de la Cuenta</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <p class="text-muted text-center mb-4 small">
+                        <i class="fas fa-info-circle"></i> Usa una contraseña fuerte. No uses fechas de nacimiento ni nombres simples.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form-group mb-3 position-relative">
+                            <label class="font-weight-bold small text-uppercase" style="color:var(--text-color); letter-spacing:1px;">
+                                {{ field.label }}
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0" style="background: var(--bg-color); color: var(--text-color);">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </div>
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                            <small class="text-danger font-weight-bold pl-2">{{ field.errors|striptags }}</small>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted pl-2" style="font-size: 0.75rem;">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <hr class="my-4" style="border-color: var(--border-color);">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'perfil_usuario' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger font-weight-bold rounded-pill px-4 shadow-sm">
+                                Actualizar Clave
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos forzados para inputs de Django en este form */
+    input { 
+        background-color: var(--bg-color) !important; 
+        color: var(--text-color) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 0 10px 10px 0 !important;
+        padding: 12px !important;
+        width: 100%;
+    }
+    input:focus {
+        border-color: #dc3545 !important;
+        box-shadow: none !important;
+    }
+</style>
+{% endblock %}

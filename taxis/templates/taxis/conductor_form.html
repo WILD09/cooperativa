@@ -1,0 +1,768 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{% if object %}Editar{% else %}Nuevo{% endif %} Afiliado - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ESTILOS VISUALES --- */
+    :root {
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --coop-green-light: #e6f7e6;
+        --input-border: #B6ECAD;
+        --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
+        --error-color: #ef4444;
+    }
+    body.dark-mode {
+        --coop-green-primary: #10b981; 
+        --coop-green-hover: #059669;
+        --coop-green-light: rgba(16, 185, 129, 0.2);
+        --input-border: #4b5563;
+    }
+
+    /* WIZARD & FORMS */
+    .wizard-container { max-width: 950px; margin: 0 auto 3rem; }
+    .wizard-progress { display: flex; justify-content: space-between; position: relative; margin-bottom: 3rem; padding: 0 15px; }
+    .wizard-progress::before { content: ''; position: absolute; top: 22px; left: 0; width: 100%; height: 4px; background: #e5e7eb; z-index: 0; border-radius: 2px; }
+    body.dark-mode .wizard-progress::before { background: #374151; }
+    .progress-line-active { position: absolute; top: 22px; left: 0; height: 4px; background: var(--coop-green-primary); z-index: 1; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; border-radius: 2px; }
+    
+    .step-node { width: 48px; height: 48px; background: white; border: 3px solid #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2; font-weight: 800; color: #9ca3af; transition: all 0.3s ease; position: relative; cursor: default; font-size: 1.1rem; }
+    body.dark-mode .step-node { background: #1f2937; border-color: #4b5563; }
+    .step-node.active { border-color: var(--coop-green-primary); color: var(--coop-green-primary); transform: scale(1.1); box-shadow: 0 0 0 5px var(--coop-green-light); background: white; }
+    body.dark-mode .step-node.active { background: #1f2937; }
+    .step-node.completed { background: var(--coop-green-primary); border-color: var(--coop-green-primary); color: white; transform: scale(1.05); }
+    
+    .step-label { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; white-space: nowrap; transition: color 0.3s; }
+    .step-node.active .step-label, .step-node.completed .step-label { color: var(--coop-green-primary); }
+
+    .form-card { background: white; border: 2px solid var(--input-border); border-radius: 36px; padding: 2.5rem; box-shadow: 0 12px 50px rgba(0, 0, 0, 0.05); position: relative; }
+    body.dark-mode .form-card { background: #0f1a2e; border-color: #374151; box-shadow: none; }
+    .wizard-step { display: none; animation: fadeIn 0.4s ease; }
+    .wizard-step.active { display: block; }
+    
+    .section-title { font-size: 1.5rem; font-weight: 900; color: var(--coop-green-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .form-group { margin-bottom: 1.5rem; position: relative; }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 700; color: #444; margin-bottom: 5px; margin-left: 12px; }
+    body.dark-mode .form-label { color: #ccc; }
+
+    /* INPUTS & SELECTS LIMPIOS */
+    .vsms-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--input-border); background: #FFFFFF; font-size: 0.95rem; color: #333; outline: none; transition: all 0.3s ease; }
+    .vsms-input:focus { border-color: var(--coop-green-primary); box-shadow: var(--input-focus-shadow); transform: translateY(-1px); }
+    body.dark-mode .vsms-input { background: #1a2639; border-color: #2d3748; color: white; }
+    
+    .vsms-input::placeholder { color: #9ca3af; opacity: 0.7; font-style: italic; }
+
+    /* SELECTS */
+    select.vsms-input { 
+        appearance: none; 
+        -webkit-appearance: none; 
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300b300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+        background-repeat: no-repeat; 
+        background-position: right 15px center; 
+        background-size: 12px; 
+        padding-right: 40px; 
+        cursor: pointer; 
+    }
+    body.dark-mode select.vsms-input { 
+        background: #1a2639 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center / 12px !important; 
+        color: white !important; 
+        border-color: #2d3748 !important; 
+    }
+    body.dark-mode select.vsms-input option { background-color: #0f1a2e; color: white; padding: 10px; }
+
+    /* ERRORES & BOTONES */
+    .field-error-text { color: var(--error-color); font-size: 0.8rem; font-weight: 700; margin-top: 5px; margin-left: 15px; display: none; }
+    .vsms-input.is-invalid { border-color: var(--error-color) !important; }
+
+    .wizard-actions { display: flex; justify-content: space-between; margin-top: 2rem; gap: 15px; }
+    .btn-wizard { padding: 0.9rem 2rem; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none !important; transition: all 0.3s ease; }
+    
+    .btn-cancel { background: #fce7e7; color: #d32f2f; border: 1px solid #f5c6c6; }
+    .btn-cancel:hover { background: #d32f2f; color: white !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2); }
+    body.dark-mode .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
+    body.dark-mode .btn-cancel:hover { background: #ef4444; color: white !important; }
+
+    .btn-prev { background: #e5e7eb; color: #4b5563; }
+    .btn-prev:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
+
+    .btn-next, .btn-submit { background: var(--coop-green-primary); color: white; box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25); }
+    .btn-next:hover, .btn-submit:hover { background: var(--coop-green-hover); transform: translateY(-2px); }
+
+    /* --- DROPZONE DEFINITIVO CON TRANSICIÓN SUAVE --- */
+    .dropzone-container { 
+        border: 2px dashed #d1d5db; 
+        border-radius: 20px; 
+        padding: 1.5rem; 
+        text-align: center; 
+        background: #f8fafc; 
+        position: relative; 
+        min-height: 120px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        /* TRANSICIONES */
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+        transform: scale(1); /* Estado inicial */
+        overflow: hidden; 
+        cursor: pointer;
+    }
+    
+    body.dark-mode .dropzone-container { background: #1a2639; border-color: #4b5563; }
+    
+    /* EFECTO HOVER */
+    .dropzone-container:hover { 
+        border-color: var(--coop-green-primary); 
+        background: #f0fdf4; 
+        transform: scale(1.02); /* Pequeño zoom suave */
+        box-shadow: 0 8px 20px rgba(0, 179, 0, 0.1); /* Sombra suave */
+    }
+    
+    body.dark-mode .dropzone-container:hover { background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.05); }
+
+    /* VISUALS */
+    .dropzone-visuals {
+        pointer-events: none; 
+        z-index: 5;
+        position: relative;
+    }
+    .dropzone-icon { 
+        font-size: 2.5rem; 
+        color: #9ca3af; 
+        margin-bottom: 0.5rem; 
+        transition: transform 0.3s ease, color 0.3s ease; /* Transición en el icono */
+    }
+    
+    /* Icono se mueve un poco al hover */
+    .dropzone-container:hover .dropzone-icon { 
+        color: var(--coop-green-primary); 
+        transform: translateY(-5px); 
+    }
+    
+    .dropzone-text { font-size: 0.9rem; color: #6b7280; font-weight: 700; line-height: 1.5; transition: color 0.3s; }
+    .dropzone-container:hover .dropzone-text { color: #374151; }
+    body.dark-mode .dropzone-container:hover .dropzone-text { color: #e5e7eb; }
+
+    /* INPUT DE DJANGO */
+    .django-input-wrapper {
+        position: absolute;
+        top: 0; 
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0; 
+        z-index: 10; 
+        cursor: pointer;
+    }
+    .django-input-wrapper input[type="file"] {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        font-size: 100px; 
+    }
+    .django-input-wrapper a, .django-input-wrapper label, .django-input-wrapper span {
+        display: none !important;
+    }
+
+    .date-wrapper { position: relative; }
+    .calendar-trigger { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--coop-green-primary); cursor: pointer; font-size: 1.2rem; z-index: 5; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* SUMMARY */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .summary-item { background: rgba(0,0,0,0.03); padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); }
+    body.dark-mode .summary-item { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+    .summary-label { font-size: 0.75rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .summary-val { font-size: 1rem; font-weight: 700; color: var(--coop-green-primary); word-break: break-word; }
+
+    /* CORRECCIÓN ZONA POSTAL MODO OSCURO */
+    body.dark-mode input:-webkit-autofill,
+    body.dark-mode input:-webkit-autofill:hover, 
+    body.dark-mode input:-webkit-autofill:focus, 
+    body.dark-mode input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #1a2639 inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+    }
+    body.dark-mode #id_zona_postal { background-color: #1a2639 !important; color: white !important; border-color: #2d3748; }
+
+        /* --- CORRECCIÓN: NODOS MODO OSCURO (TEAL) --- */
+    
+    /* 1. Fondo base del nodo en modo oscuro (sin borde blanco) */
+    body.dark-mode .step-node {
+        background-color: #0f1a2e;      /* Fondo oscuro azulado */
+        border-color: #374151;          /* Borde gris oscuro */
+        color: #9ca3af;                 /* Texto gris */
+    }
+
+    /* 2. Nodo ACTIVO en modo oscuro (Brillo Teal) */
+    body.dark-mode .step-node.active {
+        border-color: #10b981 !important;        /* Borde Teal */
+        color: #10b981 !important;               /* Texto Teal */
+        background-color: #0f1a2e !important;    /* Fondo oscuro */
+        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.25) !important; /* Glow Teal */
+        transform: scale(1.1);
+    }
+
+    /* 3. Nodo COMPLETADO en modo oscuro (Relleno Teal) */
+    body.dark-mode .step-node.completed {
+        background-color: #10b981 !important;    /* Fondo Teal solido */
+        border-color: #10b981 !important;        /* Borde Teal */
+        color: #ffffff !important;               /* Texto Blanco */
+        transform: scale(1.05);
+        box-shadow: none;
+    }
+
+    /* 4. Texto de los pasos (Label) en modo oscuro */
+    body.dark-mode .step-label {
+        color: #9ca3af;
+    }
+    body.dark-mode .step-node.active .step-label,
+    body.dark-mode .step-node.completed .step-label {
+        color: #10b981 !important; /* Texto Teal */
+    }
+
+    /* 5. Línea de progreso en modo oscuro */
+    body.dark-mode .progress-line-active {
+        background-color: #10b981 !important;
+    }
+
+</style>
+
+<div class="header-section text-center mb-5">
+    <h1 style="color: var(--coop-green-primary); font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">
+        <i class="fas fa-user-plus"></i> {% if object %}Editar{% else %}Nuevo{% endif %} Afiliado
+    </h1>
+    <p class="text-muted fw-bold">Completa la información del socio conductor</p>
+</div>
+
+<div class="wizard-container">
+    <div class="wizard-progress">
+        <div class="progress-line-active" id="progressLine"></div>
+        <div class="step-node active" data-step="1">1 <span class="step-label">Básicos</span></div>
+        <div class="step-node" data-step="2">2 <span class="step-label">Identidad</span></div>
+        <div class="step-node" data-step="3">3 <span class="step-label">Ubicación</span></div>
+        <div class="step-node" data-step="4">4 <span class="step-label">Resumen</span></div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="wizardForm" novalidate>
+        {% csrf_token %}
+        <div class="form-card">
+            
+            <!-- PASO 1 -->
+            <div class="wizard-step active" id="step1">
+                <h5 class="section-title"><i class="fas fa-user-check"></i> Información Personal</h5>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Nombres *</label> 
+                        {% render_field form.nombres class="vsms-input" placeholder="Ej. Juan Carlos" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Apellidos *</label> 
+                        {% render_field form.apellidos class="vsms-input" placeholder="Ej. Pérez Suárez" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Fecha Nacimiento *</label> 
+                        <div class="date-wrapper">
+                            {% render_field form.fecha_nacimiento class="vsms-input date-mask" type="text" id="fechaNacInput" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" required="required" %}
+                            <input type="date" id="nativeDatePicker1" style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                            <i class="fas fa-calendar-alt calendar-trigger" onclick="openCalendar('nativeDatePicker1')"></i>
+                        </div>
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Sexo *</label> 
+                        {% render_field form.sexo class="vsms-input" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label">Estado Civil *</label> 
+                        {% render_field form.estado_civil class="vsms-input" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+                <div class="wizard-actions">
+                    {% if object %}
+                        <a href="{% url 'taxis:conductor_detail' object.pk %}" class="btn-wizard btn-cancel">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    {% else %}
+                        <a href="{% url 'taxis:conductor_list' %}" class="btn-wizard btn-cancel">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    {% endif %}
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- PASO 2 -->
+            <div class="wizard-step" id="step2">
+                <h5 class="section-title"><i class="fas fa-id-card"></i> Documentos</h5>
+                <div class="row mb-2">
+                    <div class="col-md-3 form-group"><label class="form-label">Nac. *</label> {% render_field form.cedula_prefijo class="vsms-input" required="required" %}</div>
+                    <div class="col-md-5 form-group"><label class="form-label">N° Cédula *</label> {% render_field form.cedula_identidad class="vsms-input num-only" id="id_cedula_identidad" placeholder="Ej. 12345678" required="required" %}<div class="field-error-text">Requerido.</div></div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label text-danger">Vencimiento Cédula *</label> 
+                        <div class="date-wrapper">
+                            {% render_field form.cedula_vencimiento class="vsms-input date-mask" type="text" id="cedulaVencInput" placeholder="dd/mm/aaaa" required="required" %}
+                            <input type="date" id="nativeDatePicker2" style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                            <i class="fas fa-calendar-alt calendar-trigger" onclick="openCalendar('nativeDatePicker2')"></i>
+                        </div>
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+                
+                <!-- DROPZONE CÉDULA -->
+                <div class="form-group mb-4">
+                    <label class="form-label">Archivo Cédula {% if not object.cedula_archivo %}*{% endif %}</label>
+                    <div class="dropzone-container" style="{% if object.cedula_archivo %}border-color: var(--coop-green-primary);{% endif %}">
+                        
+                        <!-- VISUALS -->
+                        <div class="dropzone-visuals">
+                            <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo %}color: var(--coop-green-primary);{% endif %}"></i>
+                            <div class="dropzone-text">
+                                {% if object.cedula_archivo %}
+                                    <span class="text-success fw-bold" style="font-size:1rem;"><i class="fas fa-check-circle"></i> Archivo actual cargado</span>
+                                    <br>
+                                    <small class="text-muted mt-2 d-block" style="font-weight: 400;">(Click en el recuadro para cambiar documento)</small>
+                                {% else %}
+                                    Click para subir
+                                    <br><small class="text-muted" style="font-weight: 400;">(PDF, JPG, PNG - Máx 10MB)</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- INPUT -->
+                        <div class="django-input-wrapper">{% render_field form.cedula_archivo %}</div>
+                    </div>
+                    <div class="field-error-text">Requerido.</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 form-group"><label class="form-label">Tipo *</label> {% render_field form.rif_prefijo class="vsms-input" required="required" %}</div>
+                    <div class="col-md-5 form-group"><label class="form-label">N° RIF *</label> {% render_field form.rif class="vsms-input num-only" id="id_rif" placeholder="Ej. 123456789" required="required" %}<div class="field-error-text">Requerido.</div></div>
+                    <div class="col-md-4 form-group">
+                        <label class="form-label text-danger">Vencimiento RIF *</label> 
+                        <div class="date-wrapper">
+                            {% render_field form.rif_vencimiento class="vsms-input date-mask" type="text" id="rifVencInput" placeholder="dd/mm/aaaa" required="required" %}
+                            <input type="date" id="nativeDatePicker3" style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                            <i class="fas fa-calendar-alt calendar-trigger" onclick="openCalendar('nativeDatePicker3')"></i>
+                        </div>
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+                
+                <!-- DROPZONE RIF -->
+                <div class="form-group mt-2">
+                    <label class="form-label">Archivo RIF {% if not object.rif_archivo %}*{% endif %}</label>
+                    <div class="dropzone-container" style="{% if object.rif_archivo %}border-color: var(--coop-green-primary);{% endif %}">
+                        
+                        <!-- VISUALS -->
+                        <div class="dropzone-visuals">
+                            <i class="fas fa-address-card dropzone-icon" style="{% if object.rif_archivo %}color: var(--coop-green-primary);{% endif %}"></i>
+                            <div class="dropzone-text">
+                                {% if object.rif_archivo %}
+                                    <span class="text-success fw-bold" style="font-size:1rem;"><i class="fas fa-check-circle"></i> Archivo actual cargado</span>
+                                    <br>
+                                    <small class="text-muted mt-2 d-block" style="font-weight: 400;">(Click en el recuadro para cambiar documento)</small>
+                                {% else %}
+                                    Click para subir
+                                    <br><small class="text-muted" style="font-weight: 400;">(PDF, JPG, PNG - Máx 10MB)</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- INPUT -->
+                        <div class="django-input-wrapper">{% render_field form.rif_archivo %}</div>
+                    </div>
+                    <div class="field-error-text">Requerido.</div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- PASO 3: UBICACIÓN -->
+            <div class="wizard-step" id="step3">
+                <h5 class="section-title"><i class="fas fa-map-marked-alt"></i> Contacto y Residencia</h5>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Email *</label> 
+                        {% render_field form.email class="vsms-input" id="id_email" placeholder="ejemplo@correo.com" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Teléfono celular *</label> 
+                        {% render_field form.telefono_principal class="vsms-input num-only" id="id_telefono_principal" placeholder="04121234567" required="required" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Teléfono celular secundario (Opcional)</label> 
+                        {% render_field form.telefono_secundario class="vsms-input num-only" placeholder="04140000000" %}
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Teléfono fijo (Opcional)</label> 
+                        {% render_field form.telefono_fijo class="vsms-input num-only" placeholder="02350000000" %}
+                    </div>
+                </div>
+                <hr style="opacity:0.1">
+                
+                <div class="row">
+                    <div class="col-md-5 form-group">
+                        <label class="form-label">Estado *</label> 
+                        {% render_field ubicacion_form.estado class="vsms-input" readonly="readonly" style="background:#f0f0f0; cursor:not-allowed;" %}
+                    </div>
+                    <div class="col-md-7 form-group">
+                        <label class="form-label">Ciudad / Localidad *</label> 
+                        {% render_field ubicacion_form.localidad class="vsms-input" required="required" id="select-localidad" %}
+                        <div class="field-error-text">Seleccione localidad.</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Municipio *</label> 
+                        <!-- Select visible pero readonly simulado -->
+                        {% render_field ubicacion_form.municipio class="vsms-input" required="required" id="id_municipio" style="pointer-events:none; background:#f9f9f9;" tabindex="-1" %}
+                        <div class="field-error-text">Requerido.</div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label">Parroquia *</label> 
+                        {% render_field ubicacion_form.parroquia class="vsms-input" required="required" id="id_parroquia" %}
+                        <div class="field-error-text">Seleccione parroquia.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 form-group"><label class="form-label">Sector/Barrio *</label> {% render_field ubicacion_form.sector class="vsms-input" placeholder="Ej. Los Laureles" required="required" %}</div>
+                    <div class="col-md-5 form-group"><label class="form-label">Calle/Av *</label> {% render_field ubicacion_form.calle_avenida class="vsms-input" placeholder="Ej. Av. Bolívar" required="required" %}</div>
+                    <div class="col-md-3 form-group"><label class="form-label">N° Casa *</label> {% render_field ubicacion_form.numero_casa class="vsms-input" placeholder="Ej. #12-A" required="required" %}</div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12 form-group">
+                        <label class="form-label">Zona Postal *</label>
+                        {% render_field ubicacion_form.zona_postal class="vsms-input" placeholder="Ej. 2301" required="required" id="id_zona_postal" %}
+                    </div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep(); updateSummary();">Ver Resumen <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- PASO 4 -->
+            <div class="wizard-step" id="step4">
+                <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Confirmar</h5>
+                <div class="summary-grid">
+                    <div class="summary-item"><div class="summary-label">Nombre</div><div class="summary-val" id="sum-nombre"></div></div>
+                    <div class="summary-item"><div class="summary-label">Cédula</div><div class="summary-val" id="sum-cedula"></div></div>
+                    <div class="summary-item"><div class="summary-label">Ubicación</div><div class="summary-val" id="sum-ubicacion"></div></div>
+                    <div class="summary-item"><div class="summary-label">Teléfono</div><div class="summary-val" id="sum-tel"></div></div>
+                    <div class="summary-item"><div class="summary-label">Email</div><div class="summary-val" id="sum-email"></div></div>
+                </div>
+                <div class="wizard-actions">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Editar</button>
+                    <button type="submit" class="btn-wizard btn-submit"><i class="fas fa-save"></i> GUARDAR</button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // SCRIPT PARA LIMPIAR BASURA DE DJANGO
+    $(document).ready(function() {
+        // Encontrar los contenedores de input
+        $('.django-input-wrapper').each(function() {
+            // Buscar si hay enlaces o labels generados por Django (ClearableFileInput)
+            // y ocultarlos explícitamente, pero dejando el input file
+            $(this).find('a, label, span').hide();
+            
+            // Si hay texto suelto (TextNodes) como "Actualmente", "Modificar", elimínalos
+            $(this).contents().filter(function() {
+                return (this.nodeType === 3 && $.trim(this.nodeValue) !== '');
+            }).remove();
+        });
+    });
+
+    // --- DATOS GEOGRÁFICOS ---
+    const CODIGOS_POSTALES = { "Juan Germán Roscio": "2301", "Francisco de Miranda": "2312", "Leonardo Infante": "2350", "José Tadeo Monagas": "2362", "Julián Mellado": "2319", "Ortiz": "2313", "San Gerónimo de Guayabal": "2318", "Las Mercedes": "2321", "Pedro Zaraza": "2332", "José Félix Ribas": "2353", "Santa María de Ipire": "2334", "Camaguán": "2314", "El Socorro": "2352", "Chaguaramas": "2357", "San José de Guaribe": "2361" };
+    const LOCALIDAD_A_MUNICIPIO = { "San Juan de los Morros": "Juan Germán Roscio", "Cantagallo": "Juan Germán Roscio", "Parapara": "Juan Germán Roscio", "Calabozo": "Francisco de Miranda", "El Rastro": "Francisco de Miranda", "Guardatinajas": "Francisco de Miranda", "El Calvario": "Francisco de Miranda", "Valle de la Pascua": "Leonardo Infante", "Espino": "Leonardo Infante", "Altagracia de Orituco": "José Tadeo Monagas", "San Rafael de Orituco": "José Tadeo Monagas", "San Francisco de Macaira": "José Tadeo Monagas", "Paso Real de Macaira": "José Tadeo Monagas", "El Sombrero": "Julián Mellado", "Sosa": "Julián Mellado", "Ortiz": "Ortiz", "San Francisco de Tiznados": "Ortiz", "San José de Tiznados": "Ortiz", "Guayabal": "San Gerónimo de Guayabal", "Cazorla": "San Gerónimo de Guayabal", "Las Mercedes del Llano": "Las Mercedes", "Cabruta": "Las Mercedes", "Santa Rita de Manapire": "Las Mercedes", "Zaraza": "Pedro Zaraza", "San José de Unare": "Pedro Zaraza", "Tucupido": "José Félix Ribas", "San Rafael de Laya": "José Félix Ribas", "Santa María de Ipire": "Santa María de Ipire", "Altamira": "Santa María de Ipire", "Camaguán": "Camaguán", "Puerto Miranda": "Camaguán", "El Socorro": "El Socorro", "Chaguaramas": "Chaguaramas", "Libertad": "Chaguaramas", "San José de Guaribe": "San José de Guaribe" };
+
+    $(document).ready(function() {
+        // Inicializar Selects Localidad
+        const $selectLoc = $('#select-localidad');
+        $selectLoc.empty().append('<option value="">Seleccione una localidad...</option>');
+        Object.keys(LOCALIDAD_A_MUNICIPIO).sort().forEach(loc => { $selectLoc.append(new Option(loc, loc)); });
+
+        let locActual = "{{ ubicacion_form.localidad.value|default_if_none:'' }}";
+        if(locActual) $selectLoc.val(locActual).trigger('change');
+
+        // Restricción Numérica
+        $('.num-only').on('input keydown paste', function(e) {
+             if ($.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1 || (e.ctrlKey === true && $.inArray(e.keyCode, [65, 67, 86]) !== -1) || (e.keyCode >= 35 && e.keyCode <= 39)) { return; }
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) { e.preventDefault(); }
+        });
+        $('.num-only').on('keyup blur', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+        $('input').attr('autocomplete', 'new-password');
+
+        // Máscara de Fecha
+        $('.date-mask').on('input', function(e) {
+            let val = this.value.replace(/\D/g, '');
+            if (val.length > 8) val = val.substring(0, 8);
+            let fmt = '';
+            if (val.length > 0) fmt = val.substring(0, 2);
+            if (val.length >= 3) fmt += '/' + val.substring(2, 4);
+            if (val.length >= 5) fmt += '/' + val.substring(4, 8);
+            this.value = fmt;
+        });
+
+        $('.date-mask').on('blur', function() { validarFechaInput(this); });
+
+        // UX: Limpiar errores al tocar
+        $('.vsms-input, .dropzone-input').on('input focus click', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid error-duplicado error-formato');
+                $(this).closest('.form-group').find('.field-error-text').hide();
+            }
+        });
+
+        // VALIDACIÓN DROPZONES
+        $('input[type="file"]').on('change', function(e) {
+            const file = this.files[0];
+            const $container = $(this).closest('.dropzone-container');
+            const $errorMsg = $container.next('.field-error-text');
+            const $textContainer = $container.find('.dropzone-text');
+
+            $(this).removeClass('is-invalid');
+            $errorMsg.hide();
+            $container.css('border-color', '#d1d5db'); 
+
+            if (!file) return;
+
+            // Validación Tamaño (10MB) y Formato
+            if (file.size > 10 * 1024 * 1024) {
+                $(this).val(''); 
+                $container.css('border-color', '#dc2626');
+                $(this).addClass('is-invalid');
+                $errorMsg.text('El archivo supera los 10MB.').show();
+                // Restaurar texto inicial
+                $textContainer.html('<i class="fas fa-cloud-upload-alt"></i> Click para subir<br><small>(PDF, JPG, PNG - Máx 10MB)</small>');
+                return;
+            }
+            const validExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!validExtensions.includes(ext)) {
+                $(this).val('');
+                $container.css('border-color', '#dc2626');
+                $(this).addClass('is-invalid');
+                $errorMsg.text('Formato no válido. Solo PDF, PNG o JPG.').show();
+                $textContainer.html('<i class="fas fa-cloud-upload-alt"></i> Click para subir<br><small>(PDF, JPG, PNG - Máx 10MB)</small>');
+                return;
+            }
+
+            $container.css('border-color', 'var(--coop-green-primary)');
+            // Actualizar vista previa al seleccionar nuevo archivo
+            $textContainer.html('<span class="text-success fw-bold"><i class="fas fa-check"></i> ' + file.name + '</span><br><small class="text-muted">Nuevo archivo seleccionado (Guardar para confirmar)</small>');
+        });
+        
+        syncDate('nativeDatePicker1', 'fechaNacInput');
+        syncDate('nativeDatePicker2', 'cedulaVencInput');
+        syncDate('nativeDatePicker3', 'rifVencInput');
+
+        // --- LISTENERS DUPLICADOS ---
+        const currentConductorId = "{{ object.pk|default:'' }}"; 
+        
+        // 1. Cédula
+        $('#id_cedula_identidad').on('blur', function() { verificarDuplicado('cedula', this.value, $(this), currentConductorId); });
+        // 2. RIF
+        $('#id_rif').on('blur', function() { verificarDuplicado('rif', this.value, $(this), currentConductorId); });
+        // 3. Email
+        $('#id_email').on('blur', function() { verificarDuplicado('email', this.value, $(this), currentConductorId); }); 
+        // 4. Teléfono
+        $('#id_telefono_principal').on('blur', function() { verificarDuplicado('telefono', this.value, $(this), currentConductorId); }); 
+    });
+
+    function verificarDuplicado(campo, valor, $input, excludeId) {
+        if (!valor || valor.length < 5) return; 
+        valor = valor.trim();
+        const urlCheck = "/taxis/ajax/check-duplicado/"; 
+        $.ajax({
+            url: urlCheck,
+            data: { 'campo': campo, 'valor': valor, 'exclude_id': excludeId },
+            success: function(data) {
+                const $errorMsg = $input.closest('.form-group').find('.field-error-text');
+                if (data.existe) {
+                    $input.addClass('is-invalid error-duplicado'); 
+                    $errorMsg.text('¡Ya registrado en sistema!').show();
+                } else {
+                    $input.removeClass('error-duplicado');
+                    if (!$input.hasClass('error-formato')) { 
+                        $input.removeClass('is-invalid');
+                        $errorMsg.hide();
+                    }
+                }
+            },
+            error: function(xhr, status, error) { console.error("Error validando duplicado:", error); }
+        });
+    }
+
+    function syncDate(pickerId, inputId) {
+        const picker = document.getElementById(pickerId);
+        if(!picker) return;
+        picker.addEventListener('input', function() { 
+            let d = this.value.split('-'); 
+            if(d.length === 3) { 
+                let formatted = `${d[2]}/${d[1]}/${d[0]}`;
+                let input = document.getElementById(inputId);
+                input.value = formatted; 
+                $(input).removeClass('is-invalid error-formato');
+                $(input).closest('.form-group').find('.field-error-text').hide();
+                validarFechaInput(input);
+            } 
+        });
+    }
+
+    function validarFechaInput(input) {
+        const inputDate = input.value;
+        const $input = $(input);
+        const $errorMsg = $input.closest('.form-group').find('.field-error-text');
+        
+        if (inputDate.length === 0) return true; 
+        if (inputDate.length < 10) { setError($input, $errorMsg, 'Fecha incompleta.'); return false; }
+
+        const parts = inputDate.split('/');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
+        const dateObj = new Date(year, month - 1, day);
+        
+        if (dateObj.getFullYear() !== year || dateObj.getMonth() + 1 !== month || dateObj.getDate() !== day) {
+            setError($input, $errorMsg, 'Fecha no válida.');
+            return false;
+        }
+
+        if ($input.attr('id') === 'fechaNacInput') {
+            const hoy = new Date();
+            let edad = hoy.getFullYear() - year;
+            const mesActual = hoy.getMonth() + 1;
+            if (mesActual < month || (mesActual === month && hoy.getDate() < day)) { edad--; }
+            if (edad < 18) {
+                let msg = "Menor de edad.";
+                if (edad < 0) msg = "Fecha futura inválida.";
+                setError($input, $errorMsg, msg);
+                return false;
+            }
+        }
+        $input.removeClass('is-invalid error-formato');
+        $errorMsg.hide();
+        return true;
+    }
+
+    function setError($input, $msg, text) { $input.addClass('is-invalid error-formato'); $msg.text(text).show(); }
+
+    let currentStep = 1;
+    function nextStep() {
+        const currentStepContainer = $('#step' + currentStep);
+        let ok = true;
+
+        const inputs = currentStepContainer.find('input[required], select[required]').not('input[type="file"]');
+        inputs.each(function() {
+            const $i = $(this);
+            const $error = $i.closest('.form-group').find('.field-error-text');
+            if(!$i.val()) { $i.addClass('is-invalid'); $error.text('Requerido.').show(); ok = false; } else if ($i.hasClass('is-invalid')) { $error.show(); ok = false; }
+        });
+
+        currentStepContainer.find('.date-mask').each(function() { if (this.value && !validarFechaInput(this)) { ok = false; } });
+
+        // VALIDACIÓN DE ARCHIVOS
+        currentStepContainer.find('input[type="file"]').each(function() {
+            const $fileInput = $(this);
+            // Solo verificamos si es requerido
+            if ($fileInput.prop('required') && this.files.length === 0) {
+                 const $dropzoneContainer = $fileInput.closest('.dropzone-container');
+                 const $error = $dropzoneContainer.next('.field-error-text');
+                 $dropzoneContainer.css('border-color', '#dc2626');
+                 $fileInput.addClass('is-invalid');
+                 $error.text('Documento obligatorio.').show();
+                 ok = false;
+            }
+            if (this.files.length === 0 && $fileInput.hasClass('is-invalid')) { ok = false; }
+        });
+
+        if (currentStepContainer.find('.error-duplicado').length > 0) { ok = false; }
+
+        if(ok) { currentStep++; showStep(currentStep); }
+    }
+    
+    $('#select-localidad').on('change', function() {
+        const localidad = this.value;
+        const municipioNombre = LOCALIDAD_A_MUNICIPIO[localidad];
+        if (municipioNombre) {
+            let municipioId = "";
+            $("#id_municipio option").each(function() { if ($(this).text().trim() === municipioNombre) { municipioId = $(this).val(); $(this).prop('selected', true); return false; } });
+            if (municipioId) cargarParroquiasYZonaPostal(municipioId, municipioNombre);
+        } else {
+            $('#id_zona_postal').val('');
+            $("#id_parroquia").html('<option value="">Seleccione parroquia...</option>');
+        }
+    });
+
+    function cargarParroquiasYZonaPostal(municipioId, municipioNombre) {
+        const cp = CODIGOS_POSTALES[municipioNombre];
+        if (cp) { $('#id_zona_postal').val(cp).css('background-color', '#e6f7e6'); setTimeout(() => $('#id_zona_postal').css('background-color', '#fff'), 1000); }
+        $.ajax({
+            url: "/taxis/ajax/load-parroquias/", 
+            data: { 'municipio': municipioId },
+            success: function (data) {
+                const $parroquia = $("#id_parroquia");
+                $parroquia.empty();
+                if (data.length > 0) {
+                    $parroquia.append('<option value="">Seleccione Parroquia...</option>');
+                    data.forEach(function (item) { $parroquia.append(new Option(item.nombre, item.id)); });
+                    if (data.length === 1) $parroquia.val(data[0].id).css('border-color', 'var(--coop-green-primary)');
+                    let parrActual = "{{ ubicacion_form.parroquia.value|default_if_none:'' }}";
+                    if(parrActual) $parroquia.val(parrActual);
+                } else { $parroquia.append('<option value="">No hay parroquias</option>'); }
+            }
+        });
+    }
+
+    function openCalendar(id) { try { document.getElementById(id).showPicker(); } catch(e) { document.getElementById(id).click(); } }
+    
+    function showStep(s) {
+        $('.wizard-step').removeClass('active'); $('#step'+s).addClass('active');
+        $('.step-node').removeClass('active completed');
+        for(let i=1; i<=4; i++) { if(i<s) $('.step-node[data-step="'+i+'"]').addClass('completed'); if(i===s) $('.step-node[data-step="'+i+'"]').addClass('active'); }
+        $('#progressLine').css('width', ((s-1)/3)*100 + '%');
+        window.scrollTo(0,0);
+    }
+    
+    function prevStep() { currentStep--; showStep(currentStep); }
+    
+    function updateSummary() {
+        $('#sum-nombre').text($('#id_nombres').val() + ' ' + $('#id_apellidos').val());
+        $('#sum-cedula').text($('#id_cedula_identidad').val());
+        $('#sum-ubicacion').text($('#select-localidad').val() + ', ' + $("#id_municipio option:selected").text());
+        $('#sum-tel').text($('#id_telefono_principal').val());
+        $('#sum-email').text($('#id_email').val());
+    }
+
+</script>
+{% endblock %}

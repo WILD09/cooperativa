@@ -7,464 +7,280 @@
 {% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
-<style>
-/* -------------------------------------------------
-   ESTILOS PRINCIPALES PARA LA PANTALLA DE LOGIN
-   ------------------------------------------------- */
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-/* Contenedor general que centra la tarjeta de login */
-.login-wrapper {
-  min-height: 100vh;
-  width: 100vw;
-  overflow-x: hidden;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  position: relative;
-  padding: 40px 12px 30px 12px;
+<style>
+/* ================= VARIABLES ================= */
+:root {
+    --coop-green-primary: #00b300;
+    --coop-green-hover: #009900;
+    --coop-green-light: #e6f7e6;
+    --bg-color: #f8f9fc;
+    --text-color: #111827;
+    --card-bg-light: #F8EBD9;
+    --side-bg-light: #E3D2C3;
+    --card-bg-dark: #0b1220;
+    --side-bg-dark: #142923;
+    --border-color: #00b300;
+    --shadow-sm: 0 12px 50px rgba(0, 179, 0, 0.2);
+    --input-glow: 0 0 12px rgba(0, 179, 0, 0.25); 
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Imágenes de fondo (modo claro y oscuro) */
-.login-bg-img,
-.login-bg-img-dark {
-  position: fixed;
-  left: 0; top: 0;
-  min-width: 100vw; min-height: 100vh;
-  width: 100vw; height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  user-select: none;
-  object-fit: cover;
+body.modo-oscuro {
+    --bg-color: #020a1f;
+    --text-color: #e2e8f0;
+    --border-color: #10b981;
+    --coop-green-primary: #10b981;
+    --coop-green-hover: #059669;
+    --shadow-sm: 0 0px 70px rgba(16, 185, 129, 0.2);
+    --input-glow: 0 0 20px rgba(16, 185, 129, 0.25); 
+}
+
+body { overflow: hidden; margin: 0; padding: 0; }
+
+.login-wrapper {
+  height: 100vh; width: 100vw; 
+  display: flex; align-items: center; justify-content: center;
+  position: relative; padding: 20px; box-sizing: border-box;
+}
+
+/* FONDOS */
+.login-bg-img, .login-bg-img-dark {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+  z-index: 0; pointer-events: none; user-select: none; object-fit: cover;
 }
 .login-bg-img-dark { display: none; }
 body.modo-oscuro .login-bg-img { display: none !important; }
 body.modo-oscuro .login-bg-img-dark { display: block !important; }
 
-/* Tarjeta principal de login (dos columnas: logo + formulario) */
+/* TARJETA */
 .login-card {
-  display: flex;
-  width: 100%;
-  max-width: 870px;
-  border-radius: 36px;
-  overflow: hidden;
-  background: #F8EBD9;
-  z-index: 1;
-  margin: auto;
-  position: relative;
+  display: flex; width: 100%; max-width: 900px; max-height: 90vh;
+  border-radius: 36px; overflow: hidden;
+  background: var(--card-bg-light);
+  z-index: 10; margin: auto; position: relative;
   align-items: stretch;
-  border: 2.6px solid #2FA24F;
-  box-shadow: 0 12px 50px #0c4c1837;
-  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+  border: 3px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
-/* Lado del logo / información institucional (izquierda) */
+/* LADO DERECHO (LOGO) */
 .login-logo-side {
-  flex: 1.05;
-  background: #E3D2C3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 38px 14px 32px 14px;
-  min-width: 220px;
-  min-height: 260px;
-  transition: background 0.22s, color 0.22s;
+  flex: 1; background: var(--side-bg-light);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px 20px; min-width: 220px;
+  transition: var(--transition);
 }
-.login-logo-side img {
-  height: 79px;
-  margin-bottom: 17px;
-}
-.login-title {
-  font-family: 'Nunito', sans-serif;
-  color: #238C35;
-  font-weight: 900;
-  text-align: center;
-  font-size: 1.18rem;
-  margin-bottom: 10px;
-  line-height: 1.1;
-}
-.login-org {
-  font-size: 1.44rem;
-  color: #238C35;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-  margin-bottom: 0;
-  white-space: nowrap;
-}
-.login-foot {
-  margin-top: 13px;
-  color: #787878;
-  font-size: 14px;
-}
+.login-logo-side img { height: 80px; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+.login-title { font-family: 'Nunito', sans-serif; color: var(--coop-green-primary); font-weight: 800; text-align: center; font-size: 1.1rem; margin-bottom: 5px; }
+.login-org { font-size: 1.3rem; color: var(--coop-green-primary); font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+.login-foot { margin-top: 15px; color: #787878; font-size: 0.8rem; font-weight: 600; }
 
-/* Lado del formulario (derecha) */
+/* LADO IZQUIERDO (FORMULARIO) */
 .login-form-side {
-  flex: 1.2;
-  background: #FFFFFF;
-  padding: 40px 30px 31px 31px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 270px;
-  border: none !important;
-  transition: background 0.22s, color 0.22s;
+  flex: 1.3; background: #FFFFFF;
+  padding: 40px 40px; display: flex; flex-direction: column; justify-content: center;
+  transition: var(--transition); overflow-y: auto;
 }
 
-/* Título de bienvenida */
 .login-welcome {
-  color: #238C35;
-  font-weight: 900;
-  font-family: 'Nunito',sans-serif;
-  text-align: center;
-  font-size: 30px;
-  margin-bottom: 16px;
-  letter-spacing: 1px;
-  transition: color 0.22s, transform 0.18s, margin-bottom 0.18s;
+  color: var(--coop-green-primary); font-weight: 900; font-family: 'Nunito',sans-serif;
+  text-align: center; font-size: 1.8rem; margin-bottom: 20px; letter-spacing: -0.5px;
 }
 
-/* Si hay error de formulario, el título se mueve ligeramente hacia arriba */
-.login-form-side.has-error .login-welcome {
-  transform: translateY(-6px);
-  margin-bottom: 6px;
-}
-
-/* Contenedor para mensajes de error/alertas */
-.login-alert-slot {
-  min-height: 0;
-  margin-bottom: 16px;
-}
-.login-alert-slot .alert {
-  padding: 8px 14px;
-  margin-bottom: 0;
-  font-size: 0.9rem;
-}
-
-/* Efecto de foco en el contenedor del campo */
-.login-field-wrap {
-  position: relative;
-  border-radius: 20px;
-  transition: box-shadow 0.18s, transform 0.08s;
-}
-.login-field-wrap:has(input:focus) {
-  box-shadow: 0 0 0 3px rgba(47,162,79,0.45);
-  transform: translateY(-1px);
-}
-
-/* Campos de texto (usuario / email) */
+/* INPUTS */
 .form-control {
-  border-radius: 20px;
-  padding: 15px 21px;
-  font-size: 1.06rem;
-  border: 2px solid #B6ECAD;
-  background: #FFFFFF;
-  color: #333333;
-  transition: background 0.22s, color 0.22s, border-color 0.22s;
+  border-radius: 25px; padding: 12px 20px; font-size: 1rem;
+  border: 2px solid #B6ECAD; background: #FFFFFF; color: #333;
+  transition: var(--transition);
 }
 .form-control:focus {
-  border-color: #2FA24F;
-  box-shadow: 0 0 0 2px #2fa24f33;
+  border-color: var(--coop-green-primary);
+  box-shadow: var(--input-glow);
+  transform: translateY(-1px);
 }
 
-/* Contenedor especial para el campo de contraseña + botón de ojo */
 .login-password-wrap {
-  display: flex;
-  align-items: center;
-  border-radius: 20px;
-  border: 2px solid #B6ECAD;
-  background: #FFFFFF;
-  padding-right: 8px;
-  box-sizing: border-box;
+  display: flex; align-items: center; border-radius: 25px;
+  border: 2px solid #B6ECAD; background: #FFFFFF; padding-right: 10px;
+  transition: var(--transition);
+}
+.login-password-wrap:focus-within {
+  border-color: var(--coop-green-primary);
+  box-shadow: var(--input-glow);
+  transform: translateY(-1px);
 }
 .login-password-wrap input.form-control {
-  border: none;
-  box-shadow: none;
-  padding-right: 0;
-}
-.login-password-toggle {
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-}
-.login-password-toggle img {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  display: block;
-}
-.login-password-wrap input.form-control:focus {
-  border: none !important;
-  box-shadow: none !important;
+  border: none !important; box-shadow: none !important; padding-right: 0; transform: none;
 }
 
-/* Botón principal "Iniciar sesión" */
+/* BOTÓN OJITO */
+.toggle-icon { 
+    color: var(--coop-green-primary); 
+    font-size: 1.1rem; 
+    transition: color 0.3s ease, transform 0.2s; 
+}
+.toggle-icon:hover { transform: scale(1.1); }
+body.modo-oscuro .toggle-icon { color: var(--coop-green-primary); }
+
+/* BOTÓN VERDE PRINCIPAL */
 .btn-green {
-  width: 100%;
-  background: #30AE37;
-  color: #FFFFFF;
-  font-weight: bold;
-  padding: 14px 0;
-  font-size: 19px;
-  border-radius: 40px;
-  margin-bottom: 12px;
-  box-shadow: none;
-  border: none;
-  transition: background 0.18s, box-shadow 0.18s;
+  width: 100%; background: var(--coop-green-primary);
+  color: #FFFFFF; font-weight: 800; padding: 12px 0; font-size: 1.1rem;
+  border-radius: 50px; margin-bottom: 15px; border: none;
+  box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25);
+  transition: var(--transition); cursor: pointer;
 }
-.btn-green:hover,
-.btn-green:focus {
-  background: #258627;
-  color: #FFFFFF;
-  box-shadow: 0 0 0 2px #2fa24f33;
+.btn-green:hover {
+  background: var(--coop-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 153, 0, 0.35);
 }
 
-/* Enlaces secundarios */
-.login-link, .login-link:visited {
-  color: #238C35;
-  text-decoration: underline;
-  margin-right: 16px;
-  transition: color 0.15s;
+/* BOTÓN "OLVIDASTE TU CONTRASEÑA" */
+.forgot-btn {
+  display: inline-block; color: var(--coop-green-primary);
+  font-weight: 700; font-size: 0.9rem;
+  text-decoration: none !important;
+  padding: 8px 20px; border-radius: 50px;
+  background: transparent; border: 2px solid transparent; 
+  transition: var(--transition); margin-bottom: 15px;
 }
-.login-link:hover, .login-link:focus {
-  color: #186324;
+.forgot-btn:hover {
+  background: rgba(0, 179, 0, 0.08); transform: translateY(-1px);
+  color: var(--coop-green-hover);
 }
+body.modo-oscuro .forgot-btn:hover { background: rgba(16, 185, 129, 0.15); }
 
-/* Bloque de registro */
-.register-box {
-  margin-top: 12px;
-  font-size: 16px;
-  text-align: center;
-}
-.no-account-text {
-  color: #238C35;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-right: 8px;
-}
+/* LINKS REGISTRO */
+.register-box { margin-top: 5px; font-size: 0.9rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.no-account-text { color: #555; font-weight: 600; }
+
 .register-highlight {
-  background: #30AE37;
-  color: #FFFFFF;
-  padding: 2px 12px;
-  border-radius: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.13s, color 0.13s, box-shadow 0.13s;
-  display: inline-block;
+  background: var(--coop-green-primary);
+  color: #FFFFFF !important; padding: 6px 18px; border-radius: 50px;
+  font-weight: 700; text-decoration: none !important;
+  font-size: 0.85rem;
+  transition: var(--transition); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-.register-highlight:hover, .register-highlight:focus {
-  background: #146410;
-  color: #FFFFFF;
-  text-decoration: underline;
-  box-shadow: 0 0 0 2px #2fa24f33;
+.register-highlight:hover {
+  background: var(--coop-green-hover);
+  transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
 
-/* Modo oscuro login */
-body.modo-oscuro .login-card {
-  background: #142923 !important;
-  border-color: #00FF5A !important;
-  box-shadow: 0 0px 70px #0b141077;
-}
-body.modo-oscuro .login-logo-side { background: #1A2723 !important; }
-body.modo-oscuro .login-title,
-body.modo-oscuro .login-org,
-body.modo-oscuro .login-foot { color: #DBDEDB !important; }
-body.modo-oscuro .login-form-side { background: #22322F !important; }
-body.modo-oscuro .login-welcome { color: #DBDEDB !important; }
-body.modo-oscuro .form-control {
-  background: #FFFFFF !important;
-  color: #113010 !important;
-  border: 2px solid #00FF5A !important;
-}
-body.modo-oscuro .login-password-wrap {
-  border-color: #00FF5A !important;
-  background: #FFFFFF !important;
-}
-body.modo-oscuro .login-password-wrap input.form-control {
-  border: none !important;
-  box-shadow: none !important;
-}
-body.modo-oscuro .form-control::placeholder { color: #97AE98 !important; }
-body.modo-oscuro .btn-green {
-  background: #00A53A !important;
-  color: #DBDEDB !important;
-  box-shadow: none !important;
-}
-body.modo-oscuro .btn-green:hover,
-body.modo-oscuro .btn-green:focus {
-  background: #146410 !important;
-  color: #FFFFFF !important;
-}
-body.modo-oscuro .login-link,
-body.modo-oscuro .login-link:visited,
-body.modo-oscuro .register-box .no-account-text { color: #DBDEDB !important; }
-body.modo-oscuro .login-link:hover,
-body.modo-oscuro .login-link:focus { color: #96FFB9 !important; }
-body.modo-oscuro .register-highlight {
-  background: #00A53A !important;
-  color: #FFFFFF !important;
-}
-body.modo-oscuro .register-highlight:hover,
-body.modo-oscuro .register-highlight:focus {
-  background: #146410 !important;
-  color: #FFFFFF !important;
-}
-
-/* Botón flotante para cambiar tema (claro/oscuro) */
+/* TOGGLE TEMA */
 .theme-toggle-btn {
-  position: fixed;
-  top: 23px;
-  right: 32px;
-  z-index: 1200;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #F9F9FB;
-  color: #30AE37;
-  box-shadow: 0 2px 8px #238c3520;
-  border: 2px solid #D8EDD6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 2rem;
-  transition: background 0.18s, color 0.16s, border 0.15s,
-              transform 0.08s, box-shadow 0.12s;
+  position: fixed; top: 20px; right: 20px; z-index: 2000;
+  width: 45px; height: 45px; border-radius: 50%;
+  background: #F9F9FB; color: var(--coop-green-primary); 
+  border: 2px solid #B6ECAD; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, border-color 0.3s;
 }
-.theme-toggle-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px #238c3538;
-}
-body.modo-oscuro .theme-toggle-btn {
-  background: #232D21;
-  color: #97F088;
-  border: 2px solid #297B36;
-}
-.theme-toggle-btn img {
-  width: 32px;
-  height: 32px;
-  pointer-events: none;
-}
+.theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.theme-toggle-btn.rotate-active { transform: rotate(360deg); }
 
-/* Responsive */
-@media (max-width: 1000px) {
-  .login-card {
-    flex-direction: column !important;
-    max-width: 98vw !important;
-    margin: 2vh auto !important;
-  }
-  .login-logo-side,
-  .login-form-side {
-    padding: 24px 18px !important;
-  }
+body.modo-oscuro .theme-toggle-btn { 
+    background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
 }
+.theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; transition: filter 0.3s; }
+body.modo-oscuro .theme-toggle-btn img { filter: invert(1) brightness(200%); }
 
-/* Ajustes móviles: recolocar botón tema */
+/* MODO OSCURO GENERAL */
+body.modo-oscuro .login-card { background: var(--card-bg-dark) !important; border-color: var(--border-color) !important; }
+body.modo-oscuro .login-logo-side { background: #0f1a2e !important; }
+body.modo-oscuro .login-form-side { background: #142035 !important; }
+body.modo-oscuro .login-title, body.modo-oscuro .login-org, body.modo-oscuro .login-welcome { color: var(--coop-green-primary) !important; }
+body.modo-oscuro .login-foot, body.modo-oscuro .no-account-text { color: #a0aec0 !important; }
+body.modo-oscuro .form-control, body.modo-oscuro .login-password-wrap { background: #1a2639 !important; border-color: #2d3748 !important; color: #fff !important; }
+body.modo-oscuro .form-control:focus, body.modo-oscuro .login-password-wrap:focus-within { border-color: var(--coop-green-primary) !important; }
+body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: var(--coop-green-primary) !important; color: #020a1f !important; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .login-wrapper { height: auto; min-height: 100vh; padding: 20px 10px; }
+  .login-card { flex-direction: column-reverse; max-width: 500px; max-height: none; }
+  .login-logo-side { min-height: 150px; padding: 20px; }
+  .login-form-side { padding: 30px 20px; }
+}
 @media (max-width: 480px) {
-  .login-card { border-radius: 28px; }
-  .login-logo-side { padding: 26px 10px 18px 10px !important; }
-  .login-logo-side img { height: 64px; margin-bottom: 10px; }
-  .login-title { font-size: 1rem; }
-  .login-org { font-size: 1.2rem; }
-  .login-foot { font-size: 12px; }
-  .login-form-side { padding: 26px 18px 20px 18px !important; }
-  .login-welcome { font-size: 1.4rem; margin-bottom: 12px; }
-  .form-control { padding: 12px 18px; font-size: 0.98rem; }
-  .btn-green { padding: 12px 0; font-size: 1rem; }
-  .register-box { font-size: 0.9rem; }
-  .no-account-text { display: block; margin-bottom: 6px; }
-
-  /* Botón tema más arriba y un poco más adentro */
-  .theme-toggle-btn {
-    top: 10px;
-    right: 16px;
-  }
+  .login-card { border-radius: 25px; border-width: 2px; }
+  .login-welcome { font-size: 1.5rem; }
+  .register-box { flex-direction: column; gap: 8px; }
+  .theme-toggle-btn { top: 15px; right: 15px; width: 40px; height: 40px; }
 }
-
 </style>
 
-<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo ondas claro" class="login-bg-img">
-<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo ondas oscuro" class="login-bg-img-dark">
+<!-- IMÁGENES DE FONDO -->
+<img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo" class="login-bg-img">
+<img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo" class="login-bg-img-dark">
 
-<button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
-  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
+<!-- BOTÓN TOGGLE -->
+<button type="button" class="theme-toggle-btn" id="themeToggleBtn">
+  <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}">
 </button>
 <script>
 (function(){
   const btn = document.getElementById("themeToggleBtn");
-  const img = document.getElementById("iconSunMoon");
   let modo = localStorage.getItem('modo-oscuro') === 'true';
-  if(modo){
-    document.body.classList.add('modo-oscuro');
-    img.style.filter="invert(0.7)";
-  }
+  if(modo){ document.body.classList.add('modo-oscuro'); }
+  
   btn.onclick = function() {
+    btn.classList.add('rotate-active');
+    setTimeout(() => btn.classList.remove('rotate-active'), 500);
     modo = !modo;
     document.body.classList.toggle('modo-oscuro');
-    localStorage.setItem('modo-oscuro', modo ? 'true' : '');
-    img.style.filter = modo ? "invert(0.7)" : "";
+    localStorage.setItem('modo-oscuro',modo?'true':'');
   };
 })();
 </script>
 
 <div class="login-wrapper">
   <div class="login-card">
-
     
-    <div class="login-form-side {% if form.errors %}has-error{% endif %}">
+    <!-- FORMULARIO -->
+    <div class="login-form-side">
       <div class="login-welcome">¡Bienvenido de nuevo!</div>
 
       <div class="login-alert-slot">
+        <!-- ALERTAS DINÁMICAS DJANGO - ELIMINADAS PARA QUE NO SE ACUMULEN -->
+        
+        <!-- SOLO MANTENEMOS ERRORES DE VALIDACIÓN DE FORMULARIO -->
         {% if form.errors %}
-          <div class="alert alert-danger" role="alert">
-            Usuario o contraseña incorrectos. Intenta de nuevo.
+          <div class="alert alert-danger fade show" role="alert" style="background-color:#f8d7da; color:#721c24; border-radius: 15px; font-size: 0.9rem; padding: 10px; margin-bottom: 15px;">
+            <i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos.
           </div>
-        {% endif %}
-        {% if messages %}
-          {% for message in messages %}
-            {% if "error" in message.tags %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-            {% endif %}
-          {% endfor %}
         {% endif %}
       </div>
 
-      <form method="post" action="/login/" style="margin-bottom: 6px;" autocomplete="off">
+      <form method="post" action="{% url 'taxis:login' %}" autocomplete="off">
         {% csrf_token %}
-        <div class="form-group mb-4 login-field-wrap">
+        
+        <div class="form-group mb-3">
           {{ form.username|add_class:"form-control"|attr:"placeholder:Usuario o correo"|attr:"autocomplete:off" }}
         </div>
-        <div class="form-group mb-4 login-field-wrap">
+        
+        <div class="form-group mb-4">
           <div class="login-password-wrap">
             {{ form.password|add_class:"form-control"|attr:"placeholder:Contraseña"|attr:"autocomplete:new-password"|attr:"id:id_login_password" }}
-            <button type="button"
-                    class="login-password-toggle"
-                    data-target="id_login_password"
-                    data-visible="false"
-                    aria-label="Mostrar u ocultar contraseña">
-              <img src="{% static 'img/mostrar_contrasena.png' %}" alt="Mostrar contraseña">
+            
+            <button type="button" class="login-password-toggle" data-target="id_login_password" data-visible="false" style="border:none; background:none; cursor:pointer; padding:0 10px;">
+              <i class="fas fa-eye toggle-icon"></i>
             </button>
           </div>
         </div>
-        <button type="submit" class="btn btn-green">
-          Iniciar sesión
+
+        <button type="submit" class="btn-green">
+          Iniciar Sesión
         </button>
       </form>
 
       <div style="text-align:center;">
-        <a class="login-link" href="{% url 'taxis:password_reset' %}">
+        <a class="forgot-btn" href="{% url 'password_reset' %}">
           ¿Olvidaste tu contraseña?
         </a>
       </div>
@@ -477,9 +293,9 @@ body.modo-oscuro .theme-toggle-btn {
       </div>
     </div>
 
-    
+    <!-- LOGO -->
     <div class="login-logo-side">
-      <img src="{% static 'img/logo.png' %}" alt="Logo cooperativa">
+      <img src="{% static 'img/logo.png' %}" alt="Logo">
       <div class="login-title">Asociación Cooperativa</div>
       <div class="login-org">WILSON TORRES 33 RL</div>
       <div class="login-foot">2026 © | Política de Privacidad</div>
@@ -489,29 +305,21 @@ body.modo-oscuro .theme-toggle-btn {
 </div>
 
 <script>
-/*
-  Lógica del "ojito" para mostrar/ocultar la contraseña:
-  - Cambia el tipo del input (password/text).
-  - Alterna el ícono de mostrar/ocultar.
-*/
 document.addEventListener('click', function(e){
   const btn = e.target.closest('.login-password-toggle');
   if (!btn) return;
   const targetId = btn.getAttribute('data-target');
   const input = document.getElementById(targetId);
-  if (!input) return;
-  const visible = btn.getAttribute('data-visible') === 'true';
-  const img = btn.querySelector('img');
-  if (visible) {
-    input.type = 'password';
-    btn.setAttribute('data-visible', 'false');
-    img.src = "{% static 'img/mostrar_contrasena.png' %}";
-    img.alt = "Mostrar contraseña";
-  } else {
+  const icon = btn.querySelector('i');
+  
+  if (input.type === 'password') {
     input.type = 'text';
-    btn.setAttribute('data-visible', 'true');
-    img.src = "{% static 'img/ocultar_contrasena.png' %}";
-    img.alt = "Ocultar contraseña";
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
   }
 });
 </script>

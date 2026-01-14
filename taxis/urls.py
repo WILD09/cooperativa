@@ -1,111 +1,95 @@
-"""
-Módulo de configuración de URLs para la aplicación 'taxis'.
-Define las rutas de acceso a vistas relacionadas con:
-- página de inicio,
-- dashboards,
-- CRUD de conductores y taxis,
-- flujo de registro y verificación por correo,
-- restablecimiento de contraseña,
-- redirección post-login.
-"""
-
 from django.urls import path
+from . import views
 
-from .views import (
-    ConductorListView,
-    ConductorDetailView,
-    TaxiListView,
-    TaxiDetailView,
-    ConductorCreateView,
-    ConductorUpdateView,
-    ConductorDeleteView,
-    TaxiCreateView,
-    TaxiUpdateView,
-    TaxiDeleteView,
-    register_presidente,
-    select_role,
-    index,
-    verify_email_view,
-    verification_success_view,
-    panel_general,
-    login_redirect_view,
-    password_reset_request_view,
-    password_reset_verify_view,
-    password_reset_new_password_view,
-    password_reset_complete_view,
-    actualizar_avatar_presidente,
-)
 
-app_name = "taxis"
+# IMPORTANTE: Este namespace debe coincidir con el usado en los templates (ej: taxis:panel_general)
+app_name = 'taxis'
+
 
 urlpatterns = [
-    # ... (anteriores)
-    path(
-        "presidente/actualizar-avatar/",
-        actualizar_avatar_presidente,
-        name="actualizar_avatar_presidente",
-    ),
-    # PÁGINAS GENERALES / DASHBOARD
-    path("", index, name="index"),
-
-    # Panel General - Nuevo dashboard principal del Presidente
-    path("panel-general/", panel_general, name="panel-general"),
+    # ==========================================
+    # 1. AUTENTICACIÓN Y REGISTRO (Públicos)
+    # ==========================================
+    path('registro/', views.select_role, name='select_role'), 
+    path('registro/presidente/', views.register_presidente, name='register_presidente'),
+    path('registro/verificacion-pendiente/', views.VerificationPendingView.as_view(), name='verification_pending'),
+    path('activar/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate_account'),
+    path('activacion-exitosa/', views.ActivationSuccessView.as_view(), name='activation_success'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
 
 
-
-    # CRUD CONDUCTORES
-
-    path("conductores/", ConductorListView.as_view(), name="conductor-list"),
-    path("conductores/<int:pk>/", ConductorDetailView.as_view(), name="conductor-detail"),
-    path("conductores/crear/", ConductorCreateView.as_view(), name="conductor-create"),
-    path("conductores/<int:pk>/editar/", ConductorUpdateView.as_view(), name="conductor-edit"),
-    path("conductores/<int:pk>/borrar/", ConductorDeleteView.as_view(), name="conductor-delete"),
-
-    # CRUD TAXIS
-    path("taxis/", TaxiListView.as_view(), name="taxi-list"),
-    path("taxis/<int:pk>/", TaxiDetailView.as_view(), name="taxi-detail"),
-    path("taxis/crear/", TaxiCreateView.as_view(), name="taxi-create"),
-    path("taxis/<int:pk>/editar/", TaxiUpdateView.as_view(), name="taxi-edit"),
-    path("taxis/<int:pk>/borrar/", TaxiDeleteView.as_view(), name="taxi-delete"),
-
-    # REGISTRO Y VERIFICACIÓN POR CORREO
-    path("seleccionar-rol/", select_role, name="select_role"),
-    path("registro/", register_presidente, name="register"),
-    path(
-        "verificar-correo/<int:user_id>/",
-        verify_email_view,
-        name="verify_email",
-    ),
-    path(
-        "verificacion/completada/",
-        verification_success_view,
-        name="verification_success",
-    ),
-
-    # REDIRECCIÓN POST-LOGIN
-    path("redirigir-despues-login/", login_redirect_view, name="login-redirect"),
-
-    # RESTABLECIMIENTO DE CONTRASEÑA POR EMAIL
-    path(
-        "password-reset/",
-        password_reset_request_view,
-        name="password_reset",
-    ),
-    path(
-        "password-reset/verify/",
-        password_reset_verify_view,
-        name="password_reset_verify",
-    ),
-    path(
-        "password-reset/new-password/",
-        password_reset_new_password_view,
-        name="password_reset_new_password",
-    ),
-    path(
-        "password-reset/complete/",
-        password_reset_complete_view,
-        name="password_reset_complete",
-    ),
+    # ==========================================
+    # 2. DASHBOARD Y PANEL (Privados)
+    # ==========================================
+    path('panel/', views.panel_general, name='panel_general'),
+    path('notificaciones/', views.NotificacionListView.as_view(), name='notificacion_list'), 
+    path('ayuda/', views.ayuda_sistema, name='ayuda_sistema'),
 
 
+    # ==========================================
+    # 3. GESTIÓN DE CONDUCTORES (AFILIADOS)
+    # ==========================================
+    path('conductores/', views.ConductorListView.as_view(), name='conductor_list'),
+    path('conductores/nuevo/', views.ConductorCreateView.as_view(), name='conductor_create'),
+    path('conductores/<int:pk>/', views.ConductorDetailView.as_view(), name='conductor_detail'),
+    path('conductores/<int:pk>/editar/', views.ConductorUpdateView.as_view(), name='conductor_update'),
+    path('conductores/<int:pk>/eliminar/', views.ConductorDeleteView.as_view(), name='conductor_delete'),
+    
+    # AJAX para carga dinámica y validaciones
+    path('ajax/load-parroquias/', views.load_parroquias, name='ajax_load_parroquias'),
+    path('ajax/check-duplicado/', views.check_duplicado, name='check_duplicado'),
+    path('ajax/buscar-chofer/', views.buscar_chofer, name='buscar_chofer'),
+
+
+    # ==========================================
+    # 4. GESTIÓN DE VEHÍCULOS
+    # ==========================================
+    path('vehiculos/', views.VehiculoListView.as_view(), name='vehiculo_list'),
+    path('vehiculos/nuevo/', views.VehiculoCreateView.as_view(), name='vehiculo_create'),
+    path('vehiculos/<int:pk>/', views.VehiculoDetailView.as_view(), name='vehiculo_detail'),
+    path('vehiculos/<int:pk>/editar/', views.VehiculoUpdateView.as_view(), name='vehiculo_update'),
+    path('vehiculos/<int:pk>/eliminar/', views.VehiculoDeleteView.as_view(), name='vehiculo_delete'),
+    
+    # --- NUEVA API DE VALIDACIÓN DE VEHÍCULOS (CORREGIDA) ---
+    path('api/validar-vehiculo/', views.validar_datos_vehiculo, name='validar_datos_vehiculo'),
+
+
+    # ==========================================
+    # 5. DOCUMENTOS Y REPORTES
+    # ==========================================
+    path('documentos/', views.DocumentoLegalListView.as_view(), name='legal_list'),
+    path('documentos/nuevo/', views.DocumentoLegalCreateView.as_view(), name='legal_create'),
+    path('documentos/<int:pk>/eliminar/', views.DocumentoLegalDeleteView.as_view(), name='legal_delete'),
+    
+    # Reportes Afiliados
+    path('reportes/afiliados/pdf/', views.reporte_afiliados_pdf, name='reporte_afiliados_pdf'),
+    path('reportes/afiliados/excel/', views.reporte_afiliados_excel, name='reporte_afiliados_excel'),
+    
+    # Reportes Vehículos
+    path('reportes/vehiculos/pdf/', views.reporte_vehiculos_pdf, name='reporte_vehiculos_pdf'),
+    path('reportes/vehiculos/excel/', views.reporte_vehiculos_excel, name='reporte_vehiculos_excel'),
+    
+    # Ficha individual
+    path('reportes/ficha/<int:pk>/', views.ReporteFichaPDF.as_view(), name='reporte_ficha'),
+
+
+    # ==========================================
+    # 6. FINANZAS Y AUDITORÍA
+    # ==========================================
+    path('finanzas/deudas/', views.DeudaListView.as_view(), name='deuda_list'),
+    path('finanzas/pagos/', views.PagoListView.as_view(), name='pago_list'),
+    path('finanzas/deudas/<int:pk>/pagar/', views.RegistrarPagoView.as_view(), name='registrar_pago'),
+    path('finanzas/cierre-mensual/', views.ejecutar_cierre_mensual, name='ejecutar_cierre_mensual'),
+    path('auditoria/', views.MovimientoAuditListView.as_view(), name='audit_list'),
+
+
+    # ==========================================
+    # 7. PERFIL Y CONFIGURACIÓN
+    # ==========================================
+    path('perfil/', views.PerfilUsuarioView.as_view(), name='perfil_usuario'),
+    path('perfil/avatar/', views.actualizar_avatar_presidente, name='actualizar_avatar_presidente'),
+    path('perfil/cambiar-clave/', views.CambiarClaveView.as_view(), name='cambiar_clave'),
+    path('perfil/eliminar-cuenta/', views.SolicitarEliminacionCuentaView.as_view(), name='solicitar_eliminacion'),
+    path('perfil/eliminar-cuenta/confirmar/', views.ConfirmarEliminacionCuentaView.as_view(), name='confirmar_eliminacion'),
+    path('configuracion/guardar/', views.guardar_configuracion, name='guardar_configuracion'),
 ]

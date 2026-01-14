@@ -1,44 +1,27 @@
 """
 validators.py
-Validador personalizado de contraseñas:
-- Controla longitud mínima.
-- Integra con el sistema de validadores de Django.
+Validadores personalizados para la aplicación:
+1. Seguridad de contraseñas.
+2. Seguridad de archivos subidos (extensión y tamaño).
 """
 
-from django.core.exceptions import ValidationError          # Excepción estándar de validación.
-from django.utils.translation import gettext as _           # Soporte para mensajes traducibles.
+import os
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
+# ====================================================================
+# 1. VALIDADOR DE CONTRASEÑAS
+# ====================================================================
 
 class CustomMinLengthValidator:
     """
     Validador de longitud mínima para contraseñas.
-
-    Uso típico (en settings.AUTH_PASSWORD_VALIDATORS):
-    {
-        'NAME': 'taxis.validators.CustomMinLengthValidator',
-        'OPTIONS': {'min_length': 6},
-    }
     """
-
     def __init__(self, min_length=6):
-        """
-        Inicializa el validador con una longitud mínima dada.
-        Por defecto, 6 caracteres.
-        """
         self.min_length = min_length
 
     def validate(self, password, user=None):
-        """
-        Método que Django llama al validar una contraseña.
-
-        - password: contraseña en texto plano.
-        - user: instancia de usuario (puede ser None).
-
-        Si la longitud de la contraseña es menor al mínimo,
-        lanza ValidationError con un mensaje corto.
-        """
         if len(password or "") < self.min_length:
-            # Mensaje corto, en una sola línea, traducible.
             raise ValidationError(
                 _("Mínimo %(min_length)d caracteres."),
                 code="password_too_short",
@@ -46,10 +29,29 @@ class CustomMinLengthValidator:
             )
 
     def get_help_text(self):
-        """
-        Texto de ayuda que Django mostrará donde corresponda
-        (por ejemplo, en formularios de cambio de contraseña).
-        """
         return _("La contraseña debe tener al menos %(min_length)d caracteres.") % {
             "min_length": self.min_length
         }
+
+# ====================================================================
+# 2. VALIDADOR DE ARCHIVOS (SEGURIDAD)
+# ====================================================================
+
+def validar_archivo_seguro(value):
+    """
+    Valida que el archivo subido sea seguro:
+    - Extensión permitida: .pdf, .jpg, .jpeg, .png
+    - Tamaño máximo: 10 MB
+    """
+    # 1. Validar Extensión
+    ext = os.path.splitext(value.name)[1]  # Obtiene la extensión (ej: .pdf)
+    valid_extensions = ['.pdf', '.jpg', '.jpeg', '.png', '.PDF', '.JPG', '.JPEG', '.PNG']
+    
+    if not ext in valid_extensions:
+        raise ValidationError('Tipo de archivo no soportado. Solo se permiten: PDF, JPG o PNG.')
+    
+    # 2. Validar Tamaño (Max 10MB)
+    filesize = value.size
+    limit_mb = 10
+    if filesize > limit_mb * 1024 * 1024:
+        raise ValidationError(f"El archivo es muy pesado. El límite es {limit_mb}MB.")

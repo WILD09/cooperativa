@@ -1,0 +1,123 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Repositorio Legal{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos Legales Dark Mode */
+    .legal-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;
+    }
+    
+    .doc-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    .doc-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: var(--coop-green-primary);
+    }
+
+    .doc-icon-wrapper {
+        background: rgba(0, 179, 0, 0.05);
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    body.dark-mode .doc-icon-wrapper { background: rgba(255,255,255,0.02); }
+
+    .doc-title {
+        font-weight: 700;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .doc-meta { color: #6c757d; font-size: 0.85rem; }
+    body.dark-mode .doc-meta { color: #9ca3af; }
+
+    .btn-float-add {
+        background: var(--coop-green-primary);
+        color: white;
+        border-radius: 50px;
+        padding: 12px 25px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.4);
+        transition: transform 0.2s;
+        border: none;
+    }
+    .btn-float-add:hover {
+        transform: scale(1.05);
+        background: var(--coop-green-hover);
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container-fluid py-2">
+    <!-- Header -->
+    <div class="legal-header">
+        <div>
+            <h2 class="font-weight-bold" style="color: var(--text-color);">
+                <i class="fas fa-folder-open text-warning mr-2"></i> Repositorio Legal
+            </h2>
+            <p class="mb-0 text-muted">Gestión de actas, reglamentos y documentos oficiales.</p>
+        </div>
+        <a href="{% url 'legal_create' %}" class="btn-float-add">
+            <i class="fas fa-plus-circle mr-2"></i> Subir Documento
+        </a>
+    </div>
+
+    <!-- Grid de Documentos -->
+    <div class="row">
+        {% for doc in documentos %}
+        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div class="doc-card">
+                <div class="card-body p-0 text-center">
+                    <!-- Icono según extensión (Visual simple) -->
+                    <div class="doc-icon-wrapper">
+                        <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                    </div>
+                    
+                    <div class="p-3">
+                        <h5 class="doc-title text-truncate" title="{{ doc.titulo }}">{{ doc.titulo }}</h5>
+                        <p class="doc-meta mb-3 text-truncate">
+                            <i class="far fa-calendar-alt mr-1"></i> {{ doc.fecha_subida|date:"d M Y" }}
+                        </p>
+                        
+                        {% if doc.descripcion %}
+                        <p class="small text-muted mb-3 text-truncate" style="max-width: 100%;">
+                            {{ doc.descripcion }}
+                        </p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 mr-2">
+                                <i class="fas fa-eye mr-1"></i> Ver
+                            </a>
+                            <a href="{% url 'legal_delete' doc.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Estado Vacío -->
+        <div class="col-12 text-center py-5">
+            <div class="p-5" style="background: var(--card-bg); border-radius: 20px; border: 2px dashed var(--border-color);">
+                <i class="fas fa-cloud-upload-alt fa-5x mb-3 text-muted"></i>
+                <h3 style="color: var(--text-color);">Tu repositorio está vacío</h3>
+                <p class="text-muted">Sube el Acta Constitutiva, RIF o Reglamentos para tenerlos siempre a mano.</p>
+                <a href="{% url 'legal_create' %}" class="btn btn-primary mt-2">Comenzar ahora</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

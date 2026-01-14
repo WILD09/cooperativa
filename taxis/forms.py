@@ -1,287 +1,325 @@
-"""
-forms.py - Formularios de la aplicación 'taxis'
-
-Incluye:
-- Formularios CRUD para Conductor, UbicacionGeografica y Taxi
-- Formularios de registro (Presidente/Asociado) con validación mejorada
-- Formulario de verificación de código de 6 dígitos
-- Formulario de autenticación por usuario/email
-- Formulario de solicitud de restablecimiento de contraseña
-"""
-
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.db import OperationalError, ProgrammingError
-from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from django.core.validators import RegexValidator
 from datetime import date
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.contrib import messages
+from .models import Conductor, Vehiculo, CustomUser, UbicacionGeografica, Pago
 
-# Importamos los modelos desde models.py (NO se definen aquí)
-from .models import Conductor, Taxi, CustomUser, UbicacionGeografica
+# ====================================================================
+# LISTA DE PAÍSES LATAM
+# ====================================================================
+LATAM_PREFIXES = [
+    ('+58', '(+58) Venezuela'), ('+54', '(+54) Argentina'), ('+591', '(+591) Bolivia'),
+    ('+55', '(+55) Brasil'), ('+56', '(+56) Chile'), ('+57', '(+57) Colombia'),
+    ('+506', '(+506) Costa Rica'), ('+53', '(+53) Cuba'), ('+593', '(+593) Ecuador'),
+    ('+503', '(+503) El Salvador'), ('+502', '(+502) Guatemala'), ('+504', '(+504) Honduras'),
+    ('+52', '(+52) México'), ('+505', '(+505) Nicaragua'), ('+507', '(+507) Panamá'),
+    ('+595', '(+595) Paraguay'), ('+51', '(+51) Perú'), ('+1787', '(+1787) Puerto Rico'),
+    ('+1809', '(+1809) Rep. Dominicana'), ('+598', '(+598) Uruguay'),
+]
+
+# Validadores Reutilizables
+solo_letras = RegexValidator(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', 'Solo se permiten letras.')
+solo_numeros = RegexValidator(r'^\d+$', 'Solo se permiten números.')
+
+def validar_unicidad_cruzada(model_field, value, exclude_pk=None):
+    """
+    Verifica que el valor no exista en Conductor ni en CustomUser.
+    Permite excluir un ID (para ediciones).
+    """
+    # 1. Verificar en Conductores
+    qs_cond = Conductor.objects.filter(**{model_field: value})
+    if exclude_pk:
+        qs_cond = qs_cond.exclude(pk=exclude_pk)
+    
+    if qs_cond.exists():
+        raise ValidationError(f"Este dato ya está registrado en otro afiliado.")
+
+    # 2. Verificar en Presidentes (Mapeo de campos)
+    user_field_map = {
+        'email': 'email',
+        'telefono_principal': 'phone_number',
+    }
+    
+    if model_field in user_field_map:
+        user_field = user_field_map[model_field]
+        # Aquí no excluimos exclude_pk porque los ID de Conductor y User son tablas distintas
+        if CustomUser.objects.filter(**{user_field: value}).exists():
+            raise ValidationError(f"Este dato ya está registrado por un directivo.")
+
+# ====================================================================
+# FORMULARIOS UBICACIÓN
+# ====================================================================
+
+class UbicacionGeograficaForm(forms.ModelForm):
+    # Estado fijo en Guárico
+    ESTADO_CHOICES = [('Guárico', 'Guárico')]
+
+    estado = forms.ChoiceField(
+        choices=ESTADO_CHOICES, 
+        widget=forms.Select(attrs={"id": "select-estado"}),
+        label="Estado"
+    )
+
+    class Meta:
+        model = UbicacionGeografica
+        fields = ["estado", "localidad", "municipio", "parroquia", "sector", "calle_avenida", "numero_casa", "zona_postal"]
+        widgets = {
+            "localidad": forms.Select(attrs={"id": "select-localidad"}),
+            "municipio": forms.Select(attrs={"id": "select-municipio"}),
+            "parroquia": forms.Select(attrs={"id": "select-parroquia"}),
+            "sector": forms.TextInput(attrs={"placeholder": "Urb/Barrio/Sector", "autocomplete": "new-password", "maxlength": "50"}),
+            "calle_avenida": forms.TextInput(attrs={"placeholder": "Calle/Av", "autocomplete": "new-password", "maxlength": "50"}),
+            "numero_casa": forms.TextInput(attrs={"placeholder": "N° Casa", "autocomplete": "new-password", "maxlength": "10"}),
+            "zona_postal": forms.TextInput(attrs={"placeholder": "Zona Postal", "readonly": "readonly"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'vsms-input'
+        
+        self.fields['localidad'].choices = [('', 'Seleccione una localidad...')]
 
 
 # ====================================================================
-# FORMULARIOS PARA CONDUCTOR, UBICACIÓN Y TAXI
+# FORMULARIOS CONDUCTOR
 # ====================================================================
 
 class ConductorForm(forms.ModelForm):
-    """
-    Formulario perfil Conductor.
-    Enfocado en la carga del documento RIF y su fecha de vencimiento.
-    """
-
-    solo_numeros = RegexValidator(r'^\d+$', 'Solo se permiten números.')
-
-    # --- CÉDULA (visual) ---
-    CEDULA_PREFIJO_CHOICES = [("V", "V"), ("E", "E")]
-    cedula_prefijo = forms.ChoiceField(
-        choices=CEDULA_PREFIJO_CHOICES,
-        initial="V",
-        label="Prefijo"
+    # --- FECHAS CON SOPORTE DD/MM/YYYY ---
+    fecha_nacimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'],
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA", "autocomplete": "off"})
     )
-    cedula_numero = forms.CharField(
-        max_length=8,
-        validators=[solo_numeros],
-        label="Cédula"
+    cedula_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'],
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA", "autocomplete": "off"})
     )
-
-    # --- RIF (texto) ---
-    rif = forms.CharField(
-        label="Número de RIF",
-        widget=forms.TextInput(attrs={"placeholder": "Ej: V-12345678-0"})
-    )
-
-    # --- FECHA (acepta dd/mm/aaaa y también yyyy-mm-dd) ---
-    fecha_vencimiento_rif = forms.DateField(
-        required=False,
-        input_formats=["%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"],
-        widget=forms.TextInput(
-            attrs={
-                "class": "perfil-input js-editable date-mask",
-                "placeholder": "dd/mm/aaaa",
-                "autocomplete": "off",
-            }
-        ),
-        label="Fecha de vencimiento",
+    rif_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'],
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA", "autocomplete": "off"})
     )
 
     class Meta:
         model = Conductor
         fields = [
-            "cedula_identidad",      # oculto
-            "estado_civil",
-            "telefono_secundario",
-            "telefono_fijo",
-            "rif",
-            "fecha_vencimiento_rif",
-            "documento_rif",
+            "nombres", "apellidos", "fecha_nacimiento", "sexo", "estado_civil",
+            "cedula_prefijo", "cedula_identidad", "cedula_archivo", "cedula_vencimiento",
+            "rif_prefijo", "rif", "rif_archivo", "rif_vencimiento",
+            "email", "telefono_principal", "telefono_secundario", "telefono_fijo",
+            "avatar"
         ]
-
+        widgets = {
+            "nombres": forms.TextInput(attrs={"placeholder": "Ej. Juan Carlos", "autocomplete": "new-password", "maxlength": "25"}),
+            "apellidos": forms.TextInput(attrs={"placeholder": "Ej. Pérez", "autocomplete": "new-password", "maxlength": "25"}),
+            # Las fechas se definen arriba explícitamente para controlar input_formats
+            "cedula_identidad": forms.TextInput(attrs={"class": "num-only", "placeholder": "Ej. 12345678", "autocomplete": "new-password", "maxlength": "11"}),
+            "rif": forms.TextInput(attrs={"placeholder": "Ej. J123456789", "autocomplete": "new-password", "maxlength": "12"}),
+            "telefono_principal": forms.TextInput(attrs={"class": "num-only", "placeholder": "04121234567", "autocomplete": "new-password", "maxlength": "11"}),
+            "telefono_secundario": forms.TextInput(attrs={"class": "num-only", "placeholder": "Opcional", "autocomplete": "new-password", "maxlength": "11"}),
+            "telefono_fijo": forms.TextInput(attrs={"class": "num-only", "placeholder": "Opcional", "autocomplete": "new-password", "maxlength": "11"}),
+            "email": forms.EmailInput(attrs={"placeholder": "correo@ejemplo.com", "autocomplete": "new-password"}),
+        }
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # 1. Asignar clases CSS a los inputs
+        for field in self.fields.values():
+            if not isinstance(field.widget, forms.CheckboxInput) and not isinstance(field.widget, forms.FileInput):
+                existing_classes = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = f"vsms-input {existing_classes}"
+            if isinstance(field.widget, forms.FileInput):
+                field.widget.attrs['class'] = 'dropzone-input'
 
-        # Ocultar campo real de cédula
-        self.fields["cedula_identidad"].widget = forms.HiddenInput()
+        # 2. LOGICA CORREGIDA PARA EDICIÓN DE ARCHIVOS
+        if self.instance.pk:
+            if self.instance.cedula_archivo:
+                self.fields['cedula_archivo'].required = False
+            
+            if self.instance.rif_archivo:
+                self.fields['rif_archivo'].required = False
+                
+            if self.instance.avatar:
+                self.fields['avatar'].required = False
 
-        # Estilos base
-        for name, field in self.fields.items():
-            if name != "documento_rif":
-                field.widget.attrs.setdefault("class", "perfil-input js-editable")
+    # --- VALIDACIONES ---
 
-        self.fields["cedula_prefijo"].widget.attrs["class"] = "perfil-select js-editable"
+    def clean_nombres(self):
+        n = self.cleaned_data.get('nombres')
+        if len(n) > 25: raise ValidationError("Máximo 25 caracteres.")
+        return n.title()
 
-        # Input file
-        self.fields["documento_rif"].widget.attrs.update({
-            "class": "file-input-real",
-            "accept": ".pdf, .jpg, .jpeg, .png",
-        })
+    def clean_apellidos(self):
+        a = self.cleaned_data.get('apellidos')
+        if len(a) > 25: raise ValidationError("Máximo 25 caracteres.")
+        return a.title()
 
-        # Bloqueo de cédula si ya existe
-        if self.instance and self.instance.pk and getattr(self.instance, "cedula_identidad", None):
-            self.fields["cedula_prefijo"].disabled = True
-            self.fields["cedula_numero"].disabled = True
-
-        # Precargar cédula visualmente
-        ci = (getattr(self.instance, "cedula_identidad", "") or "").strip()
-        if ci:
-            ci_norm = ci.replace("-", "").replace(".", "").replace(" ", "").upper()
-            if len(ci_norm) >= 2 and ci_norm[0].isalpha():
-                self.initial["cedula_prefijo"] = ci_norm[0]
-                self.initial["cedula_numero"] = ci_norm[1:]
-
-    def clean(self):
-        cleaned = super().clean()
-
-        # Armar cédula real
-        pref = cleaned.get("cedula_prefijo")
-        num = cleaned.get("cedula_numero")
-        if not (self.instance.pk and self.instance.cedula_identidad) and pref and num:
-            cleaned["cedula_identidad"] = f"{pref}{num}"
-
-        return cleaned
-
-    def clean_rif(self):
-        rif = (self.cleaned_data.get("rif") or "").upper().strip()
-
-        if len(rif) < 10:
-            raise forms.ValidationError(
-                "El RIF parece incompleto. Debe tener al menos 10 caracteres (Ej: V-12345678-0)."
-            )
-
-        if rif and rif[0] not in ["V", "E", "J", "G", "P"]:
-            raise forms.ValidationError("El RIF debe comenzar con V, E, J, G o P.")
-
-        return rif
-
-    def clean_fecha_vencimiento_rif(self):
-        fecha = self.cleaned_data.get("fecha_vencimiento_rif")
+    def clean_fecha_nacimiento(self):
+        fecha = self.cleaned_data.get("fecha_nacimiento")
         if fecha:
-            if fecha < date.today():
-                raise forms.ValidationError("El documento indicado ya está vencido. Por favor actualízalo.")
-
-            if fecha.year > date.today().year + 10:
-                raise forms.ValidationError("La fecha de vencimiento parece incorrecta (demasiado lejana).")
-
+            hoy = date.today()
+            if fecha > hoy:
+                raise ValidationError("La fecha no puede ser futura.")
+            edad = hoy.year - fecha.year - ((hoy.month, hoy.day) < (fecha.month, fecha.day))
+            if edad < 18:
+                raise ValidationError(f"El afiliado es menor de edad ({edad} años).")
         return fecha
 
+    def clean_cedula_identidad(self):
+        cedula = self.cleaned_data.get('cedula_identidad')
+        if cedula:
+            if not cedula.isdigit(): raise ValidationError("Solo números permitidos.")
+            if not (7 <= len(cedula) <= 11): raise ValidationError("Debe tener entre 7 y 11 dígitos.")
+            validar_unicidad_cruzada('cedula_identidad', cedula, self.instance.pk)
+        return cedula
 
-class UbicacionGeograficaForm(forms.ModelForm):
-    """
-    Formulario para la dirección/residencia del asociado.
-    Se usa junto con ConductorForm en Mi perfil.
-    """
-    
-    # Campo personalizado para localidad (no existe en el modelo, es solo para captura)
-    localidad = forms.CharField(
-        max_length=100, 
-        required=True,
-        label="Localidad",
-        widget=forms.TextInput(attrs={'class': 'perfil-input js-editable'})
-    )
-    
-    class Meta:
-        model = UbicacionGeografica
-        fields = [
-            "direccion",
-            "calle_avenida",
-            "sector",
-            "numero_casa",
-            "estado",
-            "municipio",
-            "parroquia",
-            "zona_postal",
-        ]
+    def clean_rif(self):
+        rif = self.cleaned_data.get('rif')
+        if rif:
+            rif = rif.upper().strip() # Normalizar
+            if len(rif) < 8: raise ValidationError("El RIF es muy corto.")
+            validar_unicidad_cruzada('rif', rif, self.instance.pk)
+        return rif
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # IMPORTANTE: Ocultamos los selects de Django para manejarlos manualmente con JS
-        self.fields["estado"].widget = forms.HiddenInput()
-        self.fields["municipio"].widget = forms.HiddenInput()
-        self.fields["parroquia"].widget = forms.HiddenInput()
-        
-        # Estilos para el resto de campos
-        for name, field in self.fields.items():
-            if name not in ["estado", "municipio", "parroquia"]:  # Excepto los ocultos
-                css = field.widget.attrs.get("class", "")
-                extra = "perfil-input js-editable"
-                field.widget.attrs["class"] = f"{css} {extra}".strip()
+    def clean_telefono_principal(self):
+        tel = self.cleaned_data.get('telefono_principal')
+        if tel:
+            if not tel.isdigit(): raise ValidationError("Solo números permitidos.")
+            if not (10 <= len(tel) <= 11): raise ValidationError("Debe tener 10 u 11 dígitos.")
+            validar_unicidad_cruzada('telefono_principal', tel, self.instance.pk)
+        return tel
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.lower().strip()
+            validar_unicidad_cruzada('email', email, self.instance.pk)
+        return email
 
-class TaxiForm(forms.ModelForm):
-    """Formulario simple para crear/editar taxis."""
-    class Meta:
-        model = Taxi
-        fields = ["placa", "modelo", "anio", "conductor"]
-
-
-class AvatarForm(forms.ModelForm):
-    """Formulario mínimo para actualizar solo la foto de perfil (avatar)."""
-    class Meta:
-        model = Conductor
-        fields = ["avatar"]
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
 
 
 # ====================================================================
-# FORMULARIOS DE USUARIO (REGISTRO, LOGIN, RESET)
+# FORMULARIOS VEHICULO
+# ====================================================================
+
+class VehiculoForm(forms.ModelForm):
+    # --- FECHAS CON SOPORTE DD/MM/YYYY ---
+    patente_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
+    licencia_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
+    rcv_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
+    medico_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
+    aceite_ultimo_cambio = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}), required=False)
+    kit_tiempo_cambio = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}), required=False)
+
+    class Meta:
+        model = Vehiculo
+        fields = "__all__"
+        widgets = {
+            # Las fechas se definen arriba
+            # --- WIDGETS PARA LOS NUEVOS CAMPOS ---
+            "bateria_amperaje": forms.TextInput(attrs={"placeholder": "Ej: 700 AMP", "maxlength": "10"}),
+            "aceite_viscosidad": forms.TextInput(attrs={"placeholder": "Ej: 15W40", "maxlength": "10"}),
+            "combustible_litros": forms.TextInput(attrs={"placeholder": "Ej: 45", "maxlength": "10"}),
+            "cauchos_medida": forms.TextInput(attrs={"placeholder": "Ej: 185/65", "maxlength": "10"}),
+            "diametro_rin": forms.TextInput(attrs={"placeholder": "Ej: 14", "maxlength": "5", "type": "number"}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs['class'] = 'vsms-input'
+
+        # --- LÓGICA DE CASCOS UNICOS ---
+        cascos_ocupados = Vehiculo.objects.all().values_list('numero_casco', flat=True)
+        if self.instance and self.instance.pk:
+            cascos_ocupados = cascos_ocupados.exclude(pk=self.instance.pk)
+            
+        if 'numero_casco' in self.fields:
+            if hasattr(self.fields['numero_casco'], 'choices'):
+                todas_opciones = self.fields['numero_casco'].choices
+                opciones_disponibles = [
+                    (k, v) for k, v in todas_opciones 
+                    if k not in cascos_ocupados
+                ]
+                self.fields['numero_casco'].choices = opciones_disponibles
+        
+        if self.instance.pk:
+            file_fields = [
+                'patente_archivo', 'licencia_archivo', 'rcv_archivo', 'medico_archivo', 
+                'circulacion_archivo', 'registro_archivo', 'foto'
+            ]
+            for f_name in file_fields:
+                if f_name in self.fields and getattr(self.instance, f_name):
+                    self.fields[f_name].required = False
+
+
+# ====================================================================
+# FORMULARIOS FINANCIEROS
+# ====================================================================
+
+class PagoForm(forms.ModelForm):
+    class Meta:
+        model = Pago
+        fields = ["monto_bs", "tasa_bcv", "comprobante"]
+        widgets = {
+            "monto_bs": forms.NumberInput(attrs={"step": "0.01", "placeholder": "Monto en Bs"}),
+            "tasa_bcv": forms.NumberInput(attrs={"step": "0.0001", "placeholder": "Tasa BCV"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'vsms-input'
+
+
+# ====================================================================
+# FORMULARIOS AUTH
 # ====================================================================
 
 class BaseUserRegisterForm(UserCreationForm):
-    """
-    Formulario base de registro que extiende UserCreationForm.
-    Campos agregados: email, nombre, apellido, fecha_nacimiento, sexo.
-    """
-    email = forms.EmailField(
-        required=True,
-        label="Correo electrónico"
-    )
-    first_name = forms.CharField(
-        required=True,
-        label="Nombre",
-        max_length=150
-    )
-    last_name = forms.CharField(
-        required=True,
-        label="Apellido",
-        max_length=150
-    )
+    email = forms.EmailField(required=True, label="Correo electrónico", error_messages={'required': 'Obligatorio.'})
+    first_name = forms.CharField(required=True, label="Nombres", max_length=20, validators=[solo_letras], error_messages={'required': 'Obligatorio.', 'max_length': 'Máximo 20 caracteres.'})
+    last_name = forms.CharField(required=True, label="Apellidos", max_length=20, validators=[solo_letras], error_messages={'required': 'Obligatorio.', 'max_length': 'Máximo 20 caracteres.'})
     fecha_nacimiento = forms.DateField(
-        required=True,
-        label="Fecha de nacimiento",
-        widget=forms.TextInput(attrs={"placeholder": "dd/mm/aaaa"}),
-        input_formats=["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"],
+        required=True, 
+        label="Fecha de nacimiento", 
+        widget=forms.DateInput(attrs={"type": "date"}), # Este input es nativo (yyyy-mm-dd), no necesita format
+        error_messages={'required': 'Obligatorio.'}
     )
-    sexo = forms.ChoiceField(
-        choices=[("", "Seleccionar género"), ("M", "Masculino"), ("F", "Femenino")],
-        label="Género",
-    )
+    sexo = forms.ChoiceField(choices=[("", "Seleccionar género"), ("M", "Masculino"), ("F", "Femenino")], label="Género", error_messages={'required': 'Obligatorio.'})
 
     class Meta:
         model = CustomUser
-        fields = (
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "fecha_nacimiento",
-            "sexo",
-            "role",
-            "password1",
-            "password2",
-        )
+        fields = ("username", "first_name", "last_name", "email", "fecha_nacimiento", "sexo", "role")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ocultar campos que se llenan automáticamente
         self.fields["username"].required = False
         self.fields["username"].widget = forms.HiddenInput()
-
         self.fields["role"].required = False
         self.fields["role"].widget = forms.HiddenInput()
-
-        # Estilos Bootstrap
         for name, field in self.fields.items():
-            field.widget.attrs.setdefault("class", "form-control")
-            if field.required:
-                field.widget.attrs["required"] = "required"
+            if name not in ['username', 'role']:
+                field.widget.attrs['class'] = 'vsms-input'
 
     def clean_email(self):
         email = self.cleaned_data.get("email", "").lower().strip()
-        try:
-            existing = CustomUser.objects.filter(email=email).first()
-        except (OperationalError, ProgrammingError):
-            existing = None
-
-        if existing:
-            raise forms.ValidationError("Este correo ya está registrado.")
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("Correo ya registrado.")
         return email
 
     def clean(self):
         cleaned = super().clean()
         username = cleaned.get("username")
         email = cleaned.get("email")
-
-        # Generar username basado en email si no existe
         if not username and email:
             base = email.split("@")[0]
             candidate = base
@@ -290,222 +328,90 @@ class BaseUserRegisterForm(UserCreationForm):
                 candidate = f"{base}{i}"
                 i += 1
             cleaned["username"] = candidate
-            self.cleaned_data["username"] = candidate
         return cleaned
 
     def clean_fecha_nacimiento(self):
         value = self.cleaned_data.get("fecha_nacimiento")
-        if value is None:
-            raise forms.ValidationError("Este campo es obligatorio.")
-        if value > date.today():
-            raise forms.ValidationError("La fecha no puede ser en el futuro.")
-        
-        # Validar mayor de edad (18)
-        hoy = date.today()
-        edad = hoy.year - value.year - ((hoy.month, hoy.day) < (value.month, value.day))
-        if edad < 18:
-            raise forms.ValidationError("Debes ser mayor de 18 años.")
+        if value:
+            hoy = date.today()
+            edad = hoy.year - value.year - ((hoy.month, hoy.day) < (value.month, value.day))
+            if edad < 18:
+                raise forms.ValidationError("Debes ser mayor de 18 años.")
+            if edad > 100:
+                raise forms.ValidationError("Fecha no válida.")
         return value
-
-    def clean_password1(self):
-        pwd = self.cleaned_data.get("password1") or ""
-        if len(pwd) < 6:
-            raise forms.ValidationError("La contraseña debe tener al menos 6 caracteres.")
-        if len(pwd) > 20:
-            raise forms.ValidationError("La contraseña no puede tener más de 20 caracteres.")
-        return pwd
-
-    def clean_password2(self):
-        pwd1 = self.cleaned_data.get("password1")
-        pwd2 = self.cleaned_data.get("password2")
-        if pwd1 and pwd2 and pwd1 != pwd2:
-            raise forms.ValidationError("Las contraseñas no coinciden.")
-        return pwd2
-
-
-# Opciones de países para teléfono
-PHONE_COUNTRY_CHOICES = [
-    ("+58", "(+58) Venezuela"),
-    ("+57", "(+57) Colombia"),
-    ("+593", "(+593) Ecuador"),
-    ("+51", "(+51) Perú"),
-    ("+52", "(+52) México"),
-    ("+54", "(+54) Argentina"),
-    ("+55", "(+55) Brasil"),
-    ("+56", "(+56) Chile"),
-    ("+505", "(+505) Nicaragua"),
-    ("+506", "(+506) Costa Rica"),
-    ("+591", "(+591) Bolivia"),
-    ("+598", "(+598) Uruguay"),
-    ("+595", "(+595) Paraguay"),
-    ("+502", "(+502) Guatemala"),
-    ("+503", "(+503) El Salvador"),
-    ("+504", "(+504) Honduras"),
-    ("+507", "(+507) Panamá"),
-    ("+53", "(+53) Cuba"),
-    ("+1809", "(+1-809) Rep. Dominicana"),
-    ("+1787", "(+1-787) Puerto Rico"),
-]
 
 
 class PresidenteRegisterForm(BaseUserRegisterForm):
-    phone_country = forms.ChoiceField(
-        choices=PHONE_COUNTRY_CHOICES,
-        label="País",
-        required=True,
-    )
-    phone_number = forms.CharField(
-        max_length=15,
-        label="Número de teléfono",
-        required=True,
-    )
+    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput(attrs={'placeholder': 'Mín. 6 caracteres', 'class': 'vsms-input'}), min_length=6, max_length=20, error_messages={'required': 'Obligatorio.', 'min_length': 'Mínimo 6 caracteres.', 'max_length': 'Máximo 20 caracteres.'})
+    password2 = forms.CharField(label='Confirmar contraseña', widget=forms.PasswordInput(attrs={'placeholder': 'Repite contraseña', 'class': 'vsms-input'}), max_length=20, error_messages={'required': 'Obligatorio.'})
+    phone_country = forms.ChoiceField(choices=LATAM_PREFIXES, label="País", required=True, widget=forms.Select(attrs={'class': 'vsms-input'}), error_messages={'required': 'Obligatorio.'})
+    phone_number = forms.CharField(min_length=10, max_length=15, label="Número de teléfono", required=True, validators=[solo_numeros], widget=forms.TextInput(attrs={'class': 'vsms-input', 'placeholder': '0412-1234567'}), error_messages={'required': 'Obligatorio.', 'min_length': 'Mínimo 10 dígitos.', 'max_length': 'Máximo 15 dígitos.', 'invalid': 'Solo se permiten números.'})
 
     class Meta(BaseUserRegisterForm.Meta):
-        fields = BaseUserRegisterForm.Meta.fields + (
-            "phone_country",
-            "phone_number",
-        )
-
+        fields = BaseUserRegisterForm.Meta.fields + ("phone_country", "phone_number")
+    
     def clean_phone_number(self):
-        num = self.cleaned_data.get("phone_number", "").replace("-", "").strip()
-        if not num.isdigit():
-            raise forms.ValidationError("Solo se permiten números.")
-        if len(num) < 6:
-            raise forms.ValidationError("Número demasiado corto.")
+        numero = self.cleaned_data.get('phone_number')
+        if not numero.isdigit():
+            raise forms.ValidationError("Solo números.")
+        if CustomUser.objects.filter(phone_number=numero).exists():
+            raise forms.ValidationError("Este teléfono ya está registrado.")
+        return numero
 
-        phone_country = self.cleaned_data.get("phone_country")
-        full = f"{phone_country}{num}" if phone_country else num
-
-        if CustomUser.objects.filter(phone_number=full, is_phone_verified=True).exists():
-            raise forms.ValidationError("Este número ya está registrado.")
-        return num
-
-
-class AsociadoRegisterForm(BaseUserRegisterForm):
-    phone_country = forms.ChoiceField(
-        choices=PHONE_COUNTRY_CHOICES,
-        label="País",
-        required=True,
-    )
-    phone_number = forms.CharField(
-        max_length=15,
-        label="Número de teléfono",
-        required=True,
-    )
-
-    class Meta(BaseUserRegisterForm.Meta):
-        fields = BaseUserRegisterForm.Meta.fields + (
-            "phone_country",
-            "phone_number",
-        )
-
-    def clean_phone_number(self):
-        raw = self.cleaned_data.get("phone_number", "") or ""
-        num = raw.replace("-", "").replace(" ", "").strip()
-        if not num.isdigit():
-            raise forms.ValidationError("Solo se permiten números.")
-        if len(num) < 6:
-            raise forms.ValidationError("Número demasiado corto.")
-
-        phone_country = self.cleaned_data.get("phone_country")
-        full = f"{phone_country}{num}" if phone_country else num
-
-        if CustomUser.objects.filter(phone_number=full, is_email_verified=True).exists():
-            raise forms.ValidationError("Este número ya está registrado.")
-        return num
-
-
-class EmailOrUsernameAuthenticationForm(AuthenticationForm):
-    """
-    Login con username O email.
-    """
-    def confirm_login_allowed(self, user):
-        super().confirm_login_allowed(user)
-        if not user.is_email_verified:
-            raise forms.ValidationError(
-                _("Debes verificar tu correo electrónico antes de iniciar sesión."),
-                code="inactive",
-            )
-
-    def clean(self):
-        username = self.data.get("username", "").strip()
-        password = self.data.get("password", "").strip()
-
-        if not username or not password:
-            raise forms.ValidationError(
-                _("Debes completar usuario/correo y contraseña."),
-                code="invalid_login",
-            )
-
-        from django.contrib.auth import authenticate
-
-        # 1. Intentar como username
-        user = authenticate(self.request, username=username, password=password)
-
-        # 2. Si falla, intentar como email
-        if user is None:
-            try:
-                user_obj = CustomUser.objects.filter(email__iexact=username).first()
-                if user_obj:
-                    user = authenticate(
-                        self.request,
-                        username=user_obj.username,
-                        password=password,
-                    )
-                else:
-                    user = None
-            except (CustomUser.DoesNotExist, MultipleObjectsReturned):
-                user = None
-
-        if user is None:
-            raise forms.ValidationError(
-                _("Usuario o contraseña incorrectos. Intenta de nuevo."),
-                code="invalid_login",
-            )
-
-        self.confirm_login_allowed(user)
-        self.user_cache = user
-        self.cleaned_data["username"] = username
-        self.cleaned_data["password"] = password
-        return self.cleaned_data
-
-
-class PasswordResetRequestForm(forms.Form):
-    email = forms.EmailField(
-        label="Correo electrónico",
-        required=True
-    )
-
-    def clean_email(self):
-        email = self.cleaned_data["email"].lower().strip()
-        if not CustomUser.objects.filter(email=email, is_email_verified=True).exists():
-            raise forms.ValidationError("No existe una cuenta activa con este correo.")
-        return email
+    def save(self, commit=True):
+        user = super(BaseUserRegisterForm, self).save(commit=False)
+        user.username = self.cleaned_data["username"]
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.email = self.cleaned_data["email"]
+        user.fecha_nacimiento = self.cleaned_data["fecha_nacimiento"]
+        user.sexo = self.cleaned_data["sexo"]
+        user.role = self.cleaned_data.get("role", "presidente")
+        user.phone_country = self.cleaned_data["phone_country"]
+        user.phone_number = self.cleaned_data["phone_number"]
+        user.set_password(self.cleaned_data["password1"])
+        if commit: user.save()
+        return user
 
 
 class VerificationCodeForm(forms.Form):
-    code = forms.CharField(
-        max_length=6,
-        min_length=6,
-        label="Código de verificación",
-        required=True,
-        error_messages={
-            "required": "Debes ingresar el código.",
-            "min_length": "El código debe tener 6 dígitos.",
-            "max_length": "El código debe tener 6 dígitos.",
-        },
-        widget=forms.TextInput(
-            attrs={
-                "autocomplete": "off",
-                "maxlength": "6",
-                "class": "form-control",
-                "placeholder": "000000",
-            }
-        ),
-    )
-
+    code = forms.CharField(max_length=6, min_length=6, label="Código", widget=forms.TextInput(attrs={"placeholder": "000000"}))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['code'].widget.attrs['class'] = 'vsms-input'
     def clean_code(self):
         code = self.cleaned_data.get("code", "").strip()
-        if not code.isdigit():
-            raise forms.ValidationError("El código debe contener solo dígitos.")
+        if not code.isdigit(): raise forms.ValidationError("Solo dígitos.")
         return code
+
+
+class EmailOrUsernameAuthenticationForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'vsms-input'
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        if username and password:
+            if '@' in username:
+                User = get_user_model()
+                try:
+                    user = User.objects.get(email__iexact=username)
+                    username = user.username
+                    self.cleaned_data['username'] = username
+                except User.DoesNotExist: pass
+        return super().clean()
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        if not user.is_active: raise forms.ValidationError("Esta cuenta está inactiva.", code="inactive")
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        User = get_user_model()
+        if not User.objects.filter(email=email, is_active=True).exists():
+            raise forms.ValidationError("No existe una cuenta activa asociada a este correo.")
+        return email

@@ -1,0 +1,168 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Registrar Pago - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* === VARIABLES BASE Y MODO CLARO === */
+    :root {
+        --card-bg: #ffffff;
+        --input-bg: #f8f9fa;
+        --border-color: #e2e8f0;
+        --text-color: #334155;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* === ESTILOS ESPECÍFICOS MODO OSCURO (Activados por el Toggle) === */
+    body.dark-mode {
+        --card-bg: #1e293b;       /* Azul oscuro grisáceo */
+        --input-bg: #334155;      /* Gris más claro para inputs */
+        --border-color: #475569;  /* Bordes sutiles */
+        --text-color: #f1f5f9;    /* Texto blanco hueso */
+        --shadow-sm: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Ajustes forzados para inputs en modo oscuro */
+    body.dark-mode .form-control {
+        background-color: var(--input-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+    body.dark-mode .form-control::placeholder {
+        color: #94a3b8;
+    }
+    body.dark-mode .form-card {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+    }
+    body.dark-mode .text-muted {
+        color: #cbd5e1 !important; /* Aclara el texto secundario */
+    }
+
+    /* === ESTILOS DE ESTRUCTURA (Tu diseño original) === */
+    .form-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        max-width: 600px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+
+    .info-summary {
+        background: rgba(16, 185, 129, 0.1); /* Verde transparente adaptable */
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--coop-green-primary);
+        color: var(--coop-green-primary);
+    }
+    
+    .info-summary h5 { margin-bottom: 0.5rem; font-weight: 700; color: inherit; }
+    .info-summary p { margin: 0; font-size: 0.9rem; opacity: 0.9; }
+
+    .form-group label {
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        background-color: var(--input-bg);
+        border: 2px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        background-color: var(--input-bg);
+        color: var(--text-color);
+    }
+
+    .btn-submit {
+        background: var(--coop-green-primary);
+        color: white;
+        font-weight: 600;
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: none;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .btn-submit:hover { background: var(--coop-green-hover); transform: translateY(-2px); }
+</style>
+
+<div class="container mt-4">
+    <div class="header-section text-center mb-4">
+        <h1 style="color: var(--coop-green-primary); font-weight: 700;">Registrar Pago</h1>
+    </div>
+
+    <div class="form-card">
+        <!-- Resumen de la Deuda -->
+        <div class="info-summary">
+            <h5><i class="fas fa-user-circle mr-2"></i>{{ deuda.conductor.nombres }} {{ deuda.conductor.apellidos }}</h5>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <span>Mes: <strong>{{ deuda.mes }}/{{ deuda.anio }}</strong></span>
+                <span class="badge bg-success text-white" style="font-size: 0.9em;">Deuda: ${{ deuda.monto_usd }}</span>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Campo Tasa BCV (Movido arriba por lógica de UX) -->
+            <div class="form-group mb-3">
+                <label>Tasa BCV del día</label>
+                {{ form.tasa_bcv }}
+                <small class="text-muted" style="font-size: 0.8em;">Ingrese la tasa para calcular los Bolívares.</small>
+            </div>
+
+            <!-- Campo Monto Bs -->
+            <div class="form-group mb-3">
+                <label>Monto en Bolívares (Bs)</label>
+                {{ form.monto_bs }}
+            </div>
+
+            <!-- Campo Comprobante -->
+            <div class="form-group mb-4">
+                <label>Comprobante de Pago</label>
+                {{ form.comprobante }}
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check-circle mr-2"></i> Confirmar Pago
+            </button>
+            
+            <div class="text-center mt-3">
+                <a href="{% url 'deuda_list' %}" class="text-muted small" style="text-decoration: none;">Cancelar y volver</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Script para cálculo automático (Mejora UX) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTasa = document.querySelector('input[name="tasa_bcv"]');
+        const inputBs = document.querySelector('input[name="monto_bs"]');
+        // Convertimos la coma decimal de Python a punto para JS
+        const montoUsd = parseFloat("{{ deuda.monto_usd }}".replace(',', '.'));
+
+        if(inputTasa && inputBs) {
+            inputTasa.addEventListener('input', function() {
+                const tasa = parseFloat(this.value);
+                if (!isNaN(tasa) && tasa > 0) {
+                    // Cálculo: Deuda USD * Tasa = Monto en Bs
+                    const resultado = (montoUsd * tasa).toFixed(2);
+                    inputBs.value = resultado;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
