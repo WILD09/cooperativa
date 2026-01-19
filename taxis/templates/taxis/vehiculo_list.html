@@ -11,12 +11,16 @@
         --coop-green-hover: #009900;
         --coop-green-light: #e6f7e6;
         --border-color: #e5e7eb;
-        --text-color: #374151; /* Gris oscuro para texto normal */
-        
+        --text-color: #374151;
+        /* Gris oscuro para texto normal */
+
         /* Colores específicos para reportes */
-        --excel-color: #107c41; /* Verde Excel oficial */
-        --pdf-color: #ef4444;   /* Rojo PDF */
+        --excel-color: #107c41;
+        /* Verde Excel oficial */
+        --pdf-color: #ef4444;
+        /* Rojo PDF */
     }
+
     body.dark-mode {
         --coop-green-primary: #10b981;
         --coop-green-hover: #059669;
@@ -25,220 +29,530 @@
         --text-color: #d1d5db;
     }
 
-    .page-title { 
-        color: var(--coop-green-primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; 
-        display: flex; align-items: center; gap: 10px;
+    .page-title {
+        color: var(--coop-green-primary);
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     /* --- BARRA DE BÚSQUEDA --- */
     .search-container {
-        display: flex; align-items: center; max-width: 600px; position: relative;
+        display: flex;
+        align-items: center;
+        max-width: 600px;
+        position: relative;
     }
+
     .search-input-group {
-        position: relative; flex-grow: 1; display: flex; align-items: center;
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
     }
+
     .search-input {
-        width: 100%; height: 48px;
-        border: 2px solid var(--coop-green-primary); border-radius: 25px;
-        padding: 0 1rem 0 3rem; 
-        color: var(--text-color); outline: none; background-color: transparent;
-        transition: all 0.3s ease; font-size: 1rem;
+        width: 100%;
+        height: 48px;
+        border: 2px solid var(--coop-green-primary);
+        border-radius: 25px;
+        padding: 0 1rem 0 3rem;
+        color: var(--text-color);
+        outline: none;
+        background-color: transparent;
+        transition: all 0.3s ease;
+        font-size: 1rem;
     }
+
     .search-input:focus {
-        box-shadow: 0 0 0 4px var(--coop-green-light); transform: scale(1.01);
+        box-shadow: 0 0 0 4px var(--coop-green-light);
+        transform: scale(1.01);
     }
+
     .search-input::placeholder {
-        color: #9ca3af; font-weight: 400; opacity: 0.8;
+        color: #9ca3af;
+        font-weight: 400;
+        opacity: 0.8;
     }
+
     .search-icon {
-        position: absolute; left: 15px; z-index: 10; 
-        color: var(--coop-green-primary); font-size: 1.1rem; pointer-events: none;
+        position: absolute;
+        left: 15px;
+        z-index: 10;
+        color: var(--coop-green-primary);
+        font-size: 1.1rem;
+        pointer-events: none;
     }
 
     /* --- BOTÓN FILTRO --- */
     .filter-btn {
-        background-color: var(--coop-green-light); color: var(--coop-green-primary); 
-        border: 2px solid var(--coop-green-primary); border-radius: 12px;
-        width: 48px; height: 48px; margin-left: 15px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: all 0.3s ease;
+        background-color: var(--coop-green-light);
+        color: var(--coop-green-primary);
+        border: 2px solid var(--coop-green-primary);
+        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        margin-left: 15px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
-    .filter-btn:hover { background-color: var(--coop-green-primary); color: white; transform: rotate(15deg); }
+
+    .filter-btn:hover {
+        background-color: var(--coop-green-primary);
+        color: white;
+        transform: rotate(15deg);
+    }
 
     /* --- MENU DESPLEGABLE --- */
     .filter-dropdown {
-        position: absolute; top: 115%; right: 0; 
-        background: white; border-radius: 16px;
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
-        width: 320px; padding: 25px; z-index: 100; 
-        display: none; animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: absolute;
+        top: 115%;
+        right: 0;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border-color);
+        width: 320px;
+        padding: 25px;
+        z-index: 100;
+        display: none;
+        animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
-    body.dark-mode .filter-dropdown { 
-        background: #1f2937; border-color: #4b5563; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); 
+
+    body.dark-mode .filter-dropdown {
+        background: #1f2937;
+        border-color: #4b5563;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     }
-    .filter-dropdown.show { display: block; }
-    
-    .filter-label { 
-        font-size: 0.85rem; font-weight: 700; color: #4b5563; 
-        margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px;
+
+    .filter-dropdown.show {
+        display: block;
     }
-    body.dark-mode .filter-label { color: #d1d5db; }
-    
+
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #4b5563;
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode .filter-label {
+        color: #d1d5db;
+    }
+
     .filter-select {
-        width: 100%; height: 45px; padding: 0 15px; border-radius: 10px;
-        border: 2px solid #d1d5db; background-color: transparent;
-        color: var(--text-color); font-size: 0.95rem; outline: none; cursor: pointer;
+        width: 100%;
+        height: 45px;
+        padding: 0 15px;
+        border-radius: 10px;
+        border: 2px solid #d1d5db;
+        background-color: transparent;
+        color: var(--text-color);
+        font-size: 0.95rem;
+        outline: none;
+        cursor: pointer;
         transition: border-color 0.2s;
-        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat; background-position: right 15px center;
+        background-repeat: no-repeat;
+        background-position: right 15px center;
     }
-    body.dark-mode .filter-select { 
-        border-color: #4b5563; color: white;
+
+    body.dark-mode .filter-select {
+        border-color: #4b5563;
+        color: white;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     }
-    body.dark-mode .filter-select option { background-color: #1f2937; }
-    .filter-select:focus { border-color: var(--coop-green-primary); box-shadow: 0 0 0 3px var(--coop-green-light); }
+
+    body.dark-mode .filter-select option {
+        background-color: #1f2937;
+    }
+
+    .filter-select:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: 0 0 0 3px var(--coop-green-light);
+    }
 
     .btn-apply-filters {
-        width: 100%; background-color: var(--coop-green-primary); color: white; border: none;
-        padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
-        margin-top: 15px; transition: transform 0.2s;
+        width: 100%;
+        background-color: var(--coop-green-primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: transform 0.2s;
     }
-    .btn-apply-filters:hover { transform: translateY(-2px); }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .btn-apply-filters:hover {
+        transform: translateY(-2px);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
     /* --- BOTONES ACCION --- */
-    .action-buttons-container { 
-        display: flex; flex-direction: column; gap: 8px; align-items: flex-end; 
+    .action-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
         min-width: 220px;
     }
 
     .btn-boceto-outline {
-        border: 2px solid var(--coop-green-primary); color: var(--coop-green-primary); background: transparent;
-        border-radius: 25px; padding: 0.5rem 1.2rem; font-weight: 700; font-size: 0.9rem;
-        text-decoration: none !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        transition: all 0.2s ease; white-space: nowrap; width: 100%; box-sizing: border-box; 
+        border: 2px solid var(--coop-green-primary);
+        color: var(--coop-green-primary);
+        background: transparent;
+        border-radius: 25px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        width: 100%;
+        box-sizing: border-box;
     }
-    .btn-boceto-outline:hover { background-color: var(--coop-green-primary); color: white; transform: translateY(-2px); }
-    
+
+    .btn-boceto-outline:hover {
+        background-color: var(--coop-green-primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
     /* Botón PDF (Rojo) */
-    .btn-reporte-pdf { border-color: var(--pdf-color) !important; color: var(--pdf-color) !important; }
-    .btn-reporte-pdf:hover { background-color: var(--pdf-color) !important; color: white !important; }
+    .btn-reporte-pdf {
+        border-color: var(--pdf-color) !important;
+        color: var(--pdf-color) !important;
+    }
+
+    .btn-reporte-pdf:hover {
+        background-color: var(--pdf-color) !important;
+        color: white !important;
+    }
 
     /* Botón Excel (Verde Oscuro) */
-    .btn-reporte-excel { border-color: var(--excel-color) !important; color: var(--excel-color) !important; }
-    .btn-reporte-excel:hover { background-color: var(--excel-color) !important; color: white !important; }
-    
+    .btn-reporte-excel {
+        border-color: var(--excel-color) !important;
+        color: var(--excel-color) !important;
+    }
+
+    .btn-reporte-excel:hover {
+        background-color: var(--excel-color) !important;
+        color: white !important;
+    }
+
     /* --- TABLA (LISTA) --- */
     .list-header-row {
-        display: flex; align-items: center; padding: 0 1.5rem; margin-bottom: 0.8rem;
-        color: #9ca3af; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        margin-bottom: 0.8rem;
+        color: #9ca3af;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
-    
+
     /* Columnas Vehículos - REORGANIZADAS */
-    .col-num { width: 5%; text-align: center; } 
-    .col-casco { width: 10%; text-align: center; } /* Nueva columna */
-    .col-placa { width: 12%; text-align: center; } /* Antes Unidad */
-    .col-marca { width: 10%; text-align: center; } 
-    .col-modelo { width: 10%; text-align: center; } 
-    .col-color { width: 10%; text-align: center; }
-    .col-anio { width: 8%; text-align: center; } 
-    .col-chofer { width: 23%; text-align: left; padding-left: 15px; } /* Antes Chofer */
-    .col-cedula { width: 12%; text-align: center; } 
+    .col-num {
+        width: 5%;
+        text-align: center;
+    }
+
+    .col-casco {
+        width: 10%;
+        text-align: center;
+    }
+
+    /* Nueva columna */
+    .col-placa {
+        width: 12%;
+        text-align: center;
+    }
+
+    /* Antes Unidad */
+    .col-marca {
+        width: 10%;
+        text-align: center;
+    }
+
+    .col-modelo {
+        width: 10%;
+        text-align: center;
+    }
+
+    .col-color {
+        width: 10%;
+        text-align: center;
+    }
+
+    .col-anio {
+        width: 8%;
+        text-align: center;
+    }
+
+    .col-chofer {
+        width: 23%;
+        text-align: left;
+        padding-left: 15px;
+    }
+
+    /* Antes Chofer */
+    .col-cedula {
+        width: 12%;
+        text-align: center;
+    }
 
     .afiliado-row {
-        background: white; border: 1px solid var(--border-color); border-radius: 12px;
-        padding: 1rem 1.5rem; margin-bottom: 0.8rem;
-        display: flex; align-items: center;
-        transition: all 0.2s ease; cursor: pointer;
-        text-decoration: none !important; 
-        color: var(--text-color); font-size: 0.95rem;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none !important;
+        color: var(--text-color);
+        font-size: 0.95rem;
     }
-    body.dark-mode .afiliado-row { background-color: #1f2937; }
-    
+
+    body.dark-mode .afiliado-row {
+        background-color: #1f2937;
+    }
+
     .afiliado-row:hover {
-        transform: translateY(-2px); border-left: 5px solid var(--coop-green-primary);
+        transform: translateY(-2px);
+        border-left: 5px solid var(--coop-green-primary);
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
     }
-    
+
     /* ESTILOS DE TEXTO NORMALIZADOS (SIN NEGRITA EXCESIVA) */
-    .row-text-normal { font-weight: 400; color: var(--text-color); text-align: center; }
-    .row-text-highlight { color: var(--coop-green-primary); font-weight: 600; text-align: center; }
-    .row-text-muted { color: #6b7280; font-size: 0.9rem; font-weight: 400; text-align: center; } 
-    body.dark-mode .row-text-muted { color: #9ca3af; }
-    
+    .row-text-normal {
+        font-weight: 400;
+        color: var(--text-color);
+        text-align: center;
+    }
+
+    .row-text-highlight {
+        color: var(--coop-green-primary);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .row-text-muted {
+        color: #6b7280;
+        font-size: 0.9rem;
+        font-weight: 400;
+        text-align: center;
+    }
+
+    body.dark-mode .row-text-muted {
+        color: #9ca3af;
+    }
+
     /* Alineación Izquierda para Chofer */
-    .col-chofer.row-text-normal { text-align: left; }
+    .col-chofer.row-text-normal {
+        text-align: left;
+    }
 
     /* Total Indicator */
     .total-indicator {
-        font-weight: 800; color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;
-        border-bottom: 2px solid var(--border-color); padding-bottom: 10px; display: inline-block;
+        font-weight: 800;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+        display: inline-block;
     }
-    body.dark-mode .total-indicator { color: #9ca3af; }
+
+    body.dark-mode .total-indicator {
+        color: #9ca3af;
+    }
 
     /* Responsive Tablet (992px) */
     @media (max-width: 992px) {
-        .col-color { display: none; }
-        .list-header-row .col-color { display: none; }
-        .col-marca { width: 12%; }
-        .col-modelo { width: 12%; }
-        .col-chofer { width: 30%; }
+        .col-color {
+            display: none;
+        }
+
+        .list-header-row .col-color {
+            display: none;
+        }
+
+        .col-marca {
+            width: 12%;
+        }
+
+        .col-modelo {
+            width: 12%;
+        }
+
+        .col-chofer {
+            width: 30%;
+        }
     }
-    
+
     /* Responsive Móvil (768px) */
     @media (max-width: 768px) {
-        .header-controls { flex-direction: column; align-items: stretch; gap: 15px; }
-        .action-buttons-container { flex-direction: column; width: 100%; min-width: 0; align-items: stretch; }
-        .list-header-row { display: none; } 
-        
-        .afiliado-row { 
-            flex-direction: column; align-items: flex-start; gap: 8px; position: relative; padding: 1.2rem;
+        .header-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
         }
-        
-        /* Reorganizar en móvil */
-        .col-num { 
-            position: absolute; top: 1.2rem; right: 1rem; width: auto; font-size: 1.3rem; 
-            opacity: 0.2; text-align: right; 
-        }
-        
-        .col-casco {
-            width: 100%; font-size: 0.9rem; font-weight: 700; color: var(--coop-green-primary); 
-            text-align: left; margin-bottom: 4px; order: 0;
-        }
-        .col-casco::before { content: "N° CASCO: "; color: #9ca3af; font-weight: 400; }
 
-        .col-placa { 
-            width: 100%; font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; order: 1; text-align: left;
+        .action-buttons-container {
+            flex-direction: column;
+            width: 100%;
+            min-width: 0;
+            align-items: stretch;
         }
-        
-        .col-marca, .col-modelo { 
-            width: auto; display: inline; order: 2; text-align: left;
+
+        .list-header-row {
+            display: none;
         }
-        .col-marca::after { content: " "; }
-        
-        .col-color, .col-anio { 
-            width: auto; display: inline; font-size: 0.85rem; color: #9ca3af; order: 3;
-            margin-left: 8px; text-align: left;
+
+        .afiliado-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            position: relative;
+            padding: 1.2rem;
         }
-        .col-color::before { content: "("; }
-        .col-anio::after { content: ")"; }
-        
-        .col-chofer { 
-            width: 100%; order: 4; border-top: 1px solid var(--border-color); padding-top: 8px;
-            padding-left: 0; margin-top: 8px; font-size: 0.95rem; text-align: left;
+
+        /* Reorganizar en móvil */
+        .col-num {
+            position: absolute;
+            top: 1.2rem;
+            right: 1rem;
+            width: auto;
+            font-size: 1.3rem;
+            opacity: 0.2;
+            text-align: right;
         }
-        
-        .col-cedula { 
-            width: 100%; order: 5; font-size: 0.85rem; display: inline-block; 
-            background: var(--coop-green-light); padding: 2px 8px; border-radius: 4px; 
-            color: var(--coop-green-primary); margin-top: 4px; text-align: left;
+
+        .col-casco {
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--coop-green-primary);
+            text-align: left;
+            margin-bottom: 4px;
+            order: 0;
         }
-        
-        .row-text-normal, .row-text-highlight, .row-text-muted { text-align: left; }
-        
-        .filter-dropdown { width: 90vw; right: -10px; }
+
+        .col-casco::before {
+            content: "N° CASCO: ";
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .col-placa {
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            order: 1;
+            text-align: left;
+        }
+
+        .col-marca,
+        .col-modelo {
+            width: auto;
+            display: inline;
+            order: 2;
+            text-align: left;
+        }
+
+        .col-marca::after {
+            content: " ";
+        }
+
+        .col-color,
+        .col-anio {
+            width: auto;
+            display: inline;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            order: 3;
+            margin-left: 8px;
+            text-align: left;
+        }
+
+        .col-color::before {
+            content: "(";
+        }
+
+        .col-anio::after {
+            content: ")";
+        }
+
+        .col-chofer {
+            width: 100%;
+            order: 4;
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+            padding-left: 0;
+            margin-top: 8px;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .col-cedula {
+            width: 100%;
+            order: 5;
+            font-size: 0.85rem;
+            display: inline-block;
+            background: var(--coop-green-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--coop-green-primary);
+            margin-top: 4px;
+            text-align: left;
+        }
+
+        .row-text-normal,
+        .row-text-highlight,
+        .row-text-muted {
+            text-align: left;
+        }
+
+        .filter-dropdown {
+            width: 90vw;
+            right: -10px;
+        }
     }
 </style>
 
@@ -249,14 +563,15 @@
 
 <!-- BARRA DE CONTROL -->
 <div class="d-flex justify-content-between align-items-start mb-4 header-controls flex-wrap">
-    
+
     <div class="search-container flex-grow-1 mr-md-4 mb-3 mb-md-0">
         <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
             <div class="search-input-group">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" name="q" class="search-input" placeholder="Buscar por N° Casco, placa, chofer o cédula..." value="{{ request.GET.q|default:'' }}">
+                <input type="text" name="q" class="search-input"
+                    placeholder="Buscar por N° Casco, placa, chofer o cédula..." value="{{ request.GET.q|default:'' }}">
             </div>
-            
+
             <div style="position: relative;">
                 <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
                     <i class="fas fa-filter"></i>
@@ -267,8 +582,10 @@
                         <label class="filter-label">Estado Operativo</label>
                         <select name="estado" class="filter-select">
                             <option value="todos">Todos</option>
-                            <option value="operativo" {% if estado_actual == 'operativo' %}selected{% endif %}>Operativo</option>
-                            <option value="inoperativo" {% if estado_actual == 'inoperativo' %}selected{% endif %}>Inoperativo</option>
+                            <option value="operativo" {% if estado_actual == 'operativo' %}selected{% endif %}>Operativo
+                            </option>
+                            <option value="inoperativo" {% if estado_actual == 'inoperativo' %}selected{% endif %}>
+                                Inoperativo</option>
                         </select>
                     </div>
 
@@ -285,21 +602,18 @@
         <a href="{% url 'taxis:vehiculo_create' %}" class="btn-boceto-outline">
             <i class="fas fa-plus"></i> Nuevo Vehículo
         </a>
-        
-        <!-- Botón Excel -->
-<a href="{% url 'taxis:reporte_vehiculos_excel' %}?{{ request.GET.urlencode }}" 
-   class="btn-boceto-outline btn-reporte-excel" 
-   title="Descargar Excel">
-    <i class="fas fa-file-excel"></i> Descargar Excel
-</a>
 
-<!-- Botón PDF -->
-<a href="{% url 'taxis:reporte_vehiculos_pdf' %}?{{ request.GET.urlencode }}" 
-   class="btn-boceto-outline btn-reporte-pdf" 
-   target="_blank" 
-   title="Generar PDF">
-    <i class="fas fa-file-pdf"></i> Generar PDF
-</a>
+        <!-- Botón Excel -->
+        <a href="{% url 'taxis:reporte_vehiculos_excel' %}?{{ request.GET.urlencode }}"
+            class="btn-boceto-outline btn-reporte-excel" title="Descargar Excel">
+            <i class="fas fa-file-excel"></i> Descargar Excel
+        </a>
+
+        <!-- Botón PDF -->
+        <a href="{% url 'taxis:reporte_vehiculos_pdf' %}?{{ request.GET.urlencode }}"
+            class="btn-boceto-outline btn-reporte-pdf" target="_blank" title="Generar PDF">
+            <i class="fas fa-file-pdf"></i> Generar PDF
+        </a>
 
     </div>
 
@@ -308,9 +622,9 @@
 <!-- TOTALIZADOR -->
 <div class="total-indicator">
     {% if request.GET.q or estado_actual != 'todos' %}
-        <i class="fas fa-filter mr-1"></i> Vehículos Filtrados: <span class="text-dark">{{ vehiculos|length }}</span>
+    <i class="fas fa-filter mr-1"></i> Vehículos Filtrados: <span class="text-dark">{{ vehiculos|length }}</span>
     {% else %}
-        <i class="fas fa-list mr-1"></i> Total Flota: <span class="text-dark">{{ vehiculos|length }}</span>
+    <i class="fas fa-list mr-1"></i> Total Flota: <span class="text-dark">{{ vehiculos|length }}</span>
     {% endif %}
 </div>
 
@@ -331,11 +645,11 @@
 <div>
     {% for v in vehiculos %}
     <a href="{% url 'taxis:vehiculo_detail' v.pk %}" class="afiliado-row">
-        
+
         <div class="col-num row-text-muted">
             {{ forloop.counter }}
         </div>
-        
+
         <div class="col-casco row-text-highlight">
             {{ v.numero_casco|default:"-" }}
         </div>
@@ -343,27 +657,27 @@
         <div class="col-placa row-text-normal">
             {{ v.placa }}
         </div>
-        
+
         <div class="col-marca row-text-normal">
             {{ v.marca }}
         </div>
-        
+
         <div class="col-modelo row-text-normal">
             {{ v.modelo }}
         </div>
-        
+
         <div class="col-color row-text-muted">
             {{ v.color }}
         </div>
-        
+
         <div class="col-anio row-text-muted">
             {{ v.anio }}
         </div>
-        
+
         <div class="col-chofer row-text-normal">
             {{ v.conductor.nombres }} {{ v.conductor.apellidos }}
         </div>
-        
+
         <div class="col-cedula row-text-highlight">
             {{ v.conductor.cedula_prefijo }}-{{ v.conductor.cedula_identidad }}
         </div>
@@ -373,7 +687,8 @@
         <i class="fas fa-car-crash fa-3x mb-3 opacity-25"></i>
         <p class="h5">No se encontraron vehículos.</p>
         {% if request.GET %}
-            <a href="{% url 'taxis:vehiculo_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar filtros</a>
+        <a href="{% url 'taxis:vehiculo_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar
+            filtros</a>
         {% endif %}
     </div>
     {% endfor %}
@@ -386,15 +701,20 @@
         <ul class="pagination">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo; Anterior</a>
+                <a class="page-link text-success"
+                    href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo;
+                    Anterior</a>
             </li>
             {% endif %}
-            
-            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-            
+
+            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{
+                    page_obj.paginator.num_pages }}</span></li>
+
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente &raquo;</a>
+                <a class="page-link text-success"
+                    href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente
+                    &raquo;</a>
             </li>
             {% endif %}
         </ul>
@@ -408,7 +728,7 @@
         dropdown.classList.toggle('show');
     }
     // Cerrar click fuera
-    document.addEventListener('mouseup', function(e) {
+    document.addEventListener('mouseup', function (e) {
         var container = document.getElementById('filterDropdown');
         var btn = document.querySelector('.filter-btn');
         if (container && !container.contains(e.target) && !btn.contains(e.target)) {

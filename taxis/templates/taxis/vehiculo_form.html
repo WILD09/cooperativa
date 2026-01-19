@@ -43,6 +43,30 @@
         --dropzone-hover-bg: #132034; 
     }
 
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
+    }
 
     /* WIZARD & FORMS */
     .wizard-container { max-width: 950px; margin: 0 auto 3rem; }
@@ -58,24 +82,20 @@
     .step-label { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; white-space: nowrap; }
     .step-node.active .step-label, .step-node.completed .step-label { color: var(--coop-green-primary); }
 
-
     .form-card { background: var(--card-bg); border: 2px solid var(--input-border); border-radius: 36px; padding: 2.5rem; box-shadow: 0 12px 50px rgba(0, 0, 0, 0.05); position: relative; color: var(--text-main); }
     
     .wizard-step { display: none; animation: fadeIn 0.4s ease; }
     .wizard-step.active { display: block; }
 
-
     .section-title { font-size: 1.5rem; font-weight: 900; color: var(--coop-green-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
     .form-group { margin-bottom: 1.5rem; position: relative; }
     .form-label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; margin-left: 12px; }
-
 
     /* INPUTS */
     .vsms-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--input-border); background: var(--input-bg); font-size: 0.95rem; color: var(--text-main); outline: none; transition: all 0.3s ease; }
     .vsms-input:focus { border-color: var(--coop-green-primary); box-shadow: var(--input-focus-shadow); }
     .vsms-input[readonly] { background-color: #f9fafb; cursor: not-allowed; color: #6b7280; }
     body.dark-mode .vsms-input[readonly] { background-color: #2d3748; color: #9ca3af; }
-
 
     /* FIX AUTOCOMPLETE */
     input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
@@ -89,7 +109,6 @@
         caret-color: #f3f4f6;
     }
 
-
     /* SELECT STYLE */
     select.vsms-input {
         appearance: none; -webkit-appearance: none; -moz-appearance: none;
@@ -100,13 +119,11 @@
     body.dark-mode select.vsms-input { background-color: var(--input-bg); color: var(--text-main); }
     body.dark-mode select.vsms-input option { background-color: #1a2639; color: #f3f4f6; }
 
-
     .no-spinners::-webkit-outer-spin-button, .no-spinners::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     
     .field-error-text { color: var(--error-color); font-size: 0.8rem; font-weight: 700; margin-top: 5px; margin-left: 15px; display: none; }
     .field-success-text { color: var(--coop-green-primary); font-size: 0.85rem; font-weight: 700; margin-top: 5px; margin-left: 15px; display: none; }
     .vsms-input.is-invalid { border-color: var(--error-color) !important; }
-
 
     /* DROPZONE */
     .dropzone-label { 
@@ -122,7 +139,6 @@
     .hidden-file-input { display: none; }
     .dropzone-label.border-danger { border-color: var(--error-color) !important; background-color: rgba(239, 68, 68, 0.05); }
 
-
     /* BOTONES */
     .wizard-actions { display: flex; justify-content: space-between; margin-top: 2rem; gap: 15px; }
     .btn-wizard { padding: 0.9rem 2rem; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none !important; transition: all 0.3s ease; }
@@ -132,15 +148,12 @@
     body.dark-mode .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444 !important; }
     body.dark-mode .btn-cancel:hover { background: #ef4444; color: white !important; }
 
-
     .btn-prev { background: #e5e7eb; color: #4b5563; }
     .btn-prev:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
 
-
     .btn-next, .btn-submit { background: var(--coop-green-primary); color: white; box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25); }
     .btn-next:hover, .btn-submit:hover { background: var(--coop-green-hover); box-shadow: 0 6px 20px rgba(0, 179, 0, 0.35); transform: translateY(-2px); }
-
 
     .search-section { background: var(--search-bg); border: 1px solid var(--input-border); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
     .search-icon-inside { position: absolute; right: 15px; top: 13px; color: var(--coop-green-primary); pointer-events: none; }
@@ -153,7 +166,6 @@
     .calendar-icon-inside:hover { transform: scale(1.1); }
     .native-picker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: -1; pointer-events: none; }
 
-
     .summary-box { background: rgba(0, 179, 0, 0.04); border-radius: 20px; padding: 20px; border: 1px dashed var(--coop-green-primary); }
     .sum-label { font-size: 0.85rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
     .sum-value { font-size: 1.1rem; color: #333; font-weight: 800; margin-bottom: 15px; word-break: break-word; }
@@ -161,7 +173,7 @@
     
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ============================================
+    /* ============================================
        OCULTAR TEXTOS DE DJANGO EN ARCHIVOS
        ============================================ */
     .django-input-wrapper {
@@ -171,6 +183,11 @@
     .django-input-wrapper a,
     .django-input-wrapper label,
     .django-input-wrapper span {
+        display: none !important;
+    }
+
+    /* OCULTAR EL CHECKBOX QUE GENERA DJANGO */
+    .django-input-wrapper input[type="checkbox"] {
         display: none !important;
     }
 
@@ -184,37 +201,8 @@
         cursor: pointer;
         z-index: 10;
     }
-/* ============================================
-   OCULTAR TEXTOS DE DJANGO EN ARCHIVOS
-   ============================================ */
-.django-input-wrapper {
-    position: relative;
-}
-
-.django-input-wrapper a,
-.django-input-wrapper label,
-.django-input-wrapper span {
-    display: none !important;
-}
-
-/* OCULTAR EL CHECKBOX QUE GENERA DJANGO */
-.django-input-wrapper input[type="checkbox"] {
-    display: none !important;
-}
-
-.django-input-wrapper input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 10;
-}
-
-
 </style>
+
 
 <div class="header-section text-center mb-5">
     <h1 style="color: var(--coop-green-primary); font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">

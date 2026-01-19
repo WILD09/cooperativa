@@ -24,6 +24,32 @@
         --text-color: #d1d5db;
     }
 
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    /* NOTA: NO afecta al scrollbar horizontal de .table-wrapper */
+    body::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
+    }
+
     .page-title { 
         color: var(--coop-green-primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; 
         display: flex; align-items: center; gap: 10px;
@@ -127,54 +153,96 @@
     .btn-reporte-excel { border-color: var(--excel-color) !important; color: var(--excel-color) !important; }
     .btn-reporte-excel:hover { background-color: var(--excel-color) !important; color: white !important; }
     
-    /* --- TABLA (LISTA) --- */
+    /* --- TABLA CON SCROLL HORIZONTAL --- */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+        margin-bottom: 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* SCROLLBAR HORIZONTAL PERSONALIZADO (SE MANTIENE INTACTO) */
+    .table-wrapper::-webkit-scrollbar {
+        height: 10px;
+    }
+    .table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    body.dark-mode .table-wrapper::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
+    }
+
     .list-header-row {
         display: flex; align-items: center; padding: 0 1.5rem; margin-bottom: 0.8rem;
-        color: #9ca3af; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: #9ca3af; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+        min-width: 1200px;
     }
     
-    /* Columnas DT5 */
-    .col-num { width: 4%; text-align: center; } 
-    .col-nombres { width: 12%; text-align: left; }
-    .col-apellidos { width: 12%; text-align: left; }
-    .col-cedula { width: 10%; text-align: center; }
-    .col-telefono { width: 10%; text-align: center; }
-    .col-casco { width: 7%; text-align: center; }
-    .col-marca { width: 9%; text-align: center; }
-    .col-modelo { width: 9%; text-align: center; }
-    .col-anio { width: 5%; text-align: center; }
-    .col-color { width: 8%; text-align: center; }
-    .col-placa { width: 8%; text-align: center; }
-    .col-capacidad { width: 6%; text-align: center; }
+    /* Columnas DT5 - ANCHOS AJUSTADOS */
+    .col-num { width: 50px; text-align: center; flex-shrink: 0; } 
+    .col-nombres { width: 110px; text-align: left; flex-shrink: 0; padding-left: 8px; }
+    .col-apellidos { width: 110px; text-align: left; flex-shrink: 0; }
+    .col-cedula { width: 115px; text-align: center; flex-shrink: 0; }
+    .col-telefono { width: 110px; text-align: center; flex-shrink: 0; }
+    .col-casco { width: 65px; text-align: center; flex-shrink: 0; }
+    .col-marca { width: 85px; text-align: left; flex-shrink: 0; }
+    .col-modelo { width: 85px; text-align: left; flex-shrink: 0; }
+    .col-anio { width: 55px; text-align: center; flex-shrink: 0; }
+    .col-color { width: 75px; text-align: left; flex-shrink: 0; }
+    .col-placa { width: 95px; text-align: center; flex-shrink: 0; }
+    .col-capacidad { width: 55px; text-align: center; flex-shrink: 0; }
+    .col-condicion { width: 105px; text-align: center; flex-shrink: 0; }
 
     .afiliado-row {
         background: white; border: 1px solid var(--border-color); border-radius: 12px;
         padding: 1rem 1.5rem; margin-bottom: 0.8rem;
         display: flex; align-items: center;
-        transition: all 0.2s ease; cursor: pointer;
+        transition: all 0.2s ease;
         text-decoration: none !important; 
-        color: var(--text-color); font-size: 0.95rem;
+        color: var(--text-color); font-size: 0.85rem;
+        min-width: 1200px;
+        cursor: pointer; /* ✅ CURSOR POINTER PARA TODA LA FILA */
     }
     body.dark-mode .afiliado-row { background-color: #1f2937; }
     
     .afiliado-row:hover {
         transform: translateY(-2px); border-left: 5px solid var(--coop-green-primary);
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+        color: var(--text-color);
     }
     
-    .row-text-normal { font-weight: 400; color: var(--text-color); text-align: center; }
-    .row-text-highlight { color: var(--coop-green-primary); font-weight: 600; text-align: center; }
-    .row-text-muted { color: #6b7280; font-size: 0.9rem; font-weight: 400; text-align: center; } 
+    /* TRUNCADO CON TOOLTIP - ✅ SIN CURSOR HELP */
+    .truncate-text {
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis;
+        display: block;
+    }
+    
+    .row-text-normal { font-weight: 400; color: var(--text-color); }
+    .row-text-highlight { color: var(--coop-green-primary); font-weight: 600; }
+    .row-text-muted { color: #6b7280; font-size: 0.85rem; font-weight: 400; } 
     body.dark-mode .row-text-muted { color: #9ca3af; }
     
-    /* Condición (Badge) */
+    /* Badges de Condición */
     .badge-operativo {
-        background-color: #10b981; color: white; padding: 3px 10px; border-radius: 12px;
-        font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        background-color: #10b981; color: white; padding: 5px 12px; border-radius: 12px;
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block;
+        white-space: nowrap;
     }
     .badge-inoperativo {
-        background-color: #ef4444; color: white; padding: 3px 10px; border-radius: 12px;
-        font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        background-color: #ef4444; color: white; padding: 5px 12px; border-radius: 12px;
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block;
+        white-space: nowrap;
     }
 
     .total-indicator {
@@ -183,71 +251,91 @@
     }
     body.dark-mode .total-indicator { color: #9ca3af; }
 
-    /* Responsive Tablet (992px) */
-    @media (max-width: 992px) {
-        .col-color, .col-telefono { display: none; }
-        .list-header-row .col-color, .list-header-row .col-telefono { display: none; }
-    }
-    
-    /* Responsive Móvil (370px - 768px) */
+    /* Responsive Móvil (768px) */
     @media (max-width: 768px) {
         .header-controls { flex-direction: column; align-items: stretch; gap: 15px; }
         .action-buttons-container { flex-direction: column; width: 100%; min-width: 0; align-items: stretch; }
-        .list-header-row { display: none; } 
+        
+        .table-wrapper { overflow-x: visible; }
+        .list-header-row { display: none; min-width: 0; } 
         
         .afiliado-row { 
-            flex-direction: column; align-items: flex-start; gap: 6px; position: relative; padding: 1rem;
+            flex-direction: column; align-items: flex-start; gap: 8px; position: relative; padding: 1.2rem;
+            min-width: 0;
         }
         
         .col-num { 
-            position: absolute; top: 1rem; right: 1rem; width: auto; font-size: 1.2rem; 
-            opacity: 0.2; text-align: right; 
+            position: absolute; top: 1rem; right: 1rem; width: auto; font-size: 1.3rem; 
+            opacity: 0.2; text-align: right; order: 0;
         }
         
+        /* FILA 1: Nombre completo */
         .col-nombres, .col-apellidos {
-            width: 100%; font-size: 1.05rem; font-weight: 600; text-align: left; order: 0;
+            width: 100%; font-size: 1.1rem; font-weight: 700; text-align: left; 
+            display: inline; color: var(--text-color); order: 1;
+            white-space: normal; overflow: visible; text-overflow: clip;
         }
         .col-nombres::after { content: " "; }
         
+        /* FILA 2: Cédula (badge) */
         .col-cedula { 
-            width: 100%; order: 1; font-size: 0.85rem; color: #9ca3af; text-align: left;
-            background: var(--coop-green-light); padding: 2px 8px; border-radius: 4px; 
-            color: var(--coop-green-primary); display: inline-block; margin-top: 4px;
+            width: auto; order: 2; font-size: 0.8rem; text-align: left;
+            background: var(--coop-green-light); padding: 3px 10px; border-radius: 6px; 
+            color: var(--coop-green-primary); display: inline-block; margin-top: 6px; font-weight: 600;
+            white-space: normal; overflow: visible; text-overflow: clip;
         }
-        .col-cedula::before { content: "Cédula: "; font-weight: 600; }
+        .col-cedula::before { content: "CI: "; }
         
+        /* FILA 3: Teléfono */
         .col-telefono { 
-            width: 100%; order: 2; font-size: 0.85rem; text-align: left; display: block !important;
+            width: 100%; order: 3; font-size: 0.85rem; text-align: left; display: block !important;
+            color: #6b7280; margin-top: 4px;
+            white-space: normal; overflow: visible; text-overflow: clip;
         }
         .col-telefono::before { content: "📞 "; }
         
+        /* SEPARADOR */
         .col-casco { 
-            width: 100%; order: 3; font-weight: 700; color: var(--coop-green-primary); 
-            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); text-align: left;
+            width: 100%; order: 4; font-weight: 700; color: var(--coop-green-primary); 
+            margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--border-color); 
+            text-align: left; font-size: 0.9rem;
         }
-        .col-casco::before { content: "N° CASCO: "; color: #9ca3af; font-weight: 400; }
+        .col-casco::before { content: "🚗 CASCO: "; color: #9ca3af; font-weight: 400; }
         
+        /* FILA 4: Placa destacada */
         .col-placa { 
-            width: 100%; order: 4; font-size: 1.05rem; font-weight: 600; text-align: left;
+            width: 100%; order: 5; font-size: 1.15rem; font-weight: 700; text-align: left;
+            color: var(--coop-green-primary); margin-top: 6px;
         }
-        .col-placa::before { content: "PLACA: "; color: #9ca3af; font-weight: 400; font-size: 0.85rem; }
+        .col-placa::before { content: "PLACA: "; color: #9ca3af; font-weight: 400; font-size: 0.8rem; }
         
+        /* FILA 5: Marca + Modelo */
         .col-marca, .col-modelo { 
-            width: auto; display: inline; order: 5; text-align: left;
+            width: auto; display: inline; order: 6; text-align: left; font-size: 0.9rem;
+            margin-top: 6px;
         }
         .col-marca::after { content: " "; }
         
+        /* FILA 6: Color + Año */
         .col-color, .col-anio { 
-            width: auto; display: inline; font-size: 0.85rem; color: #9ca3af; order: 6; text-align: left;
+            width: auto; display: inline !important; font-size: 0.85rem; color: #9ca3af; 
+            order: 7; text-align: left; margin-left: 8px;
         }
         .col-anio::before { content: "(" }
         .col-anio::after { content: ")" }
         
+        /* FILA 7: Capacidad */
         .col-capacidad { 
-            width: auto; order: 7; font-size: 0.85rem; text-align: left; margin-left: 8px;
+            width: auto; order: 8; font-size: 0.85rem; text-align: left; 
+            display: inline-block !important; margin-left: 8px; color: #6b7280;
         }
-        .col-capacidad::before { content: " • "; color: #9ca3af; }
-        .col-capacidad::after { content: " pax"; color: #9ca3af; }
+        .col-capacidad::before { content: " • "; }
+        .col-capacidad::after { content: " pax"; }
+        
+        /* FILA 8: Badge de Condición */
+        .col-condicion { 
+            width: auto; order: 9; text-align: left; margin-top: 10px;
+        }
         
         .row-text-normal, .row-text-highlight, .row-text-muted { text-align: left; }
         
@@ -255,10 +343,11 @@
     }
 
     @media (max-width: 370px) {
-        .page-title { font-size: 1.5rem; }
-        .search-input { font-size: 0.9rem; padding: 0 0.8rem 0 2.5rem; }
+        .page-title { font-size: 1.4rem; }
+        .search-input { font-size: 0.85rem; padding: 0 0.8rem 0 2.5rem; }
     }
 </style>
+
 
 <!-- TITULO -->
 <h1 class="page-title">
@@ -326,84 +415,96 @@
     {% endif %}
 </div>
 
-<!-- ENCABEZADOS TABLA -->
-<div class="list-header-row">
-    <div class="col-num">#</div>
-    <div class="col-nombres">Nombres</div>
-    <div class="col-apellidos">Apellidos</div>
-    <div class="col-cedula">Cédula</div>
-    <div class="col-telefono">Teléfono</div>
-    <div class="col-casco">N° Casco</div>
-    <div class="col-marca">Marca</div>
-    <div class="col-modelo">Modelo</div>
-    <div class="col-anio">Año</div>
-    <div class="col-color">Color</div>
-    <div class="col-placa">Placa</div>
-    <div class="col-capacidad">Cap.</div>
-</div>
-
-<!-- LISTA DE TRANSPORTISTAS -->
-<div>
-    {% for t in transportistas %}
-    <div class="afiliado-row">
-        
-        <div class="col-num row-text-muted">
-            {{ forloop.counter }}
-        </div>
-        
-        <div class="col-nombres row-text-normal">
-            {{ t.conductor.nombres }}
-        </div>
-
-        <div class="col-apellidos row-text-normal">
-            {{ t.conductor.apellidos }}
-        </div>
-        
-        <div class="col-cedula row-text-highlight">
-            {{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}
-        </div>
-        
-        <div class="col-telefono row-text-muted">
-            {{ t.conductor.telefono_principal }}
-        </div>
-        
-        <div class="col-casco row-text-highlight">
-            {{ t.numero_casco|default:"-" }}
-        </div>
-        
-        <div class="col-marca row-text-normal">
-            {{ t.marca }}
-        </div>
-        
-        <div class="col-modelo row-text-normal">
-            {{ t.modelo }}
-        </div>
-        
-        <div class="col-anio row-text-muted">
-            {{ t.anio }}
-        </div>
-        
-        <div class="col-color row-text-muted">
-            {{ t.color }}
-        </div>
-        
-        <div class="col-placa row-text-normal">
-            {{ t.placa }}
-        </div>
-        
-        <div class="col-capacidad row-text-muted">
-            {{ t.capacidad }}
-        </div>
+<!-- CONTENEDOR CON SCROLL HORIZONTAL -->
+<div class="table-wrapper">
+    <!-- ENCABEZADOS TABLA (13 COLUMNAS) -->
+    <div class="list-header-row">
+        <div class="col-num">#</div>
+        <div class="col-nombres">Nombres</div>
+        <div class="col-apellidos">Apellidos</div>
+        <div class="col-cedula">Cédula</div>
+        <div class="col-telefono">Teléfono</div>
+        <div class="col-casco">Casco</div>
+        <div class="col-marca">Marca</div>
+        <div class="col-modelo">Modelo</div>
+        <div class="col-anio">Año</div>
+        <div class="col-color">Color</div>
+        <div class="col-placa">Placa</div>
+        <div class="col-capacidad">Cap.</div>
+        <div class="col-condicion">Condición</div>
     </div>
-    {% empty %}
-    <div class="text-center py-5 text-muted">
-        <i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i>
-        <p class="h5">No se encontraron transportistas.</p>
-        {% if request.GET %}
-            <a href="{% url 'taxis:dt5_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar filtros</a>
-        {% endif %}
+
+    <!-- LISTA DE TRANSPORTISTAS (13 COLUMNAS CON TRUNCADO) -->
+    <div>
+        {% for t in transportistas %}
+        <a href="{% url 'taxis:dt5_detail' t.pk %}" class="afiliado-row">
+            
+            <div class="col-num row-text-muted">
+                {{ forloop.counter }}
+            </div>
+            
+            <div class="col-nombres row-text-normal truncate-text" title="{{ t.conductor.nombres }}">
+                {{ t.conductor.nombres }}
+            </div>
+
+            <div class="col-apellidos row-text-normal truncate-text" title="{{ t.conductor.apellidos }}">
+                {{ t.conductor.apellidos }}
+            </div>
+            
+            <div class="col-cedula row-text-highlight truncate-text" title="{{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}">
+                {{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}
+            </div>
+            
+            <div class="col-telefono row-text-muted truncate-text" title="{{ t.conductor.telefono_principal }}">
+                {{ t.conductor.telefono_principal }}
+            </div>
+            
+            <div class="col-casco row-text-highlight">
+                {{ t.numero_casco|default:"-" }}
+            </div>
+            
+            <div class="col-marca row-text-normal truncate-text" title="{{ t.marca }}">
+                {{ t.marca }}
+            </div>
+            
+            <div class="col-modelo row-text-normal truncate-text" title="{{ t.modelo }}">
+                {{ t.modelo }}
+            </div>
+            
+            <div class="col-anio row-text-muted">
+                {{ t.anio }}
+            </div>
+            
+            <div class="col-color row-text-muted truncate-text" title="{{ t.color }}">
+                {{ t.color }}
+            </div>
+            
+            <div class="col-placa row-text-normal">
+                {{ t.placa }}
+            </div>
+            
+            <div class="col-capacidad row-text-muted">
+                {{ t.capacidad }}
+            </div>
+            
+            <div class="col-condicion">
+                {% if t.condicion == 'operativo' %}
+                    <span class="badge-operativo">Operativo</span>
+                {% else %}
+                    <span class="badge-inoperativo">Inoperativo</span>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i>
+            <p class="h5">No se encontraron transportistas.</p>
+            {% if request.GET %}
+                <a href="{% url 'taxis:dt5_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar filtros</a>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 
 <!-- PAGINACIÓN -->

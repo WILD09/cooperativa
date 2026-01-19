@@ -1,7 +1,9 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
 
+
 {% block title %}Perfil: {{ conductor.nombres }} {{ conductor.apellidos }}{% endblock %}
+
 
 {% block content %}
 <style>
@@ -26,6 +28,31 @@
         --bg-input: #374151;
     }
 
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
+    }
+
     /* TARJETA PRINCIPAL */
     .detail-card {
         background: white;
@@ -38,6 +65,7 @@
         position: relative;
     }
     body.dark-mode .detail-card { background: #1f2937; box-shadow: none; border-color: #374151; }
+
 
     /* BOTÓN RETROCESO */
     .btn-back-card {
@@ -52,6 +80,7 @@
         background: var(--coop-green-light); color: var(--coop-green-primary); 
         transform: translateX(-3px);
     }
+
 
     /* CABECERA PERFIL */
     .profile-header-simple {
@@ -109,6 +138,7 @@
         content:''; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; 
     }
 
+
     /* SECCIONES Y GRID */
     .section-title {
         color: var(--coop-green-primary);
@@ -121,6 +151,7 @@
         margin-bottom: 2.5rem;
     }
     @media (max-width: 768px) { .data-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
 
     .data-item label {
         display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
@@ -136,6 +167,7 @@
         transition: border-color 0.2s;
     }
     body.dark-mode .data-value-box { border-color: #4b5563; }
+
 
     /* DOCUMENTOS */
     .doc-btn {
@@ -161,6 +193,7 @@
     .doc-btn.missing {
         background: #fef2f2; color: #ef4444; border-color: #ef4444; cursor: not-allowed; opacity: 0.7;
     }
+
 
     /* FOOTER ACCIONES */
     .actions-footer {
@@ -196,6 +229,7 @@
         transform: translateY(-2px); 
     }
 
+
     /* --- MODAL MODERNO --- */
     .modal-backdrop {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -216,11 +250,13 @@
     body.dark-mode .modal-card { background: #1f2937; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
     .modal-backdrop.show .modal-card { transform: scale(1); opacity: 1; }
 
+
     .modal-icon-container {
         width: 64px; height: 64px; background: #fef2f2; color: #ef4444;
         border-radius: 50%; display: flex; align-items: center; justify-content: center;
         margin: 0 auto 1.5rem; font-size: 1.75rem;
     }
+
 
     .modal-actions { display: flex; gap: 12px; justify-content: center; margin-top: 2rem; }
     
@@ -230,6 +266,7 @@
         transition: transform 0.1s ease-out; 
     }
 
+
     .btn-modal-cancel { 
         background: white; border: 1px solid #d1d5db; color: #374151; 
     }
@@ -238,6 +275,7 @@
         transform: scale(1.02); 
     }
     .btn-modal-cancel:active { transform: scale(0.98); }
+
 
     .btn-modal-confirm { 
         background: #ef4444; color: white; 
@@ -249,6 +287,7 @@
     .btn-modal-confirm:active { transform: scale(0.98); }
 </style>
 
+
 <div class="container-fluid px-2 my-5">
     
     <!-- TARJETA ÚNICA DE DETALLE -->
@@ -258,6 +297,7 @@
         <a href="{% url 'taxis:conductor_list' %}" class="btn-back-card">
             <i class="fas fa-arrow-left"></i> <span class="d-none d-sm-inline">Volver</span>
         </a>
+
 
         <!-- CABECERA -->
         <div class="profile-header-simple">
@@ -277,6 +317,7 @@
             </div>
         </div>
 
+
         <div class="row">
             <!-- COLUMNA IZQUIERDA: DATOS -->
             <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
@@ -289,6 +330,7 @@
                     <div class="data-item"><label>Género</label><div class="data-value-box">{{ conductor.get_sexo_display }}</div></div>
                     <div class="data-item" style="grid-column: span 2;"><label>Estado Civil</label><div class="data-value-box">{{ conductor.get_estado_civil_display }}</div></div>
                 </div>
+
 
                 <!-- DOCUMENTOS -->
                 <div class="row g-3">
@@ -315,6 +357,7 @@
                 </div>
             </div>
 
+
             <!-- COLUMNA DERECHA: CONTACTO -->
             <div class="col-lg-6 ps-lg-5 border-start-lg" style="border-color: var(--border-color) !important;">
                 <div class="section-title"><i class="fas fa-map-marker-alt"></i> Contacto y Residencia</div>
@@ -324,19 +367,22 @@
                     <div class="data-item" style="grid-column: span 2;"><label>Teléfono Principal</label><div class="data-value-box">{{ conductor.telefono_principal }}</div></div>
                     
                     <div class="data-item"><label>Estado</label><div class="data-value-box">{{ conductor.ubicacion.estado }}</div></div>
-                    <div class="data-item"><label>Ciudad</label><div class="data-value-box">{{ conductor.ubicacion.localidad }}</div></div>
+                    <div class="data-item"><label>Ciudad</label><div class="data-value-box">{{ conductor.ubicacion.localidad|default:"-" }}</div></div>
                     <div class="data-item"><label>Municipio</label><div class="data-value-box">{{ conductor.ubicacion.municipio }}</div></div>
                     <div class="data-item"><label>Parroquia</label><div class="data-value-box">{{ conductor.ubicacion.parroquia }}</div></div>
+                    <div class="data-item"><label>Sector</label><div class="data-value-box">{{ conductor.ubicacion.sector|default:"-" }}</div></div>
+                    <div class="data-item"><label>Zona Postal</label><div class="data-value-box">{{ conductor.ubicacion.zona_postal|default:"-" }}</div></div>
                     
                     <div class="data-item" style="grid-column: span 2;">
                         <label>Dirección Exacta</label>
                         <div class="data-value-box" style="line-height: 1.6;">
-                            {{ conductor.ubicacion.sector }}, {{ conductor.ubicacion.calle_avenida }}, Casa {{ conductor.ubicacion.numero_casa }}
+                            {{ conductor.ubicacion.calle_avenida|default:"-" }}, Casa {{ conductor.ubicacion.numero_casa|default:"-" }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- FOOTER ACCIONES -->
         <div class="actions-footer">
@@ -348,8 +394,10 @@
             </button>
         </div>
 
+
     </div>
 </div>
+
 
 <!-- MODAL MODERNO (OPTIMIZADO) -->
 <div id="deleteModal" class="modal-backdrop">
@@ -368,6 +416,7 @@
             </div>
         </div>
 
+
         <form method="post" action="{% url 'taxis:conductor_delete' conductor.pk %}">
             {% csrf_token %}
             <div class="modal-actions">
@@ -377,6 +426,7 @@
         </form>
     </div>
 </div>
+
 
 <script>
     const modal = document.getElementById('deleteModal');
@@ -400,5 +450,6 @@
         if (e.target === this) closeModal();
     });
 </script>
+
 
 {% endblock %}

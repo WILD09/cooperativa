@@ -30,6 +30,31 @@
         --bg-input: #374151;
     }
 
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
+    }
+
     /* TARJETA PRINCIPAL */
     .detail-card {
         background: white;

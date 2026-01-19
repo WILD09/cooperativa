@@ -14,8 +14,8 @@
         --text-color: #1f2937;
         
         /* Colores específicos para reportes */
-        --excel-color: #107c41; /* Verde Excel oficial */
-        --pdf-color: #ef4444;   /* Rojo PDF */
+        --excel-color: #107c41;
+        --pdf-color: #ef4444;
     }
     body.dark-mode {
         --coop-green-primary: #10b981;
@@ -23,6 +23,31 @@
         --coop-green-light: rgba(16, 185, 129, 0.2);
         --border-color: #374151;
         --text-color: #f3f4f6;
+    }
+
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-hover);
     }
 
     .page-title { 
@@ -241,13 +266,12 @@
         </form>
     </div>
 
-    <!-- BOTONES DE ACCIÓN (CON LOGICA DE FILTRO CORREGIDA) -->
+    <!-- BOTONES DE ACCIÓN -->
     <div class="action-buttons-container">
         <a href="{% url 'taxis:conductor_create' %}" class="btn-boceto-outline">
             <i class="fas fa-user-plus"></i> Nuevo Afiliado
         </a>
         
-        <!-- Aquí estaba el problema: Falta el ?{{ request.GET.urlencode }} -->
         <a href="{% url 'taxis:reporte_afiliados_excel' %}?{{ request.GET.urlencode }}" class="btn-boceto-outline btn-reporte-excel">
             <i class="fas fa-file-excel"></i> Descargar Excel
         </a>

@@ -1,0 +1,829 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+
+{% block title %}Transportista: {{ vehiculo.conductor.nombres }} {{ vehiculo.conductor.apellidos }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --coop-green: #00b300;
+        --coop-green-light: #e6f7e6;
+        --coop-red: #dc2626;
+        --coop-red-light: #fee2e2;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --bg-card: #ffffff;
+        --hover-overlay: rgba(0, 0, 0, 0.05);
+    }
+    
+    body.dark-mode {
+        --coop-green: #10b981;
+        --coop-green-light: rgba(16, 185, 129, 0.15);
+        --coop-red: #ef4444;
+        --coop-red-light: rgba(239, 68, 68, 0.15);
+        --text-primary: #f3f4f6;
+        --text-secondary: #9ca3af;
+        --border-color: #374151;
+        --bg-card: #1f2937;
+        --hover-overlay: rgba(255, 255, 255, 0.1);
+    }
+
+    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green);
+        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #007700;
+    }
+
+    /* HEADER OPERATIVO (VERDE) */
+    .page-header.header-activo,
+    .page-header.header-operativo {
+        background: linear-gradient(135deg, #00b300 0%, #007700 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* HEADER INOPERATIVO (ROJO) */
+    .page-header.header-inactivo,
+    .page-header.header-inoperativo {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+    }
+    .back-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateX(-5px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .transportista-name {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 1rem 0 0.5rem 0;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+    .status-operativo { background: #10b981; color: white; }
+    .status-inoperativo { background: #ef4444; color: white; }
+
+    /* CARDS */
+    .info-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+    }
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        color: var(--coop-green);
+        font-weight: 800;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 0.8rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* DOCUMENTOS */
+    .doc-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .doc-item {
+        background: var(--coop-green-light);
+        border: 2px solid var(--coop-green);
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .doc-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0, 179, 0, 0.2);
+    }
+
+    .doc-name {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .doc-status {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .doc-vigente {
+        color: #10b981;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .doc-vencido {
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .doc-cargado {
+        color: #6b7280;
+        font-size: 0.75rem;
+        font-style: italic;
+    }
+
+    .btn-view-doc {
+        background: var(--coop-green);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-view-doc:hover {
+        background: #007700;
+        transform: scale(1.02);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 8px rgba(0, 179, 0, 0.3);
+    }
+
+    /* MODO OSCURO - HOVER MEJORADO */
+    body.dark-mode .btn-view-doc {
+        background: var(--coop-green);
+    }
+
+    body.dark-mode .btn-view-doc:hover {
+        background: #059669;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    body.dark-mode .doc-item:hover {
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* --- ZOOM FOTO VEHÍCULO --- */
+    .vehicle-photo-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .vehicle-photo {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+
+    .vehicle-photo:hover {
+        transform: scale(1.02);
+    }
+
+    .zoom-hint {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .vehicle-photo-container:hover .zoom-hint {
+        opacity: 1;
+    }
+
+    /* MODAL DE ZOOM */
+    .zoom-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        overflow: auto;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .zoom-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .zoom-close {
+        position: absolute;
+        right: 30px;
+        top: 20px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10000;
+        transition: transform 0.2s;
+    }
+
+    .zoom-close:hover {
+        transform: scale(1.2);
+    }
+
+    .zoom-modal-content {
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        cursor: grab;
+        transition: transform 0.2s ease;
+    }
+
+    .zoom-modal-content:active {
+        cursor: grabbing;
+    }
+
+    .zoom-controls {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 15px 20px;
+        border-radius: 12px;
+        z-index: 10000;
+    }
+
+    .zoom-btn {
+        background: var(--coop-green);
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .zoom-btn:hover {
+        background: #007700;
+        transform: scale(1.1);
+    }
+
+    .zoom-btn:active {
+        transform: scale(0.95);
+    }
+
+    @media (max-width: 768px) {
+        .transportista-name { font-size: 1.5rem; }
+        .info-grid { grid-template-columns: 1fr; }
+        .doc-list { grid-template-columns: 1fr; }
+
+        .zoom-close {
+            right: 15px;
+            top: 10px;
+            font-size: 30px;
+        }
+
+        .zoom-controls {
+            bottom: 15px;
+            padding: 10px 15px;
+            gap: 10px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+
+<div class="container-fluid">
+    <!-- HEADER DINÁMICO BASADO EN LA CONDICIÓN DEL VEHÍCULO -->
+    <div class="page-header {% if vehiculo.condicion|lower == 'operativo' %}header-operativo{% else %}header-inoperativo{% endif %}">
+        <a href="{% url 'taxis:dt5_list' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver al DT5
+        </a>
+        <h1 class="transportista-name">
+            {{ vehiculo.conductor.nombres }} {{ vehiculo.conductor.apellidos }}
+        </h1>
+        <span class="status-badge status-{{ vehiculo.condicion|lower }}">
+            {% if vehiculo.condicion|lower == 'operativo' %}
+                <i class="fas fa-check-circle"></i> OPERATIVO
+            {% else %}
+                <i class="fas fa-times-circle"></i> INOPERATIVO
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="row">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="col-lg-6">
+            <!-- DATOS DEL AFILIADO -->
+            <div class="info-card">
+                <h2 class="card-title">
+                    <i class="fas fa-user-circle"></i> Datos del Afiliado
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Cédula</span>
+                        <span class="info-value">{{ vehiculo.conductor.cedula_prefijo }}-{{ vehiculo.conductor.cedula_identidad }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">RIF</span>
+                        <span class="info-value">{{ vehiculo.conductor.rif_prefijo }}-{{ vehiculo.conductor.rif }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Fecha de Nacimiento</span>
+                        <span class="info-value">{{ vehiculo.conductor.fecha_nacimiento|date:"d/m/Y" }} ({{ edad }} años)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Género</span>
+                        <span class="info-value">{{ vehiculo.conductor.get_sexo_display }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Estado Civil</span>
+                        <span class="info-value">{{ vehiculo.conductor.get_estado_civil_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACTO Y RESIDENCIA -->
+<div class="info-card">
+    <h2 class="card-title">
+        <i class="fas fa-map-marker-alt"></i> Contacto y Residencia
+    </h2>
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ vehiculo.conductor.email }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Teléfono Principal</span>
+            <span class="info-value">{{ vehiculo.conductor.telefono_principal }}</span>
+        </div>
+        {% if vehiculo.conductor.telefono_secundario %}
+        <div class="info-item">
+            <span class="info-label">Teléfono Secundario</span>
+            <span class="info-value">{{ vehiculo.conductor.telefono_secundario }}</span>
+        </div>
+        {% endif %}
+        {% if vehiculo.conductor.ubicacion %}
+        <div class="info-item">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.estado|default:"-" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Municipio</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.municipio|default:"-" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Parroquia</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.parroquia|default:"-" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Ciudad / Localidad</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.localidad|default:"-" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Sector</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.sector|default:"-" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Zona Postal</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.zona_postal|default:"-" }}</span>
+        </div>
+        <div class="info-item" style="grid-column: 1 / -1;">
+            <span class="info-label">Dirección Exacta</span>
+            <span class="info-value">{{ vehiculo.conductor.ubicacion.calle_avenida|default:"-" }} {{ vehiculo.conductor.ubicacion.numero_casa|default:"" }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+            <!-- DOCUMENTOS DEL CONDUCTOR -->
+            {% if vehiculo.conductor.cedula_archivo or vehiculo.conductor.rif_archivo %}
+            <div class="info-card">
+                <h2 class="card-title">
+                    <i class="fas fa-id-card"></i> Documentos del Conductor
+                </h2>
+                <div class="doc-list">
+                    {% if vehiculo.conductor.cedula_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">📄 Cédula de Identidad</span>
+                        {% if vehiculo.conductor.cedula_vencimiento %}
+                        <span class="doc-cargado">Vence: {{ vehiculo.conductor.cedula_vencimiento|date:"d/m/Y" }}</span>
+                        {% endif %}
+                        <a href="{{ vehiculo.conductor.cedula_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if vehiculo.conductor.rif_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">📄 RIF</span>
+                        {% if vehiculo.conductor.rif_vencimiento %}
+                        <span class="doc-cargado">Vence: {{ vehiculo.conductor.rif_vencimiento|date:"d/m/Y" }}</span>
+                        {% endif %}
+                        <a href="{{ vehiculo.conductor.rif_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="col-lg-6">
+            <!-- IDENTIDAD DEL VEHÍCULO -->
+            <div class="info-card">
+                <h2 class="card-title">
+                    <i class="fas fa-car"></i> Identidad del Vehículo
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">N° Casco</span>
+                        <span class="info-value" style="color: var(--coop-green); font-weight: 700;">#{{ vehiculo.numero_casco|default:"-" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Placa</span>
+                        <span class="info-value" style="color: var(--coop-green); font-weight: 700;">{{ vehiculo.placa }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Marca</span>
+                        <span class="info-value">{{ vehiculo.marca }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Modelo</span>
+                        <span class="info-value">{{ vehiculo.modelo }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Año</span>
+                        <span class="info-value">{{ vehiculo.anio }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Color</span>
+                        <span class="info-value">{{ vehiculo.color }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Capacidad</span>
+                        <span class="info-value">{{ vehiculo.capacidad }} pasajeros</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Condición</span>
+                        <span class="info-value">{{ vehiculo.get_condicion_display }}</span>
+                    </div>
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <span class="info-label">Serial Carrocería (NIV)</span>
+                        <span class="info-value">{{ vehiculo.serial_niv|default:"-" }}</span>
+                    </div>
+                </div>
+
+                <!-- FOTO DEL VEHÍCULO CON ZOOM -->
+                {% if vehiculo.foto %}
+                <div class="vehicle-photo-container">
+                    <img src="{{ vehiculo.foto.url }}" alt="Foto del vehículo" class="vehicle-photo" onclick="openZoomModal('{{ vehiculo.foto.url }}')">
+                    <span class="zoom-hint"><i class="fas fa-search-plus"></i> Click para ampliar</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- MANTENIMIENTO -->
+            <div class="info-card">
+                <h2 class="card-title">
+                    <i class="fas fa-wrench"></i> Mantenimiento
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Combustible</span>
+                        <span class="info-value">{{ vehiculo.combustible_tipo|default:"-" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tanque</span>
+                        <span class="info-value">{{ vehiculo.combustible_litros|default:"-" }} litros</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Batería</span>
+                        <span class="info-value">{{ vehiculo.bateria_amperaje|default:"-" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Aceite</span>
+                        <span class="info-value">{{ vehiculo.aceite_viscosidad|default:"-" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Cauchos</span>
+                        <span class="info-value">{{ vehiculo.cauchos_medida|default:"-" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rin</span>
+                        <span class="info-value">{{ vehiculo.diametro_rin|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENTOS DEL VEHÍCULO -->
+            <div class="info-card">
+                <h2 class="card-title">
+                    <i class="fas fa-file-contract"></i> Documentación Legal
+                </h2>
+                <div class="doc-list">
+                    <!-- Patente Municipal -->
+                    {% if vehiculo.patente_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">📋 Patente Municipal</span>
+                        {% if vehiculo.patente_vencimiento %}
+                            {% if patente_vencida %}
+                            <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencida: {{ vehiculo.patente_vencimiento|date:"d/m/Y" }}</span>
+                            {% else %}
+                            <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.patente_vencimiento|date:"d/m/Y" }}</span>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{{ vehiculo.patente_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Licencia de Circulación -->
+                    {% if vehiculo.licencia_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">🚗 Lic. de Circulación</span>
+                        {% if vehiculo.licencia_vencimiento %}
+                            {% if lic_circulacion_vencida %}
+                            <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencida: {{ vehiculo.licencia_vencimiento|date:"d/m/Y" }}</span>
+                            {% else %}
+                            <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.licencia_vencimiento|date:"d/m/Y" }}</span>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{{ vehiculo.licencia_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Seguro RCV -->
+                    {% if vehiculo.rcv_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">🛡️ Seguro (RCV)</span>
+                        {% if vehiculo.rcv_vencimiento %}
+                            {% if seguro_vencido %}
+                            <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencido: {{ vehiculo.rcv_vencimiento|date:"d/m/Y" }}</span>
+                            {% else %}
+                            <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.rcv_vencimiento|date:"d/m/Y" }}</span>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{{ vehiculo.rcv_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Certificado Médico -->
+                    {% if vehiculo.medico_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">🏥 Cert. Médico</span>
+                        {% if vehiculo.medico_vencimiento %}
+                            {% if cert_medico_vencido %}
+                            <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencido: {{ vehiculo.medico_vencimiento|date:"d/m/Y" }}</span>
+                            {% else %}
+                            <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.medico_vencimiento|date:"d/m/Y" }}</span>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{{ vehiculo.medico_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Carnet de Circulación -->
+                    {% if vehiculo.circulacion_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name"><i class="fas fa-id-card"></i> Carnet de Circulación</span>
+                        <span class="doc-cargado">Cargado</span>
+                        <a href="{{ vehiculo.circulacion_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Registro -->
+                    {% if vehiculo.registro_archivo %}
+                    <div class="doc-item">
+                        <span class="doc-name">📜 Registro del Vehículo</span>
+                        <span class="doc-cargado">Cargado</span>
+                        <a href="{{ vehiculo.registro_archivo.url }}" target="_blank" class="btn-view-doc">
+                            <i class="fas fa-eye"></i> Ver Archivo
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE ZOOM -->
+<div id="zoomModal" class="zoom-modal" onclick="closeZoomModal()">
+    <span class="zoom-close">&times;</span>
+    <img id="zoomImage" class="zoom-modal-content" alt="Foto ampliada">
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn(event)" title="Acercar"><i class="fas fa-plus"></i></button>
+        <button class="zoom-btn" onclick="zoomOut(event)" title="Alejar"><i class="fas fa-minus"></i></button>
+        <button class="zoom-btn" onclick="resetZoom(event)" title="Restablecer"><i class="fas fa-compress"></i></button>
+    </div>
+</div>
+
+<script>
+    // VARIABLES GLOBALES PARA ZOOM
+    let currentZoom = 1;
+
+    function openZoomModal(imageSrc) {
+        const modal = document.getElementById('zoomModal');
+        const zoomImage = document.getElementById('zoomImage');
+        zoomImage.src = imageSrc;
+        modal.classList.add('show');
+        currentZoom = 1;
+        zoomImage.style.transform = 'scale(1)';
+        
+        // Permitir cerrar con ESC
+        document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    function closeZoomModal() {
+        const modal = document.getElementById('zoomModal');
+        modal.classList.remove('show');
+        currentZoom = 1;
+        document.removeEventListener('keydown', handleEscapeKey);
+    }
+
+    function handleEscapeKey(e) {
+        if (e.key === 'Escape') {
+            closeZoomModal();
+        }
+    }
+
+    function zoomIn(event) {
+        event.stopPropagation();
+        currentZoom = Math.min(currentZoom + 0.3, 3); // Máximo 3x
+        const zoomImage = document.getElementById('zoomImage');
+        zoomImage.style.transform = `scale(${currentZoom})`;
+    }
+
+    function zoomOut(event) {
+        event.stopPropagation();
+        currentZoom = Math.max(currentZoom - 0.3, 0.5); // Mínimo 0.5x
+        const zoomImage = document.getElementById('zoomImage');
+        zoomImage.style.transform = `scale(${currentZoom})`;
+    }
+
+    function resetZoom(event) {
+        event.stopPropagation();
+        currentZoom = 1;
+        const zoomImage = document.getElementById('zoomImage');
+        zoomImage.style.transform = 'scale(1)';
+    }
+
+    // Permitir zoom con scroll del mouse
+    document.addEventListener('wheel', function(e) {
+        const modal = document.getElementById('zoomModal');
+        if (modal.classList.contains('show')) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn({stopPropagation: () => {}});
+            } else {
+                zoomOut({stopPropagation: () => {}});
+            }
+        }
+    }, { passive: false });
+</script>
+{% endblock %}

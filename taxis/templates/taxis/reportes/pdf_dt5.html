@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DT5</title>
+
+    <!-- 🎯 FAVICON PARA PESTAÑA DEL PDF -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
+    <style>
+        @page {
+            size: letter landscape;
+            margin: 0.7cm;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 10px;
+            padding-top: 50px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border-spacing: 0;
+            border: none;
+        }
+
+        td,
+        th {
+            border: 0.6pt solid #333;
+            padding: 2px;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #cc0000;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 6px;
+        }
+
+        tr.data-row td {
+            text-align: center;
+            font-size: 6px;
+        }
+
+        tr.data-row td.text-left {
+            text-align: left;
+        }
+
+        .info-table {
+            table-layout: auto;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .email-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .fecha {
+            text-align: center;
+            font-weight: bold;
+            margin: 5px 0 0 0;
+            font-size: 10px;
+        }
+
+        .header-imgs {
+            width: 100%;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .header-imgs td {
+            border: none !important;
+            vertical-align: top;
+        }
+
+        .logo {
+            width: 150px;
+            height: auto;
+        }
+
+        /* ===== AJUSTE COLUMNA CÉDULA - CORREGIDO PARA XHTML2PDF ===== */
+        .results-table th.col-cedula,
+        .results-table td.col-cedula {
+            font-size: 5.5px !important;
+            white-space: nowrap !important;
+            padding: 2px 1px !important;
+            letter-spacing: -0.4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="header_content">
+        <table class="header-imgs">
+            <tr>
+                <td style="text-align: left; width: 20%;">
+                    <img src="{{ logo_transporte }}" class="logo">
+                </td>
+                <td style="text-align: center; width: 60%; padding-top: 15px;">
+                    <h2>DT5 - DATOS DE TRANSPORTISTAS</h2>
+                    <p class="fecha">{{ fecha_hoy|date:"d-m-Y" }}</p>
+                </td>
+                <td style="text-align: right; width: 20%;">
+                    <img src="{{ logo_mision }}" class="logo">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td class="label" style="width: 150px;">NOMBRE DE LA LÍNEA:</td>
+            <td colspan="3">{{ coop.nombre }}</td>
+        </tr>
+        <tr>
+            <td class="label" style="width: 150px;">RIF:</td>
+            <td colspan="3">{{ coop.rif }}</td>
+        </tr>
+        <tr>
+            <td class="label" style="width: 150px;">DIRECCIÓN:</td>
+            <td colspan="3">{{ coop.direccion }}</td>
+        </tr>
+        <tr>
+            <td class="label" style="width: 150px;">PRESIDENTE:</td>
+            <td>{{ coop.presidente }}</td>
+            <td class="label" style="width: 150px;">TELÉFONO:</td>
+            <td>{{ coop.telefono }}</td>
+        </tr>
+        <tr>
+            <td class="label" style="width: 150px;">E-MAIL:</td>
+            <td><span class="email-link">{{ coop.email }}</span></td>
+            <td class="label" style="width: 150px;">MUNICIPIO:</td>
+            <td>{{ coop.municipio }}</td>
+        </tr>
+    </table>
+
+    <table class="results-table">
+        <colgroup>
+            <col style="width: 3%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 9%;"> <!-- CÉDULA - AUMENTADO -->
+            <col style="width: 5%;"> <!-- MARCA - REDUCIDO -->
+            <col style="width: 5%;"> <!-- MODELO - REDUCIDO -->
+            <col style="width: 4%;">
+            <col style="width: 6%;">
+            <col style="width: 6%;">
+            <col style="width: 3%;">
+            <col style="width: 5%;">
+            <col style="width: 5%;">
+            <col style="width: 7%;">
+            <col style="width: 4%;">
+            <col style="width: 6%;">
+            <col style="width: 5%;">
+            <col style="width: 3%;">
+            <col style="width: 3%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th rowspan="2">N°</th>
+                <th rowspan="2">NOMBRE</th>
+                <th rowspan="2">APELLIDO</th>
+                <th rowspan="2" class="col-cedula">CÉDULA</th>
+                <th rowspan="2">MARCA</th>
+                <th rowspan="2">MODELO</th>
+                <th rowspan="2">AÑO</th>
+                <th rowspan="2">PLACA</th>
+                <th rowspan="2">COLOR</th>
+                <th rowspan="2">CAP.</th>
+                <th rowspan="2">BATERÍA</th>
+                <th rowspan="2">ACEITE</th>
+                <th colspan="2">NEUMÁTICOS</th>
+                <th colspan="2">COMBUSTIBLE</th>
+                <th colspan="2">CONDICIÓN</th>
+            </tr>
+            <tr>
+                <th>CAUCHOS</th>
+                <th>RIN</th>
+                <th>TIPO</th>
+                <th>CANT.</th>
+                <th>OP.</th>
+                <th>IN.</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehiculo in transportistas %}
+            <tr class="data-row">
+                <td>{{ forloop.counter }}</td>
+                <td class="text-left">{{ vehiculo.conductor.nombres|default:"-" }}</td>
+                <td class="text-left">{{ vehiculo.conductor.apellidos|default:"-" }}</td>
+                <td class="col-cedula">{{ vehiculo.conductor.cedula_prefijo|default:"V"
+                    }}-{{vehiculo.conductor.cedula_identidad|default:"-" }}</td>
+                <td class="text-left">{{ vehiculo.marca|default:"-" }}</td>
+                <td class="text-left">{{ vehiculo.modelo|default:"-" }}</td>
+                <td>{{ vehiculo.anio|default:"-" }}</td>
+                <td>{{ vehiculo.placa|default:"-" }}</td>
+                <td class="text-left">{{ vehiculo.color|default:"-" }}</td>
+                <td>{{ vehiculo.capacidad|default:"-" }}</td>
+                <td>{{ vehiculo.bateria_amperaje|default:"-" }}</td>
+                <td>{{ vehiculo.aceite_viscosidad|default:"-" }}</td>
+                <td>{{ vehiculo.cauchos_medida|default:"-" }}</td>
+                <td>{{ vehiculo.diametro_rin|default:"-" }}</td>
+                <td>{{ vehiculo.combustible_tipo|default:"-" }}</td>
+                <td>{{ vehiculo.combustible_litros|default:"-" }}</td>
+                <td>{% if vehiculo.condicion == "operativo" %}X{% else %}-{% endif %}</td>
+                <td>{% if vehiculo.condicion == "inoperativo" %}X{% else %}-{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="18" style="padding: 15px; text-align: center;">No hay registros de conductores con
+                    vehículos.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align: right; margin-top: 8px; font-size: 8px;">Página 1 de 1</p>
+
+</body>
+
+</html>

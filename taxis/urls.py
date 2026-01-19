@@ -1,10 +1,8 @@
 from django.urls import path
 from . import views
 
-
 # IMPORTANTE: Este namespace debe coincidir con el usado en los templates (ej: taxis:panel_general)
 app_name = 'taxis'
-
 
 urlpatterns = [
     # ==========================================
@@ -17,14 +15,12 @@ urlpatterns = [
     path('activacion-exitosa/', views.ActivationSuccessView.as_view(), name='activation_success'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
 
-
     # ==========================================
     # 2. DASHBOARD Y PANEL (Privados)
     # ==========================================
     path('panel/', views.panel_general, name='panel_general'),
     path('notificaciones/', views.NotificacionListView.as_view(), name='notificacion_list'), 
     path('ayuda/', views.ayuda_sistema, name='ayuda_sistema'),
-
 
     # ==========================================
     # 3. GESTIÓN DE CONDUCTORES (AFILIADOS)
@@ -40,7 +36,6 @@ urlpatterns = [
     path('ajax/check-duplicado/', views.check_duplicado, name='check_duplicado'),
     path('ajax/buscar-chofer/', views.buscar_chofer, name='buscar_chofer'),
 
-
     # ==========================================
     # 4. GESTIÓN DE VEHÍCULOS
     # ==========================================
@@ -50,12 +45,19 @@ urlpatterns = [
     path('vehiculos/<int:pk>/editar/', views.VehiculoUpdateView.as_view(), name='vehiculo_update'),
     path('vehiculos/<int:pk>/eliminar/', views.VehiculoDeleteView.as_view(), name='vehiculo_delete'),
     
-    # --- NUEVA API DE VALIDACIÓN DE VEHÍCULOS (CORREGIDA) ---
+    # API de validación en tiempo real
     path('api/validar-vehiculo/', views.validar_datos_vehiculo, name='validar_datos_vehiculo'),
 
+    # ==========================================
+    # 5. DT5 - DATOS DE TRANSPORTISTAS
+    # ==========================================
+    path('dt5/', views.DT5ListView.as_view(), name='dt5_list'),
+    path('dt5/<int:pk>/', views.DT5DetailView.as_view(), name='dt5_detail'),
+    path('reportes/dt5/pdf/', views.reporte_dt5_pdf, name='reporte_dt5_pdf'),
+    path('reportes/dt5/excel/', views.reporte_dt5_excel, name='reporte_dt5_excel'),
 
     # ==========================================
-    # 5. DOCUMENTOS Y REPORTES
+    # 6. DOCUMENTOS Y REPORTES
     # ==========================================
     path('documentos/', views.DocumentoLegalListView.as_view(), name='legal_list'),
     path('documentos/nuevo/', views.DocumentoLegalCreateView.as_view(), name='legal_create'),
@@ -69,12 +71,11 @@ urlpatterns = [
     path('reportes/vehiculos/pdf/', views.reporte_vehiculos_pdf, name='reporte_vehiculos_pdf'),
     path('reportes/vehiculos/excel/', views.reporte_vehiculos_excel, name='reporte_vehiculos_excel'),
     
-    # Ficha individual
+    # Ficha individual de afiliado
     path('reportes/ficha/<int:pk>/', views.ReporteFichaPDF.as_view(), name='reporte_ficha'),
 
-
     # ==========================================
-    # 6. FINANZAS Y AUDITORÍA
+    # 7. FINANZAS Y AUDITORÍA
     # ==========================================
     path('finanzas/deudas/', views.DeudaListView.as_view(), name='deuda_list'),
     path('finanzas/pagos/', views.PagoListView.as_view(), name='pago_list'),
@@ -82,9 +83,8 @@ urlpatterns = [
     path('finanzas/cierre-mensual/', views.ejecutar_cierre_mensual, name='ejecutar_cierre_mensual'),
     path('auditoria/', views.MovimientoAuditListView.as_view(), name='audit_list'),
 
-
     # ==========================================
-    # 7. PERFIL Y CONFIGURACIÓN
+    # 8. PERFIL Y CONFIGURACIÓN
     # ==========================================
     path('perfil/', views.PerfilUsuarioView.as_view(), name='perfil_usuario'),
     path('perfil/avatar/', views.actualizar_avatar_presidente, name='actualizar_avatar_presidente'),

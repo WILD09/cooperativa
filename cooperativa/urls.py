@@ -59,6 +59,14 @@ urlpatterns = [
     # pero tus rutas en 'taxis/' tendrán prioridad si se usan correctamente.
     
     path("accounts/", include("django.contrib.auth.urls")),
+    
+    # -------------------------------------------------------------------------
+    # FAVICON GLOBAL (Para PDFs y Navegación)
+    # -------------------------------------------------------------------------
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url=settings.STATIC_URL + "img/logo.ico", permanent=True),
+    ),
 ]
 
 if settings.DEBUG:
