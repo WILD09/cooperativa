@@ -289,18 +289,27 @@
         text-align: center;
     }
 
+    .col-cedula {
+        width: 12%;
+        text-align: center;
+    }
+
+    .col-chofer {
+        width: 23%;
+        text-align: left;
+        padding-left: 15px;
+    }
+
     .col-casco {
         width: 10%;
         text-align: center;
     }
 
-    /* Nueva columna */
     .col-placa {
         width: 12%;
         text-align: center;
     }
 
-    /* Antes Unidad */
     .col-marca {
         width: 10%;
         text-align: center;
@@ -318,18 +327,6 @@
 
     .col-anio {
         width: 8%;
-        text-align: center;
-    }
-
-    .col-chofer {
-        width: 23%;
-        text-align: left;
-        padding-left: 15px;
-    }
-
-    /* Antes Chofer */
-    .col-cedula {
-        width: 12%;
         text-align: center;
     }
 
@@ -631,14 +628,14 @@
 <!-- ENCABEZADOS TABLA (NUEVO ORDEN) -->
 <div class="list-header-row">
     <div class="col-num">#</div>
+    <div class="col-cedula">Cédula</div>
+    <div class="col-chofer" style="text-align: center; padding-left: 0;">Chofer</div>
     <div class="col-casco">N° Casco</div>
     <div class="col-placa">Placas</div>
     <div class="col-marca">Marca</div>
     <div class="col-modelo">Modelo</div>
     <div class="col-color">Color</div>
     <div class="col-anio">Año</div>
-    <div class="col-chofer">Chofer</div>
-    <div class="col-cedula">Cédula</div>
 </div>
 
 <!-- LISTA DE VEHÍCULOS -->
@@ -648,6 +645,14 @@
 
         <div class="col-num row-text-muted">
             {{ forloop.counter }}
+        </div>
+
+        <div class="col-cedula row-text-highlight">
+            {{ v.conductor.cedula_prefijo }}-{{ v.conductor.cedula_identidad }}
+        </div>
+
+        <div class="col-chofer row-text-normal" style="text-align: center; padding-left: 0;">
+            {{ v.conductor.nombres }} {{ v.conductor.apellidos }}
         </div>
 
         <div class="col-casco row-text-highlight">
@@ -672,14 +677,6 @@
 
         <div class="col-anio row-text-muted">
             {{ v.anio }}
-        </div>
-
-        <div class="col-chofer row-text-normal">
-            {{ v.conductor.nombres }} {{ v.conductor.apellidos }}
-        </div>
-
-        <div class="col-cedula row-text-highlight">
-            {{ v.conductor.cedula_prefijo }}-{{ v.conductor.cedula_identidad }}
         </div>
     </a>
     {% empty %}

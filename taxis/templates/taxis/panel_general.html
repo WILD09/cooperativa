@@ -6,72 +6,180 @@
 {% block content %}
 <style>
     :root {
-        --card-bg: #ffffff; --text-color: #111827; --border-color: #00b300;
+        --card-bg: #ffffff;
+        --text-color: #111827;
+        --border-color: #00b300;
         --shadow-hover: 0 10px 25px rgba(0, 179, 0, 0.2);
     }
-    body.dark-mode { --card-bg: #0b1220; --text-color: #e2e8f0; --border-color: #10b981; }
+
+    body.dark-mode {
+        --card-bg: #0b1220;
+        --text-color: #e2e8f0;
+        --border-color: #10b981;
+    }
 
     /* DARK MODE OVERRIDES */
-    body.dark-mode .tarjeta-resumen, body.dark-mode .info-card, 
-    body.dark-mode .modal-content, body.dark-mode .modal-body {
-        background-color: var(--card-bg) !important; border-color: var(--border-color) !important; color: var(--text-color) !important;
+    body.dark-mode .tarjeta-resumen,
+    body.dark-mode .info-card,
+    body.dark-mode .modal-content,
+    body.dark-mode .modal-body {
+        background-color: var(--card-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-color) !important;
     }
+
     /* Modal Header Dark */
-    body.dark-mode .modal-header { background-color: #064e3b !important; border-bottom: 1px solid #10b981; }
-    body.dark-mode .modal-title { color: #fbbf24 !important; font-weight: 800; } 
-    body.dark-mode .close { color: #fff !important; }
+    body.dark-mode .modal-header {
+        background-color: #064e3b !important;
+        border-bottom: 1px solid #10b981;
+    }
+
+    body.dark-mode .modal-title {
+        color: #fbbf24 !important;
+        font-weight: 800;
+    }
+
+    body.dark-mode .close {
+        color: #fff !important;
+    }
+
+    .badge-name-alerta {
+        background: #00b300;
+        /* Verde claro */
+        color: white;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    body.dark-mode .badge-name-alerta {
+        background: #14b8a6;
+        /* Teal */
+    }
 
     /* Tarjetas Grid */
-    .tarjetas-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    .tarjeta-resumen {
-        background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 1.5rem 0.5rem;
-        text-align: center; text-decoration: none !important; color: var(--text-color); position: relative;
-        transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
+    .tarjetas-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
-    button.tarjeta-resumen { width: 100%; cursor: pointer; }
-    .tarjeta-resumen:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); color: var(--text-color); }
-    
-    .icon-circle { width: 60px; height: 60px; background: #00b300; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; }
-    body.dark-mode .icon-circle { background: #10b981; }
-    .icon-circle i { font-size: 1.8rem; color: white; }
+
+    .tarjeta-resumen {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 15px;
+        padding: 1.5rem 0.5rem;
+        text-align: center;
+        text-decoration: none !important;
+        color: var(--text-color);
+        position: relative;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    button.tarjeta-resumen {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .tarjeta-resumen:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        color: var(--text-color);
+    }
+
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        background: #00b300;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.8rem;
+    }
+
+    body.dark-mode .icon-circle {
+        background: #10b981;
+    }
+
+    .icon-circle i {
+        font-size: 1.8rem;
+        color: white;
+    }
 
     /* Badge Contador */
     .badge-counter {
-        position: absolute; top: 10px; right: 10px; 
-        background-color: #e74a3b; color: white; 
-        border-radius: 50%; padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 700;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #e74a3b;
+        color: white;
+        border-radius: 50%;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    .info-card { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 20px; padding: 2rem; }
-    .info-card strong { color: #00b300; }
-    body.dark-mode .info-card strong { color: #10b981; }
-    
-    @media (max-width: 992px) { .tarjetas-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 576px) { .tarjetas-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; } }
+    .info-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .info-card strong {
+        color: #00b300;
+    }
+
+    body.dark-mode .info-card strong {
+        color: #10b981;
+    }
+
+    @media (max-width: 992px) {
+        .tarjetas-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .tarjetas-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+    }
 </style>
 
 <div class="d-flex align-items-center mb-4">
-    <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);"><i class="fas fa-home mr-2"></i>Panel General</h1>
+    <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);"><i class="fas fa-home mr-2"></i>Panel
+        General</h1>
 </div>
 
 <div class="tarjetas-grid">
     <a href="{% url 'taxis:conductor_list' %}" class="tarjeta-resumen">
         <div class="icon-circle"><i class="fas fa-id-card"></i></div>
-        <h2>{{ total_afiliados|default:"0" }}</h2><h6>Afiliados</h6>
+        <h2>{{ total_afiliados|default:"0" }}</h2>
+        <h6>Afiliados</h6>
     </a>
     <a href="{% url 'taxis:vehiculo_list' %}" class="tarjeta-resumen">
         <div class="icon-circle"><i class="fas fa-taxi"></i></div>
-        <h2>{{ total_vehiculos|default:"0" }}</h2><h6>Vehículos</h6>
+        <h2>{{ total_vehiculos|default:"0" }}</h2>
+        <h6>Vehículos</h6>
     </a>
     <a href="{% url 'taxis:deuda_list' %}" class="tarjeta-resumen">
         <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
-        <h2>{{ pagos_pendientes|default:"0" }}</h2><h6>Pagos Pendientes</h6>
+        <h2>{{ pagos_pendientes|default:"0" }}</h2>
+        <h6>Pagos Pendientes</h6>
     </a>
-    
+
     <a href="{% url 'taxis:notificacion_list' %}" class="tarjeta-resumen">
         {% if notificaciones|length > 0 %}
-            <span class="badge-counter">{{ notificaciones|length }}</span>
+        <span class="badge-counter">{{ notificaciones|length }}</span>
         {% endif %}
         <div class="icon-circle"><i class="fas fa-bell"></i></div>
         <h2>{{ notificaciones|length|default:"0" }}</h2>
@@ -80,13 +188,15 @@
 
     <button class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal">
         <div class="icon-circle"><i class="fas fa-exclamation-circle"></i></div>
-        <h2>{{ alertas.count|default:"0" }}</h2><h6>Alertas Doc.</h6>
+        <h2>{{ alertas_documentos|length|default:"0" }}</h2>
+        <h6>Alertas Doc.</h6>
     </button>
 </div>
 
 <!-- INFORMACIÓN REAL DE LA COOPERATIVA (REORGANIZADA) -->
 <div class="mb-4">
-    <h4 class="font-weight-bold mb-3" style="color: var(--border-color);"><i class="fas fa-info-circle mr-2"></i>Acerca de la Cooperativa</h4>
+    <h4 class="font-weight-bold mb-3" style="color: var(--border-color);"><i class="fas fa-info-circle mr-2"></i>Acerca
+        de la Cooperativa</h4>
     <div class="info-card shadow-sm">
         <div class="row">
             <!-- COLUMNA IZQUIERDA -->
@@ -96,9 +206,10 @@
                 <p><strong>Presidente:</strong> {{ coop.presidente }}</p>
                 <!-- CONTACTO Y EMAIL MOVIDOS AQUÍ -->
                 <p><strong>Contacto:</strong> {{ coop.telefono }}</p>
-                <p><strong>Email:</strong> <a href="mailto:{{ coop.email }}" style="color: inherit; text-decoration: underline;">{{ coop.email }}</a></p>
+                <p><strong>Email:</strong> <a href="mailto:{{ coop.email }}"
+                        style="color: inherit; text-decoration: underline;">{{ coop.email }}</a></p>
             </div>
-            
+
             <!-- COLUMNA DERECHA -->
             <div class="col-md-6">
                 <p><strong>Dirección:</strong> {{ coop.direccion }}</p>
@@ -115,21 +226,37 @@
                 <h5 class="modal-title font-weight-bold">
                     <i class="fas fa-exclamation-triangle mr-2"></i>Alertas de Documentos
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                {% if alertas %}
-                    {% for alerta in alertas %}
-                    <div class="alert alert-warning border-left-warning shadow-sm" role="alert">
-                        <strong>{{ alerta.nombres }} {{ alerta.apellidos }}</strong><br><small>Documentación próxima a vencer.</small>
-                    </div>
+                {% if alertas_documentos %}
+                <div class="list-group">
+                    {% for alerta in alertas_documentos %}
+                    <a href="{% if alerta.tipo == 'conductor' %}{% url 'taxis:conductor_detail' alerta.conductor_id %}{% elif alerta.tipo == 'vehiculo' %}{% url 'taxis:vehiculo_detail' alerta.vehiculo_id %}{% endif %}"
+                        class="list-group-item list-group-item-action list-group-item-warning border-0 mb-2 shadow-sm"
+                        style="border-radius: 10px;">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 font-weight-bold">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>{{ alerta.titulo }}
+                            </h6>
+                            <small class="font-weight-bold">{{ alerta.fecha_vencimiento|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1 small">{{ alerta.descripcion }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="badge badge-name-alerta p-2 px-3 shadow-sm">
+                                <i class="fas fa-user-circle mr-1"></i> {{ alerta.conductor_nombre }}
+                            </span>
+                        </div>
+                    </a>
                     {% endfor %}
+                </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                        <h5 class="font-weight-bold">¡Todo en orden!</h5>
-                        <p class="text-muted">No hay documentos próximos a vencer.</p>
-                    </div>
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h5 class="font-weight-bold">¡Todo en orden!</h5>
+                    <p class="text-muted">No hay documentos próximos a vencer.</p>
+                </div>
                 {% endif %}
             </div>
         </div>

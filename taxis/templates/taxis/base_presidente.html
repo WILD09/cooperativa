@@ -1,10 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no" />
     <title>{% block title %}Panel Administrativo - Cooperativa{% endblock %}</title>
 
 
@@ -21,204 +23,413 @@
             --topbar-h: 70px;
             --coop-green-gradient: linear-gradient(180deg, #009900 0%, #00b300 40%, #007700 100%);
             --coop-dark-gradient: linear-gradient(180deg, #022c22 0%, #064e3b 100%);
-            
+
             /* Colores Cámara Avatar */
-            --camera-bg-light: #00b300; 
-            --camera-bg-dark: #065f46;  
-            --coop-green-primary: #00b300; 
+            --camera-bg-light: #00b300;
+            --camera-bg-dark: #065f46;
+            --coop-green-primary: #00b300;
 
 
-            /* TRANSICIÓN */
-            --transition-speed: 0.3s;
+            /* TRANSICIÓN: Ajustada para eliminar rebote y ser más fluida */
+            --transition-speed: 0.2s;
             --transition-curve: ease;
         }
 
 
         /* Layout Base */
-        html, body { overflow-x: hidden; width: 100%; height: 100%; }
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100%;
+            height: 100%;
+        }
 
 
         /* SIDEBAR */
         .sidebar {
             background: var(--coop-green-gradient) !important;
-            width: var(--sidebar-w); min-height: 100vh;
-            position: fixed; top: 0; left: 0; z-index: 1040;
+            width: var(--sidebar-w);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1040;
             transition: width var(--transition-speed) var(--transition-curve);
-            overflow-y: auto; scrollbar-width: none; padding-bottom: 80px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 80px;
         }
-        body.dark-mode .sidebar { background: var(--coop-dark-gradient) !important; border-right: 1px solid #065f46; }
-        body.sidebar-toggled .sidebar { width: var(--sidebar-w-collapsed); }
-        
+
+        body.dark-mode .sidebar {
+            background: var(--coop-dark-gradient) !important;
+            border-right: 1px solid #065f46;
+        }
+
+        body.sidebar-toggled .sidebar {
+            width: var(--sidebar-w-collapsed);
+        }
+
         /* CONTENT WRAPPER - ESTRATEGIA PADDING */
         #content-wrapper {
-            padding-left: var(--sidebar-w); 
-            width: 100%; 
-            padding-top: calc(var(--topbar-h) + 1.5rem); 
+            padding-left: var(--sidebar-w);
+            width: 100%;
+            padding-top: calc(var(--topbar-h) + 1.5rem);
             min-height: 100vh;
-            background-color: #f8f9fc; 
+            background-color: #f8f9fc;
             transition: padding-left var(--transition-speed) var(--transition-curve);
-            display: flex; flex-direction: column; 
+            display: flex;
+            flex-direction: column;
         }
-        body.sidebar-toggled #content-wrapper { 
-            padding-left: var(--sidebar-w-collapsed); 
+
+        body.sidebar-toggled #content-wrapper {
+            padding-left: var(--sidebar-w-collapsed);
         }
-        body.dark-mode #content-wrapper { background-color: #020a1f !important; }
+
+        body.dark-mode #content-wrapper {
+            background-color: #020a1f !important;
+        }
 
 
         /* NAVBAR */
         .navbar.bg-white {
-            left: var(--sidebar-w); width: calc(100% - var(--sidebar-w));
-            position: fixed; top: 0; height: var(--topbar-h); z-index: 1030;
-            background: #fff !important; box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,0.15);
+            left: var(--sidebar-w);
+            width: calc(100% - var(--sidebar-w));
+            position: fixed;
+            top: 0;
+            height: var(--topbar-h);
+            z-index: 1030;
+            background: #fff !important;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
             transition: left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
-            white-space: nowrap; overflow: hidden;
+            white-space: nowrap;
+            overflow: hidden;
         }
-        body.sidebar-toggled .navbar.bg-white { left: var(--sidebar-w-collapsed); width: calc(100% - var(--sidebar-w-collapsed)); }
-        body.dark-mode .navbar.bg-white { background-color: #0b1220 !important; border-bottom: 1px solid #10b981; }
+
+        body.sidebar-toggled .navbar.bg-white {
+            left: var(--sidebar-w-collapsed);
+            width: calc(100% - var(--sidebar-w-collapsed));
+        }
+
+        body.dark-mode .navbar.bg-white {
+            background-color: #0b1220 !important;
+            border-bottom: 1px solid #10b981;
+        }
 
 
         /* TEXTO "PRESIDENTE" */
-        .navbar .text-gray-600 { color: #111827 !important; font-weight: 800 !important; } 
-        body.dark-mode .navbar .text-gray-600 { color: #ffffff !important; }
+        .navbar .text-gray-600 {
+            color: #111827 !important;
+            font-weight: 800 !important;
+        }
+
+        body.dark-mode .navbar .text-gray-600 {
+            color: #ffffff !important;
+        }
 
 
         /* LINKS GENERALES (INCLUYE LOGOUT) */
-        .sidebar .nav-link, .logout-btn {
-            color: rgba(255,255,255,0.8) !important; 
-            padding: 1rem; display: flex; align-items: center; width: 100%; transition: all 0.2s ease;
-            background: transparent; border: none; 
-            text-decoration: none; font-weight: 400; 
+        .sidebar .nav-link,
+        .logout-btn {
+            color: rgba(255, 255, 255, 0.8) !important;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: none;
+            text-decoration: none;
+            font-weight: 400;
         }
-        
+
         /* HOVER UNIFICADO */
-        .sidebar .nav-link:hover, .logout-btn:hover { 
-            color: #fff !important; 
-            background: rgba(255,255,255,0.1) !important; 
-            transform: translateX(5px); 
-            font-weight: 600; 
+        .sidebar .nav-link:hover,
+        .logout-btn:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            font-weight: 600;
         }
-        
-        .sidebar .nav-link i, .logout-btn i { 
-            color: rgba(255,255,255,0.8) !important; 
-            width: 1.5rem; text-align: center; font-size: 1rem; margin-right: 0.75rem; 
-            transition: transform 0.2s ease, font-size 0.2s ease, color 0.2s ease; 
+
+        .sidebar .nav-link i,
+        .logout-btn i {
+            color: rgba(255, 255, 255, 0.8) !important;
+            width: 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            margin-right: 0.75rem;
+            transition: transform 0.2s ease, font-size 0.2s ease, color 0.2s ease;
         }
-        
-        .sidebar .nav-link:hover i, .logout-btn:hover i { 
-            transform: scale(1.2); 
-            color: #fff !important; 
+
+        .sidebar .nav-link:hover i,
+        .logout-btn:hover i {
+            color: #fff !important;
         }
-        
-        body.sidebar-toggled .sidebar .nav-link, body.sidebar-toggled .logout-btn { justify-content: center; padding: 1rem 0; flex-direction: column; }
-        body.sidebar-toggled .sidebar .nav-link span, body.sidebar-toggled .logout-btn span { display: none !important; }
-        
-        body.sidebar-toggled .sidebar .nav-link:hover, body.sidebar-toggled .logout-btn:hover { 
-            transform: none; 
-            background: rgba(255,255,255,0.15) !important; 
+
+        body.sidebar-toggled .sidebar .nav-link,
+        body.sidebar-toggled .logout-btn {
+            justify-content: center;
+            padding: 1rem 0;
+            flex-direction: column;
         }
-        
-        body.sidebar-toggled .sidebar .nav-link i, body.sidebar-toggled .logout-btn i { margin-right: 0; font-size: 1.2rem; margin-bottom: 0; }
-        
+
+        body.sidebar-toggled .sidebar .nav-link span,
+        body.sidebar-toggled .logout-btn span {
+            display: none !important;
+        }
+
+        body.sidebar-toggled .sidebar .nav-link:hover,
+        body.sidebar-toggled .logout-btn:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        body.sidebar-toggled .sidebar .nav-link i,
+        body.sidebar-toggled .logout-btn i {
+            margin-right: 0;
+            font-size: 1.2rem;
+            margin-bottom: 0;
+        }
+
         /* AVATAR CONTAINER & GLOW */
-        .sidebar-brand-container { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            gap: 10px; padding: 1.5rem 0; 
+        .sidebar-brand-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 1.5rem 0;
             transition: all var(--transition-speed) var(--transition-curve);
-            width: 100%; 
+            width: 100%;
         }
-        .sidebar-avatar-link { 
-            width: 80px; height: 80px; position: relative; display: block; 
-            transition: width var(--transition-speed) var(--transition-curve), height var(--transition-speed) var(--transition-curve), transform 0.3s; 
+
+        .sidebar-avatar-link {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            display: block;
+            transition: width var(--transition-speed) var(--transition-curve), height var(--transition-speed) var(--transition-curve);
             border-radius: 50%;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); 
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
-        .sidebar-avatar-link:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+
+        .sidebar-avatar-link:hover {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
-        .sidebar-avatar-link img { width: 100%; height: 100%; object-fit: cover; border: 3px solid rgba(255,255,255,0.8); }
-        
+
+        .sidebar-avatar-link img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+        }
+
         /* CAMARA */
-        .camera-icon-bg { 
-            position: absolute; bottom: 0; right: 0; 
-            background: var(--camera-bg-light); 
-            border-radius: 50%; width: 24px; height: 24px; 
-            border: 2px solid #b6ecad; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: background 0.3s ease, border-color 0.3s ease; 
-            z-index: 10; 
+        .camera-icon-bg {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--camera-bg-light);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #b6ecad;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, border-color 0.3s ease;
+            z-index: 10;
         }
-        body.dark-mode .camera-icon-bg { 
-            background: var(--camera-bg-dark); 
-            border-color: #10b981; 
+
+        body.dark-mode .camera-icon-bg {
+            background: var(--camera-bg-dark);
+            border-color: #10b981;
         }
-        
-        body.sidebar-toggled .sidebar-avatar-link { width: 50px; height: 50px; }
-        body.sidebar-toggled .sidebar-brand-container .badge { display: none !important; }
-        body.sidebar-toggled .sidebar-brand-container { padding: 1rem 0; }
+
+        body.sidebar-toggled .sidebar-avatar-link {
+            width: 50px;
+            height: 50px;
+        }
+
+        body.sidebar-toggled .sidebar-brand-container .badge {
+            display: none !important;
+        }
+
+        body.sidebar-toggled .sidebar-brand-container {
+            padding: 1rem 0;
+        }
 
 
         /* SIDEBAR TOGGLE BUTTON */
         #sidebarToggle {
-            width: 2.5rem; height: 2.5rem; 
+            width: 2.5rem;
+            height: 2.5rem;
             /* CENTRADO CLAVE */
-            display: inline-flex; /* Cambiado a inline-flex para centrado con text-center padre */
-            align-items: center; justify-content: center;
-            
-            background-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
-            transition: background-color 0.2s, color 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 50%; /* Asegurar redondez */
+            display: inline-flex;
+            /* Cambiado a inline-flex para centrado con text-center padre */
+            align-items: center;
+            justify-content: center;
+
+            background-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            transition: background-color 0.2s, color 0.2s, transform 0.2s ease;
+            border-radius: 50%;
+            /* Asegurar redondez */
         }
+
         #sidebarToggle:hover {
-            background-color: rgba(255,255,255,0.3); color: #fff;
-            transform: scale(1.15); 
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
             cursor: pointer;
         }
-        #sidebarToggle:active { transform: scale(0.95); }
-        #sidebarToggle::after { color: inherit; }
+
+        #sidebarToggle:active {
+            transform: scale(0.95);
+        }
+
+        #sidebarToggle::after {
+            color: inherit;
+        }
 
 
         /* LOGOUT CONTAINER */
-        .logout-container { width: 100%; }
+        .logout-container {
+            width: 100%;
+        }
 
 
         /* BOTÓN TOGGLE (MODO OSCURO) */
         .theme-toggle-btn {
-            position: fixed; top: 15px; right: 20px; z-index: 2000;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: #F9F9FB; color: var(--coop-green-primary); 
-            border: 2px solid #B6ECAD; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; 
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, border-color 0.3s;
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 2000;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #F9F9FB;
+            color: var(--coop-green-primary);
+            border: 2px solid #B6ECAD;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s, border-color 0.3s;
         }
-        .theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .theme-toggle-btn.rotate-active { transform: rotate(360deg); }
-        .theme-toggle-btn:focus { outline: none; }
+
+        .theme-toggle-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle-btn.rotate-active {
+            transform: rotate(360deg);
+        }
+
+        .theme-toggle-btn:focus {
+            outline: none;
+        }
 
 
-        body.dark-mode .theme-toggle-btn { 
-            background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
+        body.dark-mode .theme-toggle-btn {
+            background: #142923 !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
-        .theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; transition: filter 0.3s; }
-        body.dark-mode .theme-toggle-btn img { filter: invert(1) brightness(200%); }
+
+        .theme-toggle-btn img {
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            transition: filter 0.3s;
+        }
+
+        body.dark-mode .theme-toggle-btn img {
+            filter: invert(1) brightness(200%);
+        }
 
 
         /* MODAL */
-        body.dark-mode .modal-content .modal-header { background-color: #0d9488 !important; border-bottom: 2px solid #115e59 !important; }
-        body.dark-mode .modal-header h6.modal-title, body.dark-mode .modal-header .modal-title, .modal-title-forced-white { color: #ffffff !important; font-weight: 800 !important; }
-        body.dark-mode .close { color: #ffffff !important; opacity: 1; text-shadow: none; }
-        
-        .btn-modal-action { transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s; }
-        .btn-modal-action:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-        .btn-disabled-camera { opacity: 0.6; cursor: not-allowed !important; background-color: #e5e7eb !important; color: #9ca3af !important; border-color: #d1d5db !important; }
-        
+        body.dark-mode .modal-content {
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+            border: 1px solid #10b981 !important;
+        }
+
+        body.dark-mode .modal-content .modal-header {
+            background-color: #0d9488 !important;
+            border-bottom: 2px solid #115e59 !important;
+        }
+
+        body.dark-mode .modal-header h6.modal-title,
+        body.dark-mode .modal-header .modal-title,
+        .modal-title-forced-white {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+        }
+
+        body.dark-mode .modal-body {
+            background-color: #141b2d !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .close {
+            color: #ffffff !important;
+            opacity: 1;
+            text-shadow: none;
+        }
+
+        .btn-modal-action {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+        }
+
+        .btn-modal-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-disabled-camera {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+            background-color: #e5e7eb !important;
+            color: #9ca3af !important;
+            border-color: #d1d5db !important;
+        }
+
         @media (max-width: 768px) {
-            .sidebar { width: 0; overflow: hidden; }
-            body.sidebar-toggled .sidebar { width: var(--sidebar-w); }
-            .navbar.bg-white { left: 0 !important; width: 100% !important; }
-            #content-wrapper { padding-left: 0 !important; width: 100% !important; }
-            .theme-toggle-btn { top: 12px; right: 15px; width: 40px; height: 40px; }
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            body.sidebar-toggled .sidebar {
+                width: var(--sidebar-w);
+            }
+
+            .navbar.bg-white {
+                left: 0 !important;
+                width: 100% !important;
+            }
+
+            #content-wrapper {
+                padding-left: 0 !important;
+                width: 100% !important;
+            }
+
+            .theme-toggle-btn {
+                top: 12px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* REFUERZO DE TRANSICIÓN: Asegura que el sidebar no rebote */
+        .sidebar,
+        #content-wrapper,
+        .navbar {
+            transition-duration: var(--transition-speed) !important;
+            transition-timing-function: var(--transition-curve) !important;
         }
     </style>
 </head>
@@ -239,37 +450,50 @@
                     {% if user.avatar %}
                     <img class="rounded-circle" src="{{ user.avatar.url }}">
                     {% else %}
-                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white" style="width: 100%; height: 100%; border: 3px solid rgba(255,255,255,0.8);">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white"
+                        style="width: 100%; height: 100%; border: 3px solid rgba(255,255,255,0.8);">
                         <i class="fas fa-user text-secondary fa-2x"></i>
                     </div>
                     {% endif %}
                     <div class="camera-icon-bg"><i class="fas fa-camera text-white" style="font-size: 10px;"></i></div>
                 </a>
-                <div class="badge badge-success px-2 py-1 mt-2" style="background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);">PRESIDENTE</div>
+                <div class="badge badge-success px-2 py-1 mt-2"
+                    style="background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);">
+                    PRESIDENTE</div>
             </div>
 
 
             <hr class="sidebar-divider my-0">
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:panel_general' %}"><i class="fas fa-fw fa-tachometer-alt"></i><span>Panel General</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:conductor_list' %}"><i class="fas fa-fw fa-users"></i><span>Afiliados</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:vehiculo_list' %}"><i class="fas fa-fw fa-car"></i><span>Vehículos</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:dt5_list' %}"><i class="fas fa-fw fa-file-contract"></i><span>DT5</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:deuda_list' %}"><i class="fas fa-fw fa-dollar-sign"></i><span>Finanzas</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:notificacion_list' %}"><i class="fas fa-fw fa-bell"></i><span>Notificaciones</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:audit_list' %}"><i class="fas fa-fw fa-history"></i><span>Movimientos</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:perfil_usuario' %}"><i class="fas fa-fw fa-cog"></i><span>Configuración</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:ayuda_sistema' %}"><i class="fas fa-fw fa-question-circle"></i><span>Ayuda</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:panel_general' %}"><i
+                        class="fas fa-fw fa-tachometer-alt"></i><span>Panel General</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:conductor_list' %}"><i
+                        class="fas fa-fw fa-users"></i><span>Afiliados</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:vehiculo_list' %}"><i
+                        class="fas fa-fw fa-car"></i><span>Vehículos</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:dt5_list' %}"><i
+                        class="fas fa-fw fa-file-contract"></i><span>DT5</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:deuda_list' %}"><i
+                        class="fas fa-fw fa-dollar-sign"></i><span>Finanzas</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:notificacion_list' %}"><i
+                        class="fas fa-fw fa-bell"></i><span>Notificaciones</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:audit_list' %}"><i
+                        class="fas fa-fw fa-history"></i><span>Movimientos</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:perfil_usuario' %}"><i
+                        class="fas fa-fw fa-cog"></i><span>Configuración</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:ayuda_sistema' %}"><i
+                        class="fas fa-fw fa-question-circle"></i><span>Ayuda</span></a></li>
 
 
             <hr class="sidebar-divider my-2">
             <li class="nav-item logout-container">
                 <form method="post" action="{% url 'logout' %}" class="w-100 m-0">
                     {% csrf_token %}
-                    <button type="submit" class="logout-btn"><i class="fas fa-fw fa-sign-out-alt"></i><span>Cerrar Sesión</span></button>
+                    <button type="submit" class="logout-btn"><i class="fas fa-fw fa-sign-out-alt"></i><span>Cerrar
+                            Sesión</span></button>
                 </form>
             </li>
             <hr class="sidebar-divider d-none d-md-block my-2">
-            
+
             <!-- CONTENEDOR BOTÓN TOGGLE CENTRADO -->
             <div class="text-center d-none d-md-inline mb-3 w-100">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -280,17 +504,23 @@
         <div id="content-wrapper">
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i
+                            class="fa fa-bars"></i></button>
                     <div class="d-flex align-items-center">
-                         <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 40px; margin-right: 10px;">
-                         <span class="h5 mb-0 font-weight-bold text-gray-600 d-none d-sm-inline">Presidente</span>
+                        <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 40px; margin-right: 10px;">
+                        <span class="h5 mb-0 font-weight-bold text-gray-600 d-none d-sm-inline">Presidente</span>
                     </div>
                 </nav>
                 <div class="container-fluid">
                     {% block content %}{% endblock %}
                 </div>
             </div>
-            <footer class="sticky-footer"><div class="container my-auto"><div class="copyright text-center my-auto"><span>Copyright &copy; Cooperativa Wilson Torres 33 RL 2026</span></div></div></footer>
+            <footer class="sticky-footer">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto"><span>Copyright &copy; Cooperativa Wilson Torres 33 RL
+                            2026</span></div>
+                </div>
+            </footer>
         </div>
     </div>
 
@@ -300,25 +530,40 @@
         <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
                 <div class="modal-header bg-success text-white py-2">
-                    <h6 class="modal-title font-weight-bold mx-auto modal-title-forced-white" style="color: #ffffff !important;">Actualizar Foto</h6>
-                    <button type="button" class="close text-white position-absolute" style="right:15px;" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title font-weight-bold mx-auto modal-title-forced-white"
+                        style="color: #ffffff !important;">Actualizar Foto</h6>
+                    <button type="button" class="close text-white position-absolute" style="right:15px;"
+                        data-dismiss="modal">&times;</button>
                 </div>
-                <div class="modal-body text-center bg-white p-3">
+                <div class="modal-body text-center p-3">
                     <form id="avatarUploadForm" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3 d-flex justify-content-center position-relative">
-                            <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid #e3e6f0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                                <img id="avatarPreview" src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'img/undraw_profile.svg' %}{% endif %}" style="width: 100%; height: 100%; object-fit: cover;">
-                                <video id="cameraStream" class="d-none" style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            <div
+                                style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid #e3e6f0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                <img id="avatarPreview"
+                                    src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'img/undraw_profile.svg' %}{% endif %}"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                <video id="cameraStream" class="d-none"
+                                    style="width: 100%; height: 100%; object-fit: cover;"></video>
                             </div>
                             <canvas id="photoCanvas" class="d-none"></canvas>
                         </div>
-                        <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                        <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;"
+                            onchange="previewImage(this)">
                         <div class="d-flex flex-column" style="gap: 8px;">
-                            <button type="button" id="btnSelectFile" class="btn btn-primary btn-sm btn-block rounded-pill font-weight-bold btn-modal-action"><i class="fas fa-folder-open mr-2"></i>Elegir Foto</button>
-                            <button type="button" id="btnCapturePhoto" class="btn btn-info btn-sm btn-block rounded-pill font-weight-bold btn-modal-action"><i class="fas fa-camera mr-2"></i>Tomar Foto</button>
-                            <button type="button" id="btnTakeSnapshot" class="btn btn-danger btn-sm btn-block rounded-pill font-weight-bold btn-modal-action d-none"><i class="fas fa-circle mr-2"></i>Capturar</button>
-                            <button type="button" id="btnSaveAvatar" class="btn btn-success btn-sm btn-block rounded-pill font-weight-bold btn-modal-action mt-2" disabled><i class="fas fa-save mr-2"></i>Guardar Cambios</button>
+                            <button type="button" id="btnSelectFile"
+                                class="btn btn-primary btn-sm btn-block rounded-pill font-weight-bold btn-modal-action"><i
+                                    class="fas fa-folder-open mr-2"></i>Elegir Foto</button>
+                            <button type="button" id="btnCapturePhoto"
+                                class="btn btn-info btn-sm btn-block rounded-pill font-weight-bold btn-modal-action"><i
+                                    class="fas fa-camera mr-2"></i>Tomar Foto</button>
+                            <button type="button" id="btnTakeSnapshot"
+                                class="btn btn-danger btn-sm btn-block rounded-pill font-weight-bold btn-modal-action d-none"><i
+                                    class="fas fa-circle mr-2"></i>Capturar</button>
+                            <button type="button" id="btnSaveAvatar"
+                                class="btn btn-success btn-sm btn-block rounded-pill font-weight-bold btn-modal-action mt-2"
+                                disabled><i class="fas fa-save mr-2"></i>Guardar Cambios</button>
                         </div>
                     </form>
                 </div>
@@ -331,113 +576,114 @@
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
-    
+
     <script>
-    (function(){
-        const btn = document.getElementById("themeToggleBtn");
-        let modo = localStorage.getItem('theme') === 'dark'; 
-        if(modo){ document.body.classList.add('dark-mode'); }
-        btn.onclick = function() {
-            btn.classList.add('rotate-active');
-            setTimeout(() => btn.classList.remove('rotate-active'), 500);
-            modo = !modo;
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', modo ? 'dark' : 'light');
-        };
-    })();
+        (function () {
+            const btn = document.getElementById("themeToggleBtn");
+            let modo = localStorage.getItem('theme') === 'dark';
+            if (modo) { document.body.classList.add('dark-mode'); }
+            btn.onclick = function () {
+                btn.classList.add('rotate-active');
+                setTimeout(() => btn.classList.remove('rotate-active'), 500);
+                modo = !modo;
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', modo ? 'dark' : 'light');
+            };
+        })();
 
 
-    const btnSelectFile = document.getElementById('btnSelectFile');
-    const avatarInput = document.getElementById('avatarInput');
-    const btnCapturePhoto = document.getElementById('btnCapturePhoto');
-    const btnTakeSnapshot = document.getElementById('btnTakeSnapshot');
-    const cameraStream = document.getElementById('cameraStream');
-    const avatarPreview = document.getElementById('avatarPreview');
-    const photoCanvas = document.getElementById('photoCanvas');
-    let stream = null;
+        const btnSelectFile = document.getElementById('btnSelectFile');
+        const avatarInput = document.getElementById('avatarInput');
+        const btnCapturePhoto = document.getElementById('btnCapturePhoto');
+        const btnTakeSnapshot = document.getElementById('btnTakeSnapshot');
+        const cameraStream = document.getElementById('cameraStream');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const photoCanvas = document.getElementById('photoCanvas');
+        let stream = null;
 
 
-    async function checkCameraAvailability() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) { disableCameraBtn(); return; }
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoInput = devices.find(device => device.kind === 'videoinput');
-            if (!videoInput) disableCameraBtn();
-        } catch (err) { disableCameraBtn(); }
-    }
-    function disableCameraBtn() {
-        btnCapturePhoto.disabled = true;
-        btnCapturePhoto.classList.add('btn-disabled-camera');
-        btnCapturePhoto.innerHTML = '<i class="fas fa-video-slash mr-2"></i>Sin Cámara';
-    }
-    document.addEventListener("DOMContentLoaded", checkCameraAvailability);
-
-
-    if (btnSelectFile) { btnSelectFile.addEventListener('click', () => { stopCamera(); avatarInput.click(); }); }
-
-
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) { avatarPreview.src = e.target.result; document.getElementById('btnSaveAvatar').disabled = false; }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-
-    if (btnCapturePhoto) {
-        btnCapturePhoto.addEventListener('click', async () => {
-            if (btnCapturePhoto.disabled) return;
+        async function checkCameraAvailability() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) { disableCameraBtn(); return; }
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                cameraStream.srcObject = stream;
-                cameraStream.play();
-                cameraStream.classList.remove('d-none');
-                avatarPreview.classList.add('d-none');
-                btnCapturePhoto.classList.add('d-none');
-                btnSelectFile.classList.add('d-none');
-                btnTakeSnapshot.classList.remove('d-none');
-            } catch (err) { alert("No se pudo acceder a la cámara."); }
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoInput = devices.find(device => device.kind === 'videoinput');
+                if (!videoInput) disableCameraBtn();
+            } catch (err) { disableCameraBtn(); }
+        }
+        function disableCameraBtn() {
+            btnCapturePhoto.disabled = true;
+            btnCapturePhoto.classList.add('btn-disabled-camera');
+            btnCapturePhoto.innerHTML = '<i class="fas fa-video-slash mr-2"></i>Sin Cámara';
+        }
+        document.addEventListener("DOMContentLoaded", checkCameraAvailability);
+
+
+        if (btnSelectFile) { btnSelectFile.addEventListener('click', () => { stopCamera(); avatarInput.click(); }); }
+
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { avatarPreview.src = e.target.result; document.getElementById('btnSaveAvatar').disabled = false; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        if (btnCapturePhoto) {
+            btnCapturePhoto.addEventListener('click', async () => {
+                if (btnCapturePhoto.disabled) return;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    cameraStream.srcObject = stream;
+                    cameraStream.play();
+                    cameraStream.classList.remove('d-none');
+                    avatarPreview.classList.add('d-none');
+                    btnCapturePhoto.classList.add('d-none');
+                    btnSelectFile.classList.add('d-none');
+                    btnTakeSnapshot.classList.remove('d-none');
+                } catch (err) { alert("No se pudo acceder a la cámara."); }
+            });
+        }
+
+
+        if (btnTakeSnapshot) {
+            btnTakeSnapshot.addEventListener('click', () => {
+                const context = photoCanvas.getContext('2d');
+                photoCanvas.width = 300; photoCanvas.height = 300;
+                context.drawImage(cameraStream, 0, 0, 300, 300);
+                photoCanvas.toBlob(blob => {
+                    const file = new File([blob], "foto.jpg", { type: "image/jpeg" });
+                    const dt = new DataTransfer(); dt.items.add(file);
+                    avatarInput.files = dt.files;
+                    avatarPreview.src = URL.createObjectURL(blob);
+                    stopCamera();
+                    document.getElementById('btnSaveAvatar').disabled = false;
+                }, 'image/jpeg');
+            });
+        }
+
+
+        function stopCamera() {
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            cameraStream.classList.add('d-none');
+            avatarPreview.classList.remove('d-none');
+            btnCapturePhoto.classList.remove('d-none');
+            btnSelectFile.classList.remove('d-none');
+            btnTakeSnapshot.classList.add('d-none');
+        }
+
+
+        document.getElementById('btnSaveAvatar').addEventListener('click', function () {
+            const btn = this;
+            const formData = new FormData(document.getElementById('avatarUploadForm'));
+            btn.innerHTML = 'Guardando...';
+            fetch("{% url 'taxis:actualizar_avatar_presidente' %}", {
+                method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            }).then(r => r.json()).then(data => { if (data.status === 'ok') location.reload(); });
         });
-    }
-
-
-    if (btnTakeSnapshot) {
-        btnTakeSnapshot.addEventListener('click', () => {
-            const context = photoCanvas.getContext('2d');
-            photoCanvas.width = 300; photoCanvas.height = 300;
-            context.drawImage(cameraStream, 0, 0, 300, 300);
-            photoCanvas.toBlob(blob => {
-                const file = new File([blob], "foto.jpg", { type: "image/jpeg" });
-                const dt = new DataTransfer(); dt.items.add(file);
-                avatarInput.files = dt.files;
-                avatarPreview.src = URL.createObjectURL(blob);
-                stopCamera();
-                document.getElementById('btnSaveAvatar').disabled = false;
-            }, 'image/jpeg');
-        });
-    }
-
-
-    function stopCamera() {
-        if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-        cameraStream.classList.add('d-none');
-        avatarPreview.classList.remove('d-none');
-        btnCapturePhoto.classList.remove('d-none');
-        btnSelectFile.classList.remove('d-none');
-        btnTakeSnapshot.classList.add('d-none');
-    }
-
-
-    document.getElementById('btnSaveAvatar').addEventListener('click', function(){
-        const btn = this;
-        const formData = new FormData(document.getElementById('avatarUploadForm'));
-        btn.innerHTML = 'Guardando...';
-        fetch("{% url 'taxis:actualizar_avatar_presidente' %}", {
-            method: 'POST', body: formData, headers: {'X-CSRFToken': '{{ csrf_token }}'}
-        }).then(r => r.json()).then(data => { if(data.status === 'ok') location.reload(); });
-    });
-    $('#avatarModal').on('hidden.bs.modal', stopCamera);
+        $('#avatarModal').on('hidden.bs.modal', stopCamera);
     </script>
 </body>
+
 </html>

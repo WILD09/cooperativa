@@ -426,6 +426,11 @@ class ConductorDetailView(LoginRequiredMixin, DetailView):
     template_name = "taxis/conductor_detail.html"
     context_object_name = "conductor"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+        return context
+
 class ConductorCreateView(LoginRequiredMixin, CreateView):
     model = Conductor
     form_class = ConductorForm
@@ -1160,14 +1165,66 @@ class NotificacionListView(LoginRequiredMixin, ListView):
 
 @login_required
 def panel_general(request):
-    hoy = date.today()
-    limite = hoy + timedelta(days=15)
+    hoy = timezone.now().date()
+    # Solo mostramos alertas de documentos YA VENCIDOS
+    
+    alertas_documentos = []
+
+    # Alertas de Conductores (Cédula y RIF)
+    conductores = Conductor.objects.filter(estado='activo')
+    for c in conductores:
+        if c.cedula_vencimiento and c.cedula_vencimiento < hoy:
+            tipo_doc = 'Cédula'
+            alertas_documentos.append({
+                'tipo': 'conductor',
+                'conductor_id': c.id,
+                'conductor_nombre': f"{c.nombres} {c.apellidos}",
+                'titulo': f'{tipo_doc} vencida',
+                'descripcion': f"El documento {tipo_doc} venció el {c.cedula_vencimiento.strftime('%d/%m/%Y')}",
+                'documento_tipo': tipo_doc,
+                'fecha_vencimiento': c.cedula_vencimiento
+            })
+        if c.rif_vencimiento and c.rif_vencimiento < hoy:
+            tipo_doc = 'RIF'
+            alertas_documentos.append({
+                'tipo': 'conductor',
+                'conductor_id': c.id,
+                'conductor_nombre': f"{c.nombres} {c.apellidos}",
+                'titulo': f'{tipo_doc} vencido',
+                'descripcion': f"El documento {tipo_doc} venció el {c.rif_vencimiento.strftime('%d/%m/%Y')}",
+                'documento_tipo': tipo_doc,
+                'fecha_vencimiento': c.rif_vencimiento
+            })
+
+    # Alertas de Vehículos (Patente, Licencia, RCV, Médico)
+    vehiculos = Vehiculo.objects.select_related('conductor').all()
+    for v in vehiculos:
+        checks = [
+            ('Patente', v.patente_vencimiento),
+            ('Licencia', v.licencia_vencimiento),
+            ('RCV', v.rcv_vencimiento),
+            ('Médico', v.medico_vencimiento)
+        ]
+        for tipo_doc, fecha in checks:
+            if fecha and fecha < hoy:
+                alertas_documentos.append({
+                    'tipo': 'vehiculo',
+                    'vehiculo_id': v.id,
+                    'conductor_nombre': f"{v.conductor.nombres} {v.conductor.apellidos}",
+                    'titulo': f'{tipo_doc} vencida' if tipo_doc != 'RCV' and tipo_doc != 'Médico' else f'{tipo_doc} vencido',
+                    'descripcion': f"El documento {tipo_doc} del vehículo {v.placa} venció el {fecha.strftime('%d/%m/%Y')}",
+                    'documento_tipo': tipo_doc,
+                    'fecha_vencimiento': fecha
+                })
+
+    alertas_documentos.sort(key=lambda x: x['fecha_vencimiento'])
+
     context = {
         'total_afiliados': Conductor.objects.count(),
         'total_vehiculos': Vehiculo.objects.count(),
         'pagos_pendientes': Deuda.objects.filter(pagada=False).count(),
         'notificaciones': Notificacion.objects.filter(leida=False),
-        'alertas': Vehiculo.objects.filter(Q(patente_vencimiento__lte=limite) | Q(licencia_vencimiento__lte=limite))[:5],
+        'alertas_documentos': alertas_documentos,
         'tasa_actual': ConfiguracionGlobal.get_tasa(),
         'coop': DATOS_COOP
     }

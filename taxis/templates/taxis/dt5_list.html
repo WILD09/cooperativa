@@ -12,10 +12,11 @@
         --coop-green-light: #e6f7e6;
         --border-color: #e5e7eb;
         --text-color: #374151;
-        
+
         --excel-color: #107c41;
         --pdf-color: #ef4444;
     }
+
     body.dark-mode {
         --coop-green-primary: #10b981;
         --coop-green-hover: #059669;
@@ -33,7 +34,8 @@
     body::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
-        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
+        margin: 4px 0;
+        /* ✅ ESPACIO SUPERIOR E INFERIOR */
     }
 
     body.dark-mode::-webkit-scrollbar-track {
@@ -42,117 +44,255 @@
 
     body::-webkit-scrollbar-thumb {
         background: var(--coop-green-primary);
-        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
-        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
+        border-radius: 10px;
+        /* ✅ EXTREMOS REDONDEADOS */
+        min-height: 40px;
+        /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
     }
 
     body::-webkit-scrollbar-thumb:hover {
         background: var(--coop-green-hover);
     }
 
-    .page-title { 
-        color: var(--coop-green-primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; 
-        display: flex; align-items: center; gap: 10px;
+    .page-title {
+        color: var(--coop-green-primary);
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     /* --- BARRA DE BÚSQUEDA --- */
     .search-container {
-        display: flex; align-items: center; max-width: 600px; position: relative;
+        display: flex;
+        align-items: center;
+        max-width: 600px;
+        position: relative;
     }
+
     .search-input-group {
-        position: relative; flex-grow: 1; display: flex; align-items: center;
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
     }
+
     .search-input {
-        width: 100%; height: 48px;
-        border: 2px solid var(--coop-green-primary); border-radius: 25px;
-        padding: 0 1rem 0 3rem; 
-        color: var(--text-color); outline: none; background-color: transparent;
-        transition: all 0.3s ease; font-size: 1rem;
+        width: 100%;
+        height: 48px;
+        border: 2px solid var(--coop-green-primary);
+        border-radius: 25px;
+        padding: 0 1rem 0 3rem;
+        color: var(--text-color);
+        outline: none;
+        background-color: transparent;
+        transition: all 0.3s ease;
+        font-size: 1rem;
     }
+
     .search-input:focus {
-        box-shadow: 0 0 0 4px var(--coop-green-light); transform: scale(1.01);
+        box-shadow: 0 0 0 4px var(--coop-green-light);
+        transform: scale(1.01);
     }
+
     .search-input::placeholder {
-        color: #9ca3af; font-weight: 400; opacity: 0.8;
+        color: #9ca3af;
+        font-weight: 400;
+        opacity: 0.8;
     }
+
     .search-icon {
-        position: absolute; left: 15px; z-index: 10; 
-        color: var(--coop-green-primary); font-size: 1.1rem; pointer-events: none;
+        position: absolute;
+        left: 15px;
+        z-index: 10;
+        color: var(--coop-green-primary);
+        font-size: 1.1rem;
+        pointer-events: none;
     }
 
     /* --- BOTÓN FILTRO --- */
     .filter-btn {
-        background-color: var(--coop-green-light); color: var(--coop-green-primary); 
-        border: 2px solid var(--coop-green-primary); border-radius: 12px;
-        width: 48px; height: 48px; margin-left: 15px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: all 0.3s ease;
+        background-color: var(--coop-green-light);
+        color: var(--coop-green-primary);
+        border: 2px solid var(--coop-green-primary);
+        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        margin-left: 15px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
-    .filter-btn:hover { background-color: var(--coop-green-primary); color: white; transform: rotate(15deg); }
+
+    .filter-btn:hover {
+        background-color: var(--coop-green-primary);
+        color: white;
+        transform: rotate(15deg);
+    }
 
     /* --- MENU DESPLEGABLE --- */
     .filter-dropdown {
-        position: absolute; top: 115%; right: 0; 
-        background: white; border-radius: 16px;
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
-        width: 320px; padding: 25px; z-index: 100; 
-        display: none; animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: absolute;
+        top: 115%;
+        right: 0;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border-color);
+        width: 320px;
+        padding: 25px;
+        z-index: 100;
+        display: none;
+        animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
-    body.dark-mode .filter-dropdown { 
-        background: #1f2937; border-color: #4b5563; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); 
+
+    body.dark-mode .filter-dropdown {
+        background: #1f2937;
+        border-color: #4b5563;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     }
-    .filter-dropdown.show { display: block; }
-    
-    .filter-label { 
-        font-size: 0.85rem; font-weight: 700; color: #4b5563; 
-        margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px;
+
+    .filter-dropdown.show {
+        display: block;
     }
-    body.dark-mode .filter-label { color: #d1d5db; }
-    
+
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #4b5563;
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode .filter-label {
+        color: #d1d5db;
+    }
+
     .filter-select {
-        width: 100%; height: 45px; padding: 0 15px; border-radius: 10px;
-        border: 2px solid #d1d5db; background-color: transparent;
-        color: var(--text-color); font-size: 0.95rem; outline: none; cursor: pointer;
+        width: 100%;
+        height: 45px;
+        padding: 0 15px;
+        border-radius: 10px;
+        border: 2px solid #d1d5db;
+        background-color: transparent;
+        color: var(--text-color);
+        font-size: 0.95rem;
+        outline: none;
+        cursor: pointer;
         transition: border-color 0.2s;
-        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat; background-position: right 15px center;
+        background-repeat: no-repeat;
+        background-position: right 15px center;
     }
-    body.dark-mode .filter-select { 
-        border-color: #4b5563; color: white;
+
+    body.dark-mode .filter-select {
+        border-color: #4b5563;
+        color: white;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     }
-    body.dark-mode .filter-select option { background-color: #1f2937; }
-    .filter-select:focus { border-color: var(--coop-green-primary); box-shadow: 0 0 0 3px var(--coop-green-light); }
+
+    body.dark-mode .filter-select option {
+        background-color: #1f2937;
+    }
+
+    .filter-select:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: 0 0 0 3px var(--coop-green-light);
+    }
 
     .btn-apply-filters {
-        width: 100%; background-color: var(--coop-green-primary); color: white; border: none;
-        padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
-        margin-top: 15px; transition: transform 0.2s;
+        width: 100%;
+        background-color: var(--coop-green-primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: transform 0.2s;
     }
-    .btn-apply-filters:hover { transform: translateY(-2px); }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .btn-apply-filters:hover {
+        transform: translateY(-2px);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
     /* --- BOTONES ACCION --- */
-    .action-buttons-container { 
-        display: flex; flex-direction: column; gap: 8px; align-items: flex-end; 
+    .action-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
         min-width: 220px;
     }
 
     .btn-boceto-outline {
-        border: 2px solid var(--coop-green-primary); color: var(--coop-green-primary); background: transparent;
-        border-radius: 25px; padding: 0.5rem 1.2rem; font-weight: 700; font-size: 0.9rem;
-        text-decoration: none !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        transition: all 0.2s ease; white-space: nowrap; width: 100%; box-sizing: border-box; 
+        border: 2px solid var(--coop-green-primary);
+        color: var(--coop-green-primary);
+        background: transparent;
+        border-radius: 25px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        width: 100%;
+        box-sizing: border-box;
     }
-    .btn-boceto-outline:hover { background-color: var(--coop-green-primary); color: white; transform: translateY(-2px); }
-    
-    .btn-reporte-pdf { border-color: var(--pdf-color) !important; color: var(--pdf-color) !important; }
-    .btn-reporte-pdf:hover { background-color: var(--pdf-color) !important; color: white !important; }
 
-    .btn-reporte-excel { border-color: var(--excel-color) !important; color: var(--excel-color) !important; }
-    .btn-reporte-excel:hover { background-color: var(--excel-color) !important; color: white !important; }
-    
+    .btn-boceto-outline:hover {
+        background-color: var(--coop-green-primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-reporte-pdf {
+        border-color: var(--pdf-color) !important;
+        color: var(--pdf-color) !important;
+    }
+
+    .btn-reporte-pdf:hover {
+        background-color: var(--pdf-color) !important;
+        color: white !important;
+    }
+
+    .btn-reporte-excel {
+        border-color: var(--excel-color) !important;
+        color: var(--excel-color) !important;
+    }
+
+    .btn-reporte-excel:hover {
+        background-color: var(--excel-color) !important;
+        color: white !important;
+    }
+
     /* --- TABLA CON SCROLL HORIZONTAL --- */
     .table-wrapper {
         width: 100%;
@@ -166,185 +306,436 @@
     .table-wrapper::-webkit-scrollbar {
         height: 10px;
     }
+
     .table-wrapper::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
     }
+
     body.dark-mode .table-wrapper::-webkit-scrollbar-track {
         background: #1f2937;
     }
+
     .table-wrapper::-webkit-scrollbar-thumb {
         background: var(--coop-green-primary);
         border-radius: 10px;
     }
+
     .table-wrapper::-webkit-scrollbar-thumb:hover {
         background: var(--coop-green-hover);
     }
 
     .list-header-row {
-        display: flex; align-items: center; padding: 0 1.5rem; margin-bottom: 0.8rem;
-        color: #9ca3af; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        margin-bottom: 0.8rem;
+        color: #9ca3af;
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         min-width: 1200px;
     }
-    
+
     /* Columnas DT5 - ANCHOS AJUSTADOS */
-    .col-num { width: 50px; text-align: center; flex-shrink: 0; } 
-    .col-nombres { width: 110px; text-align: left; flex-shrink: 0; padding-left: 8px; }
-    .col-apellidos { width: 110px; text-align: left; flex-shrink: 0; }
-    .col-cedula { width: 115px; text-align: center; flex-shrink: 0; }
-    .col-telefono { width: 110px; text-align: center; flex-shrink: 0; }
-    .col-casco { width: 65px; text-align: center; flex-shrink: 0; }
-    .col-marca { width: 85px; text-align: left; flex-shrink: 0; }
-    .col-modelo { width: 85px; text-align: left; flex-shrink: 0; }
-    .col-anio { width: 55px; text-align: center; flex-shrink: 0; }
-    .col-color { width: 75px; text-align: left; flex-shrink: 0; }
-    .col-placa { width: 95px; text-align: center; flex-shrink: 0; }
-    .col-capacidad { width: 55px; text-align: center; flex-shrink: 0; }
-    .col-condicion { width: 105px; text-align: center; flex-shrink: 0; }
+    .col-num {
+        width: 50px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-nombres {
+        width: 110px;
+        text-align: left;
+        flex-shrink: 0;
+        padding-left: 8px;
+    }
+
+    .col-apellidos {
+        width: 110px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .col-cedula {
+        width: 115px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-telefono {
+        width: 110px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-casco {
+        width: 65px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-marca {
+        width: 85px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .col-modelo {
+        width: 85px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .col-anio {
+        width: 55px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-color {
+        width: 75px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .col-placa {
+        width: 95px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-capacidad {
+        width: 55px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .col-condicion {
+        width: 105px;
+        text-align: center;
+        flex-shrink: 0;
+    }
 
     .afiliado-row {
-        background: white; border: 1px solid var(--border-color); border-radius: 12px;
-        padding: 1rem 1.5rem; margin-bottom: 0.8rem;
-        display: flex; align-items: center;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
         transition: all 0.2s ease;
-        text-decoration: none !important; 
-        color: var(--text-color); font-size: 0.85rem;
+        text-decoration: none !important;
+        color: var(--text-color);
+        font-size: 0.85rem;
         min-width: 1200px;
-        cursor: pointer; /* ✅ CURSOR POINTER PARA TODA LA FILA */
+        cursor: pointer;
+        /* ✅ CURSOR POINTER PARA TODA LA FILA */
     }
-    body.dark-mode .afiliado-row { background-color: #1f2937; }
-    
+
+    body.dark-mode .afiliado-row {
+        background-color: #1f2937;
+    }
+
     .afiliado-row:hover {
-        transform: translateY(-2px); border-left: 5px solid var(--coop-green-primary);
+        transform: translateY(-2px);
+        border-left: 5px solid var(--coop-green-primary);
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
         color: var(--text-color);
     }
-    
+
     /* TRUNCADO CON TOOLTIP - ✅ SIN CURSOR HELP */
     .truncate-text {
-        white-space: nowrap; 
-        overflow: hidden; 
+        white-space: nowrap;
+        overflow: hidden;
         text-overflow: ellipsis;
         display: block;
     }
-    
-    .row-text-normal { font-weight: 400; color: var(--text-color); }
-    .row-text-highlight { color: var(--coop-green-primary); font-weight: 600; }
-    .row-text-muted { color: #6b7280; font-size: 0.85rem; font-weight: 400; } 
-    body.dark-mode .row-text-muted { color: #9ca3af; }
-    
+
+    .row-text-normal {
+        font-weight: 400;
+        color: var(--text-color);
+    }
+
+    .row-text-highlight {
+        color: var(--coop-green-primary);
+        font-weight: 600;
+    }
+
+    .row-text-muted {
+        color: #6b7280;
+        font-size: 0.85rem;
+        font-weight: 400;
+    }
+
+    body.dark-mode .row-text-muted {
+        color: #9ca3af;
+    }
+
     /* Badges de Condición */
     .badge-operativo {
-        background-color: #10b981; color: white; padding: 5px 12px; border-radius: 12px;
-        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block;
+        background-color: #10b981;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
         white-space: nowrap;
     }
+
     .badge-inoperativo {
-        background-color: #ef4444; color: white; padding: 5px 12px; border-radius: 12px;
-        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block;
+        background-color: #ef4444;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
         white-space: nowrap;
     }
 
     .total-indicator {
-        font-weight: 800; color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;
-        border-bottom: 2px solid var(--border-color); padding-bottom: 10px; display: inline-block;
+        font-weight: 800;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+        display: inline-block;
     }
-    body.dark-mode .total-indicator { color: #9ca3af; }
+
+    body.dark-mode .total-indicator {
+        color: #9ca3af;
+    }
 
     /* Responsive Móvil (768px) */
     @media (max-width: 768px) {
-        .header-controls { flex-direction: column; align-items: stretch; gap: 15px; }
-        .action-buttons-container { flex-direction: column; width: 100%; min-width: 0; align-items: stretch; }
-        
-        .table-wrapper { overflow-x: visible; }
-        .list-header-row { display: none; min-width: 0; } 
-        
-        .afiliado-row { 
-            flex-direction: column; align-items: flex-start; gap: 8px; position: relative; padding: 1.2rem;
+        .header-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+
+        .action-buttons-container {
+            flex-direction: column;
+            width: 100%;
+            min-width: 0;
+            align-items: stretch;
+        }
+
+        .table-wrapper {
+            overflow-x: visible;
+        }
+
+        .list-header-row {
+            display: none;
             min-width: 0;
         }
-        
-        .col-num { 
-            position: absolute; top: 1rem; right: 1rem; width: auto; font-size: 1.3rem; 
-            opacity: 0.2; text-align: right; order: 0;
+
+        .afiliado-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            position: relative;
+            padding: 1.2rem;
+            min-width: 0;
         }
-        
+
+        .col-num {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: auto;
+            font-size: 1.3rem;
+            opacity: 0.2;
+            text-align: right;
+            order: 0;
+        }
+
         /* FILA 1: Nombre completo */
-        .col-nombres, .col-apellidos {
-            width: 100%; font-size: 1.1rem; font-weight: 700; text-align: left; 
-            display: inline; color: var(--text-color); order: 1;
-            white-space: normal; overflow: visible; text-overflow: clip;
+        .col-nombres,
+        .col-apellidos {
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: left;
+            display: inline;
+            color: var(--text-color);
+            order: 1;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
         }
-        .col-nombres::after { content: " "; }
-        
+
+        .col-nombres::after {
+            content: " ";
+        }
+
         /* FILA 2: Cédula (badge) */
-        .col-cedula { 
-            width: auto; order: 2; font-size: 0.8rem; text-align: left;
-            background: var(--coop-green-light); padding: 3px 10px; border-radius: 6px; 
-            color: var(--coop-green-primary); display: inline-block; margin-top: 6px; font-weight: 600;
-            white-space: normal; overflow: visible; text-overflow: clip;
+        .col-cedula {
+            width: auto;
+            order: 2;
+            font-size: 0.8rem;
+            text-align: left;
+            background: var(--coop-green-light);
+            padding: 3px 10px;
+            border-radius: 6px;
+            color: var(--coop-green-primary);
+            display: inline-block;
+            margin-top: 6px;
+            font-weight: 600;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
         }
-        .col-cedula::before { content: "CI: "; }
-        
+
+        .col-cedula::before {
+            content: "CI: ";
+        }
+
         /* FILA 3: Teléfono */
-        .col-telefono { 
-            width: 100%; order: 3; font-size: 0.85rem; text-align: left; display: block !important;
-            color: #6b7280; margin-top: 4px;
-            white-space: normal; overflow: visible; text-overflow: clip;
+        .col-telefono {
+            width: 100%;
+            order: 3;
+            font-size: 0.85rem;
+            text-align: left;
+            display: block !important;
+            color: #6b7280;
+            margin-top: 4px;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
         }
-        .col-telefono::before { content: "📞 "; }
-        
+
+        .col-telefono::before {
+            content: "📞 ";
+        }
+
         /* SEPARADOR */
-        .col-casco { 
-            width: 100%; order: 4; font-weight: 700; color: var(--coop-green-primary); 
-            margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--border-color); 
-            text-align: left; font-size: 0.9rem;
+        .col-casco {
+            width: 100%;
+            order: 4;
+            font-weight: 700;
+            color: var(--coop-green-primary);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid var(--border-color);
+            text-align: left;
+            font-size: 0.9rem;
         }
-        .col-casco::before { content: "🚗 CASCO: "; color: #9ca3af; font-weight: 400; }
-        
+
+        .col-casco::before {
+            content: "🚗 CASCO: ";
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
         /* FILA 4: Placa destacada */
-        .col-placa { 
-            width: 100%; order: 5; font-size: 1.15rem; font-weight: 700; text-align: left;
-            color: var(--coop-green-primary); margin-top: 6px;
-        }
-        .col-placa::before { content: "PLACA: "; color: #9ca3af; font-weight: 400; font-size: 0.8rem; }
-        
-        /* FILA 5: Marca + Modelo */
-        .col-marca, .col-modelo { 
-            width: auto; display: inline; order: 6; text-align: left; font-size: 0.9rem;
+        .col-placa {
+            width: 100%;
+            order: 5;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: left;
+            color: var(--coop-green-primary);
             margin-top: 6px;
         }
-        .col-marca::after { content: " "; }
-        
+
+        .col-placa::before {
+            content: "PLACA: ";
+            color: #9ca3af;
+            font-weight: 400;
+            font-size: 0.8rem;
+        }
+
+        /* FILA 5: Marca + Modelo */
+        .col-marca,
+        .col-modelo {
+            width: auto;
+            display: inline;
+            order: 6;
+            text-align: left;
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        .col-marca::after {
+            content: " ";
+        }
+
         /* FILA 6: Color + Año */
-        .col-color, .col-anio { 
-            width: auto; display: inline !important; font-size: 0.85rem; color: #9ca3af; 
-            order: 7; text-align: left; margin-left: 8px;
+        .col-color,
+        .col-anio {
+            width: auto;
+            display: inline !important;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            order: 7;
+            text-align: left;
+            margin-left: 8px;
         }
-        .col-anio::before { content: "(" }
-        .col-anio::after { content: ")" }
-        
+
+        .col-anio::before {
+            content: "("
+        }
+
+        .col-anio::after {
+            content: ")"
+        }
+
         /* FILA 7: Capacidad */
-        .col-capacidad { 
-            width: auto; order: 8; font-size: 0.85rem; text-align: left; 
-            display: inline-block !important; margin-left: 8px; color: #6b7280;
+        .col-capacidad {
+            width: auto;
+            order: 8;
+            font-size: 0.85rem;
+            text-align: left;
+            display: inline-block !important;
+            margin-left: 8px;
+            color: #6b7280;
         }
-        .col-capacidad::before { content: " • "; }
-        .col-capacidad::after { content: " pax"; }
-        
+
+        .col-capacidad::before {
+            content: " • ";
+        }
+
+        .col-capacidad::after {
+            content: " pax";
+        }
+
         /* FILA 8: Badge de Condición */
-        .col-condicion { 
-            width: auto; order: 9; text-align: left; margin-top: 10px;
+        .col-condicion {
+            width: auto;
+            order: 9;
+            text-align: left;
+            margin-top: 10px;
         }
-        
-        .row-text-normal, .row-text-highlight, .row-text-muted { text-align: left; }
-        
-        .filter-dropdown { width: 90vw; right: -10px; }
+
+        .row-text-normal,
+        .row-text-highlight,
+        .row-text-muted {
+            text-align: left;
+        }
+
+        .filter-dropdown {
+            width: 90vw;
+            right: -10px;
+        }
     }
 
     @media (max-width: 370px) {
-        .page-title { font-size: 1.4rem; }
-        .search-input { font-size: 0.85rem; padding: 0 0.8rem 0 2.5rem; }
+        .page-title {
+            font-size: 1.4rem;
+        }
+
+        .search-input {
+            font-size: 0.85rem;
+            padding: 0 0.8rem 0 2.5rem;
+        }
     }
 </style>
 
@@ -356,14 +747,16 @@
 
 <!-- BARRA DE CONTROL -->
 <div class="d-flex justify-content-between align-items-start mb-4 header-controls flex-wrap">
-    
+
     <div class="search-container flex-grow-1 mr-md-4 mb-3 mb-md-0">
         <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
             <div class="search-input-group">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" name="q" class="search-input" placeholder="Buscar por casco, placa, cédula, nombre o apellido..." value="{{ request.GET.q|default:'' }}">
+                <input type="text" name="q" class="search-input"
+                    placeholder="Buscar por casco, placa, cédula, nombre o apellido..."
+                    value="{{ request.GET.q|default:'' }}">
             </div>
-            
+
             <div style="position: relative;">
                 <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
                     <i class="fas fa-filter"></i>
@@ -374,8 +767,10 @@
                         <label class="filter-label">Condición Operativa</label>
                         <select name="estado" class="filter-select">
                             <option value="todos">Todos</option>
-                            <option value="operativo" {% if estado_actual == 'operativo' %}selected{% endif %}>Operativo</option>
-                            <option value="inoperativo" {% if estado_actual == 'inoperativo' %}selected{% endif %}>Inoperativo</option>
+                            <option value="operativo" {% if estado_actual == 'operativo' %}selected{% endif %}>Operativo
+                            </option>
+                            <option value="inoperativo" {% if estado_actual == 'inoperativo' %}selected{% endif %}>
+                                Inoperativo</option>
                         </select>
                     </div>
 
@@ -390,17 +785,14 @@
     <!-- BOTONES DE ACCIÓN -->
     <div class="action-buttons-container">
         <!-- Botón Excel -->
-        <a href="{% url 'taxis:reporte_dt5_excel' %}?{{ request.GET.urlencode }}" 
-           class="btn-boceto-outline btn-reporte-excel" 
-           title="Descargar Excel">
+        <a href="{% url 'taxis:reporte_dt5_excel' %}?{{ request.GET.urlencode }}"
+            class="btn-boceto-outline btn-reporte-excel" title="Descargar Excel">
             <i class="fas fa-file-excel"></i> Descargar Excel
         </a>
-        
+
         <!-- Botón PDF -->
-        <a href="{% url 'taxis:reporte_dt5_pdf' %}?{{ request.GET.urlencode }}" 
-           class="btn-boceto-outline btn-reporte-pdf" 
-           target="_blank" 
-           title="Generar PDF">
+        <a href="{% url 'taxis:reporte_dt5_pdf' %}?{{ request.GET.urlencode }}"
+            class="btn-boceto-outline btn-reporte-pdf" target="_blank" title="Generar PDF">
             <i class="fas fa-file-pdf"></i> Generar PDF
         </a>
     </div>
@@ -409,9 +801,9 @@
 <!-- TOTALIZADOR -->
 <div class="total-indicator">
     {% if request.GET.q or estado_actual != 'todos' %}
-        <i class="fas fa-filter mr-1"></i> Transportistas Filtrados: <span class="text-dark">{{ transportistas|length }}</span>
+    <i class="fas fa-filter mr-1"></i> Transportistas filtrados: <span class="text-dark">{{ transportistas|length }}</span>
     {% else %}
-        <i class="fas fa-list mr-1"></i> Total Transportistas: <span class="text-dark">{{ transportistas|length }}</span>
+    <i class="fas fa-list mr-1"></i> Total Transportistas: <span class="text-dark">{{ transportistas|length }}</span>
     {% endif %}
 </div>
 
@@ -420,9 +812,9 @@
     <!-- ENCABEZADOS TABLA (13 COLUMNAS) -->
     <div class="list-header-row">
         <div class="col-num">#</div>
+        <div class="col-cedula">Cédula</div>
         <div class="col-nombres">Nombres</div>
         <div class="col-apellidos">Apellidos</div>
-        <div class="col-cedula">Cédula</div>
         <div class="col-telefono">Teléfono</div>
         <div class="col-casco">Casco</div>
         <div class="col-marca">Marca</div>
@@ -438,11 +830,16 @@
     <div>
         {% for t in transportistas %}
         <a href="{% url 'taxis:dt5_detail' t.pk %}" class="afiliado-row">
-            
+
             <div class="col-num row-text-muted">
                 {{ forloop.counter }}
             </div>
-            
+
+            <div class="col-cedula row-text-highlight truncate-text"
+                title="{{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}">
+                {{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}
+            </div>
+
             <div class="col-nombres row-text-normal truncate-text" title="{{ t.conductor.nombres }}">
                 {{ t.conductor.nombres }}
             </div>
@@ -450,48 +847,44 @@
             <div class="col-apellidos row-text-normal truncate-text" title="{{ t.conductor.apellidos }}">
                 {{ t.conductor.apellidos }}
             </div>
-            
-            <div class="col-cedula row-text-highlight truncate-text" title="{{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}">
-                {{ t.conductor.cedula_prefijo }}-{{ t.conductor.cedula_identidad }}
-            </div>
-            
+
             <div class="col-telefono row-text-muted truncate-text" title="{{ t.conductor.telefono_principal }}">
                 {{ t.conductor.telefono_principal }}
             </div>
-            
+
             <div class="col-casco row-text-highlight">
                 {{ t.numero_casco|default:"-" }}
             </div>
-            
+
             <div class="col-marca row-text-normal truncate-text" title="{{ t.marca }}">
                 {{ t.marca }}
             </div>
-            
+
             <div class="col-modelo row-text-normal truncate-text" title="{{ t.modelo }}">
                 {{ t.modelo }}
             </div>
-            
+
             <div class="col-anio row-text-muted">
                 {{ t.anio }}
             </div>
-            
+
             <div class="col-color row-text-muted truncate-text" title="{{ t.color }}">
                 {{ t.color }}
             </div>
-            
+
             <div class="col-placa row-text-normal">
                 {{ t.placa }}
             </div>
-            
+
             <div class="col-capacidad row-text-muted">
                 {{ t.capacidad }}
             </div>
-            
+
             <div class="col-condicion">
                 {% if t.condicion == 'operativo' %}
-                    <span class="badge-operativo">Operativo</span>
+                <span class="badge-operativo">Operativo</span>
                 {% else %}
-                    <span class="badge-inoperativo">Inoperativo</span>
+                <span class="badge-inoperativo">Inoperativo</span>
                 {% endif %}
             </div>
         </a>
@@ -500,7 +893,8 @@
             <i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i>
             <p class="h5">No se encontraron transportistas.</p>
             {% if request.GET %}
-                <a href="{% url 'taxis:dt5_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar filtros</a>
+            <a href="{% url 'taxis:dt5_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar
+                filtros</a>
             {% endif %}
         </div>
         {% endfor %}
@@ -514,15 +908,20 @@
         <ul class="pagination">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo; Anterior</a>
+                <a class="page-link text-success"
+                    href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo;
+                    Anterior</a>
             </li>
             {% endif %}
-            
-            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-            
+
+            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{
+                    page_obj.paginator.num_pages }}</span></li>
+
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente &raquo;</a>
+                <a class="page-link text-success"
+                    href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente
+                    &raquo;</a>
             </li>
             {% endif %}
         </ul>
@@ -535,7 +934,7 @@
         const dropdown = document.getElementById('filterDropdown');
         dropdown.classList.toggle('show');
     }
-    document.addEventListener('mouseup', function(e) {
+    document.addEventListener('mouseup', function (e) {
         var container = document.getElementById('filterDropdown');
         var btn = document.querySelector('.filter-btn');
         if (container && !container.contains(e.target) && !btn.contains(e.target)) {

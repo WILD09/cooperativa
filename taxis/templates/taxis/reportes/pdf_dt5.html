@@ -211,8 +211,7 @@
                 <td>{{ forloop.counter }}</td>
                 <td class="text-left">{{ vehiculo.conductor.nombres|default:"-" }}</td>
                 <td class="text-left">{{ vehiculo.conductor.apellidos|default:"-" }}</td>
-                <td class="col-cedula">{{ vehiculo.conductor.cedula_prefijo|default:"V"
-                    }}-{{vehiculo.conductor.cedula_identidad|default:"-" }}</td>
+                <td class="col-cedula">{{ vehiculo.conductor.cedula_prefijo|default:"V" }}-{{ vehiculo.conductor.cedula_identidad|default:"-" }}</td>
                 <td class="text-left">{{ vehiculo.marca|default:"-" }}</td>
                 <td class="text-left">{{ vehiculo.modelo|default:"-" }}</td>
                 <td>{{ vehiculo.anio|default:"-" }}</td>
