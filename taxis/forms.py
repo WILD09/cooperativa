@@ -5,7 +5,8 @@ from datetime import date
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from .models import Conductor, Vehiculo, CustomUser, UbicacionGeografica, Pago
+from django.utils import timezone
+from .models import Conductor, Vehiculo, CustomUser, UbicacionGeografica, Pago, PagoMensual
 
 # ====================================================================
 # LISTA DE PAÍSES LATAM
@@ -278,6 +279,34 @@ class PagoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'vsms-input'
+
+class PagoMensualForm(forms.ModelForm):
+    MESES_CHOICES = [
+        (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+        (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+        (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+    ]
+
+    mes = forms.ChoiceField(choices=MESES_CHOICES, widget=forms.Select(attrs={'class': 'vsms-input'}))
+    anio = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'vsms-input', 'placeholder': 'Año'}))
+
+    class Meta:
+        model = PagoMensual
+        fields = ['mes', 'anio', 'fecha_pago', 'comprobante', 'notas']
+        widgets = {
+            'fecha_pago': forms.DateInput(attrs={'class': 'date-mask vsms-input', 'placeholder': 'DD/MM/AAAA', 'autocomplete': 'off'}),
+            'comprobante': forms.ClearableFileInput(attrs={'class': 'vsms-input'}),
+            'notas': forms.Textarea(attrs={'rows': 2, 'class': 'vsms-input', 'placeholder': 'Notas opcionales...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        hoy = timezone.localtime().date()
+        self.fields['fecha_pago'].initial = hoy
+        self.fields['mes'].initial = hoy.month
+        self.fields['anio'].initial = hoy.year
+        
+        # Validación de unicidad manual en la vista o clean()
 
 
 # ====================================================================

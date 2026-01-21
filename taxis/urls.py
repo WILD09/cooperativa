@@ -77,9 +77,16 @@ urlpatterns = [
     # ==========================================
     # 7. FINANZAS Y AUDITORÍA
     # ==========================================
-    path('finanzas/deudas/', views.DeudaListView.as_view(), name='deuda_list'),
-    path('finanzas/pagos/', views.PagoListView.as_view(), name='pago_list'),
-    path('finanzas/deudas/<int:pk>/pagar/', views.RegistrarPagoView.as_view(), name='registrar_pago'),
+    # Sistema antiguo (deprecado, mantener por compatibilidad temporal)
+    path('finanzas/deudas-antiguo/', views.DeudaListView.as_view(), name='deuda_list'),
+    path('finanzas/pagos-antiguo/', views.PagoListView.as_view(), name='pago_list'),
+    path('finanzas/deudas-antiguo/<int:pk>/pagar/', views.RegistrarPagoView.as_view(), name='registrar_pago'),
+    
+    # NUEVO MÓDULO DE FINANZAS SIMPLIFICADO
+    path('finanzas/', views.finanzas_principal, name='finanzas_principal'),
+    path('finanzas/registrar/<int:conductor_id>/', views.finanzas_registrar_pago, name='finanzas_registrar_pago'),
+    path('finanzas/historial/', views.finanzas_historial, name='finanzas_historial'),
+    path('finanzas/ver/<int:pago_id>/', views.finanzas_ver_pago, name='finanzas_ver_pago'),
     path('finanzas/cierre-mensual/', views.ejecutar_cierre_mensual, name='ejecutar_cierre_mensual'),
     path('auditoria/', views.MovimientoAuditListView.as_view(), name='audit_list'),
 

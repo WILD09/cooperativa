@@ -1,0 +1,650 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+
+{% block title %}Finanzas - {{ mes_nombre }} {{ anio_actual }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --finance-primary: #00b300;
+        --finance-secondary: #009900;
+        --finance-bg: #ffffff;
+        --finance-text: #212529;
+        --finance-border: #dee2e6;
+        --finance-pending: #dc3545;
+        --finance-gradient: linear-gradient(135deg, #00b300 0%, #009900 100%);
+        --input-bg: #ffffff;
+    }
+
+    body.dark-mode {
+        --finance-primary: #10b981;
+        --finance-bg: #1e293b;
+        --finance-text: #f1f5f9;
+        --finance-border: #475569;
+        --finance-pending: #ff4d5e;
+        --finance-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --input-bg: #1a2639;
+    }
+
+    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--finance-primary);
+        border-radius: 10px;
+        min-height: 40px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--finance-secondary);
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
+    }
+
+    .checklist-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .finance-item {
+        background: var(--finance-bg);
+        border: 1px solid var(--finance-border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        color: var(--finance-text) !important;
+    }
+
+    .finance-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: var(--finance-primary);
+    }
+
+    .check-indicator {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .indicator-pending {
+        border: 2px solid var(--finance-pending);
+        color: var(--finance-pending);
+    }
+
+    .indicator-paid {
+        background: var(--finance-primary);
+        color: white;
+        border: 2px solid var(--finance-primary);
+    }
+
+    .casco-badge {
+        font-weight: 800;
+        font-size: 0.85rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        margin-right: 1rem;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .badge-pending {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--finance-pending);
+    }
+
+    .badge-paid {
+        background: rgba(0, 179, 0, 0.1);
+        color: var(--finance-primary);
+    }
+
+    body.dark-mode .badge-paid {
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .conductor-info {
+        flex-grow: 1;
+        line-height: 1.2;
+    }
+
+    .conductor-name {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 2px;
+        display: block;
+    }
+
+    .conductor-meta {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    .price-tag {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--finance-primary);
+        text-align: right;
+    }
+
+    .debt-tag {
+        color: var(--finance-pending);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--finance-border);
+    }
+
+    .section-header h5 {
+        margin: 0;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .status-count {
+        margin-left: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .info-banner {
+        background: var(--finance-gradient);
+        color: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 179, 0, 0.2);
+    }
+
+    body.dark-mode .info-banner {
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1.5rem;
+        padding-left: 3rem;
+        border-radius: 12px;
+        border: 2px solid var(--finance-border);
+        background: var(--finance-bg);
+        color: var(--finance-text);
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--finance-primary);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 179, 0, 0.1);
+    }
+
+    body.dark-mode .search-input:focus {
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    /* ✅ NUEVO: Estilos para autocompletado del navegador */
+    .search-input:-webkit-autofill,
+    .search-input:-webkit-autofill:hover,
+    .search-input:-webkit-autofill:focus,
+    .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px var(--finance-bg) inset !important;
+        -webkit-text-fill-color: var(--finance-text) !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Modo oscuro específico para autocompletado */
+    body.dark-mode .search-input:-webkit-autofill,
+    body.dark-mode .search-input:-webkit-autofill:hover,
+    body.dark-mode .search-input:-webkit-autofill:focus,
+    body.dark-mode .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+        -webkit-text-fill-color: #f1f5f9 !important;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--finance-primary);
+    }
+
+    /* ✅ BOTÓN HISTORIAL CON EFECTOS AVANZADOS (ALTA PRIORIDAD) */
+    a.btn-history {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        background: var(--finance-gradient) !important;
+        color: white !important;
+        padding: 10px 20px !important;
+        border-radius: 25px !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        z-index: 1 !important;
+    }
+
+    /* Efecto de brillo deslizante */
+    a.btn-history::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+
+    a.btn-history:hover::before {
+        left: 100%;
+    }
+
+    /* Glow effect al hover */
+    a.btn-history::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+        z-index: -1;
+    }
+
+    a.btn-history:hover::after {
+        width: 300px;
+        height: 300px;
+    }
+
+    a.btn-history:hover {
+        background: linear-gradient(135deg, #00b300 0%, #009900 100%) !important;
+        color: white !important;
+        transform: translateY(-4px) scale(1.05) !important;
+        box-shadow: 0 8px 25px rgba(0, 179, 0, 0.4) !important;
+    }
+
+    a.btn-history:active {
+        transform: translateY(-2px) scale(1.02) !important;
+        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.3) !important;
+    }
+
+    /* Animación del icono */
+    a.btn-history i {
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    }
+
+    a.btn-history:hover i {
+        transform: rotate(360deg) scale(1.15) !important;
+    }
+
+    /* Dark mode */
+    body.dark-mode a.btn-history {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+    }
+
+    body.dark-mode a.btn-history:hover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45) !important;
+    }
+
+    .btn-back-finance {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--input-bg);
+        color: var(--finance-text);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        opacity: 0.7;
+    }
+
+    .btn-back-finance:hover {
+        background: rgba(0, 179, 0, 0.1);
+        color: var(--finance-primary);
+        transform: translateX(-3px);
+        opacity: 1;
+        text-decoration: none !important;
+    }
+
+    body.dark-mode .btn-back-finance {
+        background: #1a2639;
+        color: #94a3b8;
+    }
+
+    body.dark-mode .btn-back-finance:hover {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--finance-primary);
+    }
+
+    /* ✅ ESTILOS PARA DEUDA ACUMULADA */
+    .deuda-acumulada {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    body.dark-mode .deuda-acumulada {
+        background: rgba(255, 193, 7, 0.15);
+        border-color: rgba(255, 193, 7, 0.4);
+    }
+
+    .mes-badge {
+        display: inline-block;
+        background: #ffc107;
+        color: #000;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 700;
+        margin: 0.15rem;
+        font-size: 0.7rem;
+    }
+
+    /* ✅ NUEVO: BOTÓN "VER MÁS" */
+    .btn-ver-mas {
+        background: var(--finance-bg);
+        border: 2px solid var(--finance-primary);
+        color: var(--finance-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-ver-mas:hover {
+        background: var(--finance-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 179, 0, 0.2);
+    }
+
+    body.dark-mode .btn-ver-mas {
+        background: var(--input-bg);
+    }
+
+    body.dark-mode .btn-ver-mas:hover {
+        background: var(--finance-primary);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Animación de rotación del ícono */
+    #icono-toggle {
+        transition: transform 0.3s ease;
+    }
+
+    #icono-toggle.rotado {
+        transform: rotate(180deg);
+    }
+
+    /* Animación de aparición de items */
+    #pagados-ocultos-container {
+        animation: slideIn 0.4s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .finance-item {
+            padding: 0.75rem;
+        }
+
+        .casco-badge {
+            min-width: 40px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+
+        .conductor-name {
+            font-size: 0.9rem;
+        }
+
+        .price-tag {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="checklist-container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 font-weight-bold" style="color: var(--finance-primary);">
+            <i class="fas fa-wallet mr-2"></i>Finanzas: {{ mes_nombre }} {{ anio_actual }}
+        </h1>
+        <a href="{% url 'taxis:finanzas_historial' %}" class="btn-history">
+            <i class="fas fa-history"></i>
+            <span>Historial</span>
+        </a>
+    </div>
+
+    <!-- Banner Informativo -->
+    <div class="info-banner">
+        <div class="mr-3"><i class="fas fa-info-circle fa-2x"></i></div>
+        <div>
+            <span class="font-weight-bold d-block">{{ config.descripcion|default:"Cuota Mensual Cooperativa" }}</span>
+            <small>Cuota mensual: ${{ config.monto_cuota_usd }} USD | Vence cada {{ config.dia_vencimiento }} del mes</small>
+        </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="search-box">
+        <form method="get">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" value="{{ query|default:'' }}" class="search-input"
+                placeholder="Buscar por cédula, nombre o casco...">
+        </form>
+    </div>
+
+    <!-- Pendientes (Con Deuda Acumulada) -->
+    <div class="section-header text-danger" style="border-color: rgba(220, 53, 69, 0.2);">
+        <h5>Pagos Pendientes</h5>
+        <span class="status-count bg-danger text-white">{{ pendientes|length }}</span>
+    </div>
+
+    {% for item in pendientes %}
+    <a href="{% url 'taxis:finanzas_registrar_pago' item.conductor.id %}" class="finance-item">
+        <div class="check-indicator indicator-pending">
+            <i class="far fa-circle"></i>
+        </div>
+        <div class="casco-badge badge-pending">
+            #{{ item.conductor.vehiculos.all.0.numero_casco|default:"--" }}
+        </div>
+        <div class="conductor-info">
+            <span class="conductor-name">{{ item.conductor.nombres }} {{ item.conductor.apellidos }}</span>
+            <span class="conductor-meta">
+                ID: {{ item.conductor.cedula_prefijo }}-{{ item.conductor.cedula_identidad }}
+                {% if item.cant_meses > 1 %}
+                <span class="badge badge-danger ml-2">{{ item.cant_meses }} Meses Pendientes</span>
+                {% endif %}
+            </span>
+            
+            <!-- ✅ NUEVA SECCIÓN: Deuda Acumulada -->
+            {% if item.cant_meses > 1 %}
+            <div class="deuda-acumulada">
+                <strong><i class="fas fa-exclamation-triangle text-warning"></i> Meses Adeudados:</strong>
+                <div class="mt-1">
+                    {% for mes_nombre in item.meses_nombres %}
+                        <span class="mes-badge">{{ mes_nombre }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="price-tag debt-tag">
+            ${{ item.total_deuda }}
+        </div>
+    </a>
+    {% empty %}
+    <div class="text-center py-4 opacity-50">
+        <i class="fas fa-check-double fa-2x mb-2 d-block"></i>
+        <span>No hay cobros pendientes</span>
+    </div>
+    {% endfor %}
+
+    <!-- Pagados -->
+    <div class="section-header text-success" style="border-color: rgba(40, 167, 69, 0.2);">
+        <h5>Pagos Registrados ({{ mes_nombre }})</h5>
+        <span class="status-count bg-success text-white">{{ pagados|length|add:total_ocultos }}</span>
+    </div>
+
+    <!-- ✅ PAGADOS VISIBLES (5 iniciales) -->
+    {% for item in pagados %}
+    <a href="{% url 'taxis:finanzas_ver_pago' item.pago.id %}" class="finance-item" style="opacity: 0.8;">
+        <div class="check-indicator indicator-paid">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="casco-badge badge-paid">
+            #{{ item.conductor.vehiculos.all.0.numero_casco|default:"--" }}
+        </div>
+        <div class="conductor-info">
+            <span class="conductor-name text-muted">{{ item.conductor.nombres }} {{ item.conductor.apellidos }}</span>
+            <span class="conductor-meta">
+                Pagado el: {{ item.pago.fecha_pago|date:"d/m/Y" }}
+            </span>
+        </div>
+        <div class="text-success small font-weight-bold">LISTO</div>
+    </a>
+    {% endfor %}
+
+    <!-- ✅ NUEVO: PAGADOS OCULTOS (Colapsables) -->
+    <div id="pagados-ocultos-container" style="display: none;">
+        {% for item in pagados_ocultos %}
+        <a href="{% url 'taxis:finanzas_ver_pago' item.pago.id %}" class="finance-item" style="opacity: 0.8;">
+            <div class="check-indicator indicator-paid">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="casco-badge badge-paid">
+                #{{ item.conductor.vehiculos.all.0.numero_casco|default:"--" }}
+            </div>
+            <div class="conductor-info">
+                <span class="conductor-name text-muted">{{ item.conductor.nombres }} {{ item.conductor.apellidos }}</span>
+                <span class="conductor-meta">
+                    Pagado el: {{ item.pago.fecha_pago|date:"d/m/Y" }}
+                </span>
+            </div>
+            <div class="text-success small font-weight-bold">LISTO</div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- ✅ BOTÓN "VER MÁS" (Solo si hay más de 5) -->
+    {% if total_ocultos > 0 %}
+    <div class="text-center mt-3 mb-4">
+        <button id="btn-toggle-pagados" class="btn-ver-mas">
+            <i class="fas fa-box-open"></i>
+            <span id="texto-toggle">Ver los {{ total_ocultos }} restantes</span>
+            <i class="fas fa-chevron-down" id="icono-toggle"></i>
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Mensaje si no hay resultados en búsqueda -->
+    {% if not pagados and not pagados_ocultos %}
+        {% if query %}
+        <div class="text-center py-4 opacity-50">No se encontraron resultados para "{{ query }}"</div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- ✅ NUEVO: JAVASCRIPT PARA TOGGLE -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnToggle = document.getElementById('btn-toggle-pagados');
+    const container = document.getElementById('pagados-ocultos-container');
+    const textoToggle = document.getElementById('texto-toggle');
+    const iconoToggle = document.getElementById('icono-toggle');
+    
+    if (btnToggle) {
+        let expandido = false;
+        
+        btnToggle.addEventListener('click', function() {
+            expandido = !expandido;
+            
+            if (expandido) {
+                // EXPANDIR
+                container.style.display = 'block';
+                textoToggle.textContent = 'Ocultar pagos anteriores';
+                iconoToggle.classList.add('rotado');
+            } else {
+                // COLAPSAR
+                container.style.display = 'none';
+                textoToggle.textContent = 'Ver los {{ total_ocultos }} restantes';
+                iconoToggle.classList.remove('rotado');
+                
+                // Scroll suave hacia arriba (a la sección de pagados)
+                document.querySelector('.section-header.text-success').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

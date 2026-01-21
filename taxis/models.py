@@ -182,6 +182,8 @@ class Conductor(models.Model):
 
     def __str__(self): return f"{self.nombres} {self.apellidos} - {self.cedula_prefijo}-{self.cedula_identidad}"
 
+    
+
 # ====================================================================
 # VEHÍCULOS (MODELO ACTUALIZADO CON NUEVOS CAMPOS)
 # ====================================================================
@@ -315,3 +317,76 @@ class VerificationAttemptLog(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
+# ====================================================================
+# FINANZAS SIMPLIFICADAS (NUEVO MÓDULO)
+# ====================================================================
+
+class ConfiguracionFinanzas(models.Model):
+    monto_cuota_usd = models.DecimalField(max_digits=10, decimal_places=2, default=5.00)
+    dia_vencimiento = models.IntegerField(default=5)
+    descripcion = models.CharField(max_length=255, default="Cuota mensual cooperativa")
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuración de Finanzas"
+        verbose_name_plural = "Configuraciones de Finanzas"
+
+    def __str__(self):
+        return f"Configuración: ${self.monto_cuota_usd} (Vence el {self.dia_vencimiento})"
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj
+
+class PagoMensual(models.Model):
+    # ✅ MODIFICADO: Cambiado CASCADE a SET_NULL + agregado null=True, blank=True
+    conductor = models.ForeignKey(
+        Conductor, 
+        on_delete=models.SET_NULL,  # ← CAMBIO AQUÍ
+        null=True,                   # ← NUEVO
+        blank=True,                  # ← NUEVO
+        related_name="pagos_mensuales"
+    )
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # ✅ NUEVOS CAMPOS: Cache de conductor por si se elimina
+    conductor_nombre_cache = models.CharField(max_length=200, blank=True, null=True)
+    conductor_cedula_cache = models.CharField(max_length=20, blank=True, null=True)
+    
+    # Todo lo demás igual
+    mes = models.IntegerField()  # 1-12
+    anio = models.IntegerField() # 2026, 2027...
+    monto_usd = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_pago = models.DateField(default=timezone.now)
+    comprobante = models.FileField(upload_to='comprobantes/pagos/', null=True, blank=True, validators=[validar_archivo_seguro])
+    registrado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    notas = models.TextField(blank=True, null=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('conductor', 'mes', 'anio')
+        ordering = ['-anio', '-mes', '-fecha_pago']
+        indexes = [
+            models.Index(fields=['anio', 'mes']),
+            models.Index(fields=['conductor', 'anio']),
+        ]
+        verbose_name = "Pago Mensual"
+        verbose_name_plural = "Pagos Mensuales"
+
+    def __str__(self):
+        # ✅ MODIFICADO: Protección si conductor fue eliminado
+        if self.conductor:
+            return f"Pago {self.conductor} - {self.get_nombre_mes()} {self.anio}"
+        else:
+            return f"Pago [{self.conductor_nombre_cache}] - {self.get_nombre_mes()} {self.anio}"
+
+    def get_nombre_mes(self):
+        meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ]
+        if 1 <= self.mes <= 12:
+            return meses[self.mes - 1]
+        return "Desconocido"
+

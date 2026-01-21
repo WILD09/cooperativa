@@ -1,0 +1,552 @@
+{% extends 'taxis/base_presidente.html' %}
+{% load static %}
+
+{% block title %}Registrar Pago - {{ conductor }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --coop-green-primary: #00b300;
+        --coop-green-hover: #009900;
+        --finance-secondary: #009900;
+        --input-border: #B6ECAD;
+        --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
+        --finance-text: #333;
+        --finance-bg: #ffffff;
+        --finance-gradient: linear-gradient(135deg, #00b300 0%, #009900 100%);
+        --input-bg: #ffffff;
+    }
+
+    body.dark-mode {
+        --coop-green-primary: #10b981;
+        --coop-green-hover: #059669;
+        --finance-secondary: #059669;
+        --input-border: #4b5563;
+        --finance-text: #f1f5f9;
+        --finance-bg: #1e293b;
+        --finance-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --input-bg: #1a2639;
+    }
+
+    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px;
+        min-height: 40px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--finance-secondary);
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
+    }
+
+    .form-container {
+        max-width: 650px;
+        margin: 0 auto;
+    }
+
+    .reg-card {
+        background: var(--finance-bg);
+        border: 2px solid var(--input-border);
+        border-radius: 36px;
+        overflow: hidden;
+        box-shadow: 0 12px 50px rgba(0, 0, 0, 0.08);
+    }
+
+    body.dark-mode .reg-card {
+        background: #0f1a2e;
+        border-color: #374151;
+        box-shadow: none;
+    }
+
+    .reg-hero {
+        background: var(--finance-gradient);
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        position: relative;
+        color: white;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.4);
+        object-fit: cover;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        background: white;
+    }
+
+    /* ✅ NUEVO: Grid con columnas separadas */
+    .info-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 4rem;
+        row-gap: 1.2rem;
+        padding: 1.5rem 2.5rem;
+        background: rgba(0, 0, 0, 0.03);
+        margin: 1.5rem;
+        border-radius: 20px;
+    }
+
+    body.dark-mode .info-strip {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .info-item {
+        text-align: left;
+    }
+
+    .info-item label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-bottom: 2px;
+        display: block;
+        color: var(--finance-text);
+    }
+
+    .info-item span {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--finance-text);
+        display: block;
+    }
+
+    .vsms-input {
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: 2px solid var(--input-border);
+        background: #FFFFFF;
+        font-size: 0.95rem;
+        color: #333;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    body.dark-mode .vsms-input {
+        background: #1a2639;
+        border-color: #2d3748;
+        color: white;
+    }
+
+    .vsms-input:focus {
+        border-color: var(--coop-green-primary);
+        box-shadow: var(--input-focus-shadow);
+        transform: translateY(-1px);
+    }
+
+    .amount-display {
+        margin: 1.5rem 0;
+        text-align: center;
+    }
+
+    .amount-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        opacity: 0.6;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        color: var(--finance-text);
+    }
+
+    .amount-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--coop-green-primary);
+        line-height: 1;
+    }
+
+    .date-wrapper {
+        position: relative;
+    }
+
+    .calendar-trigger {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--coop-green-primary);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+    }
+
+    .date-wrapper:hover .calendar-trigger {
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .btn-submit {
+        background: var(--coop-green-primary);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 800;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--coop-green-hover);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .upload-area {
+        border: 2px dashed var(--input-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    body.dark-mode .upload-area {
+        background: #1a2639;
+    }
+
+    .upload-area:hover {
+        border-color: var(--coop-green-primary);
+        background: #f0fdf4;
+        transform: scale(1.02);
+    }
+
+    body.dark-mode .upload-area:hover {
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .field-label {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-left: 10px;
+        margin-bottom: 5px;
+        display: block;
+        color: var(--finance-text);
+    }
+
+    .btn-back-finance {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--input-bg);
+        color: var(--finance-text);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        opacity: 0.7;
+    }
+
+    .btn-back-finance:hover {
+        background: rgba(0, 179, 0, 0.1);
+        color: var(--coop-green-primary);
+        transform: translateX(-3px);
+        opacity: 1;
+        text-decoration: none !important;
+    }
+
+    body.dark-mode .btn-back-finance {
+        background: #1a2639;
+        color: #94a3b8;
+    }
+
+    body.dark-mode .btn-back-finance:hover {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--coop-green-primary);
+    }
+
+    /* ✅ Estilos para Deuda Acumulada */
+    .deuda-card {
+        background: rgba(255, 193, 7, 0.1);
+        border: 2px solid rgba(255, 193, 7, 0.3);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin: 1.5rem;
+    }
+
+    body.dark-mode .deuda-card {
+        background: rgba(255, 193, 7, 0.15);
+        border-color: rgba(255, 193, 7, 0.4);
+    }
+
+    .deuda-title {
+        font-weight: 800;
+        font-size: 1rem;
+        color: #f59e0b;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mes-checkbox-item {
+        background: var(--finance-bg);
+        border: 2px solid var(--input-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    body.dark-mode .mes-checkbox-item {
+        background: #1a2639;
+    }
+
+    .mes-checkbox-item:hover {
+        border-color: var(--coop-green-primary);
+        transform: translateX(5px);
+    }
+
+    .mes-checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+        accent-color: var(--coop-green-primary);
+    }
+
+    .mes-checkbox-label {
+        flex: 1;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--finance-text);
+        cursor: pointer;
+    }
+
+    .mes-badge-actual {
+        background: var(--coop-green-primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .total-pagar-box {
+        background: white;
+        border: 2px solid var(--coop-green-primary);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    body.dark-mode .total-pagar-box {
+        background: #0f1a2e;
+    }
+
+    .total-pagar-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--finance-text);
+        margin-bottom: 5px;
+    }
+
+    .total-pagar-value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--coop-green-primary);
+    }
+</style>
+
+
+<div class="form-container">
+    <div class="mb-4">
+        <a href="{% url 'taxis:finanzas_principal' %}" class="btn-back-finance">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver a Finanzas</span>
+        </a>
+    </div>
+
+    <div class="reg-card">
+        <div class="reg-hero">
+            {% if conductor.avatar %}
+            <img src="{{ conductor.avatar.url }}" class="profile-img shadow">
+            {% else %}
+            <div class="profile-img d-inline-flex align-items-center justify-content-center shadow"
+                style="color: var(--coop-green-primary);">
+                <i class="fas fa-user fa-3x"></i>
+            </div>
+            {% endif %}
+            <h4 class="font-weight-bold mb-0 mt-3 text-white">{{ conductor.nombres }} {{ conductor.apellidos }}</h4>
+            <div class="badge badge-light px-3 py-1 rounded-pill mt-2 font-weight-bold text-success">
+                CASCO #{{ vehiculo.numero_casco|default:"--" }}
+            </div>
+        </div>
+
+        <div class="px-4">
+            <div class="info-strip">
+                <div class="info-item">
+                    <label>Cédula</label>
+                    <span>{{ conductor.cedula_prefijo }}-{{ conductor.cedula_identidad }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Vehículo</label>
+                    <span>{{ vehiculo.marca|default:"Nissan" }} {{ vehiculo.modelo }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Placa</label>
+                    <span>{{ vehiculo.placa|default:"--" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Fecha Actual</label>
+                    <span class="text-success">{{ hoy|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+
+            <!-- ✅ NUEVA SECCIÓN: Selección de Meses Adeudados -->
+            {% if meses_adeudados %}
+            <div class="deuda-card">
+                <div class="deuda-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Deuda Acumulada: ${{ deuda_total }}</span>
+                </div>
+                
+                <p class="small mb-3" style="opacity: 0.8;">Selecciona los meses que deseas registrar:</p>
+                
+                <div id="meses-checkbox-container">
+                    {% for mes in meses_adeudados %}
+                    <div class="mes-checkbox-item">
+                        <input type="checkbox" 
+                               class="mes-checkbox" 
+                               id="mes-{{ mes.mes }}-{{ mes.anio }}" 
+                               name="meses_pagar[]" 
+                               value="{{ mes.mes }}-{{ mes.anio }}"
+                               data-monto="{{ config.monto_cuota_usd }}"
+                               {% if mes.es_actual %}checked{% endif %}>
+                        <label class="mes-checkbox-label" for="mes-{{ mes.mes }}-{{ mes.anio }}">
+                            {{ mes.nombre }} {{ mes.anio }} - ${{ config.monto_cuota_usd }}
+                        </label>
+                        {% if mes.es_actual %}
+                        <span class="mes-badge-actual">Mes Actual</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="total-pagar-box">
+                    <div class="total-pagar-label">TOTAL A PAGAR</div>
+                    <div id="total-pagar" class="total-pagar-value">
+                        ${{ config.monto_cuota_usd }}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-success mx-3 mt-3" style="border-radius: 15px;">
+                <strong><i class="fas fa-check-circle"></i> ¡Al día!</strong>
+                <p class="mb-0 small">Este conductor no tiene meses pendientes.</p>
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="pb-5 px-2">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="field-label">Fecha de Registro</label>
+                    <div class="date-wrapper">
+                        {{ form.fecha_pago }}
+                        <input type="date" id="nativeDatePicker"
+                            style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                        <i class="fas fa-calendar-alt calendar-trigger"
+                            onclick="document.getElementById('nativeDatePicker').showPicker()"></i>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="field-label">Comprobante</label>
+                    <div class="upload-area" onclick="document.querySelector('input[type=file]').click()">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                        <div class="small font-weight-bold text-muted" id="file-name">Adjuntar Imagen o PDF (Opcional)</div>
+                        <div class="d-none">
+                            {{ form.comprobante }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="field-label">Notas</label>
+                    {{ form.notas }}
+                </div>
+
+                <button type="submit" class="btn btn-submit">
+                    REGISTRAR PAGO
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Calcular total al cambiar checkboxes
+        $('.mes-checkbox').on('change', function() {
+            let total = 0;
+            $('.mes-checkbox:checked').each(function() {
+                total += parseFloat($(this).data('monto'));
+            });
+            $('#total-pagar').text('$' + total.toFixed(2));
+        });
+        
+        // Validar que al menos uno esté seleccionado
+        $('form').on('submit', function(e) {
+            if ($('.mes-checkbox:checked').length === 0) {
+                e.preventDefault();
+                alert('⚠️ Debes seleccionar al menos un mes para pagar.');
+                return false;
+            }
+        });
+
+        // Date picker sync
+        const picker = document.getElementById('nativeDatePicker');
+        const input = document.querySelector('input[name="fecha_pago"]');
+
+        if (picker && input) {
+            picker.addEventListener('input', function () {
+                input.value = this.value;
+            });
+        }
+
+        // Upload feedback
+        $('input[type="file"]').on('change', function () {
+            if (this.files.length > 0) {
+                $('#file-name').html('<span class="text-success font-weight-bold"><i class="fas fa-check"></i> ' + this.files[0].name + '</span>');
+                $('.upload-area').css('border-color', 'var(--coop-green-primary)');
+                $('.upload-area').css('background', 'rgba(0, 179, 0, 0.05)');
+            }
+        });
+    });
+</script>
+{% endblock %}
+

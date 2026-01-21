@@ -9,6 +9,7 @@
     :root {
         --coop-green-primary: #00b300;
         --coop-green-hover: #009900;
+        --coop-green-secondary: #009900;
         --coop-green-light: #e6f7e6;
         --border-color: #e5e7eb;
         --text-color: #374151;
@@ -24,9 +25,39 @@
     body.dark-mode {
         --coop-green-primary: #10b981;
         --coop-green-hover: #059669;
+        --coop-green-secondary: #059669;
         --coop-green-light: rgba(16, 185, 129, 0.2);
         --border-color: #374151;
         --text-color: #d1d5db;
+    }
+
+    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--coop-green-primary);
+        border-radius: 10px;
+        min-height: 40px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--coop-green-secondary);
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
     }
 
     .page-title {
@@ -76,6 +107,25 @@
         color: #9ca3af;
         font-weight: 400;
         opacity: 0.8;
+    }
+
+    /* ✅ NUEVO: Estilos para autocompletado del navegador */
+    .search-input:-webkit-autofill,
+    .search-input:-webkit-autofill:hover,
+    .search-input:-webkit-autofill:focus,
+    .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: var(--text-color) !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Modo oscuro específico para autocompletado */
+    body.dark-mode .search-input:-webkit-autofill,
+    body.dark-mode .search-input:-webkit-autofill:hover,
+    body.dark-mode .search-input:-webkit-autofill:focus,
+    body.dark-mode .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+        -webkit-text-fill-color: #d1d5db !important;
     }
 
     .search-icon {
@@ -552,6 +602,7 @@
         }
     }
 </style>
+
 
 <!-- TITULO -->
 <h1 class="page-title">

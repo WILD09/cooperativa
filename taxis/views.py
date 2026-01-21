@@ -35,14 +35,16 @@ from django.contrib.sites.shortcuts import get_current_site
 # FORMULARIOS
 from .forms import (
     ConductorForm, VehiculoForm, PresidenteRegisterForm,
-    EmailOrUsernameAuthenticationForm, PagoForm, UbicacionGeograficaForm
+    EmailOrUsernameAuthenticationForm, PagoForm, UbicacionGeograficaForm,
+    PagoMensualForm
 )
 
 # MODELOS
 from .models import (
     Conductor, Vehiculo, CustomUser, UbicacionGeografica, Parroquia,
     Deuda, Pago, MovimientoAudit, Notificacion, ConfiguracionCooperativa,
-    ConfiguracionGlobal, DocumentoLegal, EmailVerificationCode, Municipio
+    ConfiguracionGlobal, DocumentoLegal, EmailVerificationCode, Municipio,
+    ConfiguracionFinanzas, PagoMensual
 )
 
 from .utils import render_to_pdf
@@ -839,21 +841,319 @@ def reporte_dt5_excel(request):
 
 class DeudaListView(LoginRequiredMixin, ListView):
     model = Deuda
-    template_name = "taxis/deuda_list.html"
+    template_name = "taxis/finanzas/deuda_list.html"
     context_object_name = "deudas"
     paginate_by = 20
     ordering = ['-anio', '-mes']
 
 class PagoListView(LoginRequiredMixin, ListView):
     model = Pago
-    template_name = "taxis/pago_list.html"
+    template_name = "taxis/finanzas/pago_list.html"
     context_object_name = "pagos"
     ordering = ['-fecha_pago']
 
+# --- VISTAS DEL MÓDULO DE FINANZAS SIMPLIFICADO ---
+
+@login_required
+def finanzas_principal(request):
+    """Vista principal: Muestra afiliados Pendientes (Deuda Acumulada) vs Solvencias del Mes"""
+    hoy = timezone.localtime().date()
+    mes_actual = hoy.month
+    anio_actual = hoy.year
+    
+    config = ConfiguracionFinanzas.get_solo()
+    
+    # Búsqueda
+    q = request.GET.get('q', '')
+    
+    
+    # 1. Filtrar solo conductores ACTIVOS con VEHÍCULO OPERATIVO (Regla de Negocio)
+    conductores = Conductor.objects.filter(
+           estado='activo', 
+           vehiculos__condicion='operativo'  # ✅ Solo vehículos operativos
+           ).distinct().select_related('ubicacion')
+
+    
+    if q:
+        conductores = conductores.filter(
+            Q(cedula_identidad__icontains=q) | 
+            Q(nombres__icontains=q) | 
+            Q(apellidos__icontains=q) |
+            Q(vehiculos__numero_casco__icontains=q)
+        ).distinct()
+
+    # Pre-fetch de pagos para el año actual para eficiencia
+    pagos_anio = PagoMensual.objects.filter(
+        anio=anio_actual,
+        conductor__in=conductores
+    ).values('conductor_id', 'mes')
+
+    # Diccionario de pagos por conductor: {conductor_id: {mes1, mes2}}
+    mapa_pagos = {}
+    for p in pagos_anio:
+        cid = p['conductor_id']
+        if cid not in mapa_pagos: mapa_pagos[cid] = set()
+        mapa_pagos[cid].add(p['mes'])
+    
+    pendientes = []
+    pagados_completo = []  # ✅ CAMBIO: Ya no se llama 'pagados'
+    
+    conductores = conductores.prefetch_related('vehiculos')
+    
+    # Meses a verificar (Desde Enero hasta el mes actual)
+    meses_a_verificar = list(range(1, mes_actual + 1)) 
+    
+    for c in conductores:
+        pagos_c = mapa_pagos.get(c.id, set())
+        
+        # Verificar Solvencia del Mes Actual
+        if mes_actual in pagos_c:
+            pago_obj = PagoMensual.objects.filter(conductor=c, mes=mes_actual, anio=anio_actual).first()
+            pagados_completo.append({'conductor': c, 'pago': pago_obj})  # ✅ CAMBIO
+        
+        # Calcular Deuda Acumulada (Solo año actual)
+        deuda_meses = []
+        for m in meses_a_verificar:
+            if m not in pagos_c:
+                deuda_meses.append(m)
+        
+        if deuda_meses:
+            if mes_actual not in pagos_c:
+                total_deuda = len(deuda_meses) * config.monto_cuota_usd
+                pendientes.append({
+                    'conductor': c, 
+                    'meses_deuda': deuda_meses,
+                    'total_deuda': total_deuda,
+                    'cant_meses': len(deuda_meses)
+                })
+    
+    # Convertir números de mes a nombres
+    MESES_NOMBRES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    
+    for item in pendientes:
+        item['meses_nombres'] = [MESES_NOMBRES[m-1] for m in item['meses_deuda']]
+    
+    # Ordenar listas por ID del conductor
+    pendientes.sort(key=lambda x: x['conductor'].id)
+    pagados_completo.sort(key=lambda x: x['conductor'].id)  # ✅ CAMBIO
+    
+    # ✅ NUEVO: LIMITAR PAGADOS A 5 INICIALES
+    LIMITE_INICIAL = 5
+    pagados_visibles = pagados_completo[:LIMITE_INICIAL]
+    pagados_ocultos = pagados_completo[LIMITE_INICIAL:]
+    total_ocultos = len(pagados_ocultos)
+    
+    context = {
+        'pendientes': pendientes,
+        'pagados': pagados_visibles,  # ✅ Solo los 5 primeros
+        'pagados_ocultos': pagados_ocultos,  # ✅ Los restantes
+        'total_ocultos': total_ocultos,  # ✅ Cantidad oculta
+        'config': config,
+        'mes_actual': mes_actual,
+        'anio_actual': anio_actual,
+        'hoy': hoy,
+        'query': q,
+        'mes_nombre': PagoMensual(mes=mes_actual).get_nombre_mes()
+    }
+    return render(request, 'taxis/finanzas/principal.html', context)
+
+
+@login_required
+def finanzas_registrar_pago(request, conductor_id):
+    """Vista para registrar un pago mensual (o múltiples meses)"""
+    conductor = get_object_or_404(Conductor, id=conductor_id)
+    hoy = timezone.localtime().date()
+    mes_actual = hoy.month
+    anio_actual = hoy.year
+    
+    config = ConfiguracionFinanzas.get_solo()
+    vehiculo = conductor.vehiculos.first()
+    
+    # Obtener meses adeudados del año actual
+    pagos_anio = PagoMensual.objects.filter(
+        conductor=conductor,
+        anio=anio_actual
+    ).values_list('mes', flat=True)
+    
+    meses_pagados = set(pagos_anio)
+    meses_a_verificar = list(range(1, mes_actual + 1))
+    
+    MESES_NOMBRES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    
+    meses_adeudados = []
+    for m in meses_a_verificar:
+        if m not in meses_pagados:
+            meses_adeudados.append({
+                'mes': m,
+                'anio': anio_actual,
+                'nombre': MESES_NOMBRES[m-1],
+                'es_actual': m == mes_actual
+            })
+    
+    deuda_total = len(meses_adeudados) * config.monto_cuota_usd
+    
+    if request.method == 'POST':
+        # Obtener meses seleccionados
+        meses_pagar = request.POST.getlist('meses_pagar[]')
+        
+        if not meses_pagar:
+            messages.error(request, 'Debes seleccionar al menos un mes para pagar.')
+            return redirect('taxis:finanzas_registrar_pago', conductor_id=conductor_id)
+        
+        form = PagoMensualForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            pagos_registrados = []
+            
+            for mes_str in meses_pagar:
+                mes, anio = map(int, mes_str.split('-'))
+                
+                # Verificar que no exista
+                if PagoMensual.objects.filter(conductor=conductor, mes=mes, anio=anio).exists():
+                    continue
+                
+                pago = PagoMensual.objects.create(
+                     conductor=conductor,
+                     vehiculo=vehiculo,
+                     mes=mes,
+                     anio=anio,
+                     monto_usd=config.monto_cuota_usd,
+                     fecha_pago=form.cleaned_data['fecha_pago'],
+                     comprobante=form.cleaned_data.get('comprobante'),
+                     notas=form.cleaned_data.get('notas', ''),
+                     registrado_por=request.user,
+                     # ✅ NUEVO: Guardar cache del conductor por seguridad
+                     conductor_nombre_cache=f"{conductor.nombres} {conductor.apellidos}",
+                     conductor_cedula_cache=f"{conductor.cedula_prefijo}-{conductor.cedula_identidad}"
+                )
+
+                pagos_registrados.append(MESES_NOMBRES[mes-1])
+            
+            if pagos_registrados:
+                MovimientoAudit.objects.create(
+                    usuario=request.user,
+                    accion=f'Registró pagos de {conductor}: {", ".join(pagos_registrados)}',
+                    modulo='Finanzas'
+                )
+                messages.success(request, f'✅ Pagos registrados: {", ".join(pagos_registrados)}')
+            
+            return redirect('taxis:finanzas_principal')
+    else:
+        form = PagoMensualForm()
+    
+    context = {
+        'conductor': conductor,
+        'vehiculo': vehiculo,
+        'config': config,
+        'form': form,
+        'hoy': hoy,
+        'meses_adeudados': meses_adeudados,
+        'deuda_total': deuda_total
+    }
+    
+    return render(request, 'taxis/finanzas/registrar_pago_v2.html', context)
+
+@login_required
+def finanzas_historial(request):
+    """Vista de histórico de pagos con filtros"""
+    hoy = timezone.localtime().date()
+    anio_actual = hoy.year
+    
+    anio_sel = request.GET.get('anio', str(anio_actual))
+    mes_sel = request.GET.get('mes', '')
+    q = request.GET.get('q', '')
+    
+    pagos = PagoMensual.objects.select_related('conductor', 'vehiculo').all()
+    
+    if anio_sel:
+        pagos = pagos.filter(anio=anio_sel)
+    if mes_sel:
+        pagos = pagos.filter(mes=mes_sel)
+    if q:
+        pagos = pagos.filter(
+            Q(conductor__cedula_identidad__icontains=q) | 
+            Q(conductor__nombres__icontains=q) | 
+            Q(conductor__apellidos__icontains=q) |
+            Q(vehiculo__numero_casco__icontains=q)
+        ).distinct()
+        
+    # Agrupar años
+    anios_disponibles = PagoMensual.objects.values_list('anio', flat=True).distinct().order_by('-anio')
+    if not anios_disponibles:
+        anios_disponibles = [anio_actual]
+        
+    anios_recientes = [a for a in anios_disponibles if a >= anio_actual - 1]
+    anios_archivados = [a for a in anios_disponibles if a < anio_actual - 1]
+    
+    meses_lista = [
+        {'num': 1, 'nombre': 'Enero'}, {'num': 2, 'nombre': 'Febrero'},
+        {'num': 3, 'nombre': 'Marzo'}, {'num': 4, 'nombre': 'Abril'},
+        {'num': 5, 'nombre': 'Mayo'}, {'num': 6, 'nombre': 'Junio'},
+        {'num': 7, 'nombre': 'Julio'}, {'num': 8, 'nombre': 'Agosto'},
+        {'num': 9, 'nombre': 'Septiembre'}, {'num': 10, 'nombre': 'Octubre'},
+        {'num': 11, 'nombre': 'Noviembre'}, {'num': 12, 'nombre': 'Diciembre'}
+    ]
+    
+    context = {
+        'pagos': pagos,
+        'anio_seleccionado': int(anio_sel) if anio_sel else None,
+        'mes_seleccionado': int(mes_sel) if mes_sel else None,
+        'query': q,
+        'anios_recientes': anios_recientes,
+        'anios_archivados': anios_archivados,
+        'meses_lista': meses_lista,
+        'anio_actual': anio_actual
+    }
+    return render(request, 'taxis/finanzas/historial.html', context)
+
+@login_required
+def finanzas_ver_pago(request, pago_id):
+    """Detalle de un pago mensual (estilo recibo con agrupación inteligente)"""
+    pago = get_object_or_404(PagoMensual.objects.select_related('conductor', 'vehiculo', 'registrado_por'), id=pago_id)
+    
+    # ✅ CORREGIDO: Detectar pagos relacionados (misma transacción)
+    # Agrupamos por: mismo conductor + misma fecha de pago
+    pagos_agrupados = PagoMensual.objects.filter(
+        conductor=pago.conductor,
+        fecha_pago=pago.fecha_pago
+    ).order_by('anio', 'mes')
+    
+    # Si hay comprobante, también filtrar por comprobante para mayor precisión
+    if pago.comprobante:
+        pagos_agrupados = pagos_agrupados.filter(
+            comprobante=pago.comprobante.name
+        )
+    
+    # Calcular total acumulado
+    total_acumulado = sum(p.monto_usd for p in pagos_agrupados)
+    
+    # Generar string de meses (ej: "Enero, Febrero, Marzo")
+    MESES_NOMBRES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    
+    meses_str = ', '.join([MESES_NOMBRES[p.mes - 1] for p in pagos_agrupados])
+    
+    # Determinar si es pago múltiple
+    es_pago_multiple = pagos_agrupados.count() > 1
+    
+    context = {
+        'pago': pago,  # Pago principal (el que se clickeó)
+        'pagos_agrupados': pagos_agrupados,  # Todos los pagos de la misma transacción
+        'total_acumulado': total_acumulado,
+        'meses_str': meses_str,
+        'es_pago_multiple': es_pago_multiple,
+        'coop': DATOS_COOP,
+    }
+    return render(request, 'taxis/finanzas/ver_pago.html', context)
+
+
+# ✅ AGREGAR ESTA CLASE (Sistema antiguo de deudas)
 class RegistrarPagoView(LoginRequiredMixin, CreateView):
     model = Pago
     form_class = PagoForm
-    template_name = "taxis/pago_form.html"
+    template_name = "taxis/finanzas/pago_form.html"
     success_url = reverse_lazy("taxis:deuda_list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -887,6 +1187,7 @@ class RegistrarPagoView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['deuda'] = self.deuda
         return context
+
 
 # ====================================================================
 # REPORTES AFILIADOS (PDF y EXCEL)
@@ -1219,10 +1520,32 @@ def panel_general(request):
 
     alertas_documentos.sort(key=lambda x: x['fecha_vencimiento'])
 
+    # ✅ CORREGIDO: Misma lógica que finanzas_principal
+    mes_actual = hoy.month
+    anio_actual = hoy.year
+    
+    # Obtener conductores activos con vehículo operativo (minúscula)
+    conductores_con_vehiculo = Conductor.objects.filter(
+        estado='activo',
+        vehiculos__condicion='operativo'  # ✅ Con minúscula
+    ).distinct()
+    
+    # Pre-fetch de pagos del mes actual
+    pagos_mes_actual = PagoMensual.objects.filter(
+        mes=mes_actual,
+        anio=anio_actual,
+        conductor__in=conductores_con_vehiculo
+    ).values_list('conductor_id', flat=True)
+    
+    # Contar conductores con vehículo operativo que NO pagaron el mes actual
+    pagos_pendientes_count = conductores_con_vehiculo.exclude(
+        id__in=pagos_mes_actual
+    ).count()
+
     context = {
         'total_afiliados': Conductor.objects.count(),
         'total_vehiculos': Vehiculo.objects.count(),
-        'pagos_pendientes': Deuda.objects.filter(pagada=False).count(),
+        'pagos_pendientes': pagos_pendientes_count,
         'notificaciones': Notificacion.objects.filter(leida=False),
         'alertas_documentos': alertas_documentos,
         'tasa_actual': ConfiguracionGlobal.get_tasa(),
@@ -1230,9 +1553,11 @@ def panel_general(request):
     }
     return render(request, 'taxis/panel_general.html', context)
 
+
 @login_required
 def ayuda_sistema(request):
     return render(request, 'taxis/ayuda.html')
+
 
 @login_required
 @require_POST

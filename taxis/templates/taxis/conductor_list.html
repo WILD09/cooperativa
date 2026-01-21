@@ -9,6 +9,7 @@
     :root {
         --coop-green-primary: #00b300;
         --coop-green-hover: #009900;
+        --coop-green-secondary: #009900;
         --coop-green-light: #e6f7e6;
         --border-color: #e5e7eb;
         --text-color: #1f2937;
@@ -20,6 +21,7 @@
     body.dark-mode {
         --coop-green-primary: #10b981;
         --coop-green-hover: #059669;
+        --coop-green-secondary: #059669;
         --coop-green-light: rgba(16, 185, 129, 0.2);
         --border-color: #374151;
         --text-color: #f3f4f6;
@@ -47,7 +49,11 @@
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: var(--coop-green-hover);
+        background: var(--coop-green-secondary);
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
     }
 
     .page-title { 
@@ -72,6 +78,26 @@
     .search-input:focus {
         box-shadow: 0 0 0 4px var(--coop-green-light); transform: scale(1.01);
     }
+
+    /* ✅ NUEVO: Estilos para autocompletado del navegador */
+    .search-input:-webkit-autofill,
+    .search-input:-webkit-autofill:hover,
+    .search-input:-webkit-autofill:focus,
+    .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: var(--text-color) !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Modo oscuro específico para autocompletado */
+    body.dark-mode .search-input:-webkit-autofill,
+    body.dark-mode .search-input:-webkit-autofill:hover,
+    body.dark-mode .search-input:-webkit-autofill:focus,
+    body.dark-mode .search-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+        -webkit-text-fill-color: #f3f4f6 !important;
+    }
+
     .search-icon {
         position: absolute; left: 15px; z-index: 10; 
         color: var(--coop-green-primary); font-size: 1.1rem; pointer-events: none;
