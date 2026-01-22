@@ -28,7 +28,6 @@
         --input-bg: #1a2639;
     }
 
-    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
     ::-webkit-scrollbar {
         width: 10px;
     }
@@ -95,7 +94,6 @@
         background: white;
     }
 
-    /* ✅ NUEVO: Grid con columnas separadas */
     .info-strip {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -154,27 +152,6 @@
         border-color: var(--coop-green-primary);
         box-shadow: var(--input-focus-shadow);
         transform: translateY(-1px);
-    }
-
-    .amount-display {
-        margin: 1.5rem 0;
-        text-align: center;
-    }
-
-    .amount-label {
-        font-size: 0.75rem;
-        font-weight: 800;
-        opacity: 0.6;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        color: var(--finance-text);
-    }
-
-    .amount-value {
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--coop-green-primary);
-        line-height: 1;
     }
 
     .date-wrapper {
@@ -283,7 +260,6 @@
         color: var(--coop-green-primary);
     }
 
-    /* ✅ Estilos para Deuda Acumulada */
     .deuda-card {
         background: rgba(255, 193, 7, 0.1);
         border: 2px solid rgba(255, 193, 7, 0.3);
@@ -301,6 +277,29 @@
         font-weight: 800;
         font-size: 1rem;
         color: #f59e0b;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .adelanto-card {
+        background: rgba(59, 130, 246, 0.1);
+        border: 2px dashed rgba(59, 130, 246, 0.4);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin: 1.5rem;
+    }
+
+    body.dark-mode .adelanto-card {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .adelanto-title {
+        font-weight: 800;
+        font-size: 1rem;
+        color: #3b82f6;
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
@@ -328,12 +327,30 @@
         transform: translateX(5px);
     }
 
+    .mes-checkbox-item.futuro {
+        border-style: dashed;
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .mes-checkbox-item.futuro:hover {
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    body.dark-mode .mes-checkbox-item.futuro:hover {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
     .mes-checkbox-item input[type="checkbox"] {
         width: 20px;
         height: 20px;
         margin-right: 12px;
         cursor: pointer;
         accent-color: var(--coop-green-primary);
+    }
+
+    .mes-checkbox-item.futuro input[type="checkbox"] {
+        accent-color: #3b82f6;
     }
 
     .mes-checkbox-label {
@@ -346,6 +363,15 @@
 
     .mes-badge-actual {
         background: var(--coop-green-primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .mes-badge-futuro {
+        background: #3b82f6;
         color: white;
         padding: 0.25rem 0.75rem;
         border-radius: 8px;
@@ -380,7 +406,6 @@
     }
 </style>
 
-
 <div class="form-container">
     <div class="mb-4">
         <a href="{% url 'taxis:finanzas_principal' %}" class="btn-back-finance">
@@ -405,37 +430,39 @@
             </div>
         </div>
 
-        <div class="px-4">
-            <div class="info-strip">
-                <div class="info-item">
-                    <label>Cédula</label>
-                    <span>{{ conductor.cedula_prefijo }}-{{ conductor.cedula_identidad }}</span>
-                </div>
-                <div class="info-item">
-                    <label>Vehículo</label>
-                    <span>{{ vehiculo.marca|default:"Nissan" }} {{ vehiculo.modelo }}</span>
-                </div>
-                <div class="info-item">
-                    <label>Placa</label>
-                    <span>{{ vehiculo.placa|default:"--" }}</span>
-                </div>
-                <div class="info-item">
-                    <label>Fecha Actual</label>
-                    <span class="text-success">{{ hoy|date:"d/m/Y" }}</span>
-                </div>
-            </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
 
-            <!-- ✅ NUEVA SECCIÓN: Selección de Meses Adeudados -->
-            {% if meses_adeudados %}
-            <div class="deuda-card">
-                <div class="deuda-title">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Deuda Acumulada: ${{ deuda_total }}</span>
+            <div class="px-4">
+                <div class="info-strip">
+                    <div class="info-item">
+                        <label>Cédula</label>
+                        <span>{{ conductor.cedula_prefijo }}-{{ conductor.cedula_identidad }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Vehículo</label>
+                        <span>{{ vehiculo.marca|default:"Nissan" }} {{ vehiculo.modelo }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Placa</label>
+                        <span>{{ vehiculo.placa|default:"--" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Fecha Actual</label>
+                        <span class="text-success">{{ hoy|date:"d/m/Y" }}</span>
+                    </div>
                 </div>
-                
-                <p class="small mb-3" style="opacity: 0.8;">Selecciona los meses que deseas registrar:</p>
-                
-                <div id="meses-checkbox-container">
+
+                <!-- Meses Adeudados -->
+                {% if meses_adeudados %}
+                <div class="deuda-card">
+                    <div class="deuda-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Deuda Acumulada: ${{ deuda_total }}</span>
+                    </div>
+                    
+                    <p class="small mb-3" style="opacity: 0.8;">Selecciona los meses que deseas registrar:</p>
+                    
                     {% for mes in meses_adeudados %}
                     <div class="mes-checkbox-item">
                         <input type="checkbox" 
@@ -444,7 +471,7 @@
                                name="meses_pagar[]" 
                                value="{{ mes.mes }}-{{ mes.anio }}"
                                data-monto="{{ config.monto_cuota_usd }}"
-                               {% if mes.es_actual %}checked{% endif %}>
+                               {% if forloop.first %}checked{% endif %}>
                         <label class="mes-checkbox-label" for="mes-{{ mes.mes }}-{{ mes.anio }}">
                             {{ mes.nombre }} {{ mes.anio }} - ${{ config.monto_cuota_usd }}
                         </label>
@@ -454,25 +481,59 @@
                     </div>
                     {% endfor %}
                 </div>
-                
-                <div class="total-pagar-box">
+                {% endif %}
+
+                <!-- Pagos Adelantados -->
+                {% if esta_al_dia %}
+                    {% if meses_futuros %}
+                    <div class="alert alert-success mx-3" style="border-radius: 15px;">
+                        <strong><i class="fas fa-check-circle"></i> ¡Afiliado al Día!</strong>
+                        <p class="mb-0 small">Puede adelantar pagos de meses futuros si lo desea.</p>
+                    </div>
+
+                    <div class="adelanto-card">
+                        <div class="adelanto-title">
+                            <i class="fas fa-fast-forward"></i>
+                            <span>Adelantar Pagos (Opcional)</span>
+                        </div>
+                        
+                        <p class="small mb-3" style="opacity: 0.8; color: var(--finance-text);">Selecciona los meses futuros que deseas adelantar:</p>
+                        
+                        {% for mes in meses_futuros %}
+                        <div class="mes-checkbox-item futuro">
+                            <input type="checkbox" 
+                                   class="mes-checkbox" 
+                                   id="mes-{{ mes.mes }}-{{ mes.anio }}" 
+                                   name="meses_pagar[]" 
+                                   value="{{ mes.mes }}-{{ mes.anio }}"
+                                   data-monto="{{ config.monto_cuota_usd }}">
+                            <label class="mes-checkbox-label" for="mes-{{ mes.mes }}-{{ mes.anio }}">
+                                {{ mes.nombre }} {{ mes.anio }} - ${{ config.monto_cuota_usd }}
+                            </label>
+                            <span class="mes-badge-futuro">Adelantado</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mx-3 mt-3 text-center" style="border-radius: 15px;">
+                        <i class="fas fa-medal fa-3x mb-3" style="color: #3b82f6;"></i>
+                        <h5 class="font-weight-bold">¡Afiliado 100% Solvente!</h5>
+                        <p class="mb-0">Ha pagado todos los meses del año {{ anio_actual }}.</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Total a Pagar -->
+                {% if meses_adeudados or meses_futuros %}
+                <div class="total-pagar-box mx-3">
                     <div class="total-pagar-label">TOTAL A PAGAR</div>
                     <div id="total-pagar" class="total-pagar-value">
-                        ${{ config.monto_cuota_usd }}
+                        $0.00
                     </div>
                 </div>
-            </div>
-            {% else %}
-            <div class="alert alert-success mx-3 mt-3" style="border-radius: 15px;">
-                <strong><i class="fas fa-check-circle"></i> ¡Al día!</strong>
-                <p class="mb-0 small">Este conductor no tiene meses pendientes.</p>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <form method="post" enctype="multipart/form-data" class="pb-5 px-2">
-                {% csrf_token %}
-
-                <div class="mb-3">
+                <div class="mb-3 mt-4 px-2">
                     <label class="field-label">Fecha de Registro</label>
                     <div class="date-wrapper">
                         {{ form.fecha_pago }}
@@ -483,43 +544,51 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 px-2">
                     <label class="field-label">Comprobante</label>
                     <div class="upload-area" onclick="document.querySelector('input[type=file]').click()">
                         <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                        <div class="small font-weight-bold text-muted" id="file-name">Adjuntar Imagen o PDF (Opcional)</div>
+                        <div class="small font-weight-bold text-muted" id="file-name">
+                            Adjuntar Imagen o PDF <span style="opacity: 0.7;">(Opcional - No obligatorio)</span>
+                        </div>
                         <div class="d-none">
                             {{ form.comprobante }}
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 px-2">
                     <label class="field-label">Notas</label>
                     {{ form.notas }}
                 </div>
 
-                <button type="submit" class="btn btn-submit">
-                    REGISTRAR PAGO
-                </button>
-            </form>
-        </div>
+                <div class="pb-4 px-2">
+                    <button type="submit" class="btn btn-submit">
+                        REGISTRAR PAGO
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Calcular total al cambiar checkboxes
-        $('.mes-checkbox').on('change', function() {
+        function actualizarTotal() {
             let total = 0;
             $('.mes-checkbox:checked').each(function() {
                 total += parseFloat($(this).data('monto'));
             });
             $('#total-pagar').text('$' + total.toFixed(2));
+        }
+        
+        actualizarTotal();
+        
+        $('.mes-checkbox').on('change', function() {
+            actualizarTotal();
         });
         
-        // Validar que al menos uno esté seleccionado
         $('form').on('submit', function(e) {
             if ($('.mes-checkbox:checked').length === 0) {
                 e.preventDefault();
@@ -528,7 +597,6 @@
             }
         });
 
-        // Date picker sync
         const picker = document.getElementById('nativeDatePicker');
         const input = document.querySelector('input[name="fecha_pago"]');
 
@@ -538,7 +606,6 @@
             });
         }
 
-        // Upload feedback
         $('input[type="file"]').on('change', function () {
             if (this.files.length > 0) {
                 $('#file-name').html('<span class="text-success font-weight-bold"><i class="fas fa-check"></i> ' + this.files[0].name + '</span>');
@@ -549,4 +616,3 @@
     });
 </script>
 {% endblock %}
-

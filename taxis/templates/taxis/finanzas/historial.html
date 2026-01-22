@@ -1,173 +1,1081 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
 
-{% block title %}Historial de Pagos{% endblock %}
+{% block title %}Historial Financiero{% endblock %}
 
 {% block content %}
 <style>
     :root {
-        --finance-primary: #28a745;
-        --finance-secondary: #20c997;
+        --finance-primary: #00b300;
+        --finance-secondary: #009900;
+        --finance-accent: #17a2b8;
         --finance-bg: #ffffff;
         --finance-text: #212529;
         --finance-border: #dee2e6;
+        --finance-gradient: linear-gradient(135deg, #00b300 0%, #009900 100%);
+        --finance-shadow: rgba(0, 179, 0, 0.15);
+        --icon-color-1: #00b300;
+        --icon-color-2: #009900;
+        --icon-color-3: #17a2b8;
+        --icon-color-4: #ffc107;
     }
 
     body.dark-mode {
-        --finance-primary: #20c997;
+        --finance-primary: #10b981;
+        --finance-secondary: #059669;
+        --finance-accent: #06b6d4;
         --finance-bg: #1e293b;
         --finance-text: #f1f5f9;
         --finance-border: #475569;
+        --finance-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --finance-shadow: rgba(16, 185, 129, 0.25);
+        --icon-color-1: #10b981;
+        --icon-color-2: #059669;
+        --icon-color-3: #06b6d4;
+        --icon-color-4: #fbbf24;
     }
 
-    .historial-container {
-        max-width: 900px;
-        margin: 0 auto;
+    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
+    ::-webkit-scrollbar {
+        width: 10px;
     }
 
-    .filter-card {
-        background: var(--finance-bg);
-        border: 2px solid var(--finance-border);
-        border-radius: 15px;
-        padding: 1.5rem;
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0;
+    }
+
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--finance-primary);
+        border-radius: 10px;
+        min-height: 40px;
+    }
+
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--finance-secondary);
+    }
+
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
+    }
+
+    /* ===== DASHBOARD CARDS ===== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
         margin-bottom: 2rem;
     }
 
-    .compact-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 0.5rem;
-    }
-
-    .history-item {
+    .stat-card {
         background: var(--finance-bg);
-        border: 1px solid var(--finance-border);
-        border-radius: 10px;
-        transition: all 0.2s ease;
-        cursor: pointer;
+        border: 2px solid var(--finance-border);
+        border-radius: 18px;
+        padding: 1.75rem 1.5rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
 
-    .history-item:hover {
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--finance-gradient);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .stat-card:hover {
         border-color: var(--finance-primary);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px var(--finance-shadow);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.15) rotate(5deg);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: var(--finance-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0.75rem 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--finance-text);
+        opacity: 0.65;
+        letter-spacing: 1px;
+    }
+
+    .stat-icon {
+        font-size: 2.75rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: inline-block;
+    }
+
+    .stat-card:nth-child(1) .stat-icon {
+        color: var(--icon-color-1);
+        opacity: 0.85;
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+        color: var(--icon-color-2);
+        opacity: 0.85;
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+        color: var(--icon-color-3);
+        opacity: 0.85;
+    }
+
+    .stat-card:nth-child(4) .stat-icon {
+        color: var(--icon-color-4);
+        opacity: 0.85;
+    }
+
+    /* ===== BARRA DE BÚSQUEDA + FILTRO ===== */
+    .search-container {
+        display: flex;
+        align-items: center;
+        max-width: 100%;
+        position: relative;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 52px;
+        border: 2px solid var(--finance-primary);
+        border-radius: 26px;
+        padding: 0 1.25rem 0 3.5rem;
+        color: var(--finance-text);
+        outline: none;
+        background-color: var(--finance-bg);
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .search-input:focus {
+        box-shadow: 0 0 0 5px var(--finance-shadow);
         transform: scale(1.01);
     }
 
-    .history-cell {
-        padding: 0.75rem 1rem;
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        z-index: 10;
+        color: var(--finance-primary);
+        font-size: 1.2rem;
+        pointer-events: none;
     }
 
+    /* ===== BOTÓN FILTRO ===== */
+    .filter-btn {
+        background-color: var(--finance-bg);
+        color: var(--finance-primary);
+        border: 2px solid var(--finance-primary);
+        border-radius: 14px;
+        width: 52px;
+        height: 52px;
+        margin-left: 15px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .filter-btn:hover {
+        background-color: var(--finance-primary);
+        color: white;
+        transform: rotate(15deg);
+    }
+
+    /* ===== DROPDOWN FILTROS ===== */
+    .filter-dropdown {
+        position: absolute;
+        top: 115%;
+        right: 0;
+        background: var(--finance-bg);
+        border-radius: 18px;
+        box-shadow: 0 12px 48px -12px rgba(0, 0, 0, 0.2);
+        border: 2px solid var(--finance-border);
+        width: 340px;
+        padding: 2rem;
+        z-index: 100;
+        display: none;
+        animation: slideDown 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    body.dark-mode .filter-dropdown {
+        background: #1f2937;
+        border-color: #4b5563;
+        box-shadow: 0 12px 48px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    .filter-dropdown.show {
+        display: block;
+    }
+
+    .filter-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--finance-primary);
+        margin-bottom: 0.7rem;
+        letter-spacing: 0.8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-label i {
+        font-size: 0.95rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        height: 48px;
+        padding: 0 1rem;
+        border-radius: 12px;
+        border: 2px solid var(--finance-border);
+        background-color: var(--finance-bg);
+        color: var(--finance-text);
+        font-size: 0.95rem;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300b300' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    body.dark-mode .filter-select {
+        background-color: #0f172a;
+        border-color: #334155;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2310b981' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    }
+
+    body.dark-mode .filter-select option {
+        background-color: #1f2937;
+        color: white;
+    }
+
+    .filter-select:hover {
+        border-color: var(--finance-primary);
+        box-shadow: 0 4px 14px rgba(0, 179, 0, 0.15);
+    }
+
+    .filter-select:focus {
+        border-color: var(--finance-primary);
+        box-shadow: 0 0 0 4px var(--finance-shadow);
+        transform: translateY(-2px);
+    }
+
+    .btn-apply-filters {
+        width: 100%;
+        background: var(--finance-gradient);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 14px var(--finance-shadow);
+    }
+
+    .btn-apply-filters:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--finance-shadow);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== BOTÓN VOLVER (SIN SUBRAYADO) ===== */
+    .btn-back {
+        background: var(--finance-bg) !important;
+        border: 2px solid var(--finance-border) !important;
+        color: var(--finance-text) !important;
+        font-weight: 700;
+        padding: 0.7rem 1.75rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back:hover {
+        border-color: var(--finance-primary) !important;
+        color: var(--finance-primary) !important;
+        transform: translateX(-5px);
+        box-shadow: 0 4px 12px var(--finance-shadow);
+        text-decoration: none !important;
+    }
+
+    /* ===== TOOLBAR ===== */
+    .action-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1.1rem 1.5rem;
+        background: linear-gradient(135deg, rgba(0, 179, 0, 0.06) 0%, rgba(0, 153, 0, 0.06) 100%);
+        border-radius: 14px;
+        border: 2px solid var(--finance-border);
+    }
+
+    body.dark-mode .action-toolbar {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(5, 150, 105, 0.06) 100%);
+    }
+
+    .results-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        color: var(--finance-text);
+        font-size: 0.95rem;
+    }
+
+    .results-info i {
+        color: var(--finance-primary);
+        font-size: 1.25rem;
+    }
+
+    /* ===== TABLA DE PAGOS (GRID MEJORADO) ===== */
+    .payments-table {
+        background: var(--finance-bg);
+        border-radius: 18px;
+        overflow: hidden;
+        border: 2px solid var(--finance-border);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-header {
+        background: var(--finance-gradient);
+        color: white;
+        padding: 1.4rem 2rem;
+        display: grid;
+        grid-template-columns: 220px 1fr 150px 150px 120px;
+        gap: 1.5rem;
+        font-weight: 900;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        align-items: center;
+    }
+
+    .payment-row {
+        display: grid;
+        grid-template-columns: 220px 1fr 150px 150px 120px;
+        gap: 1.5rem;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--finance-border);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .payment-row:hover {
+        background: linear-gradient(90deg, rgba(0, 179, 0, 0.03) 0%, transparent 100%);
+        border-left: 5px solid var(--finance-primary);
+        padding-left: calc(2rem - 5px);
+        box-shadow: inset 0 0 20px rgba(0, 179, 0, 0.03);
+    }
+
+    body.dark-mode .payment-row:hover {
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+        box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.05);
+    }
+
+    .payment-row:last-child {
+        border-bottom: none;
+    }
+
+    /* Columnas específicas */
+    .col-periodo {
+        justify-self: start;
+    }
+
+    .col-afiliado {
+        justify-self: start;
+    }
+
+    .col-fecha {
+        justify-self: center;
+        text-align: center;
+    }
+
+    .col-monto {
+        justify-self: center;
+        text-align: center;
+    }
+
+    .col-acciones {
+        justify-self: center;
+        text-align: center;
+    }
+
+    /* ===== BADGES ===== */
     .period-pill {
         display: inline-block;
         font-size: 0.7rem;
-        font-weight: 800;
+        font-weight: 900;
         text-transform: uppercase;
-        padding: 0.2rem 0.6rem;
-        border-radius: 8px;
-        background: rgba(40, 167, 69, 0.1);
-        color: var(--finance-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        background: var(--finance-gradient);
+        color: white;
+        letter-spacing: 0.8px;
+        box-shadow: 0 2px 8px var(--finance-shadow);
     }
 
-    .vsms-select,
-    .vsms-input {
+    .status-badge {
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 0.4rem 0.8rem;
+        border-radius: 10px;
+        margin-left: 0.6rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-adelantado {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #0d47a1;
+        border: 1px solid #90caf9;
+    }
+
+    .badge-puntual {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #1b5e20;
+        border: 1px solid #81c784;
+    }
+
+    body.dark-mode .badge-adelantado {
+        background: rgba(25, 118, 210, 0.3);
+        color: #90caf9;
+        border-color: #64b5f6;
+    }
+
+    body.dark-mode .badge-puntual {
+        background: rgba(56, 142, 60, 0.3);
+        color: #a5d6a7;
+        border-color: #81c784;
+    }
+
+    /* ===== TOTALES ===== */
+    .totals-bar {
+        background: var(--finance-gradient);
+        color: white;
+        padding: 1.75rem 2.5rem;
+        border-radius: 18px;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        font-weight: 700;
+        box-shadow: 0 10px 30px var(--finance-shadow);
+    }
+
+    .total-item {
+        text-align: center;
+        padding: 0 2rem;
+        border-right: 2px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .total-item:last-child {
+        border-right: none;
+    }
+
+    .total-value {
+        font-size: 2.25rem;
+        margin-bottom: 0.4rem;
+        font-weight: 900;
+    }
+
+    .total-label {
+        font-size: 0.7rem;
+        opacity: 0.95;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 800;
+    }
+
+    /* ===== PAGINACIÓN ===== */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.6rem;
+        list-style: none;
+        padding: 0;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 0.75rem 1.1rem;
+        border-radius: 12px;
         background: var(--finance-bg);
         color: var(--finance-text);
         border: 2px solid var(--finance-border);
-        border-radius: 8px;
-        padding: 0.5rem;
+        text-decoration: none !important;
+        font-weight: 800;
+        transition: all 0.3s ease;
+        min-width: 48px;
+        text-align: center;
     }
 
-    body.dark-mode .vsms-select,
-    body.dark-mode .vsms-input {
-        background: #0f172a;
+    .page-link:hover {
+        border-color: var(--finance-primary);
+        background: rgba(0, 179, 0, 0.12);
+        color: var(--finance-primary);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px var(--finance-shadow);
+        text-decoration: none !important;
     }
 
-    @media (max-width: 576px) {
-        .history-cell-meta {
+    body.dark-mode .page-link:hover {
+        background: rgba(16, 185, 129, 0.12);
+    }
+
+    .page-link.active {
+        background: var(--finance-gradient);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 6px 18px var(--finance-shadow);
+    }
+
+    /* ===== BOTONES DE ACCIÓN (SIN SUBRAYADO) ===== */
+    .action-buttons {
+        display: flex;
+        gap: 0.6rem;
+        justify-content: center;
+    }
+
+    .btn-action {
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        border: 2px solid;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+    .btn-action-view {
+        background: transparent;
+        color: var(--finance-primary);
+        border-color: var(--finance-primary);
+    }
+
+    .btn-action-view:hover {
+        background: var(--finance-primary);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px var(--finance-shadow);
+        text-decoration: none !important;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--finance-primary);
+        opacity: 0.25;
+        margin-bottom: 2rem;
+    }
+
+    .empty-state h5 {
+        color: var(--finance-text);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .empty-state p {
+        color: var(--finance-text);
+        opacity: 0.6;
+        font-size: 1rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .table-header,
+        .payment-row {
+            grid-template-columns: 200px 1fr 130px 130px 100px;
+            gap: 1rem;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .table-header {
             display: none;
         }
 
-        .history-cell:last-child {
-            text-align: right;
+        .payment-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1.75rem 1.25rem;
+        }
+
+        .payment-row > div {
+            justify-self: start !important;
+            text-align: left !important;
+        }
+
+        .totals-bar {
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .total-item {
+            border-right: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+            padding: 1.25rem 0;
+        }
+
+        .total-item:last-child {
+            border-bottom: none;
+        }
+
+        .filter-dropdown {
+            width: 90vw;
+            right: -10px;
         }
     }
+
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-toolbar {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .search-container {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-btn {
+            width: 100%;
+            margin-left: 0;
+        }
+    }
+    
+    /* ===== SEPARADOR MEJORADO (DARK MODE COMPATIBLE) ===== */
+.month-divider {
+    margin: 1.5rem 0 1rem 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--finance-primary), transparent);
+}
+
+.divider-label {
+    padding: 0.5rem 1rem;
+    /* 👇 CAMBIO: Fondo dinámico según modo */
+    background: var(--finance-bg);
+    color: var(--finance-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 20px;
+    border: 2px solid var(--finance-primary);
+    white-space: nowrap;
+    z-index: 2;
+    /* 👇 Sombra sutil para resaltar */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .month-divider {
+        margin: 1rem 0;
+    }
+    .divider-label {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
 </style>
 
-<div class="historial-container">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+<div class="container-fluid px-4 py-3">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <h1 class="h3 mb-0 font-weight-bold" style="color: var(--finance-primary);">
             <i class="fas fa-history mr-2"></i>Historial Financiero
         </h1>
-        <a href="{% url 'taxis:finanzas_principal' %}" class="btn btn-secondary btn-sm rounded-pill">
-            <i class="fas fa-arrow-left mr-1"></i> Volver
+        <a href="{% url 'taxis:finanzas_principal' %}" class="btn-back">
+            <i class="fas fa-arrow-left"></i>Volver
         </a>
     </div>
 
-    <!-- Filtros -->
-    <div class="filter-card shadow-sm">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="small font-weight-bold text-muted">AÑO</label>
-                <select name="anio" class="form-control vsms-select" onchange="this.form.submit()">
-                    <optgroup label="Recientes">
-                        {% for a in anios_recientes %}
-                        <option value="{{ a }}" {% if a == anio_seleccionado %}selected{% endif %}>{{ a }}</option>
-                        {% endfor %}
-                    </optgroup>
-                    {% if anios_archivados %}
-                    <optgroup label="Archivo">
-                        {% for a in anios_archivados %}
-                        <option value="{{ a }}" {% if a == anio_seleccionado %}selected{% endif %}>{{ a }}</option>
-                        {% endfor %}
-                    </optgroup>
-                    {% endif %}
-                </select>
+    <!-- ===== DASHBOARD DE ESTADÍSTICAS ===== -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-value">${{ stats.total_recaudado|floatformat:2 }}</div>
+            <div class="stat-label">Total Recaudado</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+            <div class="stat-value">{{ stats.total_pagos }}</div>
+            <div class="stat-label">Pagos Registrados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">{{ stats.afiliados_pagaron }}</div>
+            <div class="stat-label">Afiliados Activos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-value">${{ stats.promedio_pago|floatformat:2 }}</div>
+            <div class="stat-label">Promedio por Pago</div>
+        </div>
+    </div>
+
+    <!-- ===== BARRA DE BÚSQUEDA Y FILTROS ===== -->
+    <div class="search-container mb-4">
+        <form method="get" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
+            <div class="search-input-group">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       name="q" 
+                       class="search-input" 
+                       placeholder="Buscar por nombre, cédula o número de casco..." 
+                       value="{{ query|default:'' }}">
             </div>
-            <div class="col-md-3">
-                <label class="small font-weight-bold text-muted">MES</label>
-                <select name="mes" class="form-control vsms-select" onchange="this.form.submit()">
-                    <option value="">Todos</option>
-                    {% for m in meses_lista %}
-                    <option value="{{ m.num }}" {% if m.num == mes_seleccionado %}selected{% endif %}>{{ m.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="small font-weight-bold text-muted">BUSCAR AFILIADO</label>
-                <input type="text" name="q" value="{{ query|default:'' }}" class="form-control vsms-input"
-                    placeholder="Nombre, cédula o casco...">
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary btn-block rounded-pill font-weight-bold"
-                    style="background: var(--finance-primary) !important; border: none;">
-                    Filtrar
+
+            <div style="position: relative;">
+                <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
+                    <i class="fas fa-filter"></i>
                 </button>
+
+                <!-- DROPDOWN DE FILTROS -->
+                <div class="filter-dropdown" id="filterDropdown">
+                    <div class="mb-4">
+                        <label class="filter-label">
+                            <i class="fas fa-calendar-alt"></i>Año
+                        </label>
+                        <select name="anio" class="filter-select">
+                            {% for a in anios_disponibles %}
+                            <option value="{{ a }}" {% if a == anio_seleccionado %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="filter-label">
+                            <i class="fas fa-calendar"></i>Mes
+                        </label>
+                        <select name="mes" class="filter-select">
+                            <option value="">Todos los meses</option>
+                            {% for m in meses_lista %}
+                            <option value="{{ m.num }}" {% if m.num == mes_seleccionado %}selected{% endif %}>
+                                {{ m.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="filter-label">
+                            <i class="fas fa-sort"></i>Ordenar por
+                        </label>
+                        <select name="orden" class="filter-select">
+                            <option value="-fecha_pago" {% if orden == '-fecha_pago' %}selected{% endif %}>
+                                Más recientes
+                            </option>
+                            <option value="fecha_pago" {% if orden == 'fecha_pago' %}selected{% endif %}>
+                                Más antiguos
+                            </option>
+                            <option value="-monto_usd" {% if orden == '-monto_usd' %}selected{% endif %}>
+                                Mayor monto
+                            </option>
+                            <option value="monto_usd" {% if orden == 'monto_usd' %}selected{% endif %}>
+                                Menor monto
+                            </option>
+                            <option value="conductor__nombres" {% if orden == 'conductor__nombres' %}selected{% endif %}>
+                                Nombre A-Z
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-apply-filters">
+                        <i class="fas fa-filter mr-2"></i>Aplicar Filtros
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 
-    <!-- Lista -->
-    <div class="list-group">
-        {% for pago in pagos %}
-        <div class="list-group-item history-item d-flex align-items-center mb-2"
-            onclick="location.href='{% url 'taxis:finanzas_ver_pago' pago.id %}'">
-            <div class="conductor-info flex-grow-1">
-                <div class="period-pill mb-1">{{ pago.get_nombre_mes }} {{ pago.anio }}</div>
-                <div class="font-weight-bold">{{ pago.conductor.nombres }} {{ pago.conductor.apellidos }}</div>
-                <small class="text-muted">Casco #{{ pago.vehiculo.numero_casco|default:"--" }} | Cédula: {{
-                    pago.conductor.cedula_prefijo }}-{{ pago.conductor.cedula_identidad }}</small>
-            </div>
-            <div class="text-right">
-                <div class="font-weight-bold text-success" style="font-size: 1.1rem;">+${{ pago.monto_usd }}</div>
-                <small class="text-muted d-block">{{ pago.fecha_pago|date:"d/m/Y" }}</small>
-            </div>
+    <!-- ===== CONTADOR DE RESULTADOS ===== -->
+    <div class="action-toolbar">
+        <div class="results-info">
+            <i class="fas fa-info-circle"></i>
+            <span>
+                <strong>{{ pagos.paginator.count }}</strong> registro(s) encontrado(s)
+                {% if query %} para "<strong>{{ query }}</strong>"{% endif %}
+            </span>
         </div>
-        {% empty %}
-        <div class="text-center py-5 opacity-50">
-            <i class="fas fa-folder-open fa-3x mb-3"></i>
-            <h5>Sin registros encontrados</h5>
-        </div>
-        {% endfor %}
     </div>
+
+    <!-- ===== TABLA DE PAGOS CON SEPARADORES ===== -->
+<div class="payments-table">
+    <div class="table-header">
+        <div class="col-periodo">PERÍODO</div>
+        <div class="col-afiliado">AFILIADO</div>
+        <div class="col-fecha">FECHA PAGO</div>
+        <div class="col-monto">MONTO</div>
+        <div class="col-acciones">ACCIONES</div>
+    </div>
+
+    {% for pago in pagos %}
+        {% ifchanged pago.anio|add:pago.mes %}
+            <div class="month-divider">
+                <div class="divider-line"></div>
+                <span class="divider-label">
+                    📅 {{ pago.get_nombre_mes }} {{ pago.anio }}
+                </span>
+                <div class="divider-line"></div>
+            </div>
+        {% endifchanged %}
+
+        <div class="payment-row">
+            <div class="col-periodo">
+                <span class="period-pill">{{ pago.get_nombre_mes }} {{ pago.anio }}</span>
+                {% if pago.es_adelantado %}
+                    <span class="status-badge badge-adelantado">
+                        <i class="fas fa-rocket"></i> Adelantado
+                    </span>
+                {% elif pago.es_puntual %}
+                    <span class="status-badge badge-puntual">
+                        <i class="fas fa-check-circle"></i> Puntual
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div class="col-afiliado">
+                <div class="font-weight-bold" style="color: var(--finance-text); font-size: 1.05rem;">
+                    {{ pago.conductor.nombres }} {{ pago.conductor.apellidos }}
+                </div>
+                <small class="text-muted" style="font-weight: 600;">
+                    Casco #{{ pago.vehiculo.numero_casco|default:"--" }} | 
+                    {{ pago.conductor.cedula_prefijo }}-{{ pago.conductor.cedula_identidad }}
+                </small>
+            </div>
+            
+            <div class="col-fecha">
+                <div style="font-weight: 700; font-size: 0.95rem;">
+                    {{ pago.fecha_pago|date:"d/m/Y" }}
+                </div>
+            </div>
+            
+            <div class="col-monto">
+                <div class="font-weight-bold" style="color: var(--finance-primary); font-size: 1.25rem;">
+                    +${{ pago.monto_usd|floatformat:2 }}
+                </div>
+                <small class="text-muted" style="font-weight: 600;">
+                    {% if pago.comprobante %}
+                        <i class="fas fa-file-image mr-1"></i> Ref: #{{ pago.id|stringformat:"04d" }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="col-acciones">
+                <div class="action-buttons">
+                    <a href="{% url 'taxis:finanzas_ver_pago' pago.id %}?next={% url 'taxis:finanzas_historial' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" 
+                       class="btn-action btn-action-view"
+                       title="Ver comprobante">
+                        <i class="fas fa-receipt"></i> Ver
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h5>No se encontraron registros</h5>
+            <p>Intenta ajustar los filtros de búsqueda</p>
+        </div>
+    {% endfor %}
 </div>
+
+    <!-- ===== PAGINACIÓN ===== -->
+    {% if pagos.has_other_pages %}
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if pagos.has_previous %}
+            <li>
+                <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="page-link" title="Primera página">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li>
+                <a href="?page={{ pagos.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="page-link" title="Anterior">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in pagos.paginator.page_range %}
+                {% if pagos.number == num %}
+                <li><span class="page-link active">{{ num }}</span></li>
+                {% elif num > pagos.number|add:'-3' and num < pagos.number|add:'3' %}
+                <li>
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="page-link">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagos.has_next %}
+            <li>
+                <a href="?page={{ pagos.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="page-link" title="Siguiente">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li>
+                <a href="?page={{ pagos.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="page-link" title="Última página">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- ===== TOTALES DEL PERÍODO ===== -->
+    {% if pagos %}
+    <div class="totals-bar">
+        <div class="total-item">
+            <div class="total-value">{{ stats.total_pagos_filtrados }}</div>
+            <div class="total-label">Pagos</div>
+        </div>
+        <div class="total-item">
+            <div class="total-value">${{ stats.total_filtrado|floatformat:2 }}</div>
+            <div class="total-label">Total Período</div>
+        </div>
+        <div class="total-item">
+            <div class="total-value">{{ stats.afiliados_unicos }}</div>
+            <div class="total-label">Afiliados</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleFilters() {
+        const dropdown = document.getElementById('filterDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener('mouseup', function(e) {
+        var container = document.getElementById('filterDropdown');
+        var btn = document.querySelector('.filter-btn');
+        if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+            container.classList.remove('show');
+        }
+    });
+</script>
+
 {% endblock %}

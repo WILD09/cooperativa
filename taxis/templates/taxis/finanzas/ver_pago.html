@@ -449,17 +449,6 @@
             </div>
 
             <div class="data-row">
-                <span class="data-label">Referencia</span>
-                <span class="data-value text-muted font-italic">
-                    {% if pago.comprobante %}
-                        PA-{{ pago.id }}
-                    {% else %}
-                        Sin Comprobante
-                    {% endif %}
-                </span>
-            </div>
-
-            <div class="data-row">
                 <span class="data-label">N° Casco</span>
                 <span class="data-value">#{{ pago.vehiculo.numero_casco|default:"--" }}</span>
             </div>
