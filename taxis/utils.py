@@ -3,22 +3,23 @@ utils.py
 Funciones de utilidad unificadas para la app 'taxis':
 1. Verificación por correo electrónico (códigos, límites, auditoría).
 2. Generación de PDFs (xhtml2pdf).
+3. Auditoría unificada (MovimientoAudit) con fecha/hora garantizada.
 """
 
 import random
-from datetime import timedelta, date
+from datetime import timedelta
 from io import BytesIO
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import get_template
+from django.utils import timezone
 
 # Librería de PDF
 from xhtml2pdf import pisa
 
-# Importación diferida o directa de modelos.
+# Modelos
 from .models import (
     EmailVerificationCode,
     EmailSendLog,
@@ -27,7 +28,7 @@ from .models import (
 )
 
 # ====================================================================
-# PARÁMETROS DE SEGURIDAD
+# PARÁMETROS DE SEGURIDAD (EMAIL CÓDIGOS)
 # ====================================================================
 MAX_CODE_ATTEMPTS = 5           # Intentos máximos de verificación por código.
 MAX_RESENDS_PER_CODE = 5        # Reenvíos máximos permitidos para el mismo código.
@@ -38,21 +39,25 @@ MAX_DAILY_RESENDS = 5           # Máximo de códigos enviados por día a un mis
 # GENERACIÓN DE PDF
 # ====================================================================
 
-def render_to_pdf(template_src, context_dict={}):
+def render_to_pdf(template_src, context_dict=None):
     """
     Convierte un template HTML a PDF usando xhtml2pdf.
     Soporta caracteres latinos (UTF-8).
     """
+    context_dict = context_dict or {}
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
-    
+
     # encoding='UTF-8' es crucial para acentos y ñ
     pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
-    
+
     if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
+        return HttpResponse(result.getvalue(), content_type="application/pdf")
     return None
+
+# Alias para compatibilidad si en views importas rendertopdf
+rendertopdf = render_to_pdf
 
 # ====================================================================
 # UTILIDADES COMUNES (IP, User-Agent)
@@ -60,30 +65,30 @@ def render_to_pdf(template_src, context_dict={}):
 
 def get_client_ip(request):
     """Obtiene la IP del cliente desde el objeto request."""
+    if not request:
+        return ""
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        ip = x_forwarded_for.split(",")[0].strip()
-    else:
-        ip = request.META.get("REMOTE_ADDR")
-    return ip
+        return x_forwarded_for.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "")
 
 def get_user_agent(request):
     """Obtiene el User-Agent del cliente (navegador/dispositivo)."""
+    if not request:
+        return ""
     return request.META.get("HTTP_USER_AGENT", "")
 
 def log_verification_attempt(request, user, method, code, result, reason=""):
     """Registra un intento de verificación (éxito o fallo) en VerificationAttemptLog."""
-    ip = get_client_ip(request)
-    ua = get_user_agent(request)
-
     VerificationAttemptLog.objects.create(
         user=user,
         method=method,
         code=code or "",
         result=result,
         reason=reason,
-        ip_address=ip,
-        user_agent=ua,
+        ip_address=get_client_ip(request),
+        user_agent=get_user_agent(request),
+        timestamp=timezone.now(),
     )
 
 def generate_6_digit_code():
@@ -125,12 +130,17 @@ def can_resend_email_code(user, email_type="primary"):
     Retorna: (puede_enviar, mensaje_error, usados_hoy, max_diario)
     """
     now = timezone.now()
-    email = (user.email or "").lower()
+    email = (getattr(user, "email", "") or "").lower()
 
     # 1. Verificar límite diario global
     today_used = _email_sends_today(email, email_type=email_type)
     if today_used >= MAX_DAILY_RESENDS:
-        return (False, f"Límite diario de {MAX_DAILY_RESENDS} envíos alcanzado.", today_used, MAX_DAILY_RESENDS)
+        return (
+            False,
+            f"Límite diario de {MAX_DAILY_RESENDS} envíos alcanzado.",
+            today_used,
+            MAX_DAILY_RESENDS,
+        )
 
     # 2. Buscar código activo existente
     code_obj = EmailVerificationCode.objects.filter(
@@ -146,14 +156,24 @@ def can_resend_email_code(user, email_type="primary"):
 
     # 3. Verificar límite de reenvíos del código actual
     if code_obj.resend_count >= MAX_RESENDS_PER_CODE:
-        return (False, "Máximo de reenvíos para este código alcanzado.", today_used, MAX_DAILY_RESENDS)
+        return (
+            False,
+            "Máximo de reenvíos para este código alcanzado.",
+            today_used,
+            MAX_DAILY_RESENDS,
+        )
 
     # 4. Verificar Cooldown (tiempo de espera)
     if code_obj.last_resend_at:
         elapsed = (now - code_obj.last_resend_at).total_seconds()
         if elapsed < RESEND_COOLDOWN_SECONDS:
             espera = int(RESEND_COOLDOWN_SECONDS - elapsed)
-            return (False, f"Espera {espera} segundos antes de reenviar.", today_used, MAX_DAILY_RESENDS)
+            return (
+                False,
+                f"Espera {espera} segundos antes de reenviar.",
+                today_used,
+                MAX_DAILY_RESENDS,
+            )
 
     return True, None, today_used, MAX_DAILY_RESENDS
 
@@ -172,7 +192,7 @@ def register_email_resend(user, email_type="primary"):
         code_obj.last_resend_at = now
         code_obj.save(update_fields=["resend_count", "last_resend_at"])
 
-    email = (user.email or "").lower()
+    email = (getattr(user, "email", "") or "").lower()
     if email:
         register_email_send(email, email_type=email_type)
 
@@ -200,7 +220,7 @@ def create_email_verification_code(user, email_type="primary", validity_minutes=
         email_type=email_type,
         created_at=now,
         expires_at=now + timedelta(minutes=validity_minutes),
-        is_used=False
+        is_used=False,
     )
     return code
 
@@ -208,24 +228,21 @@ def send_verification_email(user, code, email_type="primary"):
     """Envía el correo electrónico usando send_mail de Django."""
     subject = "Código de verificación - Cooperativa WILSON TORRES 33 RL"
     message = (
-        f"Hola {user.first_name},\n\n"
+        f"Hola {getattr(user, 'first_name', '')},\n\n"
         f"Tu código de verificación es: {code}\n\n"
         "Este código es válido por 15 minutos.\n"
         "Si no solicitaste este código, ignora este mensaje."
     )
-    
-    recipient = user.email
+
+    recipient = getattr(user, "email", None)
     if recipient:
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [recipient],
-                fail_silently=False,
-            )
-        except Exception as e:
-            print(f"Error enviando correo: {e}")
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient],
+            fail_silently=False,
+        )
 
 # ====================================================================
 # VERIFICACIÓN
@@ -233,10 +250,11 @@ def send_verification_email(user, code, email_type="primary"):
 
 def mark_email_code_as_used(code_obj):
     """Marca el código como usado."""
-    if code_obj:
-        code_obj.is_used = True
-        code_obj.used_at = timezone.now()
-        code_obj.save(update_fields=["is_used", "used_at"])
+    if not code_obj:
+        return
+    code_obj.is_used = True
+    code_obj.used_at = timezone.now()
+    code_obj.save(update_fields=["is_used", "used_at"])
 
 def verify_email_code(user, code, email_type="primary"):
     """
@@ -278,171 +296,223 @@ def verify_email_code(user, code, email_type="primary"):
     return code_obj
 
 # ====================================================================
-# AUDITORÍA - MOVIMIENTOS
+# AUDITORÍA - MOVIMIENTOS (UNIFICADO + FECHA/HORA GARANTIZADA)
 # ====================================================================
 
-def obtener_ip_cliente(request):
-    """Extrae IP real del cliente (mejora la existente)"""
-    return get_client_ip(request)
-
-
-def obtener_user_agent(request):
-    """Extrae User Agent (ya existe como get_user_agent)"""
-    return get_user_agent(request)
-
-
-def registrar_movimiento(request, accion, modulo, objeto_tipo=None, objeto_id=None, 
-                        objeto_nombre='', descripcion='', cambios_antes=None, cambios_despues=None):
+def registrar_movimiento(
+    request,
+    accion,
+    modulo,
+    objeto_tipo="Sistema",
+    objeto_id=None,
+    objeto_nombre="",
+    descripcion="",
+    cambios_antes=None,
+    cambios_despues=None,
+    usuario=None,
+):
     """
     Registra un movimiento de auditoría en la base de datos.
-    
-    Args:
-        request: HttpRequest del usuario
-        accion: Tipo de acción ('login', 'logout', 'crear', 'editar', 'eliminar', 'pago_registrado', etc)
-        modulo: Módulo del sistema ('afiliados', 'finanzas', 'dt5', 'sistema', 'autenticacion')
-        objeto_tipo: Nombre del modelo ('Conductor', 'Vehiculo', 'PagoMensual')
-        objeto_id: ID del objeto modificado
-        objeto_nombre: Nombre del objeto (para cache)
-        descripcion: Descripción detallada de la acción
-        cambios_antes: Dict con valores antes de la edición
-        cambios_despues: Dict con valores después de la edición
-    
-    Returns:
-        MovimientoAudit: Instancia creada del movimiento de auditoría
+
+    Nota importante (tu caso):
+    - `MovimientoAudit.accion` tiene choices y max_length=20, por eso conviene guardar
+      claves cortas: 'login', 'logout', 'crear', 'editar', 'eliminar', etc.
+    - El detalle largo debe ir en `descripcion`.
+    - Para que el template SIEMPRE muestre fecha y hora, llenamos:
+      - `fecha` (DateTime)
+      - `fecha_formato` (string ya formateado)
     """
-    fecha_fmt = timezone.now().strftime("%d/%m/%Y %H:%M:%S")
-    
-    MovimientoAudit.objects.create(
-        usuario=request.user if request.user.is_authenticated else None,
-        accion=accion,
-        modulo=modulo,
-        objeto_tipo=objeto_tipo,
+    user = usuario
+    if user is None and request is not None:
+        user = request.user if getattr(request, "user", None) and request.user.is_authenticated else None
+
+    # Fecha/hora local garantizada
+    fecha_local = timezone.localtime()
+    fecha_fmt = fecha_local.strftime("%d/%m/%Y %H:%M")
+
+    mov = MovimientoAudit.objects.create(
+        usuario=user,
+        accion=accion,                 # debe coincidir con ACCION_CHOICES
+        modulo=modulo,                 # ej: "Autenticación", "Afiliados", "Vehículos", "DT5"
+        objeto_tipo=objeto_tipo or "Sistema",
         objeto_id=objeto_id,
-        objeto_nombre=objeto_nombre,
-        descripcion=descripcion,
+        objeto_nombre=objeto_nombre or "",
+        descripcion=descripcion or "",
         cambios_antes=cambios_antes or {},
         cambios_despues=cambios_despues or {},
-        fecha_formato=fecha_fmt
+        fecha=fecha_local,
+        fecha_formato=fecha_fmt,
     )
+    return mov
 
-# ========== ATAJOS ESPECÍFICOS ==========
+# =========================
+# ATAJOS ESPECÍFICOS
+# =========================
 
 def log_login(request):
-    registrar_movimiento(
-        request,
-        accion='login',
-        modulo='autenticacion',
-        objeto_tipo='Usuario',  
-        descripcion=f'✅ Inicio de sesión: {request.user.email}'
-    )
+    email = ""
+    if request and getattr(request, "user", None) and request.user.is_authenticated:
+        email = request.user.email or ""
 
+    return registrar_movimiento(
+        request,
+        accion="login",
+        modulo="Autenticación",
+        objeto_tipo="CustomUser",
+        objeto_id=getattr(request.user, "id", None) if request and request.user.is_authenticated else None,
+        objeto_nombre=getattr(request.user, "username", "") if request and request.user.is_authenticated else "",
+        descripcion=f"Inicio de sesión: {email}",
+    )
 
 def log_logout(request):
     """
-    Registra el cierre de sesión del usuario en auditoría.
+    Importante: llamar ANTES de logout(request), porque luego request.user será AnonymousUser.
     """
-    if request.user.is_authenticated:
-        registrar_movimiento(
-            request,
-            accion='logout',
-            modulo='autenticacion',
-            objeto_tipo='Usuario',
-            descripcion=f'❌ Cierre de sesión: {request.user.email}'
-        )
+    email = ""
+    if request and getattr(request, "user", None) and request.user.is_authenticated:
+        email = request.user.email or ""
 
-
-def log_crear(obj, request, modulo, objeto_tipo=None):
-    """Log creación de objeto"""
-    tipo = objeto_tipo or obj.__class__.__name__
-    registrar_movimiento(
-        request, 
-        'crear', 
-        modulo,
-        objeto_tipo=tipo,
-        objeto_id=obj.id,
-        objeto_nombre=str(obj),
-        descripcion=f'✅ Creado {tipo}: {str(obj)}'
-    )
-
-
-def log_editar(obj_original, obj_modificado, request, modulo, objeto_tipo=None):
-    """Log edición con diff de cambios"""
-    tipo = objeto_tipo or obj_modificado.__class__.__name__
-    
-    # Extraer cambios
-    cambios_antes = {k: str(v) for k, v in obj_original.__dict__.items() 
-                    if not k.startswith('_') and k != 'id'}
-    cambios_despues = {k: str(v) for k, v in obj_modificado.__dict__.items() 
-                      if not k.startswith('_') and k != 'id'}
-    
-    # Detectar qué cambió
-    cambios_reales = {}
-    for key in cambios_antes:
-        if cambios_antes.get(key) != cambios_despues.get(key):
-            cambios_reales[key] = {
-                'antes': cambios_antes.get(key),
-                'despues': cambios_despues.get(key)
-            }
-    
-    registrar_movimiento(
-        request, 
-        'editar', 
-        modulo,
-        objeto_tipo=tipo,
-        objeto_id=obj_modificado.id,
-        objeto_nombre=str(obj_modificado),
-        descripcion=f'📝 Editado {tipo}: {str(obj_modificado)} ({len(cambios_reales)} cambios)',
-        cambios_antes=cambios_antes,
-        cambios_despues=cambios_despues
-    )
-
-
-def log_eliminar(obj, request, modulo, objeto_tipo=None):
-    """Log eliminación"""
-    tipo = objeto_tipo or obj.__class__.__name__
-    obj_id = obj.id
-    obj_str = str(obj)
-    
-    registrar_movimiento(
-        request, 
-        'eliminar', 
-        modulo,
-        objeto_tipo=tipo,
-        objeto_id=obj_id,
-        objeto_nombre=obj_str,
-        descripcion=f'🗑️ Eliminado {tipo}: {obj_str}'
-    )
-
-
-def log_pago(conductor, monto, mes, anio, request, modulo='finanzas'):
-    """Log registro de pago mensual"""
-    registrar_movimiento(
+    return registrar_movimiento(
         request,
-        'pago_registrado',
-        modulo,
-        objeto_tipo='PagoMensual',
-        objeto_nombre=f'{conductor.nombres} {conductor.apellidos}',
-        descripcion=f'💰 Pago registrado: {conductor.nombres} {conductor.apellidos} - ${monto} ({mes}/{anio})'
+        accion="logout",
+        modulo="Autenticación",
+        objeto_tipo="CustomUser",
+        objeto_id=getattr(request.user, "id", None) if request and request.user.is_authenticated else None,
+        objeto_nombre=getattr(request.user, "username", "") if request and request.user.is_authenticated else "",
+        descripcion=f"Cierre de sesión: {email}",
     )
 
+# Aliases para compatibilidad con tu nomenclatura anterior
+loglogin = log_login
+loglogout = log_logout
+
+def log_crear(obj, request, modulo, objeto_tipo=None, descripcion=None):
+    tipo = objeto_tipo or obj.__class__.__name__
+    return registrar_movimiento(
+        request,
+        accion="crear",
+        modulo=modulo,
+        objeto_tipo=tipo,
+        objeto_id=getattr(obj, "id", None),
+        objeto_nombre=str(obj),
+        descripcion=descripcion or f"Creado {tipo}: {obj}",
+    )
+
+def _model_to_dict_simple(obj):
+    """
+    Serializa solo campos simples del modelo para auditoría (evita __dict__ completo).
+    """
+    data = {}
+    for field in getattr(obj, "_meta", None).fields:
+        name = field.name
+        try:
+            value = getattr(obj, name)
+        except Exception:
+            value = None
+        data[name] = "" if value is None else str(value)
+    return data
+
+def log_editar(obj_original, obj_modificado, request, modulo, objeto_tipo=None, descripcion=None):
+    tipo = objeto_tipo or obj_modificado.__class__.__name__
+
+    cambios_antes = _model_to_dict_simple(obj_original)
+    cambios_despues = _model_to_dict_simple(obj_modificado)
+
+    # Detectar cambios reales (solo para enriquecer el texto)
+    cambios_reales = {}
+    for key in cambios_antes.keys():
+        if cambios_antes.get(key) != cambios_despues.get(key):
+            cambios_reales[key] = {"antes": cambios_antes.get(key), "despues": cambios_despues.get(key)}
+
+    return registrar_movimiento(
+        request,
+        accion="editar",
+        modulo=modulo,
+        objeto_tipo=tipo,
+        objeto_id=getattr(obj_modificado, "id", None),
+        objeto_nombre=str(obj_modificado),
+        descripcion=descripcion or f"Editado {tipo}: {obj_modificado} ({len(cambios_reales)} cambios)",
+        cambios_antes=cambios_antes,
+        cambios_despues=cambios_despues,
+    )
+
+def log_eliminar(obj, request, modulo, objeto_tipo=None, descripcion=None):
+    tipo = objeto_tipo or obj.__class__.__name__
+    return registrar_movimiento(
+        request,
+        accion="eliminar",
+        modulo=modulo,
+        objeto_tipo=tipo,
+        objeto_id=getattr(obj, "id", None),
+        objeto_nombre=str(obj),
+        descripcion=descripcion or f"Eliminado {tipo}: {obj}",
+    )
+
+def log_pago(conductor, monto, mes, anio, request, modulo="Finanzas"):
+    nombre = ""
+    try:
+        nombre = f"{conductor.nombres} {conductor.apellidos}"
+    except Exception:
+        nombre = str(conductor)
+
+    return registrar_movimiento(
+        request,
+        accion="pago_registrado",
+        modulo=modulo,
+        objeto_tipo="PagoMensual",
+        objeto_nombre=nombre,
+        descripcion=f"Pago registrado: {nombre} - ${monto} ({mes}/{anio})",
+    )
 
 def log_accion_masiva(request, modulo, descripcion, cantidad=0):
-    """Log acción masiva (múltiples registros afectados)"""
-    registrar_movimiento(
+    return registrar_movimiento(
         request,
-        'masivo',
-        modulo,
-        descripcion=f'⚙️ {descripcion} ({cantidad} registros afectados)'
+        accion="masivo",
+        modulo=modulo,
+        objeto_tipo="Sistema",
+        descripcion=f"{descripcion} ({cantidad} registros afectados)",
     )
 
-
-def log_exportar(request, modulo, tipo_archivo, cantidad=0):
-    """Log exportación de reportes"""
-    registrar_movimiento(
+def log_exportar(request, modulo, tipo_archivo, cantidad=0, descripcion=None):
+    return registrar_movimiento(
         request,
-        'exportar',
-        modulo,
-        descripcion=f'📥 Exportado {tipo_archivo}: {cantidad} registros'
+        accion="exportar",
+        modulo=modulo,
+        objeto_tipo="Reporte",
+        descripcion=descripcion or f"Exportado {tipo_archivo}: {cantidad} registros",
     )
 
+# ====================================================================
+# UTILIDAD: TEXTO DE FILTROS (Afiliados/Vehículos/DT5)
+# ====================================================================
 
+def texto_filtros(*, q=None, genero=None, edocivil=None, estado=None):
+    parts = []
+
+    # Normalizar q
+    if q is not None:
+        q = str(q).strip()
+        if q:
+            if len(q) > 60:
+                q = q[:60] + "..."
+            parts.append(f"Búsqueda: {q}")
+
+    # Normalizar genero
+    if genero is not None:
+        genero = str(genero).strip()
+        if genero and genero.lower() != "todos":
+            parts.append(f"Género: {genero}")
+
+    # Normalizar edocivil
+    if edocivil is not None:
+        edocivil = str(edocivil).strip()
+        if edocivil and edocivil.lower() != "todos":
+            parts.append(f"Estado civil: {edocivil}")
+
+    # Normalizar estado
+    if estado is not None:
+        estado = str(estado).strip()
+        if estado and estado.lower() != "todos":
+            parts.append(f"Estado: {estado}")
+
+    return "Filtros: Todos" if not parts else "Filtros: " + ", ".join(parts)

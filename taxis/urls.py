@@ -71,8 +71,6 @@ urlpatterns = [
     path('reportes/vehiculos/pdf/', views.reporte_vehiculos_pdf, name='reporte_vehiculos_pdf'),
     path('reportes/vehiculos/excel/', views.reporte_vehiculos_excel, name='reporte_vehiculos_excel'),
     
-    # Ficha individual de afiliado
-    path('reportes/ficha/<int:pk>/', views.ReporteFichaPDF.as_view(), name='reporte_ficha'),
 
     # ==========================================
     # 7. FINANZAS Y AUDITORÍA

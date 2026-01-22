@@ -720,12 +720,17 @@ def reporte_dt5_pdf(request):
         response['Content-Disposition'] = f'inline; filename="{filename}"'
         
         # AUDITORÍA (AQUÍ)
+        from taxis.utils import texto_filtros
         MovimientoAudit.objects.create(
             usuario=request.user,
             accion="Generó reporte DT5 PDF",
             modulo="DT5",
-            descripcion=f"Filtros: q={request.GET.get('q','todos')}, estado={request.GET.get('estado','todos')}"
-        )
+            descripcion=texto_filtros(
+            q=request.GET.get("q") or None,
+            estado=request.GET.get("estado") or "todos",
+        ),
+           fecha=timezone.localtime(),
+    )
         
         return response
 
@@ -826,6 +831,18 @@ def reporte_dt5_excel(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     wb.save(response)
+    # ========== AUDITORÍA AQUÍ ==========
+    from taxis.utils import texto_filtros
+    MovimientoAudit.objects.create(
+      usuario=request.user,
+      accion="Generó reporte DT5 Excel",
+      modulo="DT5",
+      descripcion=texto_filtros(
+        q=request.GET.get("q") or None,
+        estado=request.GET.get("estado") or "todos",
+    ),
+      fecha=timezone.localtime(),
+)
     return response
 
 # ====================================================================
@@ -1407,6 +1424,20 @@ def reporte_afiliados_pdf(request):
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
         filename = f"Afiliados_{timezone.now().strftime('%d-%m-%Y')}.pdf"
         response['Content-Disposition'] = f'inline; filename="{filename}"'
+
+        from taxis.utils import texto_filtros
+        MovimientoAudit.objects.create(
+          usuario=request.user,
+          accion="Generó reporte afiliados PDF",
+          modulo="Afiliados",
+          descripcion=texto_filtros(
+          q=request.GET.get("q") or None,
+          genero=request.GET.get("genero") or "todos",
+          edocivil=request.GET.get("edocivil") or "todos",
+          ),
+         fecha=timezone.localtime(),
+      )
+
         return response
 
     return HttpResponse("Error generando PDF", status=500)
@@ -1461,6 +1492,20 @@ def reporte_afiliados_excel(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     wb.save(response)
+    # ========== AUDITORÍA AQUÍ ==========
+    from taxis.utils import texto_filtros
+    MovimientoAudit.objects.create(
+     usuario=request.user,
+     accion="Generó reporte afiliados Excel",
+     modulo="Afiliados",
+     descripcion=texto_filtros(
+        q=request.GET.get("q") or None,
+        genero=request.GET.get("genero") or "todos",
+        edocivil=request.GET.get("edocivil") or "todos",
+      ),
+       fecha=timezone.localtime(),
+   )
+
     return response
 
 # ====================================================================
@@ -1519,19 +1564,24 @@ def reporte_vehiculos_pdf(request):
     )
 
     if not pdf.err:
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        filename = f"Vehiculos_Flota_{timezone.now().strftime('%d-%m-%Y')}.pdf"
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
+       response = HttpResponse(result.getvalue(), content_type='application/pdf')
+       filename = f"Vehiculos_Flota_{timezone.now().strftime('%d-%m-%Y')}.pdf"
+       response['Content-Disposition'] = f'inline; filename="{filename}"'
 
-         # AUDITORÍA (AQUÍ)
-        MovimientoAudit.objects.create(
+    # AUDITORÍA (AQUÍ)
+    from taxis.utils import texto_filtros
+    MovimientoAudit.objects.create(
         usuario=request.user,
-        accion="Generó reporte afiliados PDF",
-        modulo="Reportes",
-        descripcion=f"Filtros: q={request.GET.get('q', 'todos')}"
-      )
-        return response
+        accion="Generó reporte vehículos PDF",
+        modulo="Vehículos",
+        descripcion=texto_filtros(
+            q=request.GET.get('q') or None,
+            estado=request.GET.get('estado') or "todos"
+        ),
+        fecha=timezone.localtime(),
+    )
 
+    return response
     return HttpResponse("Error generando PDF", status=500)
 
 @login_required
@@ -1608,18 +1658,21 @@ def reporte_vehiculos_excel(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     wb.save(response)
+    # ========== AUDITORÍA AQUÍ ==========
+    from taxis.utils import texto_filtros
+    MovimientoAudit.objects.create(
+      usuario=request.user,
+      accion="Generó reporte vehículos Excel",
+      modulo="Vehículos",
+      descripcion=texto_filtros(
+        q=request.GET.get("q") or None,
+        estado=request.GET.get("estado") or "todos",
+     ),
+      fecha=timezone.localtime(),
+   )
     return response
 
-class ReporteFichaPDF(LoginRequiredMixin, View):
-    def get(self, request, pk, *args, **kwargs):
-        conductor = get_object_or_404(Conductor, pk=pk)
-        data = {
-            'conductor': conductor,
-            'vehiculos': conductor.vehiculos.all(),
-            'hoy': date.today(),
-            'config': ConfiguracionCooperativa.objects.first(),
-        }
-        return render_to_pdf('taxis/reportes/ficha_afiliado.html', data)
+
 
 # ====================================================================
 # AUDITORÍA Y NOTIFICACIONES
@@ -1640,11 +1693,7 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
         "vehiculos": "Vehículos",
         "finanzas": "Finanzas",
         "dt5": "DT5",
-        "auditoria": "Auditoría",
         "configuracion": "Configuración",
-        "seguridad": "Seguridad",
-        "perfiles": "Perfiles",
-        "reportes": "Reportes",
     }
 
     ACCION_KEYWORDS = {
@@ -1717,6 +1766,7 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
         context["anio_filtro"] = self.request.GET.get("anio", "")
         context["mes_filtro"] = self.request.GET.get("mes", "")
         context["orden_filtro"] = self.request.GET.get("orden", "")
+        context["modulos_choices"] = list(self.MODULO_MAP.items())
 
         params = self.request.GET.copy()
         params.pop("page", None)
@@ -1841,6 +1891,11 @@ def actualizar_avatar_presidente(request):
     if 'avatar' in request.FILES:
         request.user.avatar = request.FILES['avatar']
         request.user.save()
+        MovimientoAudit.objects.create(
+          usuario=request.user,
+          accion="Actualizó foto de perfil",
+          modulo="Configuración",
+      )
         return JsonResponse({'status': 'ok', 'url': request.user.avatar.url})
     return JsonResponse({'status': 'error'}, status=400)
 
