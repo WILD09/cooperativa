@@ -14,6 +14,7 @@ urlpatterns = [
     path('activar/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate_account'),
     path('activacion-exitosa/', views.ActivationSuccessView.as_view(), name='activation_success'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.logout_view, name='logout'),
 
     # ==========================================
     # 2. DASHBOARD Y PANEL (Privados)
@@ -87,7 +88,7 @@ urlpatterns = [
     path('finanzas/historial/', views.finanzas_historial, name='finanzas_historial'),
     path('finanzas/ver/<int:pago_id>/', views.finanzas_ver_pago, name='finanzas_ver_pago'),
     path('finanzas/cierre-mensual/', views.ejecutar_cierre_mensual, name='ejecutar_cierre_mensual'),
-    path('auditoria/', views.MovimientoAuditListView.as_view(), name='audit_list'),
+    path('auditoria/', views.MovimientoAuditListView.as_view(), name='auditoria_list'),
 
     # ==========================================
     # 8. PERFIL Y CONFIGURACIÓN
@@ -97,5 +98,4 @@ urlpatterns = [
     path('perfil/cambiar-clave/', views.CambiarClaveView.as_view(), name='cambiar_clave'),
     path('perfil/eliminar-cuenta/', views.SolicitarEliminacionCuentaView.as_view(), name='solicitar_eliminacion'),
     path('perfil/eliminar-cuenta/confirmar/', views.ConfirmarEliminacionCuentaView.as_view(), name='confirmar_eliminacion'),
-    path('configuracion/guardar/', views.guardar_configuracion, name='guardar_configuracion'),
 ]

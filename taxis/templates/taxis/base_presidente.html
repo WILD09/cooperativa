@@ -474,8 +474,8 @@
                         class="fas fa-fw fa-file-contract"></i><span>DT5</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:finanzas_principal' %}"><i
                         class="fas fa-fw fa-dollar-sign"></i><span>Finanzas</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:audit_list' %}"><i
-                        class="fas fa-fw fa-history"></i><span>Movimientos</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:auditoria_list' %}"><i
+                        class="fas fa-fw fa-clipboard-list"></i><span>Auditoría</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:perfil_usuario' %}"><i
                         class="fas fa-fw fa-cog"></i><span>Configuración</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:ayuda_sistema' %}"><i
@@ -484,7 +484,8 @@
 
             <hr class="sidebar-divider my-2">
             <li class="nav-item logout-container">
-                <form method="post" action="{% url 'logout' %}" class="w-100 m-0">
+                <form method="post" action="{% url 'taxis:logout' %}" class="w-100 m-0">
+
                     {% csrf_token %}
                     <button type="submit" class="logout-btn"><i class="fas fa-fw fa-sign-out-alt"></i><span>Cerrar
                             Sesión</span></button>

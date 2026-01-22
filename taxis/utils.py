@@ -278,14 +278,171 @@ def verify_email_code(user, code, email_type="primary"):
     return code_obj
 
 # ====================================================================
-# AUDITORÍA 
+# AUDITORÍA - MOVIMIENTOS
 # ====================================================================
 
-def log_movimiento(usuario, accion, modulo="General"):
-    """Crea un registro en MovimientoAudit."""
-    return MovimientoAudit.objects.create(
-        usuario=usuario,
+def obtener_ip_cliente(request):
+    """Extrae IP real del cliente (mejora la existente)"""
+    return get_client_ip(request)
+
+
+def obtener_user_agent(request):
+    """Extrae User Agent (ya existe como get_user_agent)"""
+    return get_user_agent(request)
+
+
+def registrar_movimiento(request, accion, modulo, objeto_tipo=None, objeto_id=None, 
+                        objeto_nombre='', descripcion='', cambios_antes=None, cambios_despues=None):
+    """
+    Registra un movimiento de auditoría en la base de datos.
+    
+    Args:
+        request: HttpRequest del usuario
+        accion: Tipo de acción ('login', 'logout', 'crear', 'editar', 'eliminar', 'pago_registrado', etc)
+        modulo: Módulo del sistema ('afiliados', 'finanzas', 'dt5', 'sistema', 'autenticacion')
+        objeto_tipo: Nombre del modelo ('Conductor', 'Vehiculo', 'PagoMensual')
+        objeto_id: ID del objeto modificado
+        objeto_nombre: Nombre del objeto (para cache)
+        descripcion: Descripción detallada de la acción
+        cambios_antes: Dict con valores antes de la edición
+        cambios_despues: Dict con valores después de la edición
+    
+    Returns:
+        MovimientoAudit: Instancia creada del movimiento de auditoría
+    """
+    fecha_fmt = timezone.now().strftime("%d/%m/%Y %H:%M:%S")
+    
+    MovimientoAudit.objects.create(
+        usuario=request.user if request.user.is_authenticated else None,
         accion=accion,
-        modulo=modulo
+        modulo=modulo,
+        objeto_tipo=objeto_tipo,
+        objeto_id=objeto_id,
+        objeto_nombre=objeto_nombre,
+        descripcion=descripcion,
+        cambios_antes=cambios_antes or {},
+        cambios_despues=cambios_despues or {},
+        fecha_formato=fecha_fmt
     )
+
+# ========== ATAJOS ESPECÍFICOS ==========
+
+def log_login(request):
+    registrar_movimiento(
+        request,
+        accion='login',
+        modulo='autenticacion',
+        objeto_tipo='Usuario',  
+        descripcion=f'✅ Inicio de sesión: {request.user.email}'
+    )
+
+
+def log_logout(request):
+    """
+    Registra el cierre de sesión del usuario en auditoría.
+    """
+    if request.user.is_authenticated:
+        registrar_movimiento(
+            request,
+            accion='logout',
+            modulo='autenticacion',
+            objeto_tipo='Usuario',
+            descripcion=f'❌ Cierre de sesión: {request.user.email}'
+        )
+
+
+def log_crear(obj, request, modulo, objeto_tipo=None):
+    """Log creación de objeto"""
+    tipo = objeto_tipo or obj.__class__.__name__
+    registrar_movimiento(
+        request, 
+        'crear', 
+        modulo,
+        objeto_tipo=tipo,
+        objeto_id=obj.id,
+        objeto_nombre=str(obj),
+        descripcion=f'✅ Creado {tipo}: {str(obj)}'
+    )
+
+
+def log_editar(obj_original, obj_modificado, request, modulo, objeto_tipo=None):
+    """Log edición con diff de cambios"""
+    tipo = objeto_tipo or obj_modificado.__class__.__name__
+    
+    # Extraer cambios
+    cambios_antes = {k: str(v) for k, v in obj_original.__dict__.items() 
+                    if not k.startswith('_') and k != 'id'}
+    cambios_despues = {k: str(v) for k, v in obj_modificado.__dict__.items() 
+                      if not k.startswith('_') and k != 'id'}
+    
+    # Detectar qué cambió
+    cambios_reales = {}
+    for key in cambios_antes:
+        if cambios_antes.get(key) != cambios_despues.get(key):
+            cambios_reales[key] = {
+                'antes': cambios_antes.get(key),
+                'despues': cambios_despues.get(key)
+            }
+    
+    registrar_movimiento(
+        request, 
+        'editar', 
+        modulo,
+        objeto_tipo=tipo,
+        objeto_id=obj_modificado.id,
+        objeto_nombre=str(obj_modificado),
+        descripcion=f'📝 Editado {tipo}: {str(obj_modificado)} ({len(cambios_reales)} cambios)',
+        cambios_antes=cambios_antes,
+        cambios_despues=cambios_despues
+    )
+
+
+def log_eliminar(obj, request, modulo, objeto_tipo=None):
+    """Log eliminación"""
+    tipo = objeto_tipo or obj.__class__.__name__
+    obj_id = obj.id
+    obj_str = str(obj)
+    
+    registrar_movimiento(
+        request, 
+        'eliminar', 
+        modulo,
+        objeto_tipo=tipo,
+        objeto_id=obj_id,
+        objeto_nombre=obj_str,
+        descripcion=f'🗑️ Eliminado {tipo}: {obj_str}'
+    )
+
+
+def log_pago(conductor, monto, mes, anio, request, modulo='finanzas'):
+    """Log registro de pago mensual"""
+    registrar_movimiento(
+        request,
+        'pago_registrado',
+        modulo,
+        objeto_tipo='PagoMensual',
+        objeto_nombre=f'{conductor.nombres} {conductor.apellidos}',
+        descripcion=f'💰 Pago registrado: {conductor.nombres} {conductor.apellidos} - ${monto} ({mes}/{anio})'
+    )
+
+
+def log_accion_masiva(request, modulo, descripcion, cantidad=0):
+    """Log acción masiva (múltiples registros afectados)"""
+    registrar_movimiento(
+        request,
+        'masivo',
+        modulo,
+        descripcion=f'⚙️ {descripcion} ({cantidad} registros afectados)'
+    )
+
+
+def log_exportar(request, modulo, tipo_archivo, cantidad=0):
+    """Log exportación de reportes"""
+    registrar_movimiento(
+        request,
+        'exportar',
+        modulo,
+        descripcion=f'📥 Exportado {tipo_archivo}: {cantidad} registros'
+    )
+
 

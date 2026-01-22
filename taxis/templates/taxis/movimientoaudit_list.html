@@ -1,0 +1,882 @@
+{% extends 'taxis/base_presidente.html' %}
+{% block title %}Auditoría de Movimientos - Cooperativa{% endblock %}
+
+{% block content %}
+<style>
+    /* ============================================================
+       🎨 PALETA COOPERATIVA - SIN :root, SOLO COLORES DIRECTOS
+       ============================================================ */
+    
+    /* MODO CLARO (por defecto) */
+    .page-title {
+        color: #00b300;
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* MODO OSCURO */
+    body.dark-mode .page-title {
+        color: #10b981;
+    }
+
+    /* ============================================================
+       SCROLLBAR MODERNO
+       ============================================================ */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 4px 0;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #00b300;
+        border-radius: 10px;
+        min-height: 40px;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb {
+        background: #10b981;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #009900;
+    }
+
+    body.dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #059669;
+    }
+
+    /* ============================================================
+       BARRA DE BÚSQUEDA + FILTROS
+       ============================================================ */
+    .header-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+        max-width: 600px;
+        position: relative;
+        flex-grow: 1;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 48px;
+        border: 2px solid #00b300;
+        border-radius: 25px;
+        padding: 0 1rem 0 3rem;
+        color: #1f2937;
+        outline: none;
+        background-color: transparent;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    body.dark-mode .search-input {
+        border-color: #10b981;
+        color: #f3f4f6;
+    }
+
+    .search-input:focus {
+        box-shadow: 0 0 0 4px rgba(0, 179, 0, 0.15);
+        transform: scale(1.01);
+    }
+
+    body.dark-mode .search-input:focus {
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .search-input:-webkit-autofill,
+    .search-input:-webkit-autofill:hover,
+    .search-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #1f2937 !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    body.dark-mode .search-input:-webkit-autofill,
+    body.dark-mode .search-input:-webkit-autofill:hover,
+    body.dark-mode .search-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+        -webkit-text-fill-color: #f3f4f6 !important;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        z-index: 10;
+        color: #00b300;
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+
+    body.dark-mode .search-icon {
+        color: #10b981;
+    }
+
+    /* BOTÓN FILTRO */
+    .filter-btn {
+        background-color: rgba(0, 179, 0, 0.15);
+        color: #00b300;
+        border: 2px solid #00b300;
+        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        margin-left: 15px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    body.dark-mode .filter-btn {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border-color: #10b981;
+    }
+
+    .filter-btn:hover {
+        background-color: #00b300;
+        color: white;
+        transform: rotate(15deg);
+    }
+
+    body.dark-mode .filter-btn:hover {
+        background-color: #10b981;
+    }
+
+    /* MENU DESPLEGABLE DE FILTROS */
+    .filter-dropdown {
+        position: absolute;
+        top: 115%;
+        right: 0;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e5e7eb;
+        width: 320px;
+        padding: 25px;
+        z-index: 100;
+        display: none;
+        animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    body.dark-mode .filter-dropdown {
+        background: #1f2937;
+        border-color: #374151;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .filter-dropdown.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #4b5563;
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode .filter-label {
+        color: #d1d5db;
+    }
+
+    .filter-select {
+        width: 100%;
+        height: 45px;
+        padding: 0 15px;
+        border-radius: 10px;
+        border: 2px solid #d1d5db;
+        background-color: transparent;
+        color: #1f2937;
+        font-size: 0.95rem;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        margin-bottom: 15px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        padding-right: 40px;
+    }
+
+    body.dark-mode .filter-select {
+        border-color: #4b5563;
+        color: #f3f4f6;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    }
+
+    body.dark-mode .filter-select option {
+        background-color: #1f2937;
+        color: white;
+    }
+
+    .filter-select:focus {
+        border-color: #00b300;
+        box-shadow: 0 0 0 3px rgba(0, 179, 0, 0.15);
+    }
+
+    body.dark-mode .filter-select:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-apply-filters {
+        width: 100%;
+        background-color: #00b300;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+    }
+
+    body.dark-mode .btn-apply-filters {
+        background-color: #10b981;
+    }
+
+    .btn-apply-filters:hover {
+        background-color: #009900;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 179, 0, 0.3);
+    }
+
+    body.dark-mode .btn-apply-filters:hover {
+        background-color: #059669;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ============================================================
+       TABLA / LISTADO - REORGANIZADO
+       ============================================================ */
+    .audit-row {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1.5rem;
+        align-items: start;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        color: #1f2937;
+    }
+
+    body.dark-mode .audit-row {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    .audit-row:hover {
+        transform: translateY(-2px);
+        border-left: 5px solid #00b300;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    body.dark-mode .audit-row:hover {
+        border-left-color: #10b981;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* COLUMNA 1: AVATAR */
+    .audit-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(0, 179, 0, 0.15);
+        border: 2px solid #00b300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #00b300;
+        font-size: 1.3rem;
+    }
+
+    body.dark-mode .audit-avatar {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #10b981;
+        color: #10b981;
+    }
+
+    /* COLUMNA 2: USUARIO + CORREO + DESCRIPCIÓN */
+    .audit-row-center {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .audit-info-main {
+        font-weight: 700;
+        color: #00b300;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.dark-mode .audit-info-main {
+        color: #10b981;
+    }
+
+    .audit-info-secondary {
+        font-size: 0.8rem;
+        color: #6b7280;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.dark-mode .audit-info-secondary {
+        color: #9ca3af;
+    }
+
+    .audit-description {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 500;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    body.dark-mode .audit-description {
+        color: #d1d5db;
+    }
+
+    /* COLUMNA 3: ACCIÓN + MÓDULO + FECHA/HORA */
+    .audit-row-right {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: flex-end;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* BADGES */
+    .audit-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .badge-success {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+
+    .badge-danger {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+
+    .badge-warning {
+        background: rgba(255, 193, 7, 0.18);
+        color: #856404;
+    }
+
+    body.dark-mode .badge-warning {
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.15);
+    }
+
+    .badge-info {
+        background: rgba(23, 162, 184, 0.15);
+        color: #17a2b8;
+    }
+
+    .badge-secondary {
+        background: rgba(0, 179, 0, 0.15);
+        color: #00b300;
+    }
+
+    body.dark-mode .badge-secondary {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .audit-timestamp {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    body.dark-mode .audit-timestamp {
+        color: #f3f4f6;
+    }
+
+    /* TOTAL */
+    .total-indicator {
+        font-weight: 800;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    body.dark-mode .total-indicator {
+        color: #9ca3af;
+        border-bottom-color: #374151;
+    }
+
+    /* ESTADO VACÍO */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #00b300;
+        opacity: 0.15;
+        margin-bottom: 1rem;
+    }
+
+    body.dark-mode .empty-state-icon {
+        color: #10b981;
+    }
+
+    .empty-state-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    body.dark-mode .empty-state-title {
+        color: #f3f4f6;
+    }
+
+    .empty-state-text {
+        font-size: 0.95rem;
+        color: #6b7280;
+    }
+
+    body.dark-mode .empty-state-text {
+        color: #9ca3af;
+    }
+
+    .empty-state-link {
+        display: inline-block;
+        margin-top: 1rem;
+        color: #00b300;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    body.dark-mode .empty-state-link {
+        color: #10b981;
+    }
+
+    .empty-state-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================================
+       PAGINACIÓN CON EFECTOS
+       ============================================================ */
+    .pagination {
+        list-style: none;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0;
+    }
+
+    .page-item {
+        list-style: none;
+    }
+
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #1f2937;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: pointer;
+    }
+
+    body.dark-mode .page-link {
+        border-color: #374151;
+        background: #1f2937;
+        color: #f3f4f6;
+    }
+
+    .page-link:hover:not(.disabled .page-link) {
+        background-color: #00b300;
+        color: white;
+        border-color: #00b300;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 179, 0, 0.3);
+    }
+
+    body.dark-mode .page-link:hover:not(.disabled .page-link) {
+        background-color: #10b981;
+        border-color: #10b981;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .page-link:active:not(.disabled .page-link) {
+        transform: translateY(0px);
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .page-item.disabled .page-link:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .page-item.active .page-link {
+        background-color: #00b300;
+        color: white;
+        border-color: #00b300;
+        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.3);
+    }
+
+    body.dark-mode .page-item.active .page-link {
+        background-color: #10b981;
+        border-color: #10b981;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1024px) {
+        .audit-row {
+            grid-template-columns: auto 1fr auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-container {
+            max-width: 100%;
+        }
+
+        .audit-row {
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+        }
+
+        .audit-row-right {
+            grid-column: 1 / -1;
+            align-items: flex-start;
+            text-align: left;
+            flex-direction: row;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .audit-badge {
+            justify-content: flex-start;
+        }
+    }
+
+    /* ============================================================
+   FUERZA BADGE PRESIDENTE BLANCO EN AMBOS MODOS - SIN EXCEPCIÓN
+   ============================================================ */
+.sidebar-brand-container .badge {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.sidebar .badge-success {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+body.dark-mode .sidebar .badge-success,
+body.dark-mode .sidebar-brand-container .badge {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ULTRA ESPECÍFICO PARA PRESIDENTE */
+.sidebar-brand-container .badge.badge-success {
+    color: white !important;
+}
+
+</style>
+
+<!-- TITULO -->
+<h1 class="page-title">
+    <i class="fas fa-history"></i> Log de Auditoría
+</h1>
+
+<!-- BARRA DE CONTROL -->
+<div class="header-controls">
+    <div class="search-container">
+        <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
+            <div class="search-input-group">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" class="search-input" placeholder="Busca por usuario, módulo o descripción..." value="{{ request.GET.q|default:'' }}">
+            </div>
+
+            <div style="position: relative;">
+                <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
+                    <i class="fas fa-filter"></i>
+                </button>
+
+                <div class="filter-dropdown" id="filterDropdown">
+                    <div class="mb-3">
+                        <label class="filter-label">Acción</label>
+                        <select name="accion" class="filter-select">
+                            <option value="">Todas</option>
+                            {% for valor, label in acciones %}
+                                <option value="{{ valor }}" {% if request.GET.accion == valor %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="filter-label">Módulo</label>
+                        <select name="modulo" class="filter-select">
+                            <option value="">Todos</option>
+                            <option value="autenticacion" {% if request.GET.modulo == 'autenticacion' %}selected{% endif %}>Autenticación</option>
+                            <option value="afiliados" {% if request.GET.modulo == 'afiliados' %}selected{% endif %}>Afiliados</option>
+                            <option value="vehiculos" {% if request.GET.modulo == 'vehiculos' %}selected{% endif %}>Vehículos</option>
+                            <option value="finanzas" {% if request.GET.modulo == 'finanzas' %}selected{% endif %}>Finanzas</option>
+                            <option value="dt5" {% if request.GET.modulo == 'dt5' %}selected{% endif %}>DT5</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-apply-filters">
+                        <i class="fas fa-check me-2"></i>Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TOTALIZADOR -->
+<div class="total-indicator">
+    {% if request.GET.q or request.GET.accion or request.GET.modulo %}
+        <i class="fas fa-filter me-2"></i>Resultados Filtrados: <strong>{{ movimientos|length }}</strong>
+    {% else %}
+        <i class="fas fa-list me-2"></i>Total Registrado: <strong>{{ movimientos|length }}</strong>
+    {% endif %}
+</div>
+
+<!-- LISTADO DE AUDITORÍA -->
+<div>
+    {% for mov in movimientos %}
+    <a href="#" class="audit-row">
+        <!-- COLUMNA 1: AVATAR -->
+        <div class="audit-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+
+        <!-- COLUMNA 2: USUARIO + CORREO + DESCRIPCIÓN -->
+        <div class="audit-row-center">
+            {% if mov.usuario %}
+                <span class="audit-info-main">{{ mov.usuario.get_full_name|default:mov.usuario.username }}</span>
+                <span class="audit-info-secondary">{{ mov.usuario.email }}</span>
+            {% else %}
+                <span class="audit-info-main">SISTEMA</span>
+                <span class="audit-info-secondary">Automático</span>
+            {% endif %}
+
+            {% if mov.descripcion and mov.descripcion|lower != "exit" %}
+            <div class="audit-description">
+                {{ mov.descripcion|truncatewords:15 }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- COLUMNA 3: ACCIÓN + MÓDULO + FECHA/HORA -->
+        <div class="audit-row-right">
+            <!-- ACCIÓN -->
+            <div>
+                {% if mov.accion == 'login' %}
+                    <span class="audit-badge badge-success">
+                        <i class="fas fa-sign-in-alt"></i>Login
+                    </span>
+                {% elif mov.accion == 'logout' %}
+                    <span class="audit-badge badge-secondary">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </span>
+                {% elif mov.accion == 'crear' %}
+                    <span class="audit-badge badge-info">
+                        <i class="fas fa-plus-circle"></i>Crear
+                    </span>
+                {% elif mov.accion == 'editar' %}
+                    <span class="audit-badge badge-warning">
+                        <i class="fas fa-edit"></i>Editar
+                    </span>
+                {% elif mov.accion == 'eliminar' %}
+                    <span class="audit-badge badge-danger">
+                        <i class="fas fa-trash-alt"></i>Eliminar
+                    </span>
+                {% else %}
+                    <span class="audit-badge badge-secondary">
+                        {{ mov.get_accion_display|default:mov.accion }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- MÓDULO -->
+            <div>
+                <span class="audit-badge badge-secondary">
+                    <i class="fas fa-cube"></i>{{ mov.modulo|upper }}
+                </span>
+            </div>
+
+            <!-- FECHA Y HORA -->
+            <div class="audit-timestamp">
+                {{ mov.fecha_formato|default:mov.fecha|date:"d/m/Y H:i" }}
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <div class="empty-state-title">Sin registros</div>
+        <div class="empty-state-text">
+            No hay movimientos que coincidan con tu búsqueda
+        </div>
+        {% if request.GET %}
+            <a href="{% url 'taxis:auditoria_list' %}" class="empty-state-link">
+                Limpiar filtros
+            </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- PAGINACIÓN -->
+{% if is_paginated %}
+<div class="d-flex justify-content-center mt-5">
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.accion %}&accion={{ request.GET.accion }}{% endif %}{% if request.GET.modulo %}&modulo={{ request.GET.modulo }}{% endif %}">
+                    <i class="fas fa-chevron-left me-2"></i>Anterior
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.accion %}&accion={{ request.GET.accion }}{% endif %}{% if request.GET.modulo %}&modulo={{ request.GET.modulo }}{% endif %}">
+                    Siguiente<i class="fas fa-chevron-right ms-2"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<script>
+    function toggleFilters() {
+        const dropdown = document.getElementById('filterDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Cerrar al hacer click fuera
+    document.addEventListener('mouseup', function(e) {
+        var container = document.getElementById('filterDropdown');
+        var btn = document.querySelector('.filter-btn');
+        if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+            container.classList.remove('show');
+        }
+    });
+</script>
+
+{% endblock %}

@@ -228,27 +228,6 @@ def validar_datos_vehiculo(request):
 
     return JsonResponse({'existe': existe, 'mensaje': mensaje})
 
-@login_required
-def guardar_configuracion(request):
-    if request.user.role.upper() != 'PRESIDENTE':
-        messages.error(request, "Acceso no autorizado.")
-        return redirect('taxis:panel_general')
-
-    if request.method == 'POST':
-        nueva_tasa = request.POST.get('tasa_bcv')
-        try:
-            config, _ = ConfiguracionGlobal.objects.get_or_create(id=1)
-            config.tasa_bcv = float(nueva_tasa)
-            config.save()
-            messages.success(request, f"Tasa BCV actualizada a {nueva_tasa} Bs.")
-            MovimientoAudit.objects.create(
-                usuario=request.user,
-                accion=f"Actualizó Tasa BCV a {nueva_tasa}",
-                modulo="Finanzas"
-            )
-        except ValueError:
-            messages.error(request, "Valor de tasa inválido.")
-    return redirect('taxis:panel_general')
 
 @login_required
 def ejecutar_cierre_mensual(request):
@@ -302,6 +281,12 @@ class PerfilUsuarioView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, "Tu perfil ha sido actualizado.")
+
+        MovimientoAudit.objects.create(
+        usuario=self.request.user,
+        accion=f"Actualizó perfil ({self.request.user.first_name} {self.request.user.last_name})",
+        modulo="Perfiles"
+    )
         return super().form_valid(form)
 
 class CambiarClaveView(LoginRequiredMixin, PasswordChangeView):
@@ -733,6 +718,15 @@ def reporte_dt5_pdf(request):
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
         filename = f"DT5_Transportistas_{timezone.now().strftime('%d-%m-%Y')}.pdf"
         response['Content-Disposition'] = f'inline; filename="{filename}"'
+        
+        # AUDITORÍA (AQUÍ)
+        MovimientoAudit.objects.create(
+            usuario=request.user,
+            accion="Generó reporte DT5 PDF",
+            modulo="DT5",
+            descripcion=f"Filtros: q={request.GET.get('q','todos')}, estado={request.GET.get('estado','todos')}"
+        )
+        
         return response
 
     return HttpResponse("Error generando PDF", status=500)
@@ -1086,6 +1080,16 @@ def finanzas_registrar_pago(request, conductor_id):
                     conductor_cedula_cache=f"{conductor.cedula_prefijo}-{conductor.cedula_identidad}"
                 )
                 pagos_registrados.append(MESES_NOMBRES[mes-1])
+
+                # LOG AUDITORÍA - Pago registrado
+                from taxis.utils import log_pago
+                log_pago(
+                    conductor=conductor, 
+                    monto=config.monto_cuota_usd, 
+                    mes=mes, 
+                    anio=anio, 
+                    request=request
+                )
             
             # Mensajes
             if meses_duplicados and not pagos_registrados:
@@ -1306,6 +1310,14 @@ def finanzas_ver_pago(request, pago_id):
         'es_pago_multiple': es_pago_multiple,
         'coop': DATOS_COOP,
     }
+    # AUDITORÍA (AQUÍ)
+    MovimientoAudit.objects.create(
+       usuario=request.user,
+       accion="Imprimió ticket de pago",
+       modulo="Finanzas",
+       descripcion=f"Pago ID: {pago_id}"
+   )
+
     return render(request, 'taxis/finanzas/ver_pago.html', context)
 
 
@@ -1510,6 +1522,14 @@ def reporte_vehiculos_pdf(request):
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
         filename = f"Vehiculos_Flota_{timezone.now().strftime('%d-%m-%Y')}.pdf"
         response['Content-Disposition'] = f'inline; filename="{filename}"'
+
+         # AUDITORÍA (AQUÍ)
+        MovimientoAudit.objects.create(
+        usuario=request.user,
+        accion="Generó reporte afiliados PDF",
+        modulo="Reportes",
+        descripcion=f"Filtros: q={request.GET.get('q', 'todos')}"
+      )
         return response
 
     return HttpResponse("Error generando PDF", status=500)
@@ -1605,16 +1625,124 @@ class ReporteFichaPDF(LoginRequiredMixin, View):
 # AUDITORÍA Y NOTIFICACIONES
 # ====================================================================
 
+
+from django.db.models import Q  # ← AÑADIR ESTO ARRIBA con imports
+
 class MovimientoAuditListView(LoginRequiredMixin, ListView):
     model = MovimientoAudit
-    template_name = "taxis/audit_list.html"
+    template_name = "taxis/movimientoaudit_list.html"
     context_object_name = "movimientos"
     paginate_by = 30
-    ordering = ['-fecha']
+
+    MODULO_MAP = {
+        "autenticacion": "Autenticación",
+        "afiliados": "Afiliados",
+        "vehiculos": "Vehículos",
+        "finanzas": "Finanzas",
+        "dt5": "DT5",
+        "auditoria": "Auditoría",
+        "configuracion": "Configuración",
+        "seguridad": "Seguridad",
+        "perfiles": "Perfiles",
+        "reportes": "Reportes",
+    }
+
+    ACCION_KEYWORDS = {
+        "login": ["login", "inicio de sesión", "inició sesión"],
+        "logout": ["logout", "cierre de sesión"],
+        "crear": ["creó", "creado", "registró"],
+        "editar": ["editó", "actualizó", "modificó"],
+        "eliminar": ["eliminó", "eliminado"],
+        "reporte": ["generó reporte", "reporte", "pdf", "excel"],
+    }
+
+    ORDERING_MAP = {
+        "recientes": "-fecha",
+        "antiguos": "fecha",
+        "modulo_az": "modulo",
+        "modulo_za": "-modulo",
+    }
+
+    def get_ordering(self):
+        orden = self.request.GET.get("orden", "").strip()
+        return self.ORDERING_MAP.get(orden, "-fecha")
+
+    def get_queryset(self):
+        qs = MovimientoAudit.objects.select_related("usuario").all()
+
+        # Búsqueda general
+        q = self.request.GET.get("q", "").strip()
+        if q:
+            qs = qs.filter(
+                Q(usuario__first_name__icontains=q) |
+                Q(usuario__last_name__icontains=q) |
+                Q(usuario__email__icontains=q) |
+                Q(accion__icontains=q) |
+                Q(modulo__icontains=q)
+            )
+
+        # Acción
+        accion = self.request.GET.get("accion", "").strip().lower()
+        if accion:
+            keys = self.ACCION_KEYWORDS.get(accion)
+            if keys:
+                q_acc = Q()
+                for k in keys:
+                    q_acc |= Q(accion__icontains=k)
+                qs = qs.filter(q_acc)
+
+        # Módulo
+        modulo = self.request.GET.get("modulo", "").strip()
+        if modulo:
+            modulo_real = self.MODULO_MAP.get(modulo.lower(), modulo)
+            qs = qs.filter(modulo__icontains=modulo_real)
+
+        # Año/Mes
+        anio = self.request.GET.get("anio", "").strip()
+        mes = self.request.GET.get("mes", "").strip()
+        if anio.isdigit():
+            qs = qs.filter(fecha__year=int(anio))
+        if mes.isdigit():
+            m = int(mes)
+            if 1 <= m <= 12:
+                qs = qs.filter(fecha__month=m)
+
+        return qs.order_by(self.get_ordering())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["q"] = self.request.GET.get("q", "")
+        context["accion_filtro"] = self.request.GET.get("accion", "")
+        context["modulo_filtro"] = self.request.GET.get("modulo", "")
+        context["anio_filtro"] = self.request.GET.get("anio", "")
+        context["mes_filtro"] = self.request.GET.get("mes", "")
+        context["orden_filtro"] = self.request.GET.get("orden", "")
+
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context["query_params"] = params.urlencode()
+        return context
 
 
 @login_required
 def panel_general(request):
+    # ====================================================================
+    # LOG AUDITORÍA - Login/Acceso al Panel
+    # ====================================================================
+    from datetime import date
+    from taxis.utils import log_login
+    
+    today = date.today()
+    last_login_date = request.session.get('last_login_date')
+    
+    if last_login_date != str(today):
+        log_login(request)
+        request.session['last_login_date'] = str(today)
+    
+    # ====================================================================
+    # PANEL GENERAL - Código Original
+    # ====================================================================
+    
     hoy = timezone.now().date()
     # Solo mostramos alertas de documentos YA VENCIDOS
     
@@ -1806,3 +1934,30 @@ class ActivateAccountView(View):
 
 class ActivationSuccessView(TemplateView):
     template_name = 'taxis/activation_success.html'
+
+    # ====================================================================
+# AUTENTICACIÓN - LOGOUT CON AUDITORÍA
+# ====================================================================
+
+def logout_view(request):
+    """
+    Cierra sesión del usuario y registra en auditoría.
+    Llamada por: /logout/
+    """
+    from django.contrib.auth import logout
+    from django.contrib import messages
+    from taxis.utils import log_logout
+    
+    # Registrar logout ANTES de cerrar sesión
+    log_logout(request)
+    
+    # Cerrar sesión oficial
+    logout(request)
+    
+    # Mensaje de confirmación
+    messages.success(request, '✅ Sesión cerrada correctamente.')
+    
+    # Redirigir a login
+    return redirect('taxis:login')
+
+

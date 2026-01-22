@@ -16,7 +16,6 @@ from .validators import validar_archivo_seguro
 
 # Validadores Regex para Modelos
 solo_numeros_regex = RegexValidator(r'^\d+$', 'Solo se permiten números.')
-
 # ====================================================================
 # USUARIOS (AUTH)
 # ====================================================================
@@ -405,15 +404,52 @@ class Pago(models.Model):
 
 class MovimientoAudit(models.Model):
     usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+        settings.AUTH_USER_MODEL,  # ← USA ESTO
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='movimientos'
     )
-    accion = models.CharField(max_length=255)
-    modulo = models.CharField(max_length=50)
-    fecha = models.DateTimeField(auto_now_add=True)
-
+    # Acción
+    ACCION_CHOICES = [
+        ('login', 'Inicio de Sesión'),
+        ('logout', 'Cierre de Sesión'),
+        ('crear', 'Crear'),
+        ('editar', 'Editar'),
+        ('eliminar', 'Eliminar'),
+        ('ver', 'Ver Detalle'),
+        ('listar', 'Listar'),
+        ('pago_registrado', 'Registrar Pago'),
+        ('masivo', 'Acción Masiva'),
+        ('configurar', 'Configuración'),
+        ('exportar', 'Exportar Reporte'),
+    ]
+    accion = models.CharField(max_length=20, choices=ACCION_CHOICES)
+    
+    # Contexto
+    modulo = models.CharField(max_length=50)  # 'afiliados', 'finanzas', 'dt5'
+    objeto_tipo = models.CharField(max_length=50)  # 'Conductor', 'Vehiculo', 'Pago'
+    objeto_id = models.PositiveIntegerField(null=True, blank=True)
+    objeto_nombre = models.CharField(max_length=200, blank=True)  # Cache nombre
+    descripcion = models.TextField()  # Detalle completo
+    
+    # Cambios (JSON para diffs)
+    cambios_antes = models.JSONField(default=dict, blank=True, null=True)
+    cambios_despues = models.JSONField(default=dict, blank=True, null=True)
+    
+    # Fecha/Hora EXACTA
+    fecha = models.DateTimeField(default=timezone.now)
+    fecha_formato = models.CharField(max_length=50, blank=True)  # "21/01/2026 22:36"
+    
     class Meta:
-        ordering = ["-fecha"]
+        ordering = ['-fecha']
+        indexes = [
+            models.Index(fields=['usuario', '-fecha']),
+            models.Index(fields=['modulo', '-fecha']),
+            models.Index(fields=['accion']),
+        ]
 
+    def __str__(self):
+        return f"[{self.fecha}] {self.usuario} - {self.accion} en {self.modulo}"
 
 
 class EmailVerificationCode(models.Model):
