@@ -41,7 +41,7 @@ from .forms import (
 # MODELOS
 from .models import (
     Conductor, Vehiculo, CustomUser, UbicacionGeografica, Parroquia,
-    Deuda, Pago, MovimientoAudit, Notificacion, ConfiguracionCooperativa,
+    Deuda, Pago, MovimientoAudit, ConfiguracionCooperativa,
     ConfiguracionGlobal, DocumentoLegal, EmailVerificationCode, Municipio,
     ConfiguracionFinanzas, PagoMensual
 )
@@ -1029,6 +1029,21 @@ def finanzas_registrar_pago(request, conductor_id):
     esta_al_dia = len(meses_adeudados) == 0
     deuda_total = len(meses_adeudados) * config.monto_cuota_usd
     
+    import calendar
+    from datetime import date
+    # Día de vencimiento (por defecto 5)
+    dia_venc = getattr(config, 'dia_vencimiento', 5) or 5
+
+# Mes de referencia: el primer mes adeudado; si no hay deuda, mes actual
+    mes_ref = meses_adeudados[0]['mes'] if meses_adeudados else mes_actual
+    anio_ref = anio_actual
+
+# Ajuste para meses con menos días (ej: febrero)
+    ultimo_dia = calendar.monthrange(anio_ref, mes_ref)[1]
+    dia_venc = min(dia_venc, ultimo_dia)
+
+    fecha_vencimiento = date(anio_ref, mes_ref, dia_venc)
+    mes_vencimiento_nombre = MESES_NOMBRES[mes_ref - 1]
     # PROCESAR POST
     if request.method == 'POST':
         meses_pagar = request.POST.getlist('meses_pagar[]')
@@ -1112,6 +1127,8 @@ def finanzas_registrar_pago(request, conductor_id):
         'form': form,
         'config': config,
         'hoy': hoy,
+        'fecha_vencimiento': fecha_vencimiento,
+        'mes_vencimiento_nombre': mes_vencimiento_nombre,
         'meses_adeudados': meses_adeudados,
         'meses_futuros': meses_futuros,
         'esta_al_dia': esta_al_dia,
@@ -1313,11 +1330,6 @@ class RegistrarPagoView(LoginRequiredMixin, CreateView):
         self.deuda.pagada = True
         self.deuda.save()
 
-        Notificacion.objects.create(
-            titulo="Pago Recibido",
-            mensaje=f"Se registró pago de {self.deuda.conductor.nombres}",
-            leida=False
-        )
         MovimientoAudit.objects.create(
             usuario=self.request.user,
             accion=f"Registró pago de {self.deuda.conductor.nombres}",
@@ -1600,11 +1612,6 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
     paginate_by = 30
     ordering = ['-fecha']
 
-class NotificacionListView(LoginRequiredMixin, ListView):
-    model = Notificacion
-    template_name = "taxis/notificacion_list.html"
-    context_object_name = "notificaciones"
-    ordering = ['-fecha']
 
 @login_required
 def panel_general(request):
@@ -1688,7 +1695,6 @@ def panel_general(request):
         'total_afiliados': Conductor.objects.count(),
         'total_vehiculos': Vehiculo.objects.count(),
         'pagos_pendientes': pagos_pendientes_count,
-        'notificaciones': Notificacion.objects.filter(leida=False),
         'alertas_documentos': alertas_documentos,
         'tasa_actual': ConfiguracionGlobal.get_tasa(),
         'coop': DATOS_COOP

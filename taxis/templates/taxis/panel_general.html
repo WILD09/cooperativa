@@ -45,7 +45,6 @@
 
     .badge-name-alerta {
         background: #00b300;
-        /* Verde claro */
         color: white;
         border-radius: 8px;
         transition: background 0.3s ease;
@@ -53,22 +52,22 @@
 
     body.dark-mode .badge-name-alerta {
         background: #14b8a6;
-        /* Teal */
     }
 
-    /* Tarjetas Grid */
+    /* TARJETAS 4 EN 1 FILA - FULL WIDTH */
     .tarjetas-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1rem;
+        grid-template-columns: repeat(4, 1fr);  /* ← FIJO: 4 columnas 1 fila */
+        gap: 1.5rem;
         margin-bottom: 2rem;
+        min-height: 200px;
     }
 
     .tarjeta-resumen {
         background: var(--card-bg);
         border: 2px solid var(--border-color);
         border-radius: 15px;
-        padding: 1.5rem 0.5rem;
+        padding: 2rem 1rem;
         text-align: center;
         text-decoration: none !important;
         color: var(--text-color);
@@ -76,9 +75,9 @@
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        height: 100%;
+        align-items: center;
+        min-height: 180px;
     }
 
     button.tarjeta-resumen {
@@ -93,14 +92,14 @@
     }
 
     .icon-circle {
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         background: #00b300;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 0.8rem;
+        margin-bottom: 1rem;
     }
 
     body.dark-mode .icon-circle {
@@ -108,22 +107,23 @@
     }
 
     .icon-circle i {
-        font-size: 1.8rem;
+        font-size: 2rem;
         color: white;
     }
 
-    /* Badge Contador */
-    .badge-counter {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #e74a3b;
-        color: white;
-        border-radius: 50%;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    .tarjeta-resumen h2 {
+        font-size: 2.2rem;
+        margin: 0.5rem 0;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .tarjeta-resumen h6 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .info-card {
@@ -141,19 +141,34 @@
         color: #10b981;
     }
 
+    /* RESPONSIVE: Mantiene 4 columnas hasta móvil chico */
+    @media (max-width: 1200px) {
+        .tarjetas-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+    }
+
     @media (max-width: 992px) {
         .tarjetas-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr); /* Solo aquí baja a 2 */
+            gap: 1.2rem;
         }
     }
 
     @media (max-width: 576px) {
         .tarjetas-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .tarjeta-resumen {
+            min-height: 160px;
+            padding: 1.5rem 0.75rem;
         }
     }
 </style>
+
 
 <div class="d-flex align-items-center mb-4">
     <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);"><i class="fas fa-home mr-2"></i>Panel
@@ -177,14 +192,6 @@
         <h6>Pagos Pendientes</h6>
     </a>
 
-    <a href="{% url 'taxis:notificacion_list' %}" class="tarjeta-resumen">
-        {% if notificaciones|length > 0 %}
-        <span class="badge-counter">{{ notificaciones|length }}</span>
-        {% endif %}
-        <div class="icon-circle"><i class="fas fa-bell"></i></div>
-        <h2>{{ notificaciones|length|default:"0" }}</h2>
-        <h6>Notificaciones</h6>
-    </a>
 
     <button class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal">
         <div class="icon-circle"><i class="fas fa-exclamation-circle"></i></div>

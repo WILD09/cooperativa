@@ -448,8 +448,8 @@
                         <span>{{ vehiculo.placa|default:"--" }}</span>
                     </div>
                     <div class="info-item">
-                        <label>Fecha Actual</label>
-                        <span class="text-success">{{ hoy|date:"d/m/Y" }}</span>
+                        <label>Vencimiento ({{ mes_vencimiento_nombre }} {{ anio_actual }})</label>
+                        <span class="text-warning">{{ fecha_vencimiento|date:"d/m/Y" }}</span>
                     </div>
                 </div>
 

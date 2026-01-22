@@ -24,7 +24,6 @@ from .models import (
     EmailSendLog,
     VerificationAttemptLog,
     MovimientoAudit,
-    Notificacion
 )
 
 # ====================================================================
@@ -279,7 +278,7 @@ def verify_email_code(user, code, email_type="primary"):
     return code_obj
 
 # ====================================================================
-# AUDITORÍA Y NOTIFICACIONES (Helpers)
+# AUDITORÍA 
 # ====================================================================
 
 def log_movimiento(usuario, accion, modulo="General"):
@@ -290,9 +289,3 @@ def log_movimiento(usuario, accion, modulo="General"):
         modulo=modulo
     )
 
-def crear_notificacion(titulo, mensaje):
-    """Crea una notificación en el buzón."""
-    return Notificacion.objects.create(
-        titulo=titulo,
-        mensaje=mensaje
-    )

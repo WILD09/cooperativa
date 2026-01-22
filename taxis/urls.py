@@ -19,7 +19,6 @@ urlpatterns = [
     # 2. DASHBOARD Y PANEL (Privados)
     # ==========================================
     path('panel/', views.panel_general, name='panel_general'),
-    path('notificaciones/', views.NotificacionListView.as_view(), name='notificacion_list'), 
     path('ayuda/', views.ayuda_sistema, name='ayuda_sistema'),
 
     # ==========================================

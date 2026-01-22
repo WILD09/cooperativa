@@ -366,6 +366,111 @@
             size: auto;
         }
     }
+
+    /* ✨ BOTONES CON TRANSICIÓN (Imprimir + Ver Comprobante) */
+.btn-print, .btn-comprobante {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-print {
+    background: var(--finance-gradient);
+    color: white;
+}
+
+.btn-comprobante {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    margin-left: 0.75rem;
+}
+
+.btn-print:hover, .btn-comprobante:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 179, 0, 0.4);
+    background: var(--finance-gradient) !important; /* Más intenso */
+}
+
+body.dark-mode .btn-print:hover, body.dark-mode .btn-comprobante:hover {
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+.btn-print:active, .btn-comprobante:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* ✨ RIPPLE EFFECT */
+.btn-print::before, .btn-comprobante::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-print:active::before, .btn-comprobante:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* 🎨 COLOR UNIFORME MODO CLARO + SIN LÍNEA */
+.btn-comprobante {
+    background: var(--finance-gradient) !important; /* ← MISMO VERDE que Imprimir */
+    margin-left: 0.75rem;
+}
+
+.btn-group .btn {
+    border-radius: 25px !important; /* Sin bordes duros entre botones */
+    border: none !important; /* Sin línea entre botones */
+}
+
+.btn-comprobante,
+.btn-print {
+    text-decoration: none !important;
+    color: white !important;
+}
+
+.btn-comprobante:hover,
+.btn-print:hover {
+    text-decoration: none !important;
+    color: white !important;
+}
+
+/* Quitar sombra entre botones btn-group */
+.btn-group .btn:not(:last-child) {
+    border-top-right-radius: 25px !important;
+    border-bottom-right-radius: 25px !important;
+    margin-right: 0 !important;
+}
+
+.btn-group .btn {
+    margin-right: 0.75rem !important; /* 12px espacio */
+    border-right: none !important; /* Sin línea Bootstrap */
+    border-radius: 25px !important; /* Bordes redondos todos */
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0 !important;
+}
+
+/* FORZAR sin padding interno btn-group */
+.btn-group {
+    padding: 0 !important;
+    gap: 0 !important;
+}
 </style>
 
 <div class="receipt-container">
@@ -479,19 +584,20 @@
 
 <div class="no-print mt-4 text-center">
     <div class="btn-group shadow-sm">
-        <button onclick="window.print()" class="btn btn-secondary px-4">
+        <button onclick="window.print()" class="btn-print px-4">
             <i class="fas fa-print mr-1"></i> Imprimir
         </button>
         {% if pago.comprobante %}
-        <a href="{{ pago.comprobante.url }}" target="_blank" class="btn btn-primary px-4"
-            style="background: var(--finance-primary) !important; border: none;">
+        <a href="{{ pago.comprobante.url }}" target="_blank" class="btn-comprobante px-4">
             <i class="fas fa-file-image mr-1"></i> Ver Comprobante
         </a>
         {% else %}
-        <button class="btn btn-light px-4" disabled>
-            <span class="text-muted small">Sin Comprobante</span>
+        <button class="btn btn-light px-4" disabled style="opacity: 0.6; cursor: not-allowed;">
+            <i class="fas fa-file-image mr-1 text-muted"></i>
+            <span class="text-muted small font-weight-500">Sin Comprobante</span>
         </button>
         {% endif %}
     </div>
 </div>
+
 {% endblock %}

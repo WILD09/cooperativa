@@ -5,7 +5,6 @@ Modelos de la aplicación 'taxis' con validación de seguridad y soporte respons
 
 from datetime import date
 from decimal import Decimal
-
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -415,15 +414,6 @@ class MovimientoAudit(models.Model):
     class Meta:
         ordering = ["-fecha"]
 
-
-class Notificacion(models.Model):
-    titulo = models.CharField(max_length=100)
-    mensaje = models.TextField()
-    leida = models.BooleanField(default=False)
-    fecha = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-fecha"]
 
 
 class EmailVerificationCode(models.Model):
