@@ -1,51 +1,56 @@
-import random
+# Standard library
+import calendar
 import os
-from datetime import timedelta, date
+import random
+import time
+from datetime import date, timedelta
 from io import BytesIO
 
+# Third-party (reportes)
+import openpyxl
+from openpyxl.styles import Alignment, Font, PatternFill
+from xhtml2pdf import pisa
+
+# Django
 from django.conf import settings
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import LoginView, PasswordChangeView
+from django.core.cache import cache
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q, Sum, Count
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
-from django.contrib.auth.views import LoginView, PasswordChangeView
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.views.decorators.http import require_POST
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.forms import PasswordChangeForm
-from django.core.mail import send_mail
-from django.contrib.auth import logout, login
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.html import format_html
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
+from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_http_methods
 
-# Librerías para PDF/Excel (usadas en otros módulos)
-from xhtml2pdf import pisa
-import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill
 
-# FORMULARIOS
+# Local
 from .forms import (
     ConductorForm, VehiculoForm, PresidenteRegisterForm,
-    EmailOrUsernameAuthenticationForm, PagoForm, UbicacionGeograficaForm,
-    PagoMensualForm
+    EmailOrUsernameAuthenticationForm, PagoForm,
+    UbicacionGeograficaForm, PagoMensualForm
 )
-
-# MODELOS
 from .models import (
-    Conductor, Vehiculo, CustomUser, UbicacionGeografica, Parroquia,
-    Deuda, Pago, MovimientoAudit, ConfiguracionCooperativa,
-    ConfiguracionGlobal, DocumentoLegal, EmailVerificationCode, Municipio,
-    ConfiguracionFinanzas, PagoMensual
+    Conductor, Vehiculo, CustomUser, UbicacionGeografica,
+    Deuda, Pago, MovimientoAudit, ConfiguracionCooperativa, ConfiguracionGlobal,
+    DocumentoLegal, EmailVerificationCode,
+    ConfiguracionFinanzas,
+    PagoMensual, PendingPresidentRegistration
 )
-
 from .utils import render_to_pdf
 
 # --- DATOS FIJOS DE LA COOPERATIVA ---
@@ -100,45 +105,68 @@ def obtener_rutas_logos():
 # CONFIGURACIÓN Y SISTEMA (AJAX)
 # ====================================================================
 
-def load_parroquias(request):
-    """Vista AJAX para cargar parroquias dinámicamente."""
-    municipio_id = request.GET.get('municipio')
-    data = []
-    if municipio_id:
-        parroquias = Parroquia.objects.filter(municipio_id=municipio_id).order_by('nombre')
-        data = list(parroquias.values('id', 'nombre'))
-    return JsonResponse(data, safe=False)
-
-def check_duplicado(request):
-    """Vista AJAX para validar unicidad (Conductores/Usuarios)."""
+@login_required
+@require_http_methods(["GET"])
+def ajax_check_duplicado(request):
+    """
+    Vista AJAX para validar unicidad de:
+    - cedula (cédula de identidad)
+    - rif (RIF del conductor)
+    - email (correo electrónico)
+    - telefono (teléfono principal)
+    
+    Parámetros GET esperados:
+    - campo: tipo de validación (cedula, rif, email, telefono)
+    - valor: valor a validar
+    - excludeid: ID del conductor actual (para edición, excluir de búsqueda)
+    
+    Retorna:
+    - {'existe': True/False}
+    """
+    # ✅ CORRECCIÓN 1: Nombre de parámetro 'excludeid' (sin guion, minúscula)
     campo = request.GET.get('campo')
-    valor = request.GET.get('valor')
-    exclude_id = request.GET.get('exclude_id')
+    valor = request.GET.get('valor', '').strip()
+    exclude_id = request.GET.get('excludeid')  # ✅ CORREGIDO
 
-    if not valor:
+    # Validar entrada básica
+    if not campo or not valor:
         return JsonResponse({'existe': False})
 
-    valor = valor.strip()
     existe = False
 
+    # Base de querysets
     qs_cond = Conductor.objects.all()
-    if exclude_id and exclude_id not in ['None', '']:
-        qs_cond = qs_cond.exclude(pk=exclude_id)
+    
+    # ✅ CORRECCIÓN 2: Convertir a int y manejar excepciones
+    if exclude_id:
+        try:
+            exclude_id = int(exclude_id)
+            qs_cond = qs_cond.exclude(pk=exclude_id)
+        except (ValueError, TypeError):
+            pass  # Si no es un número válido, ignorar la exclusión
 
     qs_users = CustomUser.objects.all()
 
+    # ✅ VALIDACIONES POR TIPO DE CAMPO
+    
     if campo == 'cedula':
-        existe = qs_cond.filter(cedula_identidad=valor).exists()
+        # ✅ CORRECCIÓN 3: Limpiar números igual que en el formulario
+        val_limpio = ''.join(filter(str.isdigit, valor))
+        existe = qs_cond.filter(cedula_identidad=val_limpio).exists()
 
     elif campo == 'rif':
-        existe = qs_cond.filter(rif=valor).exists()
+        # ✅ CORRECCIÓN 4: Limpiar números para RIF
+        val_limpio = ''.join(filter(str.isdigit, valor))
+        existe = qs_cond.filter(rif=val_limpio).exists()
 
     elif campo == 'email':
+        # Email se valida sin cambios (case-insensitive)
         existe_cond = qs_cond.filter(email__iexact=valor).exists()
         existe_user = qs_users.filter(email__iexact=valor).exists()
         existe = existe_cond or existe_user
 
     elif campo == 'telefono':
+        # Limpiar teléfono y comparar últimos 10 dígitos
         val_limpio = ''.join(filter(str.isdigit, valor))
         val_comparar = val_limpio[-10:] if len(val_limpio) >= 10 else val_limpio
 
@@ -151,10 +179,10 @@ def check_duplicado(request):
                     existe = True
                     break
 
-        # B. Revisar en Usuarios
+        # B. Revisar en Usuarios (solo si no encontró en Conductores)
         if not existe:
             for u in qs_users:
-                tlf_user = getattr(u, 'phone_number', getattr(u, 'telefono', ''))
+                tlf_user = getattr(u, 'phone_number', '')
                 if tlf_user:
                     db_limpio = ''.join(filter(str.isdigit, str(tlf_user)))
                     db_comparar = db_limpio[-10:] if len(db_limpio) >= 10 else db_limpio
@@ -388,10 +416,10 @@ class ConductorListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = Conductor.objects.select_related('ubicacion').order_by('id')
-        
+    
         q = self.request.GET.get('q')
         if q:
-            qs = qs.filter(
+           qs = qs.filter(
                 Q(nombres__icontains=q) |
                 Q(apellidos__icontains=q) |
                 Q(cedula_identidad__icontains=q)
@@ -399,11 +427,11 @@ class ConductorListView(LoginRequiredMixin, ListView):
 
         genero = self.request.GET.get('genero')
         if genero:
-            qs = qs.filter(sexo=genero)
+           qs = qs.filter(sexo=genero)
 
         edo_civil = self.request.GET.get('edo_civil')
         if edo_civil:
-            qs = qs.filter(estado_civil=edo_civil)
+           qs = qs.filter(estadocivil=edo_civil)
 
         return qs
 
@@ -633,11 +661,11 @@ class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         conductor = vehiculo.conductor
         
         # Calcular edad del conductor
-        if conductor.fecha_nacimiento:
+        if conductor.fechanacimiento:
             hoy = timezone.now().date()
-            edad = hoy.year - conductor.fecha_nacimiento.year
-            if hoy.month < conductor.fecha_nacimiento.month or \
-               (hoy.month == conductor.fecha_nacimiento.month and hoy.day < conductor.fecha_nacimiento.day):
+            edad = hoy.year - conductor.fechanacimiento.year
+            if hoy.month < conductor.fechanacimiento.month or \
+               (hoy.month == conductor.fechanacimiento.month and hoy.day < conductor.fechanacimiento.day):
                 edad -= 1
             context['edad'] = edad
         
@@ -848,11 +876,6 @@ def reporte_dt5_excel(request):
 # ====================================================================
 # FINANZAS
 # ====================================================================
-
-from django.db.models import Sum, Count, Q
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.utils import timezone
-
 
 class DeudaListView(LoginRequiredMixin, ListView):
     model = Deuda
@@ -1386,7 +1409,7 @@ def obtener_conductores_filtrados(request):
         qs = qs.filter(sexo=genero)
     edo_civil = request.GET.get('edo_civil')
     if edo_civil:
-        qs = qs.filter(estado_civil=edo_civil)
+        qs = qs.filter(estadocivil=edo_civil)
     return qs
 
 @login_required
@@ -1472,13 +1495,13 @@ def reporte_afiliados_excel(request):
         cell.alignment = Alignment(horizontal='center')
 
     for i, c in enumerate(conductores, start=1):
-        fecha_nac = c.fecha_nacimiento.strftime('%d/%m/%Y') if c.fecha_nacimiento else "-"
+        fecha_nac = c.fechanacimiento.strftime('%d/%m/%Y') if c.fechanacimiento else "-"
         cedula_full = f"{c.cedula_prefijo}-{c.cedula_identidad}"
         rif_full = f"{c.rif_prefijo}-{c.rif}"
 
         row = [
             i, c.nombres, c.apellidos, fecha_nac,
-            c.get_sexo_display(), c.get_estado_civil_display(),
+            c.get_sexo_display(), c.get_estadocivil_display(),
             cedula_full, rif_full, c.email, c.telefono_principal
         ]
         ws.append(row)
@@ -1658,6 +1681,20 @@ def reporte_vehiculos_excel(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     wb.save(response)
+
+    from taxis.utils import texto_filtros
+    MovimientoAudit.objects.create(
+        usuario=request.user,
+        accion="Generar reporte vehículos Excel",
+        modulo="Vehículos",
+        descripcion=texto_filtros(
+            q=request.GET.get('q') or None,
+            estado=request.GET.get('estado') or "todos",
+            fecha=timezone.localtime()
+        )
+    )
+    
+    return response
     # ========== AUDITORÍA AQUÍ ==========
     from taxis.utils import texto_filtros
     MovimientoAudit.objects.create(
@@ -1677,9 +1714,6 @@ def reporte_vehiculos_excel(request):
 # ====================================================================
 # AUDITORÍA Y NOTIFICACIONES
 # ====================================================================
-
-
-from django.db.models import Q  # ← AÑADIR ESTO ARRIBA con imports
 
 class MovimientoAuditListView(LoginRequiredMixin, ListView):
     model = MovimientoAudit
@@ -1910,11 +1944,14 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         return reverse_lazy("taxis:panel_general")
 
+
 def login_redirect_view(request):
     return redirect("taxis:panel_general")
 
+
 def select_role(request):
     presidente_activo_existe = CustomUser.objects.filter(role='presidente', is_active=True).exists()
+
     if request.method == "POST":
         rol_seleccionado = request.POST.get('role')
         if rol_seleccionado == 'presidente':
@@ -1922,73 +1959,324 @@ def select_role(request):
                 messages.error(request, "Ya existe un presidente activo en el sistema.")
                 return redirect('taxis:login')
             return redirect('taxis:register_presidente')
+
     return render(request, 'taxis/select_role.html', {'presidente_existente': presidente_activo_existe})
 
-def register_presidente(request):
-    if request.user.is_authenticated:
-        logout(request)
 
-    if CustomUser.objects.filter(role='presidente', is_active=True).exists():
-        messages.error(request, "Ya existe un presidente registrado y activo.")
-        return redirect('taxis:login')
+def register_presidente(request):
+    """
+    Registro de Presidente:
+    - Crea PendingPresidentRegistration en BD (token UUID del modelo).
+    - Envía correo con /confirmar-presidente/<uuid:token>/
+    """
+    # Si ya hay un pending en sesión, mostrar la pantalla de verificación
+    if request.session.get('pending_president_token') and request.session.get('pending_email'):
+        return render(request, 'taxis/verification_pending.html', {
+            'pending_email': request.session.get('pending_email')
+        })
 
     if request.method == 'POST':
         form = PresidenteRegisterForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            CustomUser.objects.filter(role='presidente', is_active=False).delete()
-            CustomUser.objects.filter(email=email, is_active=False).delete()
+            cd = form.cleaned_data
 
-            user = form.save(commit=False)
-            user.role = 'presidente'
-            user.is_active = False
-            user.save()
+            # 1) No permitir presidente activo
+            if CustomUser.objects.filter(role='presidente', is_active=True).exists():
+                messages.error(request, 'Ya existe un presidente activo.')
+                return render(request, 'registration/register_presidente.html', {'form': form})
 
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # 2) No email duplicado
+            if CustomUser.objects.filter(email__iexact=cd['email']).exists():
+                messages.error(request, 'Email ya registrado.')
+                return render(request, 'registration/register_presidente.html', {'form': form})
+            
+            phone_number = (cd.get("phone_number") or "").strip()
+            phone_country = (cd.get("phone_country") or "").strip()
 
-            current_site = get_current_site(request)
-            domain = current_site.domain
-            protocol = 'https' if request.is_secure() else 'http'
-            activation_link = f"{protocol}://{domain}{reverse('taxis:activate_account', kwargs={'uidb64': uid, 'token': token})}"
+            if not phone_number:
+                messages.error(request, "El número de teléfono es obligatorio.")
+                return render(request, 'registration/register_presidente.html', {'form': form})
 
-            subject = 'Activación de Cuenta - Cooperativa de Transporte'
-            message = f"Hola {user.first_name}. Activa tu cuenta aquí: {activation_link}"
+            # 3) Crear registro pendiente en BD (token UUIDField del modelo)
+            pending = PendingPresidentRegistration.objects.create(
+                username=cd['username'],
+                first_name=cd['first_name'],
+                last_name=cd['last_name'],
+                email=cd['email'],
+                phone_country=cd.get('phone_country', ''),
+                phone_number=cd['phone_number'],
+                fecha_nacimiento=cd['fecha_nacimiento'],
+                sexo=cd['sexo'],
+                password_hash=make_password(cd['password1']),
+                expires_at=timezone.now() + timedelta(hours=24),
+            )
 
-            try:
-                send_mail(subject, message, 'sistema@cooperativa.com', [user.email], fail_silently=False)
-                return redirect('taxis:verification_pending')
+            # Guardar datos mínimos en sesión para: pantalla "pendiente", reenviar, cancelar
+            request.session['pending_email'] = pending.email
+            request.session['pending_president_token'] = str(pending.token)
+            request.session.modified = True
 
-            except Exception:
-                messages.error(request, "Error enviando el correo. Intente nuevamente.")
-                user.delete()
+            # Enviar correo inicial
+            send_president_activation_email_initial(request, pending.email, pending.token)
+
+            messages.success(request, f'¡Registrado! Revisa {pending.email}')
+            return render(request, 'taxis/verification_pending.html', {'pending_email': pending.email})
+
+        # Form inválido
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f'{field}: {error}')
+        return render(request, 'registration/register_presidente.html', {'form': form})
+
+    # GET
+    form = PresidenteRegisterForm()
+    return render(request, 'registration/register_presidente.html', {'form': form})
+
+
+@require_POST
+@csrf_protect
+def cancel_registration(request):
+    """Cancelar registro pendiente (borra pending en BD si existe) y limpiar sesión."""
+    try:
+        token = request.session.get('pending_president_token')
+
+        if token:
+            PendingPresidentRegistration.objects.filter(token=token).delete()
+
+        request.session.pop('pending_president_token', None)
+        request.session.pop('pending_email', None)
+        request.session.modified = True
+
+        return JsonResponse({
+            'message': 'Registro cancelado. Redirigiendo...',
+            'success': True
+        }, status=200)
+
+    except Exception as e:
+        print(f"❌ ERROR CANCELANDO REGISTRO: {str(e)}")
+        return JsonResponse({
+            'error': 'Error al cancelar registro.',
+            'success': False
+        }, status=500)
+
+
+def confirm_president_registration(request, token):
+    """
+    Confirma token (UUID) → valida expiración → crea usuario → login → activation_success
+    NOTA: Esta vista debe estar en urls.py como: <uuid:token>
+    """
+    pending = get_object_or_404(PendingPresidentRegistration, token=token)
+
+    # Expirado
+    if timezone.now() > pending.expires_at:
+        pending.delete()
+        messages.error(request, 'Token expirado. Regístrate de nuevo.')
+        return redirect('taxis:register_presidente')
+
+    # Presidente ya existe
+    if CustomUser.objects.filter(role='presidente', is_active=True).exists():
+        pending.delete()
+        messages.error(request, 'Ya existe presidente activo.')
+        return redirect('taxis:login')
+
+    # Seguridad: evitar colisiones por email
+    if CustomUser.objects.filter(email__iexact=pending.email).exists():
+        pending.delete()
+        messages.error(request, 'Email ya registrado.')
+        return redirect('taxis:register_presidente')
+
+    # Validación teléfono (misma lógica que venías usando)
+    phone_raw = (pending.phone_number or '').strip()
+    if not phone_raw:
+        pending.delete()
+        messages.error(request, "Tu registro no tiene teléfono. Regístrate de nuevo.")
+        return redirect('taxis:register_presidente')
+
+    telefono_limpio = ''.join(filter(str.isdigit, phone_raw))
+    telefono_comparar = telefono_limpio[-10:] if len(telefono_limpio) >= 10 else telefono_limpio
+
+    for u in CustomUser.objects.all():
+        tlf_user = getattr(u, 'phone_number', '')
+        if tlf_user:
+            db_limpio = ''.join(filter(str.isdigit, str(tlf_user)))
+            db_comparar = db_limpio[-10:] if len(db_limpio) >= 10 else db_limpio
+            if db_comparar == telefono_comparar:
+                messages.error(request, 'Teléfono ya registrado.')
                 return redirect('taxis:register_presidente')
-    else:
-        form = PresidenteRegisterForm()
 
-    return render(request, 'taxis/register_presidente.html', {'form': form})
+    for conductor in Conductor.objects.all():
+        if conductor.telefono_principal:
+            db_limpio = ''.join(filter(str.isdigit, conductor.telefono_principal))
+            db_comparar = db_limpio[-10:] if len(db_limpio) >= 10 else db_limpio
+            if db_comparar == telefono_comparar:
+                messages.error(request, 'Teléfono usado por conductor.')
+                return redirect('taxis:register_presidente')
 
+    # Crear usuario FINAL (usa el hash guardado en pending.password_hash)
+    user = CustomUser.objects.create(
+        username=pending.username,
+        first_name=pending.first_name,
+        last_name=pending.last_name,
+        email=pending.email,
+        phone_country=pending.phone_country,
+        phone_number=pending.phone_number,
+        fecha_nacimiento=pending.fecha_nacimiento,
+        sexo=pending.sexo,
+        role='presidente',
+        is_active=True,
+        is_email_verified=True
+    )
+    user.password = pending.password_hash
+    user.save()
+
+    pending.delete()
+
+    request.session.pop('pending_president_token', None)
+    request.session.pop('pending_email', None)
+
+    login(request, user)
+    messages.success(request, f'¡Bienvenido {user.first_name}!')
+    return redirect('taxis:activation_success')
+
+
+def send_president_activation_email_initial(request, email, token):
+    """Envío inicial (token UUID)."""
+    url = request.build_absolute_uri(
+        reverse('taxis:confirm_president_registration', kwargs={'token': str(token)})
+    )
+
+    mensaje_html = format_html("""
+        <div style="font-family: Nunito, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #00b300;">¡Activa tu cuenta de Presidente!</h2>
+            <p>Haz clic para confirmar:</p>
+            <a href="{}" style="display: inline-block; background: #00b300; color: white;
+                padding: 15px 30px; text-decoration: none; border-radius: 50px;
+                font-weight: 800; font-size: 16px;">Confirmar Cuenta</a>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">
+                Expira en 24h. Ignora si no solicitaste.
+            </p>
+        </div>
+    """, url)
+
+    send_mail(
+        'Confirma cuenta Presidente - WILSON TORRES 33',
+        f'Activa aquí: {url}',
+        settings.DEFAULT_FROM_EMAIL or 'no-reply@cooperativa.com',
+        [email],
+        html_message=mensaje_html,
+        fail_silently=False,
+    )
+    print(f"✅ CORREO INICIAL ENVIADO A: {email}")
+
+
+def send_president_activation_email(request, email, token):
+    """Envío para reenvío (token UUID)."""
+    url = request.build_absolute_uri(
+        reverse('taxis:confirm_president_registration', kwargs={'token': str(token)})
+    )
+
+    mensaje_html = format_html("""
+        <div style="font-family: Nunito, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #00b300;">¡Activa tu cuenta de Presidente!</h2>
+            <p>Haz clic para confirmar:</p>
+            <a href="{}" style="display: inline-block; background: #00b300; color: white;
+                padding: 15px 30px; text-decoration: none; border-radius: 50px;
+                font-weight: 800; font-size: 16px;">Confirmar Cuenta</a>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">
+                Expira en 24h. Ignora si no solicitaste.
+            </p>
+        </div>
+    """, url)
+
+    send_mail(
+        'Confirma cuenta Presidente - WILSON TORRES 33',
+        f'Activa aquí: {url}',
+        settings.DEFAULT_FROM_EMAIL or 'no-reply@cooperativa.com',
+        [email],
+        html_message=mensaje_html,
+        fail_silently=False,
+    )
+    print(f"✅ CORREO REENVIADO A: {email}")
+
+
+@require_POST
+@csrf_protect
+def activation_resend(request):
+    """
+    Reenvío con límite (cache):
+    - Máximo 3 reenvíos
+    - Bloqueo 30 min si se agotan
+    El token sale de BD (PendingPresidentRegistration), no de sesión.
+    """
+    email = (request.session.get('pending_email') or '').strip()
+    if not email:
+        return JsonResponse({'error': 'Sesión expirada. Por favor, regístrate de nuevo.'}, status=400)
+
+    pending = (PendingPresidentRegistration.objects
+               .filter(email__iexact=email)
+               .order_by('-created_at')
+               .first())
+
+    if not pending:
+        return JsonResponse({'error': 'No hay registro pendiente.'}, status=404)
+
+    if timezone.now() > pending.expires_at:
+        pending.delete()
+        request.session.pop('pending_president_token', None)
+        request.session.pop('pending_email', None)
+        return JsonResponse({'error': 'Token expirado. Por favor, regístrate de nuevo.'}, status=410)
+
+    cache_key_count = f"activation_resend_count_{email.lower()}"
+    cache_key_locked = f"activation_resend_locked_{email.lower()}"
+
+    locked_until = cache.get(cache_key_locked)
+    if locked_until:
+        remaining_seconds = int((locked_until - timezone.now()).total_seconds())
+        if remaining_seconds > 0:
+            return JsonResponse({
+                'locked': True,
+                'retry_after': remaining_seconds,
+                'error': f'Demasiados intentos. Intenta en {remaining_seconds // 60}:{remaining_seconds % 60:02d}.'
+            }, status=429)
+        cache.delete(cache_key_locked)
+        cache.delete(cache_key_count)
+
+    resend_count = cache.get(cache_key_count, 0)
+    if resend_count >= 3:
+        locked_until = timezone.now() + timedelta(minutes=30)
+        cache.set(cache_key_locked, locked_until, 1800)
+        return JsonResponse({
+            'locked': True,
+            'retry_after': 1800,
+            'error': 'Demasiados intentos. Intenta en 30 minutos.'
+        }, status=429)
+
+    try:
+        send_president_activation_email(request, pending.email, pending.token)
+        cache.set(cache_key_count, resend_count + 1, 86400)  # contador dura 24h
+
+        remaining = max(0, 3 - resend_count - 1)
+        return JsonResponse({'message': 'Correo reenviado correctamente.', 'remaining': remaining}, status=200)
+
+    except Exception as e:
+        print(f"❌ ERROR ENVIANDO CORREO: {str(e)}")
+        return JsonResponse({'error': 'No se pudo enviar el correo. Intenta más tarde.'}, status=500)
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class VerificationPendingView(TemplateView):
     template_name = 'taxis/verification_pending.html'
 
-class ActivateAccountView(View):
-    def get(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            user = None
 
-        if user is not None and default_token_generator.check_token(user, token):
-            user.is_active = True
-            user.save()
-            return redirect('taxis:activation_success')
-        else:
-            messages.error(request, "El enlace de activación no es válido o ya fue usado.")
-            return redirect('taxis:login')
-
-class ActivationSuccessView(TemplateView):
+class ActivationSuccessView(LoginRequiredMixin, TemplateView):
     template_name = 'taxis/activation_success.html'
+    login_url = 'taxis:login'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role != 'presidente':
+            messages.error(request, 'Acceso denegado.')
+            return redirect('taxis:login')
+        return super().dispatch(request, *args, **kwargs)
 
     # ====================================================================
 # AUTENTICACIÓN - LOGOUT CON AUDITORÍA
@@ -2015,4 +2303,87 @@ def logout_view(request):
     # Redirigir a login
     return redirect('taxis:login')
 
+MAX_RESENDS = 3
+LOCK_SECONDS = 60 * 30  # 30 minutos
 
+def _pwreset_count_key(email: str) -> str:
+    return f"pwreset:count:{email.lower()}"
+
+def _pwreset_lock_key(email: str) -> str:
+    return f"pwreset:lock:{email.lower()}"
+
+@require_POST
+@csrf_protect
+def password_reset_resend(request):
+    """
+    Reenviar correo de reset de contraseña con límite de 3 intentos.
+    Usa CACHE para persistencia (igual que con email de verificación)
+    """
+    from django.core.cache import cache
+    import time
+    
+    email = (request.POST.get("email") or "").strip().lower()
+    if not email:
+        return JsonResponse({"ok": False, "error": "email_required"}, status=400)
+
+    now = int(time.time())
+
+    # ⭐ CONSTANTES
+    MAX_RESENDS = 3
+    LOCK_SECONDS = 60 * 30  # 30 minutos
+    
+    # ⭐ CLAVES CACHE
+    count_key = f"pwreset:count:{email}"
+    lock_key = f"pwreset:lock:{email}"
+
+    # 1) ¿Está bloqueado?
+    locked_until = cache.get(lock_key)
+    if locked_until:
+        remaining = int(locked_until - time.time())
+        if remaining > 0:
+            return JsonResponse({
+                "ok": False,
+                "locked": True,
+                "retry_after": remaining,
+                "error": f"Demasiados intentos. Intenta en {remaining // 60}:{remaining % 60:02d}."
+            }, status=429)
+        else:
+            # Ya pasó el bloqueo, limpiar
+            cache.delete(lock_key)
+            cache.delete(count_key)
+
+    # 2) ¿Cuántos reenvíos lleva?
+    count = cache.get(count_key, 0)
+    if count >= MAX_RESENDS:
+        # Bloquear por 30 minutos
+        locked_until_time = time.time() + LOCK_SECONDS
+        cache.set(lock_key, locked_until_time, timeout=LOCK_SECONDS)
+        return JsonResponse({
+            "ok": False,
+            "locked": True,
+            "retry_after": LOCK_SECONDS,
+            "error": "Demasiados intentos. Intenta en 30 minutos."
+        }, status=429)
+
+    # 3) Reenviar correo (Django password reset estándar)
+    form = PasswordResetForm({"email": email})
+    if form.is_valid():
+        form.save(request=request)
+    else:
+        return JsonResponse({
+            "ok": False,
+            "error": "Email no válido o no registrado."
+        }, status=400)
+
+    # 4) Incrementar contador en CACHE (persiste 30 minutos)
+    new_count = count + 1
+    cache.set(count_key, new_count, timeout=LOCK_SECONDS)
+
+    remaining = MAX_RESENDS - new_count
+    
+    return JsonResponse({
+        "ok": True,
+        "sent": True,
+        "remaining": remaining,
+        "message": f"Correo reenviado. Te quedan {remaining} intentos."
+    }, status=200)

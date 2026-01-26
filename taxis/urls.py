@@ -11,10 +11,14 @@ urlpatterns = [
     path('registro/', views.select_role, name='select_role'), 
     path('registro/presidente/', views.register_presidente, name='register_presidente'),
     path('registro/verificacion-pendiente/', views.VerificationPendingView.as_view(), name='verification_pending'),
-    path('activar/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate_account'),
     path('activacion-exitosa/', views.ActivationSuccessView.as_view(), name='activation_success'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('accounts/password_reset/resend/', views.password_reset_resend, name='password_reset_resend'),
+    path('confirmar-presidente/<uuid:token>/', views.confirm_president_registration, name='confirm_president_registration'),
+    path('reenviar-activacion/', views.activation_resend, name='activation_resend'),
+    path('cancelar-registro/', views.cancel_registration, name='cancel_registration'),
+
 
     # ==========================================
     # 2. DASHBOARD Y PANEL (Privados)
@@ -32,8 +36,7 @@ urlpatterns = [
     path('conductores/<int:pk>/eliminar/', views.ConductorDeleteView.as_view(), name='conductor_delete'),
     
     # AJAX para carga dinámica y validaciones
-    path('ajax/load-parroquias/', views.load_parroquias, name='ajax_load_parroquias'),
-    path('ajax/check-duplicado/', views.check_duplicado, name='check_duplicado'),
+    path('ajax/check-duplicado/', views.ajax_check_duplicado, name='ajax_check_duplicado'),
     path('ajax/buscar-chofer/', views.buscar_chofer, name='buscar_chofer'),
 
     # ==========================================

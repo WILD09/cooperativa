@@ -139,6 +139,10 @@
     .hidden-file-input { display: none; }
     .dropzone-label.border-danger { border-color: var(--error-color) !important; background-color: rgba(239, 68, 68, 0.05); }
 
+    body.dark-mode .dropzone-label.border-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
     /* BOTONES */
     .wizard-actions { display: flex; justify-content: space-between; margin-top: 2rem; gap: 15px; }
     .btn-wizard { padding: 0.9rem 2rem; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none !important; transition: all 0.3s ease; }
@@ -201,6 +205,443 @@
         cursor: pointer;
         z-index: 10;
     }
+
+    /* =========================================================
+   1) SELECT: flechita teal en dark-mode
+   ========================================================= */
+body.dark-mode select.vsms-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* =========================================================
+   2) RESPONSIVE MÓVIL: Wizard con labels alternados
+   + Input búsqueda cómodo
+   + Sidebar correcto en móvil
+   ========================================================= */
+
+/* Tablet (768px y abajo) */
+@media (max-width: 768px) {
+  /* Mostrar labels nuevamente */
+  .step-label { display: block !important; }
+  
+  .wizard-progress {
+    padding: 0 8px;
+    margin-bottom: 2.5rem;
+  }
+
+  .step-node {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-node.active {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px var(--coop-green-light);
+  }
+
+  /* Labels alternados: Arriba/Abajo como en conductor_detail */
+  .step-label {
+    font-size: 0.65rem;
+    letter-spacing: 0px;
+    width: 50px;
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  /* Nodo 1: Label ARRIBA */
+  .step-node[data-step="1"] .step-label {
+    top: -35px;
+    bottom: auto;
+  }
+
+  /* Nodo 2: Label ABAJO */
+  .step-node[data-step="2"] .step-label {
+    top: 55px;
+  }
+
+  /* Nodo 3: Label ARRIBA */
+  .step-node[data-step="3"] .step-label {
+    top: -35px;
+    bottom: auto;
+  }
+
+  /* Nodo 4: Label ABAJO */
+  .step-node[data-step="4"] .step-label {
+    top: 55px;
+  }
+
+  .form-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-section {
+    padding: 1rem;
+    border-radius: 18px;
+    margin-bottom: 1.2rem;
+  }
+
+  .form-group { margin-bottom: 1.05rem; }
+
+  .form-label {
+    font-size: 0.9rem;
+    margin-left: 10px;
+  }
+
+  .vsms-input {
+    padding: 11px 18px;
+    font-size: 0.9rem;
+    border-radius: 20px;
+  }
+
+  /* 🔍 INPUT DE BÚSQUEDA: icono más pequeño, mejor espaciado */
+  .search-icon-inside {
+    right: 14px;
+    top: 12px;
+    font-size: 0.95rem;
+  }
+
+  .calendar-icon-inside {
+    right: 14px;
+    top: 12px;
+    font-size: 0.95rem;
+  }
+
+  select.vsms-input {
+    background-position: right 14px center;
+    background-size: 11px;
+    padding-right: 40px;
+  }
+
+  /* Botones en columna */
+  .wizard-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-wizard {
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Móvil pequeño (480px y abajo) */
+@media (max-width: 480px) {
+  .wizard-progress {
+    padding: 0 4px;
+    margin-bottom: 2rem;
+  }
+
+  .wizard-progress::before,
+  .progress-line-active {
+    top: 17px;  /* ← Nodos de 36px: 36/2 = 18, menos 1px = 17px */
+    height: 2px;
+  }
+
+  .step-node {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    border: 2px solid #e5e7eb;
+  }
+
+  .step-node.active {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 3px var(--coop-green-light);
+  }
+
+  /* Labels alternados - versión pequeña */
+  .step-label {
+    font-size: 0.6rem;
+    width: 45px;
+    text-align: center;
+    white-space: normal;
+    line-height: 1;
+  }
+
+  .step-node[data-step="1"] .step-label {
+    top: -32px;
+    bottom: auto;
+  }
+
+  .step-node[data-step="2"] .step-label {
+    top: 50px;
+  }
+
+  .step-node[data-step="3"] .step-label {
+    top: -32px;
+    bottom: auto;
+  }
+
+  .step-node[data-step="4"] .step-label {
+    top: 50px;
+  }
+
+  .form-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    gap: 8px;
+  }
+
+  .search-section {
+    padding: 0.9rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+  }
+
+  .form-group { margin-bottom: 1rem; }
+
+  .form-label {
+    font-size: 0.85rem;
+    margin-left: 8px;
+  }
+
+  .vsms-input {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    border-radius: 18px;
+  }
+
+  /* 🔍 ICONO MUY PEQUEÑO en móvil ultra */
+  .search-icon-inside {
+    right: 12px;
+    top: 11px;
+    font-size: 0.85rem;
+  }
+
+  .calendar-icon-inside {
+    right: 12px;
+    top: 11px;
+    font-size: 0.85rem;
+  }
+
+  select.vsms-input {
+    background-position: right 12px center;
+    background-size: 10px;
+    padding-right: 36px;
+  }
+
+  .btn-wizard {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .btn-wizard i {
+    font-size: 0.9rem;
+  }
+
+  .wizard-actions {
+    margin-top: 1.8rem;
+    gap: 8px;
+    padding-top: 1.5rem;
+  }
+}
+
+/* 🎯 ULTRA PEQUEÑO: < 380px - PULIDO Y OPTIMIZADO */
+@media (max-width: 380px) {
+  .wizard-progress {
+    padding: 0 2px;
+    margin-bottom: 1.8rem;
+  }
+
+  .wizard-progress::before,
+  .progress-line-active {
+    top: 15px;  /* ← Para nodos de 32px: (32/2) - (2/2) = 15px */
+    height: 2px;
+  }
+
+  .step-node {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    border: 2px solid #e5e7eb;
+  }
+
+  .step-node.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--coop-green-light);
+  }
+
+  .step-node.completed {
+    transform: scale(1.02);
+  }
+
+  /* Labels aún más compactos pero legibles */
+  .step-label {
+    font-size: 0.52rem;
+    width: 36px;
+    white-space: normal;
+    line-height: 0.9;
+  }
+
+  .step-node[data-step="1"] .step-label {
+    top: -28px;
+    bottom: auto;
+  }
+
+  .step-node[data-step="2"] .step-label {
+    top: 46px;
+  }
+
+  .step-node[data-step="3"] .step-label {
+    top: -28px;
+    bottom: auto;
+  }
+
+  .step-node[data-step="4"] .step-label {
+    top: 46px;
+  }
+
+  /* Form card extremadamente compacta */
+  .form-card {
+    padding: 0.9rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .section-title {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    gap: 6px;
+    font-weight: 800;
+  }
+
+  .section-title::before {
+    font-size: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.9rem;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-left: 6px;
+  }
+
+  .form-label .required {
+    margin-left: 2px;
+  }
+
+  /* Inputs ultra compactos */
+  .vsms-input {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 16px;
+    border-width: 1px;
+  }
+
+  .vsms-input:focus {
+    padding: 8px 12px;
+  }
+
+  select.vsms-input {
+    background-position: right 10px center;
+    background-size: 9px;
+    padding-right: 32px;
+  }
+
+  /* Búsqueda ultra compacta */
+  .search-section {
+    padding: 0.7rem;
+    border-radius: 14px;
+    margin-bottom: 0.8rem;
+  }
+
+  .search-icon-inside {
+    right: 10px;
+    top: 10px;
+    font-size: 0.7rem;
+  }
+
+  .calendar-icon-inside {
+    right: 10px;
+    top: 10px;
+    font-size: 0.7rem;
+  }
+
+  /* Dropzone ultra compacta */
+  .dropzone-label {
+    padding: 0.7rem;
+    min-height: 85px;
+    border-radius: 12px;
+    margin-bottom: 0.8rem;
+  }
+
+  .dropzone-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .dropzone-label p {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  /* Botones: máximo compactos */
+  .btn-wizard {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 32px;
+    min-height: 36px;
+    font-weight: 700;
+  }
+
+  .btn-wizard i {
+    font-size: 0.85rem;
+  }
+
+  .wizard-actions {
+    flex-direction: column;
+    margin-top: 1.4rem;
+    gap: 6px;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  /* Resumen super compacto */
+  .summary-box {
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
+  .sum-label {
+    font-size: 0.7rem;
+    margin-bottom: 2px;
+  }
+
+  .sum-value {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  /* Error messages tiny */
+  .field-error-text,
+  .field-success-text {
+    font-size: 0.75rem;
+    margin-top: 3px;
+    margin-left: 10px;
+  }
+}
+
+
 </style>
 
 
@@ -369,24 +810,37 @@
 
 
                 <div class="form-group mt-2">
-                    <label class="form-label">Foto del Vehículo (Opcional)</label>
-                    <label for="id_foto" class="dropzone-label">
-                        {% if form.instance.foto and form.instance.foto.name %}
-                            <img src="{{ form.instance.foto.url }}" style="max-height: 120px; border-radius: 10px; display: block;" id="preview_img_main">
-                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:block;"><i class="fas fa-check-circle"></i> Imagen Cargada</span>
-                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:none;"></i>
-                            <div class="dropzone-text mt-2" id="text_main" style="display:none;">Click para subir foto</div>
-                        {% else %}
-                            <img src="" style="max-height: 120px; border-radius: 10px; display: none;" id="preview_img_main">
-                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:none;"></span>
-                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:block;"></i>
-                            <div class="dropzone-text mt-2" id="text_main" style="display:block;">Click para subir foto<br><small class="text-muted">(JPG o PNG, Máx 10MB)</small></div>
-                        {% endif %}
-                    </label>
-                    <div class="django-input-wrapper">
-                        {{ form.foto|attr:"onchange:previewVehiclePhoto(this)"|attr:"accept:image/jpeg,image/png"|add_class:"hidden-file-input"|attr:"id:id_foto" }}
-                    </div>
-                </div>
+    <label class="form-label">Foto del Vehículo</label>
+    <label for="id_foto" class="dropzone-label" id="dropzone-container">
+        {% if form.instance.foto and form.instance.foto.name %}
+            <img src="{{ form.instance.foto.url }}" style="max-height: 120px; border-radius: 10px; display: block;" id="preview_img_main">
+            <span class="text-success fw-bold mt-2" id="msg_main" style="display:block;"><i class="fas fa-check-circle"></i> Imagen Cargada</span>
+            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:none;"></i>
+            <div class="dropzone-text mt-2" id="text_main" style="display:none;">Click para subir foto</div>
+        {% else %}
+            <img src="" style="max-height: 120px; border-radius: 10px; display: none;" id="preview_img_main">
+            <span class="text-success fw-bold mt-2" id="msg_main" style="display:none;"></span>
+            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:block;"></i>
+            <div class="dropzone-text mt-2" id="text_main" style="display:block;">Click para subir foto<br><small class="text-muted">(JPG o PNG, Máx 10MB)</small></div>
+        {% endif %}
+    </label>
+
+    <!-- INPUT FILE REAL (OBLIGATORIO) -->
+    <input 
+        type="file" 
+        id="id_foto" 
+        name="foto" 
+        class="hidden-file-input" 
+        accept="image/jpeg,image/png"
+        required
+        onchange="previewVehiclePhoto(this)">
+
+    <!-- MENSAJE DE ERROR PARA LA FOTO -->
+    <div class="field-error-text" id="error_foto_required" style="display: none; margin-top: 8px; color: var(--error-color); font-size: 0.85rem; font-weight: 700; margin-left: 12px;">
+        <i class="fas fa-exclamation-circle"></i> Se requiere una foto del vehículo.
+    </div>
+</div>
+
 
 
                 <div class="wizard-actions">
@@ -710,51 +1164,138 @@
             </div>
 
 
-            <!-- PASO 4: RESUMEN -->
-            <div class="wizard-step" id="step4">
-                <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Resumen de Datos</h5>
-                
-                <div class="summary-box">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Conductor Asignado</div>
-                            <div class="sum-value" id="sum_conductor">---</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Placa del Vehículo</div>
-                            <div class="sum-value" id="sum_placa">---</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Marca / Modelo</div>
-                            <div class="sum-value" id="sum_marca">---</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Año / Color</div>
-                            <div class="sum-value" id="sum_anio">---</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Número de Casco</div>
-                            <div class="sum-value" id="sum_casco">---</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="sum-label">Estado Documentos</div>
-                            <div class="sum-value text-success"><i class="fas fa-check-circle"></i> Verificados en formulario</div>
-                        </div>
-                    </div>
-                </div>
+            <!-- ===== PASO 4: RESUMEN COMPLETO DE VEHÍCULO ===== -->
+<div class="wizard-step" id="step4">
+    <h5 class="section-title">
+        <i class="fas fa-clipboard-check"></i> Resumen de Datos del Vehículo
+    </h5>
 
+    <div class="summary-box" style="background: rgba(0, 179, 0, 0.04); border: 1px dashed var(--coop-green-primary); border-radius: 20px; padding: 20px;">
 
-                <div class="alert alert-info mt-3" style="border-radius: 15px;">
-                    <i class="fas fa-info-circle"></i> Por favor verifique que todos los datos sean correctos antes de guardar.
-                </div>
+        <!-- SECCIÓN 1: IDENTIFICACIÓN DEL VEHÍCULO -->
+        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+            <i class="fas fa-id-card-alt"></i> Identificación del Vehículo
+        </h6>
 
-
-                <div class="wizard-actions">
-                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
-                    <button type="submit" class="btn-wizard btn-submit">Confirmar y Guardar <i class="fas fa-save"></i></button>
-                </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Conductor Asignado</div>
+                <div class="sum-value" id="sum_conductor">---</div>
             </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Placa del Vehículo</div>
+                <div class="sum-value" id="sum_placa">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Número de Casco</div>
+                <div class="sum-value" id="sum_casco">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Serial Carrocera (NIV)</div>
+                <div class="sum-value" id="sum_serial">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Marca</div>
+                <div class="sum-value" id="sum_marca_solo">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Modelo</div>
+                <div class="sum-value" id="sum_modelo">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Año</div>
+                <div class="sum-value" id="sum_anio">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Color</div>
+                <div class="sum-value" id="sum_color">---</div>
+            </div>
+            <div class="col-md-12 mb-3">
+                <div class="sum-label">Condición General</div>
+                <div class="sum-value" id="sum_condicion">---</div>
+            </div>
+        </div>
 
+        <!-- SECCIÓN 2: FICHA MECÁNICA -->
+        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+            <i class="fas fa-tools"></i> Ficha Mecánica
+        </h6>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Batería (Amperaje)</div>
+                <div class="sum-value" id="sum_bateria">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Aceite Motor (Viscosidad)</div>
+                <div class="sum-value" id="sum_aceite">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Combustible - Tipo</div>
+                <div class="sum-value" id="sum_combustible_tipo">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Combustible - Litros Tanque</div>
+                <div class="sum-value" id="sum_combustible_litros">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Medidas del Caucho</div>
+                <div class="sum-value" id="sum_caucho">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Diámetro del Rin</div>
+                <div class="sum-value" id="sum_rin">---</div>
+            </div>
+            <div class="col-md-12 mb-3">
+                <div class="sum-label">Capacidad de Pasajeros</div>
+                <div class="sum-value" id="sum_capacidad">---</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: DOCUMENTACIÓN LEGAL -->
+        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+            <i class="fas fa-folder-open"></i> Documentación Legal - Vencimientos
+        </h6>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Vencimiento Patente</div>
+                <div class="sum-value" id="sum_patente_venc">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Vencimiento Licencia</div>
+                <div class="sum-value" id="sum_licencia_venc">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Vencimiento RCV</div>
+                <div class="sum-value" id="sum_rcv_venc">---</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="sum-label">Vencimiento Certificado Médico</div>
+                <div class="sum-value" id="sum_medico_venc">---</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ALERTA INFORMATIVA -->
+    <div class="alert alert-info" style="margin-top: 2rem; border-radius: 15px; display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
+        <div>
+            <strong>Antes de guardar:</strong> Por favor verifica que todos los datos sean correctos. Los archivos (fotos y documentos) NO aparecen aquí por razones de seguridad.
+        </div>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <div class="wizard-actions" style="margin-top: 2rem;">
+        <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">
+            <i class="fas fa-arrow-left"></i> Editar Información
+        </button>
+        <button type="submit" class="btn-wizard btn-submit">
+            <i class="fas fa-save"></i> Confirmar y Guardar
+        </button>
+    </div>
+</div>
 
         </div>
     </form>
@@ -835,38 +1376,48 @@
     function prevStep() { if(currentStep > 1) showStep(currentStep - 1); }
 
     function validateStep1() {
-        let valid = true;
-        const choferId = document.getElementById('id_conductor').value;
-        const choferMsg = document.getElementById('chofer_msg');
-        const searchInput = document.getElementById('search_cedula');
-        
-        // 1. Validar Chofer
-        if(!choferId) {
-            choferMsg.style.display = 'block';
-            searchInput.classList.add('is-invalid');
-            document.getElementById('chofer_nombre_display').classList.add('is-invalid');
+    let valid = true;
+
+    const choferId = document.getElementById('id_conductor').value;
+    const choferMsg = document.getElementById('chofer_msg');
+    const searchInput = document.getElementById('search_cedula');
+
+    // 1. Validar Chofer
+    if (!choferId) {
+        choferMsg.style.display = 'block';
+        searchInput.classList.add('is-invalid');
+        document.getElementById('chofer_nombre_display').classList.add('is-invalid');
+        valid = false;
+    } else {
+        choferMsg.style.display = 'none';
+    }
+
+    // 2. Validar Campos Requeridos
+    $('#step1 input[required], #step1 select[required]').each(function() {
+        if (!this.value.trim()) {
+            $(this).addClass('is-invalid');
+            $(this).next('.field-error-text').show();
             valid = false;
         } else {
-            choferMsg.style.display = 'none';
-        }
-
-        // 2. Validar Campos Requeridos
-        $('#step1 input[required], #step1 select[required]').each(function() {
-            if (!this.value.trim()) {
-                $(this).addClass('is-invalid');
-                $(this).next('.field-error-text').show();
-                valid = false;
-            } else {
-                if(!$(this).next('.field-error-text').text().includes('ya existe') && !$(this).next('.field-error-text').text().includes('ya está registrada')) {
-                     $(this).removeClass('is-invalid');
-                     $(this).next('.field-error-text').hide();
-                }
+            if (!$(this).next('.field-error-text').text().includes('ya existe') && 
+                !$(this).next('.field-error-text').text().includes('ya está registrada')) {
+                $(this).removeClass('is-invalid');
+                $(this).next('.field-error-text').hide();
             }
-        });
-        
-        if ($('#step1 .is-invalid').length > 0) valid = false;
-        return valid;
+        }
+    });
+
+    // ✅ NUEVA VALIDACIÓN: Validar foto
+    if (!validatePhotoField()) {
+        valid = false;
     }
+
+    if ($('#step1 .is-invalid').length > 0) {
+        valid = false;
+    }
+
+    return valid;
+}
 
     function validateAndNextStep1() { if(validateStep1()) nextStep(); }
 
@@ -934,13 +1485,90 @@
         }
     }
 
-    function updateSummary() {
-        document.getElementById('sum_conductor').textContent = document.getElementById('chofer_nombre_display').value || '---';
-        document.getElementById('sum_placa').textContent = document.getElementById('id_placa').value || '---';
-        document.getElementById('sum_marca').textContent = (document.getElementById('id_marca').value || '') + ' / ' + (document.getElementById('id_modelo').value || '');
-        document.getElementById('sum_anio').textContent = (document.getElementById('id_anio').value || '') + ' / ' + (document.getElementById('id_color').value || '');
-        document.getElementById('sum_casco').textContent = document.getElementById('id_numero_casco').value || '---';
+   function updateSummary() {
+    try {
+        console.log('🔄 Iniciando updateSummary()...');
+
+        // Helper function para actualizar por ID O NAME
+        function updateField(sourceId, targetId, isSelect = false, isDateMask = false) {
+            let sourceEl = document.getElementById(sourceId);
+            
+            // Si no existe por ID, buscar por NAME (Django a veces no genera ID)
+            if (!sourceEl) {
+                const fieldName = sourceId.replace('id_', '');
+                sourceEl = document.querySelector(`[name="${fieldName}"]`);
+            }
+            
+            const targetEl = document.getElementById(targetId);
+            
+            if (!sourceEl) {
+                console.warn(`⚠️ No encontrado: ${sourceId}`);
+                return;
+            }
+            if (!targetEl) {
+                console.warn(`⚠️ No encontrado target: ${targetId}`);
+                return;
+            }
+
+            let value = '---';
+
+            if (isSelect) {
+                // Para SELECT
+                if (sourceEl.options && sourceEl.selectedIndex >= 0) {
+                    value = sourceEl.options[sourceEl.selectedIndex].text;
+                }
+            } else if (isDateMask) {
+                // Para <input class="date-mask-input"> (mascara personalizada DD/MM/YYYY)
+                if (sourceEl.value) {
+                    // Verifica si ya está en formato DD/MM/YYYY
+                    if (sourceEl.value.includes('/')) {
+                        value = sourceEl.value;
+                    } else if (sourceEl.value.includes('-')) {
+                        // Si es YYYY-MM-DD, convierte a DD/MM/YYYY
+                        const [year, month, day] = sourceEl.value.split('-');
+                        value = `${day}/${month}/${year}`;
+                    }
+                }
+            } else {
+                // Para TEXT input
+                value = sourceEl.value || '---';
+            }
+
+            targetEl.textContent = value;
+            console.log(`✅ ${sourceId} → ${value}`);
+        }
+
+        // SECCIÓN 1: IDENTIFICACIÓN
+        updateField('chofer_nombre_display', 'sum_conductor');
+        updateField('id_placa', 'sum_placa');
+        updateField('id_numero_casco', 'sum_casco');
+        updateField('id_serial_niv', 'sum_serial');
+        updateField('id_marca', 'sum_marca_solo');
+        updateField('id_modelo', 'sum_modelo');
+        updateField('id_anio', 'sum_anio');
+        updateField('id_color', 'sum_color');
+        updateField('id_condicion', 'sum_condicion', true);
+
+        // SECCIÓN 2: FICHA MECÁNICA
+        updateField('id_bateria_amperaje', 'sum_bateria');
+        updateField('id_aceite_viscosidad', 'sum_aceite');
+        updateField('id_combustible_tipo', 'sum_combustible_tipo', true);
+        updateField('id_combustible_litros', 'sum_combustible_litros');
+        updateField('id_cauchos_medida', 'sum_caucho');
+        updateField('id_diametro_rin', 'sum_rin');
+        updateField('id_capacidad', 'sum_capacidad');
+
+        // SECCIÓN 3: DOCUMENTACIÓN LEGAL (con date-mask-input)
+        updateField('id_patente_vencimiento', 'sum_patente_venc', false, true);
+        updateField('id_licencia_vencimiento', 'sum_licencia_venc', false, true);
+        updateField('id_rcv_vencimiento', 'sum_rcv_venc', false, true);
+        updateField('id_medico_vencimiento', 'sum_medico_venc', false, true);
+
+        console.log('✅ updateSummary() completado');
+    } catch (error) {
+        console.error('❌ Error:', error);
     }
+}
 
     // --- FUNCIONES AUXILIARES ---
     function checkFile(input, iconId, textId) {
@@ -1074,6 +1702,100 @@
              if(item.id === 'id_placa') $('#error_placa').hide();
         });
     });
+
+    // ==========================================
+// VALIDACIÓN Y MANEJO DE FOTO DEL VEHÍCULO
+// ==========================================
+
+function validatePhotoField() {
+    const photoInput = document.getElementById('id_foto');
+    const errorDiv = document.getElementById('error_foto_required');
+    const dropzoneContainer = document.getElementById('dropzone-container');
+    
+    if (!photoInput.files || photoInput.files.length === 0) {
+        errorDiv.style.display = 'block';
+        dropzoneContainer.classList.add('border-danger');
+        return false;
+    }
+    
+    errorDiv.style.display = 'none';
+    dropzoneContainer.classList.remove('border-danger');
+    return true;
+}
+
+function previewVehiclePhoto(input) {
+    const photoInput = document.getElementById('id_foto');
+    const previewImg = document.getElementById('preview_img_main');
+    const iconMain = document.getElementById('icon_main');
+    const textMain = document.getElementById('text_main');
+    const msgMain = document.getElementById('msg_main');
+    const errorDiv = document.getElementById('error_foto_required');
+    const dropzoneContainer = document.getElementById('dropzone-container');
+    
+    if (photoInput.files && photoInput.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+            iconMain.style.display = 'none';
+            textMain.style.display = 'none';
+            msgMain.style.display = 'block';
+            errorDiv.style.display = 'none';
+            dropzoneContainer.classList.remove('border-danger');
+        };
+        
+        reader.readAsDataURL(photoInput.files[0]);
+    }
+}
+
+// Inicializar drag & drop y eventos de la foto
+document.addEventListener('DOMContentLoaded', function() {
+    const dropzoneContainer = document.getElementById('dropzone-container');
+    const photoInput = document.getElementById('id_foto');
+    const errorDiv = document.getElementById('error_foto_required');
+    
+    if (!dropzoneContainer || !photoInput) return;
+    
+    dropzoneContainer.addEventListener('click', function() {
+        photoInput.click();
+    });
+    
+    // Drag & drop
+    dropzoneContainer.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneContainer.style.backgroundColor = 'var(--dropzone-hover-bg)';
+    });
+    
+    dropzoneContainer.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneContainer.style.backgroundColor = '';
+    });
+    
+    dropzoneContainer.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            photoInput.files = e.dataTransfer.files;
+            const event = new Event('change', { bubbles: true });
+            photoInput.dispatchEvent(event);
+        }
+        
+        dropzoneContainer.style.backgroundColor = '';
+    });
+    
+    // Remover error cuando se selecciona un archivo
+    photoInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            errorDiv.style.display = 'none';
+            dropzoneContainer.classList.remove('border-danger');
+        }
+    });
+});
+
 
       /* ========================================
        LIMPIAR BASURA DE DJANGO

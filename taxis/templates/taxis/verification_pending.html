@@ -13,20 +13,20 @@
     :root {
         --coop-green-primary: #00b300;
         --coop-green-hover: #009900;
-        
+
         /* MODO CLARO */
         --bg-color: #f8f9fc;
-        --card-bg-light: #F8EBD9; /* Beige corporativo */
+        --card-bg-light: #F8EBD9;
         --text-color: #111827;
         --text-muted: #6b7280;
         --icon-bg: #e6f7e6;
-        
+
         /* MODO OSCURO */
         --bg-dark: #020a1f;
         --card-bg-dark: #0f1a2e;
         --text-dark: #e2e8f0;
         --text-muted-dark: #a0aec0;
-        
+
         --shadow: 0 10px 40px rgba(0, 179, 0, 0.15);
         --radius: 36px;
         --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -41,7 +41,13 @@
         --coop-green-primary: #10b981;
     }
 
-    body { font-family: 'Nunito', sans-serif; margin: 0; padding: 0; background: var(--bg-color); overflow: hidden; }
+    body {
+        font-family: 'Nunito', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--bg-color);
+        overflow: hidden;
+    }
 
     /* FONDOS */
     .vsms-bg-img { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; }
@@ -51,12 +57,18 @@
 
     /* CONTENEDOR PRINCIPAL */
     .wrapper {
-        min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     .verify-card {
         background: var(--card-bg-light);
-        width: 100%; max-width: 500px;
+        width: 100%;
+        max-width: 500px;
         padding: 50px 40px;
         border-radius: var(--radius);
         box-shadow: var(--shadow);
@@ -74,10 +86,13 @@
     }
 
     .icon-container {
-        width: 120px; height: 120px;
+        width: 120px;
+        height: 120px;
         background: var(--icon-bg);
         border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin: 0 auto 30px auto;
         border: 2px dashed var(--coop-green-primary);
     }
@@ -85,28 +100,32 @@
     .icon-plane {
         font-size: 4rem;
         color: var(--coop-green-primary);
-        animation: fly 3s ease-in-out infinite; /* Aquí está la magia */
-        margin-right: 10px; /* Ajuste visual para centrar el icono rotado */
+        animation: fly 3s ease-in-out infinite;
+        margin-right: 10px;
     }
 
     .title {
-        font-size: 2rem; font-weight: 900;
+        font-size: 2rem;
+        font-weight: 900;
         color: var(--coop-green-primary);
         margin-bottom: 15px;
     }
 
     .desc {
-        font-size: 1.05rem; color: var(--text-color);
-        margin-bottom: 10px; line-height: 1.6;
+        font-size: 1.05rem;
+        color: var(--text-color);
+        margin-bottom: 10px;
+        line-height: 1.6;
         font-weight: 600;
     }
-    
+
     .desc-muted {
-        font-size: 0.9rem; color: var(--text-muted);
-        margin-bottom: 35px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 20px;
     }
 
-    /* BOTÓN SIN SANGRÍA NI SUBRAYADO */
+    /* BOTONES */
     .btn-home {
         display: inline-block;
         background: transparent;
@@ -116,9 +135,10 @@
         border-radius: 50px;
         font-weight: 800;
         font-size: 1rem;
-        text-decoration: none !important; /* <--- ESTO QUITA EL SUBRAYADO */
+        text-decoration: none !important;
         transition: var(--transition);
         margin: 0;
+        cursor: pointer;
     }
 
     .btn-home:hover {
@@ -128,6 +148,35 @@
         box-shadow: 0 5px 15px rgba(0, 179, 0, 0.3);
     }
     body.modo-oscuro .btn-home:hover { color: #0b1220; }
+
+    .btn-home:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .status-msg {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 700;
+        min-height: 20px;
+    }
+
+    .status-msg.ok { color: #1b5e20; }
+    body.modo-oscuro .status-msg.ok { color: #86efac; }
+
+    .status-msg.err { color: #c62828; }
+    body.modo-oscuro .status-msg.err { color: #fca5a5; }
 
     /* TOGGLE TEMA */
     .theme-toggle-btn {
@@ -143,6 +192,186 @@
     .theme-toggle-btn img { width: 24px; transition: filter 0.3s; }
     body.modo-oscuro .theme-toggle-btn img { filter: invert(1) brightness(200%); }
 
+    @media (max-width: 520px) {
+        body { overflow: auto; }
+        .verify-card { padding: 34px 18px; border-radius: 28px; }
+        .title { font-size: 1.6rem; }
+        .icon-container { width: 105px; height: 105px; }
+        .icon-plane { font-size: 3.4rem; }
+        .btn-home { width: 100%; max-width: 320px; }
+    }
+
+    /* ===== MODAL PERSONALIZADO (OPTIMIZADO) ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    will-change: opacity;
+}
+
+.modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: var(--card-bg-light);
+    border: 3px solid var(--coop-green-primary);
+    border-radius: 20px;
+    padding: 40px 35px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.25s ease-out;
+    will-change: transform;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--coop-green-primary);
+}
+
+.modal-icon.warning {
+    color: #ff6b6b;
+    animation: bounce 0.5s ease-in-out;
+    will-change: transform;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--coop-green-primary);
+    margin-bottom: 15px;
+}
+
+.modal-description {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    flex: 1;
+    min-width: 140px;
+    max-width: 200px;
+    will-change: transform;
+}
+
+.modal-btn-danger {
+    background: #dc3545;
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.modal-btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+}
+
+.modal-btn-success {
+    background: var(--coop-green-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 179, 0, 0.3);
+}
+
+.modal-btn-success:hover {
+    background: var(--coop-green-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 179, 0, 0.35);
+}
+
+body.modo-oscuro .modal-content {
+    background: var(--card-bg-dark);
+}
+
+body.modo-oscuro .modal-description {
+    color: var(--text-dark);
+}
+
+/* ⭐ BOTÓN SUCCESS EN MODO OSCURO - TEAL */
+body.modo-oscuro .modal-btn-success {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+body.modo-oscuro .modal-btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 30px 25px;
+    }
+    
+    .modal-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .modal-title {
+        font-size: 1.3rem;
+    }
+    
+    .modal-description {
+        font-size: 0.95rem;
+    }
+    
+    .modal-btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        min-width: 130px;
+    }
+}
+
 </style>
 
 <!-- FONDOS -->
@@ -157,32 +386,74 @@
 <div class="wrapper">
     <div class="verify-card">
         <div class="icon-container">
-            <!-- Icono animado -->
             <i class="fas fa-paper-plane icon-plane"></i>
         </div>
-        
+
         <div class="title">¡Revisa tu correo!</div>
-        
+
         <p class="desc">
             Hemos enviado un enlace de confirmación a tu dirección de email.
+            <br>
+            <span class="email-highlight">{{ pending_email }}</span>
         </p>
         <p class="desc-muted">
             Por favor, haz clic en él para activar tu cuenta de Presidente.
         </p>
 
-        <a href="{% url 'taxis:login' %}" class="btn-home">
-            Volver al inicio
-        </a>
+                <div class="actions">
+            <button type="button" class="btn-home" id="resendBtn">
+                Reenviar correo
+            </button>
+
+            <div class="status-msg" id="statusMsg"></div>
+
+            <!-- ⭐ BOTÓN CANCELAR REGISTRO (NUEVO) -->
+            <button type="button" class="btn-home" id="cancelBtn" style="background: #dc3545; border-color: #dc3545; color: white; margin-top: 10px;">
+                 Cancelar registro
+            </button>
+
+                       <a href="{% url 'taxis:login' %}" class="btn-home">
+                Volver al inicio
+            </a>
+        </div>
+
+        <!-- ⭐ MODAL PERSONALIZADO PARA CANCELAR REGISTRO -->
+        <div class="modal-overlay" id="cancelModal">
+            <div class="modal-content">
+                <div class="modal-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                
+                <h2 class="modal-title">¿Cancelar Registro?</h2>
+                
+                <p class="modal-description">
+                    Si cancelas ahora, tendrás que registrarte desde el principio.
+                    <br><br>
+                    <strong>Esta acción no se puede deshacer.</strong>
+                </p>
+                
+                <div class="modal-actions">
+                    <button id="modalCancelBtn" class="modal-btn modal-btn-danger" type="button">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button id="modalKeepBtn" class="modal-btn modal-btn-success" type="button">
+                        <i class="fas fa-check"></i> Seguir esperando
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+
+{% csrf_token %}
 <script>
     // --- LÓGICA DE TEMA (CLARO/OSCURO) ---
     (function(){
       const btn = document.getElementById("themeToggleBtn");
       let modo = localStorage.getItem('modo-oscuro') === 'true';
       if(modo){ document.body.classList.add('modo-oscuro'); }
-      
+
       btn.onclick = function() {
         modo = !modo;
         document.body.classList.toggle('modo-oscuro');
@@ -191,16 +462,160 @@
     })();
 
     // --- BLOQUEO DE BOTÓN ATRÁS (SEGURIDAD) ---
-    // Esto evita que regresen al formulario de registro y lo reenvíen
     (function() {
-        // Empujar un estado al historial para "atrapar" el botón atrás
         history.pushState(null, null, location.href);
-        
         window.onpopstate = function () {
-            // Si intentan ir atrás, los redirigimos al login
             window.location.replace("{% url 'taxis:login' %}");
         };
     })();
+
+    // --- OBTENER TOKEN CSRF CORRECTAMENTE ---
+    function getCsrfToken() {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        return token ? token.value : '';
+    }
+
+        // --- REENVIAR ACTIVACIÓN (3 intentos / 30 min) ---
+    (function(){
+        const btn = document.getElementById('resendBtn');
+        const msg = document.getElementById('statusMsg');
+
+        let timer = null;
+
+        function setMsg(text, type) {
+            msg.classList.remove('ok', 'err');
+            if (type) msg.classList.add(type);
+            msg.textContent = text || '';
+        }
+
+        function startCooldown(seconds) {
+            let s = parseInt(seconds || 0, 10);
+            if (!s || s < 1) return;
+
+            btn.disabled = true;
+
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                s -= 1;
+                const min = Math.floor(s / 60);
+                const sec = s % 60;
+                setMsg(`Bloqueado temporalmente. Intenta en ${min}:${String(sec).padStart(2, '0')}.`, 'err');
+
+                if (s <= 0) {
+                    clearInterval(timer);
+                    timer = null;
+                    btn.disabled = false;
+                    setMsg('', '');
+                }
+            }, 1000);
+        }
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            setMsg('Enviando correo...', '');
+
+            try {
+                const csrfToken = getCsrfToken();
+                if (!csrfToken) {
+                    setMsg('Error de seguridad. Recarga la página.', 'err');
+                    btn.disabled = false;
+                    return;
+                }
+
+                const resp = await fetch("{% url 'taxis:activation_resend' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: ""
+                });
+
+                const data = await resp.json().catch(() => ({}));
+
+                if (!resp.ok) {
+                    if (data && data.locked) {
+                        startCooldown(data.retry_after);
+                        return;
+                    }
+                    setMsg(data.error || 'Error al reenviar. Intenta más tarde.', 'err');
+                    btn.disabled = false;
+                    return;
+                }
+
+                const remaining = data.remaining !== undefined ? data.remaining : '';
+                setMsg(`Correo reenviado. Intentos restantes: ${remaining}`, 'ok');
+                btn.disabled = false;
+
+            } catch (e) {
+                console.error('Error:', e);
+                setMsg('Error de red. Revisa tu conexión.', 'err');
+                btn.disabled = false;
+            }
+        });
+     })();
+    
+           // --- CANCELAR REGISTRO CON MODAL PERSONALIZADO ---
+    (function(){
+        const btn = document.getElementById('cancelBtn');
+        const modal = document.getElementById('cancelModal');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalKeepBtn = document.getElementById('modalKeepBtn');
+        
+        // Abrir modal al clickear el botón
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.classList.add('show');
+        });
+        
+        // Botón "Sí, Cancelar" - Ejecuta la cancelación
+        modalCancelBtn.addEventListener('click', async () => {
+            modal.classList.remove('show');
+            btn.disabled = true;
+            
+            try {
+                const csrfToken = getCsrfToken();
+                if (!csrfToken) {
+                    alert('Error de seguridad. Recarga la página.');
+                    btn.disabled = false;
+                    return;
+                }
+                
+                const resp = await fetch("{% url 'taxis:cancel_registration' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                if (resp.ok) {
+                    window.location.href = "{% url 'taxis:register_presidente' %}";
+                } else {
+                    alert('Error al cancelar. Intenta de nuevo.');
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error('Error:', e);
+                alert('Error de red. Revisa tu conexión.');
+                btn.disabled = false;
+            }
+        });
+        
+        // Botón "Seguir esperando" - Cierra el modal
+        modalKeepBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+        
+        // Cerrar al clickear fuera del modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    })();
+
 </script>
 
 {% endblock %}

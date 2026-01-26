@@ -486,7 +486,10 @@ def log_exportar(request, modulo, tipo_archivo, cantidad=0, descripcion=None):
 # UTILIDAD: TEXTO DE FILTROS (Afiliados/Vehículos/DT5)
 # ====================================================================
 
-def texto_filtros(*, q=None, genero=None, edocivil=None, estado=None):
+def texto_filtros(*, q=None, genero=None, edocivil=None, estado=None, fecha=None):
+    """
+    Genera un texto descriptivo de los filtros aplicados en un reporte.
+    """
     parts = []
 
     # Normalizar q
@@ -514,5 +517,16 @@ def texto_filtros(*, q=None, genero=None, edocivil=None, estado=None):
         estado = str(estado).strip()
         if estado and estado.lower() != "todos":
             parts.append(f"Estado: {estado}")
+
+    # Normalizar fecha (NUEVA LÍNEA)
+    if fecha is not None:
+        try:
+            if hasattr(fecha, 'strftime'):
+                fecha_str = fecha.strftime("%d/%m/%Y %H:%M")
+            else:
+                fecha_str = str(fecha)
+            parts.append(f"Generado: {fecha_str}")
+        except Exception:
+            pass
 
     return "Filtros: Todos" if not parts else "Filtros: " + ", ".join(parts)

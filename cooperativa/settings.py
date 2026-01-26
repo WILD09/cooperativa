@@ -22,7 +22,7 @@ SECRET_KEY = config(
     default="django-insecure-development-key-change-in-production",
 )
 
-DEBUG = config("DJANGO_DEBUG", default="True").lower() == "true"
+DEBUG = True
 
 ALLOWED_HOSTS = config(
     "DJANGO_ALLOWED_HOSTS",
@@ -72,6 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 # -------------------------------------------------------------------
@@ -172,7 +173,25 @@ MESSAGE_TAGS = {
 }
 
 # -------------------------------------------------------------------
+# CONFIGURACIÓN DE CACHE (Para reenvío de correos con límite)
+# -------------------------------------------------------------------
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+
+# -------------------------------------------------------------------
 # TIEMPO DE VALIDEZ DE TOKENS (Global: Reset Password y Activación)
 # -------------------------------------------------------------------
 # 86400 segundos = 24 horas
 PASSWORD_RESET_TIMEOUT = 86400
+
+# Al final del archivo
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Cambia a True si usas HTTPS en producción
+CSRF_COOKIE_SECURE = False     # Cambia a True si usas HTTPS en producción
+

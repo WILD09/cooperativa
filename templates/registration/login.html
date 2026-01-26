@@ -24,8 +24,12 @@
     --side-bg-dark: #142923;
     --border-color: #00b300;
     --shadow-sm: 0 12px 50px rgba(0, 179, 0, 0.2);
-    --input-glow: 0 0 12px rgba(0, 179, 0, 0.25); 
+    --input-glow: 0 0 12px rgba(0, 179, 0, 0.25);
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* ===== LOGO GRANDE + EFECTO BOTÓN ===== */
+    --logo-size: 160px;
+    --logo-press-depth: 6px;
 }
 
 body.modo-oscuro {
@@ -35,13 +39,13 @@ body.modo-oscuro {
     --coop-green-primary: #10b981;
     --coop-green-hover: #059669;
     --shadow-sm: 0 0px 70px rgba(16, 185, 129, 0.2);
-    --input-glow: 0 0 20px rgba(16, 185, 129, 0.25); 
+    --input-glow: 0 0 20px rgba(16, 185, 129, 0.25);
 }
 
 body { overflow: hidden; margin: 0; padding: 0; }
 
 .login-wrapper {
-  height: 100vh; width: 100vw; 
+  height: 100vh; width: 100vw;
   display: flex; align-items: center; justify-content: center;
   position: relative; padding: 20px; box-sizing: border-box;
 }
@@ -74,10 +78,72 @@ body.modo-oscuro .login-bg-img-dark { display: block !important; }
   padding: 30px 20px; min-width: 220px;
   transition: var(--transition);
 }
-.login-logo-side img { height: 80px; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-.login-title { font-family: 'Nunito', sans-serif; color: var(--coop-green-primary); font-weight: 800; text-align: center; font-size: 1.1rem; margin-bottom: 5px; }
-.login-org { font-size: 1.3rem; color: var(--coop-green-primary); font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
-.login-foot { margin-top: 15px; color: #787878; font-size: 0.8rem; font-weight: 600; }
+
+.login-title {
+  font-family: 'Nunito', sans-serif;
+  color: var(--coop-green-primary);
+  font-weight: 800;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+.login-org {
+  font-size: 1.3rem;
+  color: var(--coop-green-primary);
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.login-foot {
+  margin-top: 15px;
+  color: #787878;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ===== LOGO GRANDE + EFECTO BOTÓN ===== */
+.logo-btn{
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  outline: none;
+  margin-bottom: 15px;
+
+  transform: translateY(0);
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.logo-img{
+  height: var(--logo-size);
+  width: auto;
+  display: block;
+  border-radius: 999px;
+  filter:
+    drop-shadow(0 14px 18px rgba(0,0,0,.18))
+    drop-shadow(0 6px 10px rgba(0,0,0,.12));
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.logo-btn:hover .logo-img{
+  transform: translateY(-2px) scale(1.04);
+  filter:
+    drop-shadow(0 18px 22px rgba(0,0,0,.20))
+    drop-shadow(0 8px 14px rgba(0,0,0,.14));
+}
+
+.logo-btn:active .logo-img,
+.logo-btn.is-pressed .logo-img{
+  transform: translateY(var(--logo-press-depth)) scale(0.98);
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
+}
+
+.logo-btn:focus-visible{
+  box-shadow: 0 0 0 4px rgba(0,179,0,0.25);
+}
 
 /* LADO IZQUIERDO (FORMULARIO) */
 .login-form-side {
@@ -118,10 +184,10 @@ body.modo-oscuro .login-bg-img-dark { display: block !important; }
 }
 
 /* BOTÓN OJITO */
-.toggle-icon { 
-    color: var(--coop-green-primary); 
-    font-size: 1.1rem; 
-    transition: color 0.3s ease, transform 0.2s; 
+.toggle-icon {
+    color: var(--coop-green-primary);
+    font-size: 1.1rem;
+    transition: color 0.3s ease, transform 0.2s;
 }
 .toggle-icon:hover { transform: scale(1.1); }
 body.modo-oscuro .toggle-icon { color: var(--coop-green-primary); }
@@ -146,7 +212,7 @@ body.modo-oscuro .toggle-icon { color: var(--coop-green-primary); }
   font-weight: 700; font-size: 0.9rem;
   text-decoration: none !important;
   padding: 8px 20px; border-radius: 50px;
-  background: transparent; border: 2px solid transparent; 
+  background: transparent; border: 2px solid transparent;
   transition: var(--transition); margin-bottom: 15px;
 }
 .forgot-btn:hover {
@@ -175,7 +241,7 @@ body.modo-oscuro .forgot-btn:hover { background: rgba(16, 185, 129, 0.15); }
 .theme-toggle-btn {
   position: fixed; top: 20px; right: 20px; z-index: 2000;
   width: 45px; height: 45px; border-radius: 50%;
-  background: #F9F9FB; color: var(--coop-green-primary); 
+  background: #F9F9FB; color: var(--coop-green-primary);
   border: 2px solid #B6ECAD; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, border-color 0.3s;
@@ -183,8 +249,8 @@ body.modo-oscuro .forgot-btn:hover { background: rgba(16, 185, 129, 0.15); }
 .theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .theme-toggle-btn.rotate-active { transform: rotate(360deg); }
 
-body.modo-oscuro .theme-toggle-btn { 
-    background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
+body.modo-oscuro .theme-toggle-btn {
+    background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
 }
 .theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; transition: filter 0.3s; }
 body.modo-oscuro .theme-toggle-btn img { filter: invert(1) brightness(200%); }
@@ -200,18 +266,22 @@ body.modo-oscuro .form-control:focus, body.modo-oscuro .login-password-wrap:focu
 body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: var(--coop-green-primary) !important; color: #020a1f !important; }
 
 /* RESPONSIVE */
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   body { overflow: auto; }
   .login-wrapper { height: auto; min-height: 100vh; padding: 20px 10px; }
   .login-card { flex-direction: column-reverse; max-width: 500px; max-height: none; }
   .login-logo-side { min-height: 150px; padding: 20px; }
+
+  :root{ --logo-size: 120px; }
   .login-form-side { padding: 30px 20px; }
 }
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .login-card { border-radius: 25px; border-width: 2px; }
   .login-welcome { font-size: 1.5rem; }
   .register-box { flex-direction: column; gap: 8px; }
   .theme-toggle-btn { top: 15px; right: 15px; width: 40px; height: 40px; }
+
+  :root{ --logo-size: 110px; }
 }
 </style>
 
@@ -223,12 +293,13 @@ body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: 
 <button type="button" class="theme-toggle-btn" id="themeToggleBtn">
   <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}">
 </button>
+
 <script>
 (function(){
   const btn = document.getElementById("themeToggleBtn");
   let modo = localStorage.getItem('modo-oscuro') === 'true';
   if(modo){ document.body.classList.add('modo-oscuro'); }
-  
+
   btn.onclick = function() {
     btn.classList.add('rotate-active');
     setTimeout(() => btn.classList.remove('rotate-active'), 500);
@@ -241,15 +312,12 @@ body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: 
 
 <div class="login-wrapper">
   <div class="login-card">
-    
+
     <!-- FORMULARIO -->
     <div class="login-form-side">
       <div class="login-welcome">¡Bienvenido de nuevo!</div>
 
       <div class="login-alert-slot">
-        <!-- ALERTAS DINÁMICAS DJANGO - ELIMINADAS PARA QUE NO SE ACUMULEN -->
-        
-        <!-- SOLO MANTENEMOS ERRORES DE VALIDACIÓN DE FORMULARIO -->
         {% if form.errors %}
           <div class="alert alert-danger fade show" role="alert" style="background-color:#f8d7da; color:#721c24; border-radius: 15px; font-size: 0.9rem; padding: 10px; margin-bottom: 15px;">
             <i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos.
@@ -259,15 +327,15 @@ body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: 
 
       <form method="post" action="{% url 'taxis:login' %}" autocomplete="off">
         {% csrf_token %}
-        
+
         <div class="form-group mb-3">
           {{ form.username|add_class:"form-control"|attr:"placeholder:Usuario o correo"|attr:"autocomplete:off" }}
         </div>
-        
+
         <div class="form-group mb-4">
           <div class="login-password-wrap">
             {{ form.password|add_class:"form-control"|attr:"placeholder:Contraseña"|attr:"autocomplete:new-password"|attr:"id:id_login_password" }}
-            
+
             <button type="button" class="login-password-toggle" data-target="id_login_password" data-visible="false" style="border:none; background:none; cursor:pointer; padding:0 10px;">
               <i class="fas fa-eye toggle-icon"></i>
             </button>
@@ -295,7 +363,10 @@ body.modo-oscuro .btn-green, body.modo-oscuro .register-highlight { background: 
 
     <!-- LOGO -->
     <div class="login-logo-side">
-      <img src="{% static 'img/logo.png' %}" alt="Logo">
+      <button type="button" class="logo-btn" aria-label="Logo cooperativa">
+        <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo-img">
+      </button>
+
       <div class="login-title">Asociación Cooperativa</div>
       <div class="login-org">WILSON TORRES 33 RL</div>
       <div class="login-foot">2026 © | Política de Privacidad</div>
@@ -311,7 +382,7 @@ document.addEventListener('click', function(e){
   const targetId = btn.getAttribute('data-target');
   const input = document.getElementById(targetId);
   const icon = btn.querySelector('i');
-  
+
   if (input.type === 'password') {
     input.type = 'text';
     icon.classList.remove('fa-eye');
@@ -322,5 +393,19 @@ document.addEventListener('click', function(e){
     icon.classList.add('fa-eye');
   }
 });
+</script>
+
+<script>
+(function(){
+  const btn = document.querySelector('.logo-btn');
+  if(!btn) return;
+
+  const pressOn = () => btn.classList.add('is-pressed');
+  const pressOff = () => btn.classList.remove('is-pressed');
+
+  btn.addEventListener('touchstart', pressOn, {passive:true});
+  btn.addEventListener('touchend', () => setTimeout(pressOff, 120), {passive:true});
+  btn.addEventListener('touchcancel', pressOff, {passive:true});
+})();
 </script>
 {% endblock %}

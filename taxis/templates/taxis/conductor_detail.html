@@ -19,6 +19,7 @@
         --bg-input: #f9fafb;
     }
 
+
     body.dark-mode {
         --coop-green-primary: #10b981;
         --coop-green-hover: #059669;
@@ -29,10 +30,12 @@
         --bg-input: #374151;
     }
 
+
     /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
     ::-webkit-scrollbar {
         width: 10px;
     }
+
 
     ::-webkit-scrollbar-track {
         background: #f1f1f1;
@@ -41,9 +44,11 @@
         /* ✅ ESPACIO SUPERIOR E INFERIOR */
     }
 
+
     body.dark-mode ::-webkit-scrollbar-track {
         background: #1f2937;
     }
+
 
     ::-webkit-scrollbar-thumb {
         background: var(--coop-green-primary);
@@ -53,9 +58,11 @@
         /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
     }
 
+
     ::-webkit-scrollbar-thumb:hover {
         background: var(--coop-green-hover);
     }
+
 
     /* TARJETA PRINCIPAL */
     .detail-card {
@@ -69,11 +76,13 @@
         position: relative;
     }
 
+
     body.dark-mode .detail-card {
         background: #1f2937;
         box-shadow: none;
         border-color: #374151;
     }
+
 
 
     /* BOTÓN RETROCESO */
@@ -94,11 +103,13 @@
         transition: all 0.2s ease;
     }
 
+
     .btn-back-card:hover {
         background: var(--coop-green-light);
         color: var(--coop-green-primary);
         transform: translateX(-3px);
     }
+
 
 
     /* CABECERA PERFIL */
@@ -110,6 +121,7 @@
         margin-bottom: 3rem;
         margin-top: 0.5rem;
     }
+
 
     .mini-avatar {
         width: 110px;
@@ -125,6 +137,7 @@
         justify-content: center;
     }
 
+
     /* ICONO MUÑECO: COLOR VERDE RESTAURADO */
     .mini-avatar i {
         font-size: 3rem;
@@ -132,10 +145,12 @@
         /* Color verde principal */
     }
 
+
     body.dark-mode .mini-avatar {
         background: #111827;
         border-color: #1f2937;
     }
+
 
     .profile-title h2 {
         font-weight: 900;
@@ -144,6 +159,7 @@
         font-size: 1.8rem;
         letter-spacing: -0.5px;
     }
+
 
     /* PILLS DE ESTADO */
     .status-pill {
@@ -158,16 +174,19 @@
         letter-spacing: 0.5px;
     }
 
+
     /* ACTIVO: Verde */
     .status-active {
         background: #dcfce7;
         color: #166534;
     }
 
+
     body.dark-mode .status-active {
         background: rgba(16, 185, 129, 0.2);
         color: #34d399;
     }
+
 
     .status-active::before {
         content: '';
@@ -177,16 +196,19 @@
         border-radius: 50%;
     }
 
+
     /* INACTIVO: Rojo */
     .status-inactive {
         background: #fee2e2;
         color: #991b1b;
     }
 
+
     body.dark-mode .status-inactive {
         background: rgba(239, 68, 68, 0.2);
         color: #f87171;
     }
+
 
     .status-inactive::before {
         content: '';
@@ -196,16 +218,19 @@
         border-radius: 50%;
     }
 
+
     /* ESTADOS DE DOCUMENTOS (VIGENTE/VENCIDO) */
     .status-valid {
         background: #dcfce7;
         color: #166534;
     }
 
+
     body.dark-mode .status-valid {
         background: rgba(16, 185, 129, 0.2);
         color: #34d399;
     }
+
 
     .status-valid::before {
         content: '';
@@ -215,15 +240,18 @@
         border-radius: 50%;
     }
 
+
     .status-expired {
         background: #fee2e2;
         color: #991b1b;
     }
 
+
     body.dark-mode .status-expired {
         background: rgba(239, 68, 68, 0.2);
         color: #f87171;
     }
+
 
     .status-expired::before {
         content: '';
@@ -232,6 +260,7 @@
         background: #ef4444;
         border-radius: 50%;
     }
+
 
 
     /* SECCIONES Y GRID */
@@ -247,6 +276,7 @@
         gap: 10px;
     }
 
+
     .data-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -254,12 +284,14 @@
         margin-bottom: 2.5rem;
     }
 
+
     @media (max-width: 768px) {
         .data-grid {
             grid-template-columns: 1fr;
             gap: 1rem;
         }
     }
+
 
 
     .data-item label {
@@ -271,6 +303,7 @@
         margin-bottom: 8px;
         letter-spacing: 0.5px;
     }
+
 
     .data-value-box {
         background: var(--bg-input);
@@ -284,9 +317,11 @@
         transition: border-color 0.2s;
     }
 
+
     body.dark-mode .data-value-box {
         border-color: #4b5563;
     }
+
 
 
     /* DOCUMENTOS */
@@ -306,11 +341,13 @@
         cursor: pointer;
     }
 
+
     .doc-btn.view {
         background: var(--coop-green-light);
         color: var(--coop-green-primary);
         border-color: var(--coop-green-primary);
     }
+
 
     .doc-btn.view:hover {
         background: var(--coop-green-primary);
@@ -319,6 +356,7 @@
         box-shadow: 0 10px 15px -3px rgba(0, 179, 0, 0.2);
     }
 
+
     .doc-btn.missing {
         background: #fef2f2;
         color: #ef4444;
@@ -326,6 +364,7 @@
         cursor: not-allowed;
         opacity: 0.7;
     }
+
 
 
     /* FOOTER ACCIONES */
@@ -337,6 +376,7 @@
         border-top: 1px solid var(--border-color);
         padding-top: 2.5rem;
     }
+
 
     .btn-action {
         padding: 12px 32px;
@@ -352,11 +392,13 @@
         cursor: pointer;
     }
 
+
     .btn-edit {
         background: var(--coop-green-primary);
         color: white;
         box-shadow: 0 4px 6px -1px rgba(0, 179, 0, 0.3);
     }
+
 
     .btn-edit:hover {
         background: var(--coop-green-hover);
@@ -365,11 +407,13 @@
         box-shadow: 0 10px 15px -3px rgba(0, 179, 0, 0.4);
     }
 
+
     .btn-delete {
         background: white;
         color: #ef4444;
         border: 1px solid #fee2e2;
     }
+
 
     .btn-delete:hover {
         background: #fef2f2;
@@ -377,6 +421,32 @@
         border-color: #fecaca;
         transform: translateY(-2px);
     }
+
+
+    /* =========================
+   BOTÓN ELIMINAR - DARK MODE
+========================= */
+    body.dark-mode .btn-delete {
+        background: rgba(239, 68, 68, 0.10);     /* rojo suave */
+        color: #f87171;                          /* rojo claro */
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        box-shadow: none;
+    }
+
+
+    body.dark-mode .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.22);
+        color: #ffffff !important;
+        border-color: rgba(239, 68, 68, 0.65);
+        transform: translateY(-2px);
+    }
+
+
+    body.dark-mode .btn-delete:active {
+        transform: translateY(0);
+    }
+
+
 
 
     /* --- MODAL MODERNO --- */
@@ -397,10 +467,12 @@
         transition: opacity 0.15s ease-out;
     }
 
+
     .modal-backdrop.show {
         display: flex;
         opacity: 1;
     }
+
 
     .modal-card {
         background: white;
@@ -415,15 +487,18 @@
         transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.15s ease;
     }
 
+
     body.dark-mode .modal-card {
         background: #1f2937;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
+
     .modal-backdrop.show .modal-card {
         transform: scale(1);
         opacity: 1;
     }
+
 
 
     .modal-icon-container {
@@ -440,12 +515,14 @@
     }
 
 
+
     .modal-actions {
         display: flex;
         gap: 12px;
         justify-content: center;
         margin-top: 2rem;
     }
+
 
     .btn-modal {
         padding: 12px 20px;
@@ -462,20 +539,24 @@
     }
 
 
+
     .btn-modal-cancel {
         background: white;
         border: 1px solid #d1d5db;
         color: #374151;
     }
 
+
     .btn-modal-cancel:hover {
         background: #f9fafb;
         transform: scale(1.02);
     }
 
+
     .btn-modal-cancel:active {
         transform: scale(0.98);
     }
+
 
 
     .btn-modal-confirm {
@@ -483,15 +564,140 @@
         color: white;
     }
 
+
     .btn-modal-confirm:hover {
         background: #dc2626;
         transform: scale(1.02);
     }
 
+
     .btn-modal-confirm:active {
         transform: scale(0.98);
     }
+
+
+    /* ================================
+   RESPONSIVE MÓVIL (DETAIL) ✅ CORREGIDO
+================================= */
+    @media (max-width: 576px) {
+
+        /* Contenedor general */
+        .container-fluid.px-2.my-5 {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            margin-top: 1.2rem !important;
+            margin-bottom: 1.2rem !important;
+        }
+
+
+        /* Tarjeta: menos padding y más compacta */
+        .detail-card {
+            padding: 1.25rem 1rem 1.5rem !important;
+            border-radius: 18px !important;
+        }
+
+
+        /* Botón volver: que no tape y sea compacto */
+        .btn-back-card {
+            top: 12px !important;
+            left: 12px !important;
+            padding: 6px 12px !important;
+            font-size: 0.8rem !important;
+            border-radius: 16px !important;
+        }
+
+
+        /* Cabecera */
+        .profile-header-simple {
+            margin-top: 2.2rem !important; /* deja espacio al botón volver */
+            margin-bottom: 1.6rem !important;
+        }
+
+
+        .mini-avatar {
+            width: 92px !important;
+            height: 92px !important;
+            margin-bottom: 0.9rem !important;
+        }
+
+
+        .profile-title h2 {
+            font-size: 1.35rem !important;
+            line-height: 1.15 !important;
+        }
+
+
+        /* Grid: una sola columna y menos gap */
+        .data-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0.85rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+
+        /* ⭐ FIX CRÍTICO: Grid items que hacen span 2 se convierten a 1 columna en móvil */
+        .data-item[style*="grid-column: span 2"] {
+            grid-column: auto !important;
+        }
+
+
+        .data-value-box {
+            padding: 12px 14px !important;
+            font-size: 0.95rem !important;
+            border-radius: 12px !important;
+        }
+
+
+        /* Secciones: tamaño más compacto */
+        .section-title {
+            font-size: 0.85rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+
+        /* Botones de documentos: que no se vean gigantes */
+        .doc-btn {
+            padding: 12px 14px !important;
+            font-size: 0.88rem !important;
+            border-radius: 12px !important;
+        }
+
+
+        /* Columna derecha: quita "sensación de dos columnas" y separa con margen */
+        .border-start-lg {
+            border-left: none !important;
+            padding-left: 0 !important;
+            margin-top: 1.25rem !important;
+        }
+
+
+        /* Footer acciones: en columna */
+        .actions-footer {
+            flex-direction: column !important;
+            gap: 12px !important;
+            margin-top: 2rem !important;
+            padding-top: 1.5rem !important;
+        }
+
+
+        .btn-action {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 12px 18px !important;
+            font-size: 0.95rem !important;
+        }
+
+
+        /* Modal: que no quede enorme */
+        .modal-card {
+            width: 92% !important;
+            padding: 1.8rem 1.2rem !important;
+            border-radius: 18px !important;
+        }
+    }
+
 </style>
+
 
 
 <div class="container-fluid px-2 my-5">
@@ -538,29 +744,42 @@
                         <div class="data-value-box">{{ conductor.rif_prefijo }}-{{ conductor.rif }}</div>
                     </div>
                     <div class="data-item"><label>Nacimiento</label>
-                        <div class="data-value-box">{{ conductor.fecha_nacimiento|date:"d/m/Y" }}</div>
+                        <div class="data-value-box">{{ conductor.fechanacimiento|date:"d/m/Y" }}</div>
                     </div>
                     <div class="data-item"><label>Género</label>
                         <div class="data-value-box">{{ conductor.get_sexo_display }}</div>
                     </div>
                     <div class="data-item" style="grid-column: span 2;"><label>Estado Civil</label>
-                        <div class="data-value-box">{{ conductor.get_estado_civil_display }}</div>
+                        <div class="data-value-box">{{ conductor.get_estadocivil_display }}</div>
                     </div>
                 </div>
 
 
                 <!-- DOCUMENTOS -->
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Doc. Cédula</label>
-                        {% if conductor.cedula_archivo %}
-                        <a href="{{ conductor.cedula_archivo.url }}" target="_blank" class="doc-btn view">
-                            <i class="fas fa-file-alt"></i> Ver Archivo
-                        </a>
-                        {% else %}
-                        <div class="doc-btn missing"><i class="fas fa-times-circle"></i> No cargado</div>
-                        {% endif %}
-                    </div>
+                 <div class="col-md-6">
+  <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Cédula (Frente)</label>
+  {% if conductor.cedula_archivo_frente %}
+    <a href="{{ conductor.cedula_archivo_frente.url }}" target="_blank" class="doc-btn view">
+      <i class="fas fa-file-image"></i> Ver Frente
+    </a>
+  {% else %}
+    <div class="doc-btn missing"><i class="fas fa-times-circle"></i> No cargado</div>
+  {% endif %}
+</div>
+
+<div class="col-md-6">
+  <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Cédula (Reverso)</label>
+  {% if conductor.cedula_archivo_reverso %}
+    <a href="{{ conductor.cedula_archivo_reverso.url }}" target="_blank" class="doc-btn view">
+      <i class="fas fa-file-image"></i> Ver Reverso
+    </a>
+  {% else %}
+    <div class="doc-btn missing"><i class="fas fa-times-circle"></i> No cargado</div>
+  {% endif %}
+</div>
+
+
                     <div class="col-md-6">
                         <label class="d-block text-muted small fw-bold text-uppercase mb-2 ms-1">Doc. RIF</label>
                         {% if conductor.rif_archivo %}
@@ -733,6 +952,5 @@
         if (e.target === this) closeModal();
     });
 </script>
-
 
 {% endblock %}

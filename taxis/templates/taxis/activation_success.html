@@ -1,12 +1,15 @@
 {% extends 'registration/base_login.html' %}
 {% load static %}
 
-{% block title %}Contraseña Actualizada{% endblock %}
+
+{% block title %}¡Cuenta Activada!{% endblock %}
+
 
 {% block content %}
 <!-- FUENTES -->
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 
 <style>
 /* ================= VARIABLES ================= */
@@ -23,6 +26,7 @@
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+
 body.modo-oscuro {
     --bg-color: #020a1f;
     --text-color: #e2e8f0;
@@ -32,13 +36,16 @@ body.modo-oscuro {
     --shadow-sm: 0 0px 70px rgba(16, 185, 129, 0.2);
 }
 
+
 /* --- ESTILOS GENERALES --- */
 body { font-family: 'Nunito', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; overflow: hidden; }
+
 
 .vsms-bg-img, .vsms-bg-img-dark { position: fixed; left: 0; top: 0; min-width: 100vw; min-height: 100vh; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; user-select: none; object-fit: cover; }
 .vsms-bg-img-dark { display: none; }
 body.modo-oscuro .vsms-bg-img { display: none !important; }
 body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
+
 
 /* TOGGLE TEMA */
 .theme-toggle-btn {
@@ -52,25 +59,29 @@ body.modo-oscuro .vsms-bg-img-dark { display: block !important; }
 .theme-toggle-btn:hover { transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .theme-toggle-btn.rotate-active { transform: rotate(360deg); }
 
+
 body.modo-oscuro .theme-toggle-btn { 
     background: #142923 !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
 }
 .theme-toggle-btn img { width: 24px; height: 24px; pointer-events: none; transition: filter 0.3s; }
 body.modo-oscuro .theme-toggle-btn img { filter: invert(1) brightness(200%); }
 
+
 /* Wrapper y Tarjeta Compacta */
 .vsms-wrapper { min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; position: relative; z-index: 10; }
 
+
 .vsms-card { 
-    width: 100%; max-width: 420px; /* Tarjeta más angosta */
+    width: 100%; max-width: 420px;
     background: var(--card-bg-light); 
     border: 3px solid var(--border-color); 
     border-radius: 30px; 
-    padding: 35px 25px; /* Menos padding vertical */
+    padding: 35px 25px;
     box-shadow: var(--shadow-sm); 
     text-align: center; position: relative; transition: var(--transition); box-sizing: border-box; 
 }
 body.modo-oscuro .vsms-card { background: var(--card-bg-dark); }
+
 
 /* Título e Info */
 .vsms-title-text { 
@@ -79,8 +90,10 @@ body.modo-oscuro .vsms-card { background: var(--card-bg-dark); }
     margin-bottom: 15px; margin-top: 10px; line-height: 1.2; 
 }
 
+
 .vsms-desc { font-size: 0.95rem; color: #184321; line-height: 1.5; margin-bottom: 25px; font-weight: 600; }
 body.modo-oscuro .vsms-desc { color: #E9FFE9; }
+
 
 /* Icono Check */
 .check-circle { 
@@ -92,7 +105,9 @@ body.modo-oscuro .vsms-desc { color: #E9FFE9; }
 }
 .check-icon { font-size: 2rem; color: white; }
 
+
 @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+
 
 /* Botón */
 .vsms-btn { 
@@ -110,6 +125,7 @@ body.modo-oscuro .vsms-desc { color: #E9FFE9; }
     color: white; 
 }
 
+
 /* RESPONSIVE */
 @media (max-width: 600px) {
     .vsms-card { padding: 30px 20px; border-radius: 25px; }
@@ -118,14 +134,17 @@ body.modo-oscuro .vsms-desc { color: #E9FFE9; }
 }
 </style>
 
+
 <!-- FONDOS -->
 <img src="{% static 'img/fondo-ondas.png' %}" alt="Fondo" class="vsms-bg-img">
 <img src="{% static 'img/fondo-oscuro.png' %}" alt="Fondo" class="vsms-bg-img-dark">
+
 
 <!-- BOTÓN TOGGLE -->
 <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema">
   <img id="iconSunMoon" src="{% static 'img/theme-toggle.png' %}" alt="Tema claro/oscuro">
 </button>
+
 
 <script>
 (function(){
@@ -139,12 +158,14 @@ body.modo-oscuro .vsms-desc { color: #E9FFE9; }
     btn.classList.add('rotate-active');
     setTimeout(() => btn.classList.remove('rotate-active'), 500);
 
+
     modo = !modo;
     document.body.classList.toggle('modo-oscuro');
     localStorage.setItem('modo-oscuro', modo ? 'true' : '');
   };
 })();
 </script>
+
 
 <div class="vsms-wrapper">
     <div class="vsms-card">
@@ -153,16 +174,18 @@ body.modo-oscuro .vsms-desc { color: #E9FFE9; }
             <i class="fas fa-check check-icon"></i>
         </div>
 
-        <div class="vsms-title-text">¡Todo Listo!</div>
+
+        <div class="vsms-title-text">¡Bienvenido!</div>
         
         <div class="vsms-desc">
-            Tu contraseña ha sido actualizada correctamente.
+            {{ user.first_name }}, tu cuenta ha sido activada correctamente.
             <br>
-            Ya puedes acceder al sistema.
+            Ya puedes acceder al dashboard.
         </div>
 
-        <a href="{% url 'taxis:login' %}" class="vsms-btn">
-            Iniciar Sesión Ahora
+
+        <a href="{% url 'taxis:panel_general' %}" class="vsms-btn">
+            <i class="fas fa-arrow-right"></i> Ir al Panel
         </a>
     </div>
 </div>

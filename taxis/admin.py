@@ -3,9 +3,10 @@ from django.contrib.auth.admin import UserAdmin
 from .models import (
     CustomUser, Conductor, Vehiculo, Deuda, Pago, 
     MovimientoAudit, ConfiguracionCooperativa, ConfiguracionGlobal,
-    UbicacionGeografica, Municipio, Parroquia, ConfiguracionFinanzas, PagoMensual
+    UbicacionGeografica, ConfiguracionFinanzas, PagoMensual
 )
-# ✅ BORRADO: from .models import Notificacion, NotificacionLectura
+# ✅ BORRADO: from .models import Notificacion, NotificacionLectura, Municipio, Parroquia
+
 
 # 1. USUARIOS (Vital para gestionar Presidentes vs Asociados)
 class CustomUserAdmin(UserAdmin):
@@ -15,38 +16,33 @@ class CustomUserAdmin(UserAdmin):
         ('Información Extra', {'fields': ('role', 'phone_number', 'avatar', 'is_email_verified')}),
     )
 
+
 admin.site.register(CustomUser, CustomUserAdmin)
+
 
 # 2. CONFIGURACIÓN (Lo nuevo + Lo viejo)
 @admin.register(ConfiguracionGlobal)
 class ConfiguracionGlobalAdmin(admin.ModelAdmin):
     list_display = ('tasa_bcv', 'fecha_actualizacion')
 
+
 @admin.register(ConfiguracionCooperativa)
 class ConfiguracionCooperativaAdmin(admin.ModelAdmin):
     # Ya no usamos tasa_bcv_actual aquí, pero mostramos la fecha
     list_display = ("monto_cuota_usd", "ultima_actualizacion")
 
+
 @admin.register(ConfiguracionFinanzas)
 class ConfiguracionFinanzasAdmin(admin.ModelAdmin):
     list_display = ('monto_cuota_usd', 'dia_vencimiento', 'descripcion', 'actualizado_en')
 
-# 3. UBICACIÓN (NUEVO: Municipios y Parroquias para la cascada)
-@admin.register(Municipio)
-class MunicipioAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)
-    search_fields = ('nombre',)
 
-@admin.register(Parroquia)
-class ParroquiaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'municipio')
-    list_filter = ('municipio',)
-    search_fields = ('nombre',)
-
+# 3. UBICACIÓN
 @admin.register(UbicacionGeografica)
 class UbicacionGeograficaAdmin(admin.ModelAdmin):
     list_display = ("estado", "municipio", "parroquia", "sector")
     list_filter = ("estado", "municipio")
+
 
 # 4. CONDUCTORES (✅ CORREGIDO - USA 'estado' NO 'activo')
 @admin.register(Conductor)
@@ -68,7 +64,7 @@ class ConductorAdmin(admin.ModelAdmin):
         "estado",           # Opciones: activo/inactivo
         "ubicacion",        
         "sexo",             
-        "estado_civil"
+        "estadocivil"
     )
     
     search_fields = (
@@ -105,6 +101,7 @@ class ConductorAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related('user', 'ubicacion').prefetch_related('vehiculos')
+
 
 # 5. VEHÍCULOS (✅ MEJORADO CON FILTROS)
 @admin.register(Vehiculo)
@@ -148,6 +145,7 @@ class VehiculoAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.select_related('conductor')
 
+
 # 6. FINANZAS (CORREGIDO: monto_bs en lugar de monto_usd)
 @admin.register(Deuda)
 class DeudaAdmin(admin.ModelAdmin):
@@ -155,10 +153,12 @@ class DeudaAdmin(admin.ModelAdmin):
     list_filter = ("mes", "anio", "pagada")
     search_fields = ("conductor__nombres", "conductor__cedula_identidad")
 
+
 @admin.register(Pago)
 class PagoAdmin(admin.ModelAdmin):
     list_display = ("deuda", "monto_bs", "tasa_bcv", "fecha_pago")
     list_filter = ("fecha_pago",)
+
 
 @admin.register(PagoMensual)
 class PagoMensualAdmin(admin.ModelAdmin):
@@ -166,6 +166,7 @@ class PagoMensualAdmin(admin.ModelAdmin):
     list_filter = ('anio', 'mes', 'fecha_pago')
     search_fields = ('conductor__nombres', 'conductor__apellidos', 'conductor__cedula_identidad')
     date_hierarchy = 'fecha_pago'
+
 
 # 7. AUDITORÍA Y SISTEMA
 @admin.register(MovimientoAudit)

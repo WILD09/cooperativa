@@ -240,6 +240,46 @@
         .col-num { position: absolute; top: 1rem; right: 1rem; text-align: right; width: auto; font-size: 1.2rem; opacity: 0.3; }
         .filter-dropdown { width: 90vw; right: -10px; }
     }
+
+    @media (max-width: 480px) {
+  .page-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-input {
+    height: 44px;
+    font-size: 0.95rem;
+    padding-left: 2.6rem;
+  }
+
+  .search-icon { left: 12px; }
+
+  .filter-btn {
+    width: 44px;
+    height: 44px;
+    margin-left: 10px;
+    border-radius: 10px;
+  }
+
+  .filter-dropdown {
+    width: 92vw;
+    right: 0;
+    padding: 18px;
+  }
+
+  .btn-boceto-outline {
+    padding: 0.55rem 1rem;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .row-text-main {
+    white-space: normal;
+  }
+}
+
 </style>
 
 <!-- TITULO -->
@@ -347,13 +387,13 @@
             {{ cond.apellidos }}
         </div>
         <div class="col-fecha row-text-muted">
-            {{ cond.fecha_nacimiento|date:"d/m/Y" }}
+            {{ cond.fechanacimiento|date:"d/m/Y" }}
         </div>
         <div class="col-genero row-text-muted">
             {{ cond.get_sexo_display }}
         </div>
         <div class="col-civil row-text-muted">
-            {{ cond.get_estado_civil_display }}
+            {{ cond.get_estadocivil_display }}
         </div>
     </a>
     {% empty %}

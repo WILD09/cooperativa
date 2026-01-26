@@ -199,9 +199,9 @@
                 <td>{{ forloop.counter }}</td>
                 <td class="text-left">{{ c.nombres }}</td>
                 <td class="text-left">{{ c.apellidos }}</td>
-                <td>{{ c.fecha_nacimiento|date:"d/m/Y" }}</td>
+                <td>{{ c.fechanacimiento|date:"d/m/Y" }}</td>
                 <td>{{ c.get_sexo_display }}</td>
-                <td>{{ c.get_estado_civil_display }}</td>
+                <td>{{ c.get_estadocivil_display }}</td>
                 <td>{{ c.cedula_prefijo }}-{{ c.cedula_identidad }}</td>
                 <td>{{ c.rif_prefijo }}-{{ c.rif }}</td>
                 <td class="text-left" style="font-size: 8px;">{{ c.email|default:"-" }}</td>
