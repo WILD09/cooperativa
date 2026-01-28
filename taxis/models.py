@@ -370,7 +370,7 @@ class Conductor(models.Model):
     estadocivil = models.CharField(max_length=20, choices=ESTADO_CIVIL_CHOICES)
 
     cedula_prefijo = models.CharField(max_length=1, choices=CEDULA_PREFIJO_CHOICES, default="V")
-    cedula_identidad = models.CharField(max_length=10, unique=True, validators=[solo_numeros_regex])
+    cedula_identidad = models.CharField(max_length=10, validators=[solo_numeros_regex])
     cedula_archivo_frente = models.FileField(
         upload_to="documentos/cedulas/",
         null=True,
@@ -388,7 +388,7 @@ class Conductor(models.Model):
     cedula_vencimiento = models.DateField(null=True, blank=True)
 
     rif_prefijo = models.CharField(max_length=1, choices=RIF_PREFIJO_CHOICES, default="V")
-    rif = models.CharField(max_length=15, unique=True, validators=[solo_numeros_regex])
+    rif = models.CharField(max_length=15, validators=[solo_numeros_regex])
     rif_archivo = models.FileField(
         upload_to="documentos/rif/",
         null=True,

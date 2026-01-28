@@ -844,10 +844,21 @@ body.dark-mode select.vsms-input {
 
 
                 <div class="wizard-actions">
-                    <a href="{% url 'taxis:vehiculo_list' %}" class="btn-wizard btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
-                    <button type="button" class="btn-wizard btn-next" onclick="validateAndNextStep1()">Siguiente <i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
+    {% if request.GET.next %}
+        <!-- DT5 -->
+        <a href="{{ request.GET.next }}" class="btn-wizard btn-cancel">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
+    {% else %}
+        <!-- Creación nueva / otros -->
+        <a href="{% url 'taxis:vehiculo_list' %}" class="btn-wizard btn-cancel">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
+    {% endif %}
+    <button type="button" class="btn-wizard btn-next" onclick="validateAndNextStep1()">
+        Siguiente <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
 
 
             <!-- PASO 2: TÉCNICOS -->

@@ -1,481 +1,1510 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
 
-{% block title %}Transportista: {{ vehiculo.conductor.nombres }} {{ vehiculo.conductor.apellidos }}{% endblock %}
+{% block title %}Transportista: {% if conductor %}{{ conductor.nombres }} {{ conductor.apellidos }}{% else %}Sin Vehículo{% endif %}{% endblock %}
 
 {% block content %}
 <style>
     :root {
-        --coop-green: #00b300;
-        --coop-green-light: #e6f7e6;
-        --coop-red: #dc2626;
-        --coop-red-light: #fee2e2;
-        --text-primary: #1f2937;
-        --text-secondary: #6b7280;
-        --border-color: #e5e7eb;
-        --bg-card: #ffffff;
-        --hover-overlay: rgba(0, 0, 0, 0.05);
-    }
-    
-    body.dark-mode {
-        --coop-green: #10b981;
-        --coop-green-light: rgba(16, 185, 129, 0.15);
-        --coop-red: #ef4444;
-        --coop-red-light: rgba(239, 68, 68, 0.15);
-        --text-primary: #f3f4f6;
-        --text-secondary: #9ca3af;
-        --border-color: #374151;
-        --bg-card: #1f2937;
-        --hover-overlay: rgba(255, 255, 255, 0.1);
-    }
+    --coop-green: #00b300;
+    --coop-green-light: #e6f7e6;
+    --coop-red: #dc2626;
+    --coop-red-light: #fee2e2;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-card: #ffffff;
+    --hover-overlay: rgba(0, 0, 0, 0.05);
+    --max-width: 1200px;
+}
 
-    /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
+body.dark-mode {
+    --coop-green: #10b981;
+    --coop-green-light: rgba(16, 185, 129, 0.15);
+    --coop-red: #ef4444;
+    --coop-red-light: rgba(239, 68, 68, 0.15);
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --border-color: #374151;
+    --bg-card: #1f2937;
+    --hover-overlay: rgba(255, 255, 255, 0.1);
+}
 
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-        margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
-    }
 
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1f2937;
-    }
+/* --- SCROLLBAR VERTICAL MODERNO --- */
+::-webkit-scrollbar {
+    width: 10px;
+}
 
-    ::-webkit-scrollbar-thumb {
-        background: var(--coop-green);
-        border-radius: 10px; /* ✅ EXTREMOS REDONDEADOS */
-        min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
-    }
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+    margin: 4px 0;
+}
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: #007700;
-    }
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #1f2937;
+}
 
-    /* HEADER OPERATIVO (VERDE) */
-    .page-header.header-activo,
-    .page-header.header-operativo {
-        background: linear-gradient(135deg, #00b300 0%, #007700 100%);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    /* HEADER INOPERATIVO (ROJO) */
-    .page-header.header-inactivo,
-    .page-header.header-inoperativo {
-        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-    }
+::-webkit-scrollbar-thumb {
+    background: var(--coop-green);
+    border-radius: 10px;
+    min-height: 40px;
+}
 
-    .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(255,255,255,0.2);
-        color: white;
-        padding: 0.5rem 1.2rem;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s;
-        margin-bottom: 1rem;
-    }
-    .back-button:hover {
-        background: rgba(255,255,255,0.3);
-        transform: translateX(-5px);
-        color: white;
-        text-decoration: none;
-    }
+::-webkit-scrollbar-thumb:hover {
+    background: #007700;
+}
 
+
+/* === CONTENEDOR PRINCIPAL CENTRADO === */
+.container-fluid {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+
+/* HEADER DINÁMICO */
+.page-header.header-activo,
+.page-header.header-operativo {
+    background: linear-gradient(135deg, #00b300 0%, #007700 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    overflow: visible;  /* ✅ CAMBIAR A visible */
+}
+body.dark-mode .page-header.header-activo,
+body.dark-mode .page-header.header-operativo {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.page-header.header-inactivo,
+.page-header.header-inoperativo {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark-mode .page-header.header-inactivo,
+body.dark-mode .page-header.header-inoperativo {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    pointer-events: none;  /* ✅ AGREGAR ESTO */
+    z-index: -1;  /* ✅ PONERLO ATRÁS */
+}
+
+.back-button {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin-bottom: 0.5rem;
+    z-index: 10;  /* ✅ SOBRE EL ::before */
+    position: relative;
+    pointer-events: auto;  /* ✅ RECIBE CLICS */
+    cursor: pointer !important;
+}
+
+.back-button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateX(-5px);
+    color: white;
+    text-decoration: none;
+}
+
+.transportista-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.status-operativo {
+    background: #10b981;
+    color: white;
+}
+
+.status-inoperativo {
+    background: #ef4444;
+    color: white;
+}
+
+
+/* CARDS */
+.info-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    color: var(--coop-green);
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+
+/* DOCUMENTOS */
+.info-card:has(> .card-title:has(i.fa-id-card)) .doc-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.5rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-list::-webkit-scrollbar {
+    height: 6px;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-list::-webkit-scrollbar-thumb {
+    background: var(--coop-green);
+    border-radius: 10px;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-list::-webkit-scrollbar-thumb:hover {
+    background: #007700;
+}
+
+.doc-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-card:has(> .card-title:has(i.fa-file-contract)) .doc-item {
+    flex: 0 0 250px;
+    min-width: 250px;
+}
+
+.doc-item {
+    background: var(--coop-green-light);
+    border: 2px solid var(--coop-green);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.doc-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 179, 0, 0.2);
+}
+
+.doc-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.doc-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.doc-vigente {
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.doc-vencido {
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.doc-cargado {
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.btn-view-doc {
+    background: var(--coop-green);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-view-doc:hover {
+    background: #007700;
+    transform: scale(1.02);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 179, 0, 0.3);
+}
+
+body.dark-mode .btn-view-doc {
+    background: var(--coop-green);
+}
+
+body.dark-mode .btn-view-doc:hover {
+    background: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+body.dark-mode .doc-item:hover {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+
+/* ZOOM FOTO */
+.vehicle-photo-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.vehicle-photo {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+}
+
+.vehicle-photo:hover {
+    transform: scale(1.02);
+}
+
+.zoom-hint {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.vehicle-photo-container:hover .zoom-hint {
+    opacity: 1;
+}
+
+
+/* MODAL DE ZOOM - ARREGLADO PARA SUPERPONER SIDEBAR */
+.zoom-modal {
+    display: none;
+    position: fixed;
+    z-index: 10050 !important;  /* ← MÁS ALTO QUE SIDEBAR (1050) */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    overflow: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.zoom-modal.show {
+    display: flex !important;  /* ← FORCE display */
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.zoom-close {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10051;  /* ← Más alto */
+    transition: transform 0.2s;
+}
+
+.zoom-close:hover {
+    transform: scale(1.2);
+}
+
+.zoom-modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    cursor: grab;
+    transition: transform 0.2s ease;
+}
+
+.zoom-modal-content:active {
+    cursor: grabbing;
+}
+
+.zoom-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 20px;
+    border-radius: 12px;
+    z-index: 10051;  /* ← Más alto */
+}
+
+.zoom-btn {
+    background: var(--coop-green);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+    background: #007700;
+    transform: scale(1.1);
+}
+
+.zoom-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* ========== BOTONES DE ACCIÓN ========== */
+.actions-footer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    border-top: 2px solid var(--border-color);
+    padding: 2.5rem 1rem;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 700;
+    text-decoration: none !important;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.btn-action::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-action:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, var(--coop-green) 0%, #007700 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 179, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #007700 0%, #005500 100%);
+    color: white !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 179, 0, 0.45);
+}
+
+.btn-edit:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 179, 0, 0.35);
+}
+
+body.dark-mode .btn-edit {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode .btn-edit:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border: 2px solid #fecaca;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    color: #991b1b !important;
+    border-color: #f87171;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
+.btn-delete:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+body.dark-mode .btn-delete {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.22) 100%);
+    color: #fca5a5;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+body.dark-mode .btn-delete:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.35) 100%);
+    color: #fda29b !important;
+    border-color: rgba(239, 68, 68, 0.7);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+}
+
+body.dark-mode .btn-delete:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+
+/* ========== MODAL ELIMINAR ========== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+
+.modal-backdrop.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-card {
+    background: white;
+    width: 90%;
+    max-width: 420px;
+    padding: 2.5rem 2rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.15s ease;
+}
+
+body.dark-mode .modal-card {
+    background: #2d3748;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid #4a5568;
+}
+
+body.dark-mode .modal-card h3 {
+    color: #f3f4f6 !important;
+}
+
+.modal-backdrop.show .modal-card {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-icon-container {
+    width: 64px;
+    height: 64px;
+    background: #fef2f2;
+    color: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.75rem;
+}
+
+body.dark-mode .modal-icon-container {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-modal {
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    flex: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.1s ease-out;
+}
+
+.btn-modal-cancel {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+body.dark-mode .btn-modal-cancel {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #e5e7eb;
+}
+
+.btn-modal-cancel:hover {
+    background: #f9fafb;
+    transform: scale(1.02);
+}
+
+body.dark-mode .btn-modal-cancel:hover {
+    background: #374151;
+}
+
+.btn-modal-confirm {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-modal-confirm:hover {
+    background: #dc2626;
+    transform: scale(1.02);
+}
+
+
+/* ========== RESPONSIVE MEDIA QUERIES ========== */
+@media (max-width: 1024px) {
     .transportista-name {
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 1rem 0 0.5rem 0;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-    }
-    .status-operativo { background: #10b981; color: white; }
-    .status-inoperativo { background: #ef4444; color: white; }
-
-    /* CARDS */
-    .info-card {
-        background: var(--bg-card);
-        border: 2px solid var(--border-color);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: transform 0.2s;
-    }
-    .info-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .card-title {
-        color: var(--coop-green);
-        font-weight: 800;
-        font-size: 1.3rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-bottom: 0.8rem;
-        border-bottom: 2px solid var(--border-color);
+        font-size: 1.75rem;
     }
 
     .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
+    .card-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
     }
 
-    .info-label {
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .info-card {
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .transportista-name {
+        font-size: 1.5rem;
     }
 
-    .info-value {
-        color: var(--text-primary);
+    .page-header {
+        padding: 1.5rem;
+    }
+
+    .page-header::before {
+        width: 200px;
+        height: 200px;
+        top: -30%;
+        right: -5%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-title {
         font-size: 1rem;
-        font-weight: 500;
+        margin-bottom: 1rem;
+        gap: 8px;
     }
 
-    /* DOCUMENTOS */
-    .doc-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
+    .info-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
     }
 
     .doc-item {
-        background: var(--coop-green-light);
-        border: 2px solid var(--coop-green);
-        border-radius: 12px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        transition: all 0.2s;
+        padding: 0.8rem;
+        border-radius: 10px;
     }
-    .doc-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 10px rgba(0, 179, 0, 0.2);
+
+    .info-card:has(> .card-title:has(i.fa-file-contract)) .doc-item {
+        flex: 0 0 220px;
+        min-width: 220px;
     }
 
     .doc-name {
-        font-weight: 700;
-        color: var(--text-primary);
-        font-size: 0.95rem;
-    }
-
-    .doc-status {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .doc-vigente {
-        color: #10b981;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .doc-vencido {
-        color: #ef4444;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .doc-cargado {
-        color: #6b7280;
-        font-size: 0.75rem;
-        font-style: italic;
+        font-size: 0.9rem;
     }
 
     .btn-view-doc {
-        background: var(--coop-green);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    .btn-view-doc:hover {
-        background: #007700;
-        transform: scale(1.02);
-        color: white;
-        text-decoration: none;
-        box-shadow: 0 4px 8px rgba(0, 179, 0, 0.3);
-    }
-
-    /* MODO OSCURO - HOVER MEJORADO */
-    body.dark-mode .btn-view-doc {
-        background: var(--coop-green);
-    }
-
-    body.dark-mode .btn-view-doc:hover {
-        background: #059669;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-
-    body.dark-mode .doc-item:hover {
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-    /* --- ZOOM FOTO VEHÍCULO --- */
-    .vehicle-photo-container {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    .vehicle-photo {
-        width: 100%;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        cursor: zoom-in;
-        transition: transform 0.2s ease;
-    }
-
-    .vehicle-photo:hover {
-        transform: scale(1.02);
-    }
-
-    .zoom-hint {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
+        padding: 0.4rem 0.8rem;
         font-size: 0.85rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
         gap: 6px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
     }
 
-    .vehicle-photo-container:hover .zoom-hint {
-        opacity: 1;
+    .actions-footer {
+        gap: 15px;
+        padding: 2rem 1rem;
     }
 
-    /* MODAL DE ZOOM */
-    .zoom-modal {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.95);
-        overflow: auto;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .zoom-modal.show {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    .btn-action {
+        padding: 10px 24px;
+        font-size: 0.9rem;
     }
 
     .zoom-close {
-        position: absolute;
-        right: 30px;
-        top: 20px;
-        color: white;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-        z-index: 10000;
-        transition: transform 0.2s;
-    }
-
-    .zoom-close:hover {
-        transform: scale(1.2);
-    }
-
-    .zoom-modal-content {
-        max-width: 90vw;
-        max-height: 90vh;
-        object-fit: contain;
-        cursor: grab;
-        transition: transform 0.2s ease;
-    }
-
-    .zoom-modal-content:active {
-        cursor: grabbing;
+        right: 15px;
+        top: 10px;
+        font-size: 30px;
     }
 
     .zoom-controls {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 15px;
-        background: rgba(0, 0, 0, 0.8);
-        padding: 15px 20px;
-        border-radius: 12px;
-        z-index: 10000;
+        bottom: 15px;
+        padding: 10px 15px;
+        gap: 10px;
     }
 
     .zoom-btn {
-        background: var(--coop-green);
-        color: white;
-        border: none;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .back-button {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .transportista-name {
+        font-size: 1.3rem;
+        margin: 0.8rem 0 0.3rem 0;
+    }
+
+    .page-header {
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+        border-radius: 15px;
+    }
+
+    .page-header::before {
+        display: none;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .info-card {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.6rem;
+        gap: 6px;
+    }
+
+    .info-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.3px;
+    }
+
+    .info-value {
+        font-size: 0.9rem;
+    }
+
+    .doc-item {
+        padding: 0.7rem;
+        border-radius: 8px;
+        gap: 0.4rem;
+    }
+
+    .info-card:has(> .card-title:has(i.fa-file-contract)) .doc-item {
+        flex: 0 0 200px;
+        min-width: 200px;
+    }
+
+    .doc-name {
+        font-size: 0.85rem;
+    }
+
+    .doc-cargado {
+        font-size: 0.7rem;
+    }
+
+    .btn-view-doc {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        gap: 4px;
+    }
+
+    .actions-footer {
+        flex-direction: column;
+        gap: 12px;
+        padding: 1.5rem 1rem;
+    }
+
+    .btn-action {
+        width: 100%;
+        padding: 11px 20px;
+        font-size: 0.9rem;
+    }
+
+    .back-button {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .zoom-hint {
+        bottom: 8px;
+        right: 8px;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+
+    .zoom-controls {
+        bottom: 10px;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .zoom-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+
+    .vehicle-photo-container {
+        margin-top: 0.8rem;
+    }
+
+    .modal-card {
+        width: 92vw;
+        padding: 1.8rem 1.5rem;
+        border-radius: 16px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .transportista-name {
         font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
+        margin: 0.5rem 0 0.2rem 0;
     }
 
-    .zoom-btn:hover {
-        background: #007700;
-        transform: scale(1.1);
+    .page-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
     }
 
-    .zoom-btn:active {
-        transform: scale(0.95);
+    .back-button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        gap: 4px;
     }
 
-    @media (max-width: 768px) {
-        .transportista-name { font-size: 1.5rem; }
-        .info-grid { grid-template-columns: 1fr; }
-        .doc-list { grid-template-columns: 1fr; }
-
-        .zoom-close {
-            right: 15px;
-            top: 10px;
-            font-size: 30px;
-        }
-
-        .zoom-controls {
-            bottom: 15px;
-            padding: 10px 15px;
-            gap: 10px;
-        }
-
-        .zoom-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 0.9rem;
-        }
+    .back-button i {
+        font-size: 0.9rem;
     }
+
+    .status-badge {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+    }
+
+    .info-card {
+        padding: 0.6rem;
+        margin-bottom: 0.6rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.5rem;
+        gap: 5px;
+    }
+
+    .card-title i {
+        font-size: 1rem;
+    }
+
+    .info-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.2px;
+    }
+
+    .info-value {
+        font-size: 0.85rem;
+    }
+
+    .doc-item {
+        padding: 0.6rem;
+        border-radius: 8px;
+        gap: 0.3rem;
+    }
+
+    .info-card:has(> .card-title:has(i.fa-file-contract)) .doc-item {
+        flex: 0 0 180px;
+        min-width: 180px;
+    }
+
+    .doc-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .doc-cargado {
+        font-size: 0.65rem;
+    }
+
+    .btn-view-doc {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        border-radius: 5px;
+        gap: 3px;
+    }
+
+    .btn-view-doc i {
+        font-size: 0.9rem;
+    }
+
+    .actions-footer {
+        flex-direction: column;
+        gap: 10px;
+        padding: 1.5rem 1rem;
+    }
+
+    .btn-action {
+        width: 100%;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+
+    .btn-action i {
+        font-size: 0.9rem;
+    }
+
+    .zoom-hint {
+        display: none;
+    }
+
+    .zoom-controls {
+        bottom: 8px;
+        padding: 6px 10px;
+        gap: 6px;
+    }
+
+    .zoom-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.7rem;
+    }
+
+    .vehicle-photo-container {
+        margin-top: 0.6rem;
+    }
+
+    .modal-card {
+        width: 94vw;
+        max-width: 380px;
+        padding: 1.5rem 1.2rem;
+        border-radius: 14px;
+    }
+
+    .modal-icon-container {
+        width: 56px;
+        height: 56px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .modal-card h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .modal-card p {
+        font-size: 0.85rem;
+    }
+
+    .modal-actions {
+        gap: 8px;
+        margin-top: 1.5rem;
+    }
+
+    .btn-modal {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== FIX MODAL AVATAR - FUERZA TOTAL CON DARK MODE ===== */
+#avatarModal {
+    z-index: 99999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+#avatarModal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Dark mode - overlay */
+body.dark-mode #avatarModal.show {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+#avatarModal .modal-dialog {
+    max-width: 450px !important;
+    width: 90vw !important;
+    margin: 0 !important;
+    position: relative !important;
+    z-index: 100000 !important;
+}
+
+#avatarModal .modal-content {
+    border-radius: 15px !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+    background-color: white !important;
+}
+
+/* Dark mode - content */
+body.dark-mode #avatarModal .modal-content {
+    background-color: #141b2d !important;
+    border: 1px solid #065f46 !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+#avatarModal .modal-header {
+    background: linear-gradient(135deg, #00b300 0%, #007700 100%) !important;
+    color: white !important;
+    padding: 1.2rem 1.5rem !important;
+    border-radius: 15px 15px 0 0 !important;
+    border: none !important;
+}
+
+/* Dark mode - header */
+body.dark-mode #avatarModal .modal-header {
+    background: linear-gradient(180deg, #022c22 0%, #064e3b 100%) !important;
+    border-bottom: 2px solid #10b981 !important;
+}
+
+#avatarModal .modal-title {
+    color: white !important;
+    font-weight: 800 !important;
+}
+
+#avatarModal .close {
+    color: white !important;
+    opacity: 1 !important;
+}
+
+/* Dark mode - close button */
+body.dark-mode #avatarModal .close {
+    color: #10b981 !important;
+}
+
+body.dark-mode #avatarModal .close:hover {
+    color: #fff !important;
+}
+
+#avatarModal .modal-body {
+    padding: 2rem 1.5rem !important;
+    background: white !important;
+    border-radius: 0 0 15px 15px !important;
+}
+
+/* Dark mode - body */
+body.dark-mode #avatarModal .modal-body {
+    background: #0b1220 !important;
+    color: #fff !important;
+}
+
+#avatarModal .btn {
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    padding: 0.6rem !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+}
+
+#avatarModal .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Botones específicos - Light mode */
+#avatarModal .btn-primary {
+    background: #0d6efd !important;
+    color: #fff !important;
+}
+
+#avatarModal .btn-primary:hover {
+    background: #0b5ed7 !important;
+}
+
+#avatarModal .btn-info {
+    background: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+#avatarModal .btn-info:hover {
+    background: #0aa2c0 !important;
+}
+
+#avatarModal .btn-success {
+    background: #198754 !important;
+    color: #fff !important;
+}
+
+#avatarModal .btn-success:hover {
+    background: #157347 !important;
+}
+
+/* Dark mode - botones */
+body.dark-mode #avatarModal .btn-primary {
+    background: #10b981 !important;
+    color: #fff !important;
+}
+
+body.dark-mode #avatarModal .btn-primary:hover {
+    background: #059669 !important;
+}
+
+body.dark-mode #avatarModal .btn-info {
+    background: #06b6d4 !important;
+    color: #000 !important;
+}
+
+body.dark-mode #avatarModal .btn-info:hover {
+    background: #0891b2 !important;
+}
+
+body.dark-mode #avatarModal .btn-success {
+    background: #10b981 !important;
+    color: #fff !important;
+}
+
+body.dark-mode #avatarModal .btn-success:hover {
+    background: #059669 !important;
+}
+
+/* Inputs */
+#avatarModal input,
+#avatarModal select,
+#avatarModal textarea {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+#avatarModal input:focus,
+#avatarModal select:focus,
+#avatarModal textarea:focus {
+    border-color: #00b300 !important;
+    box-shadow: 0 0 0 3px rgba(0, 179, 0, 0.1) !important;
+}
+
+/* Dark mode - inputs */
+body.dark-mode #avatarModal input,
+body.dark-mode #avatarModal select,
+body.dark-mode #avatarModal textarea {
+    background-color: #1f2937 !important;
+    color: #fff !important;
+    border: 1px solid #374151 !important;
+}
+
+body.dark-mode #avatarModal input:focus,
+body.dark-mode #avatarModal select:focus,
+body.dark-mode #avatarModal textarea:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Labels */
+#avatarModal label {
+    color: #111827 !important;
+    font-weight: 600 !important;
+}
+
+/* Dark mode - labels */
+body.dark-mode #avatarModal label {
+    color: #fff !important;
+}
+
+/* Avatar preview - SIN TOCAR */
+#avatarModal #avatarPreview,
+#avatarModal video {
+    width: 140px !important;
+    height: 140px !important;
+    border-radius: 50% !important;
+    border: 4px solid #e3e6f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode - avatar */
+body.dark-mode #avatarModal #avatarPreview,
+body.dark-mode #avatarModal video {
+    border-color: #065f46 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* OCULTAR SCROLL */
+body.modal-open {
+    overflow: hidden !important;
+}
+/* ===== AVATAR PREVIEW FIJO Y CENTRADO ===== */
+
+/* Contenedor fijo para evitar saltos */
+#avatarModal .avatar-preview-wrap{
+    width: 140px !important;
+    height: 140px !important;
+    margin: 0 auto 1.25rem auto !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important; /* recorta perfecto dentro del círculo */
+    background: #ffffff !important; /* light */
+}
+
+/* Dark mode: fondo del contenedor */
+body.dark-mode #avatarModal .avatar-preview-wrap{
+    background: #0b1220 !important;
+}
+
+/* El IMG y el VIDEO siempre ocupan el círculo sin deformarse */
+#avatarModal .avatar-preview-wrap > img,
+#avatarModal .avatar-preview-wrap > video{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;   /* quita el “gap” de imágenes inline */
+    flex: 0 0 auto !important;
+    transform: none !important;  /* evita movimientos por transforms previos */
+}
+
+/* Borde y sombra (igual que ya tenías, pero aplicado al wrap para estabilidad) */
+#avatarModal .avatar-preview-wrap{
+    border: 4px solid #e3e6f0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10) !important;
+}
+
+body.dark-mode #avatarModal .avatar-preview-wrap{
+    border-color: #065f46 !important;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.20) !important;
+}
+
+/* Sin vehículo - Registro */
+.sin-vehiculo-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-16);
+    padding: var(--space-16) 0;
+}
+
+.sin-vehiculo-content p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+}
+
+.sin-vehiculo-content .btn {
+    margin-top: 16px;
+    min-width: 200px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    text-decoration: none;
+    position: relative;
+    background: var(--coop-green);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.sin-vehiculo-content .btn:hover {
+    background: #007700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.sin-vehiculo-content .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 0 0 3px rgba(0, 179, 0, 0.4);
+}
+
+.sin-vehiculo-content .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ============ DARK MODE ============ */
+body.dark-mode .sin-vehiculo-content .btn {
+    background: var(--coop-green);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+body.dark-mode .sin-vehiculo-content .btn:hover {
+    background: #059669;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .sin-vehiculo-content .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+body.dark-mode .sin-vehiculo-content .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
 </style>
 
+<div class="page-header {% if vehiculo and vehiculo.condicion|lower == 'operativo' %}header-operativo{% else %}header-inoperativo{% endif %}">
+    <a href="{{ back_url }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h1 class="transportista-name">{{ conductor.nombres }} {{ conductor.apellidos }}</h1>
+    <span class="status-badge status-{% if vehiculo and vehiculo.condicion|lower == 'operativo' %}operativo{% else %}inoperativo{% endif %}">
+        {% if vehiculo and vehiculo.condicion|lower == 'operativo' %}
+            <i class="fas fa-check-circle"></i> OPERATIVO
+        {% else %}
+            <i class="fas fa-times-circle"></i> 
+            {% if sin_vehiculo %}SIN VEHÍCULO{% else %}INOPERATIVO{% endif %}
+        {% endif %}
+    </span>
+</div>
 
-<div class="container-fluid">
-    <!-- HEADER DINÁMICO BASADO EN LA CONDICIÓN DEL VEHÍCULO -->
-    <div class="page-header {% if vehiculo.condicion|lower == 'operativo' %}header-operativo{% else %}header-inoperativo{% endif %}">
-        <a href="{% url 'taxis:dt5_list' %}" class="back-button">
-            <i class="fas fa-arrow-left"></i> Volver al DT5
-        </a>
-        <h1 class="transportista-name">
-            {{ vehiculo.conductor.nombres }} {{ vehiculo.conductor.apellidos }}
-        </h1>
-        <span class="status-badge status-{{ vehiculo.condicion|lower }}">
-            {% if vehiculo.condicion|lower == 'operativo' %}
-                <i class="fas fa-check-circle"></i> OPERATIVO
-            {% else %}
-                <i class="fas fa-times-circle"></i> INOPERATIVO
-            {% endif %}
-        </span>
-    </div>
 
     <div class="row">
         <!-- COLUMNA IZQUIERDA -->
         <div class="col-lg-6">
-            <!-- DATOS DEL AFILIADO -->
-            <div class="info-card">
-                <h2 class="card-title">
-                    <i class="fas fa-user-circle"></i> Datos del Afiliado
-                </h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Cédula</span>
-                        <span class="info-value">{{ vehiculo.conductor.cedula_prefijo }}-{{ vehiculo.conductor.cedula_identidad }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">RIF</span>
-                        <span class="info-value">{{ vehiculo.conductor.rif_prefijo }}-{{ vehiculo.conductor.rif }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Fecha de Nacimiento</span>
-                        <span class="info-value">{{ vehiculo.conductor.fecha_nacimiento|date:"d/m/Y" }} ({{ edad }} años)</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Género</span>
-                        <span class="info-value">{{ vehiculo.conductor.get_sexo_display }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Estado Civil</span>
-                        <span class="info-value">{{ vehiculo.conductor.get_estado_civil_display }}</span>
-                    </div>
-                </div>
-            </div>
+         <!-- DATOS DEL AFILIADO -->
+<div class="info-card">
+    <h2 class="card-title">
+        <i class="fas fa-user"></i> Datos del Afiliado
+    </h2>
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="info-label">Cédula</span>
+            <span class="info-value">{{ conductor.cedula_prefijo }} - {{ conductor.cedula_identidad }}</span>
+        </div>
 
-            <!-- CONTACTO Y RESIDENCIA -->
+        <div class="info-item">
+            <span class="info-label">RIF</span>
+            <span class="info-value">{{ conductor.rif_prefijo }} - {{ conductor.rif }}</span>
+        </div>
+
+        <div class="info-item">
+            <span class="info-label">Fecha de Nacimiento</span>
+            <span class="info-value">{{ conductor.fechanacimiento|date:"d/m/Y" }} ({{ edad }} años)</span>
+        </div>
+
+        <div class="info-item">
+            <span class="info-label">Género</span>
+            <span class="info-value">{{ conductor.get_sexo_display|default:"No especificado" }}</span>
+        </div>
+
+        <div class="info-item">
+            <span class="info-label">Estado Civil</span>
+            <span class="info-value">{{ conductor.get_estadocivil_display|default:"No especificado" }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACTO Y RESIDENCIA -->
 <div class="info-card">
     <h2 class="card-title">
         <i class="fas fa-map-marker-alt"></i> Contacto y Residencia
@@ -483,88 +1512,170 @@
     <div class="info-grid">
         <div class="info-item">
             <span class="info-label">Email</span>
-            <span class="info-value">{{ vehiculo.conductor.email }}</span>
+            <span class="info-value">{{ conductor.email|default:"No registrado" }}</span>
         </div>
+
         <div class="info-item">
             <span class="info-label">Teléfono Principal</span>
-            <span class="info-value">{{ vehiculo.conductor.telefono_principal }}</span>
+            <span class="info-value">{{ conductor.telefono_principal|default:"No registrado" }}</span>
         </div>
-        {% if vehiculo.conductor.telefono_secundario %}
+
+        {% if conductor.telefono_secundario %}
         <div class="info-item">
             <span class="info-label">Teléfono Secundario</span>
-            <span class="info-value">{{ vehiculo.conductor.telefono_secundario }}</span>
+            <span class="info-value">{{ conductor.telefono_secundario }}</span>
         </div>
         {% endif %}
-        {% if vehiculo.conductor.ubicacion %}
+
+        {% if conductor.telefono_fijo %}
         <div class="info-item">
-            <span class="info-label">Estado</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.estado|default:"-" }}</span>
+            <span class="info-label">Teléfono Fijo</span>
+            <span class="info-value">{{ conductor.telefono_fijo }}</span>
         </div>
-        <div class="info-item">
-            <span class="info-label">Municipio</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.municipio|default:"-" }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Parroquia</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.parroquia|default:"-" }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Ciudad / Localidad</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.localidad|default:"-" }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Sector</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.sector|default:"-" }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Zona Postal</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.zona_postal|default:"-" }}</span>
-        </div>
-        <div class="info-item" style="grid-column: 1 / -1;">
-            <span class="info-label">Dirección Exacta</span>
-            <span class="info-value">{{ vehiculo.conductor.ubicacion.calle_avenida|default:"-" }} {{ vehiculo.conductor.ubicacion.numero_casa|default:"" }}</span>
-        </div>
+        {% endif %}
+
+        {% if conductor.ubicacion %}
+            {% if conductor.ubicacion.estado %}
+            <div class="info-item">
+                <span class="info-label">Estado</span>
+                <span class="info-value">{{ conductor.ubicacion.estado }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.municipio %}
+            <div class="info-item">
+                <span class="info-label">Municipio</span>
+                <span class="info-value">{{ conductor.ubicacion.municipio }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.parroquia %}
+            <div class="info-item">
+                <span class="info-label">Parroquia</span>
+                <span class="info-value">{{ conductor.ubicacion.parroquia }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.localidad %}
+            <div class="info-item">
+                <span class="info-label">Localidad</span>
+                <span class="info-value">{{ conductor.ubicacion.localidad }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.sector %}
+            <div class="info-item">
+                <span class="info-label">Sector</span>
+                <span class="info-value">{{ conductor.ubicacion.sector }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.zona_postal %}
+            <div class="info-item">
+                <span class="info-label">Zona Postal</span>
+                <span class="info-value">{{ conductor.ubicacion.zona_postal }}</span>
+            </div>
+            {% endif %}
+
+            {% if conductor.ubicacion.calle_avenida or conductor.ubicacion.numero_casa %}
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <span class="info-label">Dirección Exacta</span>
+                <span class="info-value">{{ conductor.ubicacion.calle_avenida }} {{ conductor.ubicacion.numero_casa }}</span>
+            </div>
+            {% endif %}
         {% endif %}
     </div>
 </div>
 
-
             <!-- DOCUMENTOS DEL CONDUCTOR -->
-            {% if vehiculo.conductor.cedula_archivo or vehiculo.conductor.rif_archivo %}
-            <div class="info-card">
-                <h2 class="card-title">
-                    <i class="fas fa-id-card"></i> Documentos del Conductor
-                </h2>
-                <div class="doc-list">
-                    {% if vehiculo.conductor.cedula_archivo %}
-                    <div class="doc-item">
-                        <span class="doc-name">📄 Cédula de Identidad</span>
-                        {% if vehiculo.conductor.cedula_vencimiento %}
-                        <span class="doc-cargado">Vence: {{ vehiculo.conductor.cedula_vencimiento|date:"d/m/Y" }}</span>
-                        {% endif %}
-                        <a href="{{ vehiculo.conductor.cedula_archivo.url }}" target="_blank" class="btn-view-doc">
-                            <i class="fas fa-eye"></i> Ver Archivo
-                        </a>
-                    </div>
-                    {% endif %}
-                    {% if vehiculo.conductor.rif_archivo %}
-                    <div class="doc-item">
-                        <span class="doc-name">📄 RIF</span>
-                        {% if vehiculo.conductor.rif_vencimiento %}
-                        <span class="doc-cargado">Vence: {{ vehiculo.conductor.rif_vencimiento|date:"d/m/Y" }}</span>
-                        {% endif %}
-                        <a href="{{ vehiculo.conductor.rif_archivo.url }}" target="_blank" class="btn-view-doc">
-                            <i class="fas fa-eye"></i> Ver Archivo
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
+{% if conductor.cedula_archivo_frente or conductor.cedula_archivo_reverso or conductor.rif_archivo %}
+<div class="info-card">
+    <h2 class="card-title">
+        <i class="fas fa-id-card"></i> Documentos del Conductor
+    </h2>
+    <div class="doc-list">
+        <!-- CÉDULA FRENTE -->
+{% if conductor.cedula_archivo_frente %}
+<div class="doc-item">
+  <span class="doc-name">Cédula - Frente</span>
+  {% if conductor.cedula_vencimiento %}
+    {% if conductor.cedula_vencimiento <= today %}
+      <span class="doc-vencido">
+        <i class="fas fa-exclamation-circle"></i>
+        VENCIDO ({{ conductor.cedula_vencimiento|date:"d/m/Y" }})
+      </span>
+    {% else %}
+      <span class="doc-vigente">
+        <i class="fas fa-check-circle"></i>
+        Vence {{ conductor.cedula_vencimiento|date:"d/m/Y" }}
+      </span>
+    {% endif %}
+  {% else %}
+    <span class="doc-cargado">Sin fecha de vencimiento</span>
+  {% endif %}
+  <a href="{{ conductor.cedula_archivo_frente.url }}" target="_blank" class="btn-view-doc">
+    <i class="fas fa-eye"></i> Ver Frente
+  </a>
+</div>
+{% endif %}
+
+        <!-- CÉDULA REVERSO -->
+        {% if conductor.cedula_archivo_reverso %}
+        <div class="doc-item">
+            <span class="doc-name">📄 Cédula - Reverso</span>
+            <span class="doc-cargado">Cargado</span>
+            <a href="{{conductor.cedula_archivo_reverso.url }}" target="_blank" class="btn-view-doc">
+                <i class="fas fa-eye"></i> Ver Reverso
+            </a>
+        </div>
+        {% endif %}
+
+       <!-- RIF -->
+{% if conductor.rif_archivo %}
+<div class="doc-item">
+    <span class="doc-name">📄 RIF</span>
+    {% if conductor.rif_vencimiento %}
+        {% if conductor.rif_vencimiento <= today %}
+            <span class="doc-vencido">
+                <i class="fas fa-exclamation-circle"></i>
+                VENCIDO ({{ conductor.rif_vencimiento|date:"d/m/Y" }})
+            </span>
+        {% else %}
+            <span class="doc-vigente">
+                <i class="fas fa-check-circle"></i>
+                Vence: {{ conductor.rif_vencimiento|date:"d/m/Y" }}
+            </span>
+        {% endif %}
+    {% else %}
+        <span class="doc-cargado">Sin fecha de vencimiento</span>
+    {% endif %}
+    <a href="{{ conductor.rif_archivo.url }}" target="_blank" class="btn-view-doc">
+        <i class="fas fa-eye"></i> Ver Archivo
+    </a>
+</div>
+{% endif %}
+
+    </div>
+</div>
+{% endif %}
         </div>
 
         <!-- COLUMNA DERECHA -->
-        <div class="col-lg-6">
+<div class="col-lg-6">
+    {% if sin_vehiculo %}
+    <div class="info-card">
+        <div class="alert alert-warning">
+            <i class="fas fa-car-side fa-2x mb-3 d-block"></i>
+            <h4 class="mb-3">Sin vehículo registrado</h4>
+            <div class="sin-vehiculo-content">
+                <p>Este afiliado no tiene vehículos asociados.</p>
+                <a href="{% url 'taxis:vehiculo_create' %}?conductor={{ conductor.pk }}" class="btn btn--primary">
+                    <i class="fas fa-car-plus"></i> Registrar Vehículo
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
             <!-- IDENTIDAD DEL VEHÍCULO -->
             <div class="info-card">
                 <h2 class="card-title">
@@ -609,11 +1720,14 @@
                     </div>
                 </div>
 
-                <!-- FOTO DEL VEHÍCULO CON ZOOM -->
+                <!-- FOTO DEL VEHÍCULO -->
                 {% if vehiculo.foto %}
-                <div class="vehicle-photo-container">
-                    <img src="{{ vehiculo.foto.url }}" alt="Foto del vehículo" class="vehicle-photo" onclick="openZoomModal('{{ vehiculo.foto.url }}')">
-                    <span class="zoom-hint"><i class="fas fa-search-plus"></i> Click para ampliar</span>
+                <div style="margin-top: 1.5rem;">
+                    <label class="info-label mb-2 d-block">Foto del Vehículo</label>
+                    <div class="vehicle-photo-container">
+                        <img src="{{ vehiculo.foto.url }}" alt="Foto del vehículo" class="vehicle-photo" onclick="openZoomModal('{{ vehiculo.foto.url }}')">
+                        <span class="zoom-hint"><i class="fas fa-search-plus"></i> Click para ampliar</span>
+                    </div>
                 </div>
                 {% endif %}
             </div>
@@ -651,7 +1765,7 @@
                 </div>
             </div>
 
-            <!-- DOCUMENTOS DEL VEHÍCULO -->
+            <!-- DOCUMENTACIÓN LEGAL DEL VEHÍCULO -->
             <div class="info-card">
                 <h2 class="card-title">
                     <i class="fas fa-file-contract"></i> Documentación Legal
@@ -662,7 +1776,7 @@
                     <div class="doc-item">
                         <span class="doc-name">📋 Patente Municipal</span>
                         {% if vehiculo.patente_vencimiento %}
-                            {% if patente_vencida %}
+                            {% if vehiculo.patente_vencimiento <= today %}
                             <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencida: {{ vehiculo.patente_vencimiento|date:"d/m/Y" }}</span>
                             {% else %}
                             <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.patente_vencimiento|date:"d/m/Y" }}</span>
@@ -679,7 +1793,7 @@
                     <div class="doc-item">
                         <span class="doc-name">🚗 Lic. de Circulación</span>
                         {% if vehiculo.licencia_vencimiento %}
-                            {% if lic_circulacion_vencida %}
+                            {% if vehiculo.licencia_vencimiento <= today %}
                             <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencida: {{ vehiculo.licencia_vencimiento|date:"d/m/Y" }}</span>
                             {% else %}
                             <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.licencia_vencimiento|date:"d/m/Y" }}</span>
@@ -696,7 +1810,7 @@
                     <div class="doc-item">
                         <span class="doc-name">🛡️ Seguro (RCV)</span>
                         {% if vehiculo.rcv_vencimiento %}
-                            {% if seguro_vencido %}
+                            {% if vehiculo.rcv_vencimiento <= today %}
                             <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencido: {{ vehiculo.rcv_vencimiento|date:"d/m/Y" }}</span>
                             {% else %}
                             <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.rcv_vencimiento|date:"d/m/Y" }}</span>
@@ -713,7 +1827,7 @@
                     <div class="doc-item">
                         <span class="doc-name">🏥 Cert. Médico</span>
                         {% if vehiculo.medico_vencimiento %}
-                            {% if cert_medico_vencido %}
+                            {% if vehiculo.medico_vencimiento <= today %}
                             <span class="doc-vencido"><i class="fas fa-exclamation-circle"></i> Vencido: {{ vehiculo.medico_vencimiento|date:"d/m/Y" }}</span>
                             {% else %}
                             <span class="doc-vigente"><i class="fas fa-check-circle"></i> Vence: {{ vehiculo.medico_vencimiento|date:"d/m/Y" }}</span>
@@ -749,22 +1863,60 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
+
+   <!-- ========== FOOTER CON BOTONES DE ACCIÓN ========== -->
+<div class="actions-footer">
+
+    <!-- BOTÓN EDITAR AFILIADO (SIEMPRE EXISTE conductor) -->
+    <a href="{% url 'taxis:conductor_update' conductor.pk %}?next={% url 'taxis:dt5_detail' conductor_id=conductor.pk %}" class="btn-action btn-edit">
+        <i class="fas fa-user-edit"></i> Editar Afiliado
+    </a>
+
+    <!-- BOTÓN EDITAR VEHÍCULO (SOLO SI EXISTE vehiculo) -->
+    {% if not sin_vehiculo %}
+    <a href="{% url 'taxis:vehiculo_update' vehiculo.pk %}?next={% url 'taxis:dt5_detail' conductor_id=conductor.pk %}" class="btn-action btn-edit">
+        <i class="fas fa-car"></i> Editar Vehículo
+    </a>
+    {% endif %}
+
+    <!-- BOTÓN ELIMINAR AFILIADO (SIEMPRE EXISTE conductor) -->
+    <button onclick="openDeleteModal()" class="btn-action btn-delete">
+        <i class="fas fa-trash-alt"></i> Eliminar Afiliado
+    </button>
+
 </div>
 
-<!-- MODAL DE ZOOM -->
-<div id="zoomModal" class="zoom-modal" onclick="closeZoomModal()">
-    <span class="zoom-close">&times;</span>
-    <img id="zoomImage" class="zoom-modal-content" alt="Foto ampliada">
-    <div class="zoom-controls">
-        <button class="zoom-btn" onclick="zoomIn(event)" title="Acercar"><i class="fas fa-plus"></i></button>
-        <button class="zoom-btn" onclick="zoomOut(event)" title="Alejar"><i class="fas fa-minus"></i></button>
-        <button class="zoom-btn" onclick="resetZoom(event)" title="Restablecer"><i class="fas fa-compress"></i></button>
+
+<!-- ========== MODAL ELIMINAR AFILIADO ========== -->
+<div id="deleteModal" class="modal-backdrop">
+    <div class="modal-card">
+        <div class="modal-icon-container"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3 class="fw-bold text-dark mb-2">¿Eliminar Afiliado?</h3>
+        
+        <!-- Alerta de advertencia -->
+        <div class="alert alert-danger border-0 d-inline-block text-start p-3 mb-4 rounded-3" 
+             style="background-color: #fef2f2; color: #991b1b; width: 100%; border: 1px solid #fee2e2;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle me-2 flex-shrink-0" style="font-size: 1.1rem;"></i>
+                <span class="small" style="line-height: 1.4; font-weight: 500;">
+                    Esta acción es <strong>irreversible</strong>. Se eliminará el afiliado <strong>{{ vehiculo.conductor.nombres }} {{ vehiculo.conductor.apellidos }}</strong>, su vehículo <strong>{{ vehiculo.placa }}</strong> y todo su historial de forma permanente.
+                </span>
+            </div>
+        </div>
+        
+        <form method="post" action="{% url 'taxis:conductor_delete' conductor.pk %}">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="button" class="btn-modal btn-modal-cancel" onclick="closeDeleteModal()">Cancelar</button>
+                <button type="submit" class="btn-modal btn-modal-confirm">Sí, Eliminar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
-    // VARIABLES GLOBALES PARA ZOOM
     let currentZoom = 1;
 
     function openZoomModal(imageSrc) {
@@ -774,8 +1926,6 @@
         modal.classList.add('show');
         currentZoom = 1;
         zoomImage.style.transform = 'scale(1)';
-        
-        // Permitir cerrar con ESC
         document.addEventListener('keydown', handleEscapeKey);
     }
 
@@ -794,14 +1944,14 @@
 
     function zoomIn(event) {
         event.stopPropagation();
-        currentZoom = Math.min(currentZoom + 0.3, 3); // Máximo 3x
+        currentZoom = Math.min(currentZoom + 0.3, 3);
         const zoomImage = document.getElementById('zoomImage');
         zoomImage.style.transform = `scale(${currentZoom})`;
     }
 
     function zoomOut(event) {
         event.stopPropagation();
-        currentZoom = Math.max(currentZoom - 0.3, 0.5); // Mínimo 0.5x
+        currentZoom = Math.max(currentZoom - 0.3, 0.5);
         const zoomImage = document.getElementById('zoomImage');
         zoomImage.style.transform = `scale(${currentZoom})`;
     }
@@ -813,17 +1963,71 @@
         zoomImage.style.transform = 'scale(1)';
     }
 
-    // Permitir zoom con scroll del mouse
+    // Rueda del ratón en modal
     document.addEventListener('wheel', function(e) {
         const modal = document.getElementById('zoomModal');
-        if (modal.classList.contains('show')) {
+        if (modal && modal.classList.contains('show')) {
             e.preventDefault();
             if (e.deltaY < 0) {
-                zoomIn({stopPropagation: () => {}});
+                zoomIn({ stopPropagation: () => {} });
             } else {
-                zoomOut({stopPropagation: () => {}});
+                zoomOut({ stopPropagation: () => {} });
             }
         }
     }, { passive: false });
+
+    function openAvatarModal() {
+    const modal = document.getElementById('avatarModal') || document.querySelector('.avatar-modal');
+    modal.style.zIndex = '10050';
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+}
+function openDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('deleteModal');
+        if (modal && modal.classList.contains('show')) {
+            closeDeleteModal();
+        }
+    }
+});
+
+// Cerrar al hacer click en el backdrop
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('deleteModal');
+    if (modal && modal.classList.contains('show') && e.target === modal) {
+        closeDeleteModal();
+    }
+});
+
 </script>
+
+<!-- MODAL DE ZOOM FOTO -->
+<div id="zoomModal" class="zoom-modal" onclick="closeZoomModal()">
+    <span class="zoom-close">&times;</span>
+    <img id="zoomImage" class="zoom-modal-content" alt="Foto ampliada">
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn(event)" title="Acercar"><i class="fas fa-plus"></i></button>
+        <button class="zoom-btn" onclick="zoomOut(event)" title="Alejar"><i class="fas fa-minus"></i></button>
+        <button class="zoom-btn" onclick="resetZoom(event)" title="Restablecer"><i class="fas fa-compress"></i></button>
+    </div>
+</div>
+
+
 {% endblock %}

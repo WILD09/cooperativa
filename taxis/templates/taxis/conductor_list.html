@@ -1,7 +1,9 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
 
+
 {% block title %}Afiliados - Cooperativa{% endblock %}
+
 
 {% block content %}
 <style>
@@ -27,10 +29,12 @@
         --text-color: #f3f4f6;
     }
 
+
     /* --- SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES Y NO PEGADO) --- */
     ::-webkit-scrollbar {
         width: 10px;
     }
+
 
     ::-webkit-scrollbar-track {
         background: #f1f1f1;
@@ -38,9 +42,11 @@
         margin: 4px 0; /* ✅ ESPACIO SUPERIOR E INFERIOR */
     }
 
+
     body.dark-mode ::-webkit-scrollbar-track {
         background: #1f2937;
     }
+
 
     ::-webkit-scrollbar-thumb {
         background: var(--coop-green-primary);
@@ -48,18 +54,22 @@
         min-height: 40px; /* ✅ ALTURA MÍNIMA PARA VER BORDES CIRCULARES */
     }
 
+
     ::-webkit-scrollbar-thumb:hover {
         background: var(--coop-green-secondary);
     }
+
 
     body.dark-mode ::-webkit-scrollbar-thumb:hover {
         background: #059669;
     }
 
+
     .page-title { 
         color: var(--coop-green-primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; 
         display: flex; align-items: center; gap: 10px;
     }
+
 
     /* --- BARRA DE BÚSQUEDA --- */
     .search-container {
@@ -79,6 +89,7 @@
         box-shadow: 0 0 0 4px var(--coop-green-light); transform: scale(1.01);
     }
 
+
     /* ✅ NUEVO: Estilos para autocompletado del navegador */
     .search-input:-webkit-autofill,
     .search-input:-webkit-autofill:hover,
@@ -89,6 +100,7 @@
         transition: background-color 5000s ease-in-out 0s;
     }
 
+
     /* Modo oscuro específico para autocompletado */
     body.dark-mode .search-input:-webkit-autofill,
     body.dark-mode .search-input:-webkit-autofill:hover,
@@ -98,10 +110,12 @@
         -webkit-text-fill-color: #f3f4f6 !important;
     }
 
+
     .search-icon {
         position: absolute; left: 15px; z-index: 10; 
         color: var(--coop-green-primary); font-size: 1.1rem; pointer-events: none;
     }
+
 
     /* --- BOTÓN FILTRO --- */
     .filter-btn {
@@ -112,6 +126,7 @@
         cursor: pointer; transition: all 0.3s ease;
     }
     .filter-btn:hover { background-color: var(--coop-green-primary); color: white; transform: rotate(15deg); }
+
 
     /* --- MENU DESPLEGABLE MEJORADO --- */
     .filter-dropdown {
@@ -148,7 +163,9 @@
     }
     body.dark-mode .filter-select option { background-color: #1f2937; color: white; }
 
+
     .filter-select:focus { border-color: var(--coop-green-primary); box-shadow: 0 0 0 3px var(--coop-green-light); }
+
 
     .btn-apply-filters {
         width: 100%; background-color: var(--coop-green-primary); color: white; border: none;
@@ -158,11 +175,13 @@
     .btn-apply-filters:hover { background-color: var(--coop-green-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 179, 0, 0.2); }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
+
     /* --- BOTONES ACCION (REDISEÑADOS) --- */
     .action-buttons-container { 
         display: flex; flex-direction: column; gap: 8px; align-items: flex-end; 
         min-width: 220px;
     }
+
 
     .btn-boceto-outline {
         border: 2px solid var(--coop-green-primary); color: var(--coop-green-primary); background: transparent;
@@ -177,9 +196,11 @@
     .btn-reporte-pdf { border-color: var(--pdf-color) !important; color: var(--pdf-color) !important; }
     .btn-reporte-pdf:hover { background-color: var(--pdf-color) !important; color: white !important; }
 
+
     /* Botón Excel (Verde Oscuro) */
     .btn-reporte-excel { border-color: var(--excel-color) !important; color: var(--excel-color) !important; }
     .btn-reporte-excel:hover { background-color: var(--excel-color) !important; color: white !important; }
+
 
     /* --- TABLA (GRID FIJO) --- */
     .list-header-row {
@@ -194,6 +215,7 @@
     .col-fecha { width: 12%; text-align: center; } 
     .col-genero { width: 10%; text-align: center; } 
     .col-civil { width: 15%; text-align: center; } 
+
 
     .afiliado-row {
         background: white; border: 1px solid var(--border-color); border-radius: 12px;
@@ -215,12 +237,14 @@
     .row-text-muted { color: #6b7280; font-size: 0.9rem; font-weight: 400; } 
     body.dark-mode .row-text-muted { color: #9ca3af; }
 
+
     /* Total Indicator */
     .total-indicator {
         font-weight: 800; color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;
         border-bottom: 2px solid var(--border-color); padding-bottom: 10px; display: inline-block;
     }
     body.dark-mode .total-indicator { color: #9ca3af; }
+
 
     /* Responsive */
     @media (max-width: 992px) {
@@ -241,51 +265,48 @@
         .filter-dropdown { width: 90vw; right: -10px; }
     }
 
+
     @media (max-width: 480px) {
-  .page-title {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-  }
+        .page-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .search-input {
+            height: 44px;
+            font-size: 0.95rem;
+            padding-left: 2.6rem;
+        }
+        .search-icon { left: 12px; }
+        .filter-btn {
+            width: 44px;
+            height: 44px;
+            margin-left: 10px;
+            border-radius: 10px;
+        }
+        .filter-dropdown {
+            width: 92vw;
+            right: 0;
+            padding: 18px;
+        }
+        .btn-boceto-outline {
+            padding: 0.55rem 1rem;
+            font-size: 0.88rem;
+        }
+    }
 
-  .search-input {
-    height: 44px;
-    font-size: 0.95rem;
-    padding-left: 2.6rem;
-  }
-
-  .search-icon { left: 12px; }
-
-  .filter-btn {
-    width: 44px;
-    height: 44px;
-    margin-left: 10px;
-    border-radius: 10px;
-  }
-
-  .filter-dropdown {
-    width: 92vw;
-    right: 0;
-    padding: 18px;
-  }
-
-  .btn-boceto-outline {
-    padding: 0.55rem 1rem;
-    font-size: 0.88rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .row-text-main {
-    white-space: normal;
-  }
-}
-
+    @media (max-width: 768px) {
+        .row-text-main {
+            white-space: normal;
+        }
+    }
 </style>
+
 
 <!-- TITULO -->
 <h1 class="page-title">
     <i class="fas fa-users"></i> Afiliados
 </h1>
+
 
 <!-- BARRA DE CONTROL -->
 <div class="d-flex justify-content-between align-items-start mb-4 header-controls flex-wrap">
@@ -302,27 +323,30 @@
                     <i class="fas fa-filter"></i>
                 </button>
 
+
                 <div class="filter-dropdown" id="filterDropdown">
                     <div class="mb-4">
                         <label class="filter-label">Género</label>
-                        <select name="genero" class="filter-select">
+                        <select name="sexo" class="filter-select">
                             <option value="">Todos</option>
-                            <option value="M" {% if request.GET.genero == 'M' %}selected{% endif %}>Masculino</option>
-                            <option value="F" {% if request.GET.genero == 'F' %}selected{% endif %}>Femenino</option>
+                            <option value="M" {% if request.GET.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                            <option value="F" {% if request.GET.sexo == 'F' %}selected{% endif %}>Femenino</option>
                         </select>
                     </div>
 
+
                     <div class="mb-3">
                         <label class="filter-label">Estado Civil</label>
-                        <select name="edo_civil" class="filter-select">
+                        <select name="estadocivil" class="filter-select">
                             <option value="">Todos</option>
-                            <option value="soltero" {% if request.GET.edo_civil == 'soltero' %}selected{% endif %}>Soltero/a</option>
-                            <option value="casado" {% if request.GET.edo_civil == 'casado' %}selected{% endif %}>Casado/a</option>
-                            <option value="divorciado" {% if request.GET.edo_civil == 'divorciado' %}selected{% endif %}>Divorciado/a</option>
-                            <option value="viudo" {% if request.GET.edo_civil == 'viudo' %}selected{% endif %}>Viudo/a</option>
-                            <option value="union" {% if request.GET.edo_civil == 'union' %}selected{% endif %}>Unión estable de hecho</option>
+                            <option value="soltero" {% if request.GET.estado_civil == 'soltero' %}selected{% endif %}>Soltero/a</option>
+                            <option value="casado" {% if request.GET.estado_civil == 'casado' %}selected{% endif %}>Casado/a</option>
+                            <option value="divorciado" {% if request.GET.estado_civil == 'divorciado' %}selected{% endif %}>Divorciado/a</option>
+                            <option value="viudo" {% if request.GET.estado_civil == 'viudo' %}selected{% endif %}>Viudo/a</option>
+                            <option value="union" {% if request.GET.estado_civil == 'union' %}selected{% endif %}>Unión estable de hecho</option>
                         </select>
                     </div>
+
 
                     <button type="submit" class="btn-apply-filters">
                         Aplicar Filtros
@@ -331,6 +355,7 @@
             </div>
         </form>
     </div>
+
 
     <!-- BOTONES DE ACCIÓN -->
     <div class="action-buttons-container">
@@ -347,16 +372,19 @@
         </a>
     </div>
 
+
 </div>
+
 
 <!-- TOTALIZADOR -->
 <div class="total-indicator">
-    {% if request.GET.q or request.GET.genero or request.GET.edo_civil %}
+    {% if request.GET.q or request.GET.sexo or request.GET.estado_civil %}
         <i class="fas fa-filter mr-1"></i> Resultados Filtrados: <span class="text-dark">{{ conductores|length }}</span>
     {% else %}
         <i class="fas fa-list mr-1"></i> Total Registrados: <span class="text-dark">{{ conductores|length }}</span>
     {% endif %}
 </div>
+
 
 <!-- ENCABEZADOS -->
 <div class="list-header-row">
@@ -369,11 +397,11 @@
     <div class="col-civil">Edo. Civil</div>
 </div>
 
+
 <!-- LISTA -->
 <div>
     {% for cond in conductores %}
-    <a href="{% url 'taxis:conductor_detail' cond.pk %}" class="afiliado-row">
-        
+    <a href="{% url 'taxis:dt5_detail' conductor_id=cond.pk %}?from=conductores" class="afiliado-row">
         <div class="col-num row-text-muted">
             {{ forloop.counter }}
         </div>
@@ -407,6 +435,7 @@
     {% endfor %}
 </div>
 
+
 <!-- PAGINACIÓN -->
 {% if is_paginated %}
 <div class="d-flex justify-content-center mt-4">
@@ -430,6 +459,7 @@
 </div>
 {% endif %}
 
+
 <script>
     function toggleFilters() {
         const dropdown = document.getElementById('filterDropdown');
@@ -444,5 +474,6 @@
         }
     });
 </script>
+
 
 {% endblock %}

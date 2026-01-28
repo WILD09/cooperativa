@@ -51,13 +51,16 @@ urlpatterns = [
     # API de validación en tiempo real
     path('api/validar-vehiculo/', views.validar_datos_vehiculo, name='validar_datos_vehiculo'),
 
-    # ==========================================
-    # 5. DT5 - DATOS DE TRANSPORTISTAS
-    # ==========================================
-    path('dt5/', views.DT5ListView.as_view(), name='dt5_list'),
-    path('dt5/<int:pk>/', views.DT5DetailView.as_view(), name='dt5_detail'),
-    path('reportes/dt5/pdf/', views.reporte_dt5_pdf, name='reporte_dt5_pdf'),
-    path('reportes/dt5/excel/', views.reporte_dt5_excel, name='reporte_dt5_excel'),
+   # ==========================================
+# 5. DT5 - DATOS DE TRANSPORTISTAS
+# ==========================================
+# Con vehículo específico (desde lista de vehículos)
+path('dt5/<int:conductor_id>/<int:vehicle_id>/', views.DT5DetailView.as_view(), name='dt5_detail_with_vehicle'),
+# Sin vehículo específico (para compatibilidad con flujos antiguos)
+path('dt5/<int:conductor_id>/', views.DT5DetailView.as_view(), name='dt5_detail'),
+path('reportes/dt5/pdf/', views.reporte_dt5_pdf, name='reporte_dt5_pdf'),
+path('reportes/dt5/excel/', views.reporte_dt5_excel, name='reporte_dt5_excel'),
+
 
     # ==========================================
     # 6. DOCUMENTOS Y REPORTES

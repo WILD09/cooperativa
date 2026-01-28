@@ -131,8 +131,6 @@
         border: 2px solid var(--border-color);
         border-radius: 20px;
         padding: 2rem;
-        word-break: break-word;
-        overflow-wrap: break-word;
     }
 
     .info-card strong {
@@ -141,21 +139,6 @@
 
     body.dark-mode .info-card strong {
         color: #10b981;
-    }
-
-    /* ✅ Email y enlaces no se salen del borde */
-    .info-card a {
-        word-break: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-        display: inline-block;
-        max-width: 100%;
-        white-space: normal;
-    }
-
-    .info-card p {
-        word-break: break-word;
-        overflow-wrap: break-word;
     }
 
     /* RESPONSIVE: Mantiene 4 columnas hasta móvil chico */
@@ -190,15 +173,18 @@
         width: 10px;
     }
 
+
     ::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
         margin: 4px 0;
     }
 
+
     body.dark-mode ::-webkit-scrollbar-track {
         background: #1f2937;
     }
+
 
     ::-webkit-scrollbar-thumb {
         background: var(--finance-primary);
@@ -206,14 +192,35 @@
         min-height: 40px;
     }
 
+
     ::-webkit-scrollbar-thumb:hover {
         background: var(--finance-secondary);
     }
 
+
     body.dark-mode ::-webkit-scrollbar-thumb:hover {
         background: #059669;
     }
+
+    /* Normaliza el list-group dentro del modal de alertas */
+#alertasModal .list-group-item{
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 .5rem 0 !important; /* respeta el mb-2 */
+    white-space: normal !important;
+}
+
+/* Evita que el badge estire o comprima raro */
+#alertasModal .badge-name-alerta{
+    display: inline-flex !important;
+    align-items: center !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+}
+
 </style>
+
 
 <div class="d-flex align-items-center mb-4">
     <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);"><i class="fas fa-home mr-2"></i>Panel
@@ -237,6 +244,7 @@
         <h6>Pagos Pendientes</h6>
     </a>
 
+
     <button class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal">
         <div class="icon-circle"><i class="fas fa-exclamation-circle"></i></div>
         <h2>{{ alertas_documentos|length|default:"0" }}</h2>
@@ -255,24 +263,13 @@
                 <p><strong>RIF:</strong> {{ coop.rif }}</p>
                 <p><strong>Nombre:</strong> {{ coop.nombre }}</p>
                 <p><strong>Presidente:</strong> {{ coop.presidente }}</p>
+                <!-- CONTACTO Y EMAIL MOVIDOS AQUÍ -->
                 <p><strong>Contacto:</strong> {{ coop.telefono }}</p>
-                <p>
-                    <strong>Email:</strong><br>
-                    <a href="mailto:{{ coop.email }}"
-                        style="color: inherit; text-decoration: underline;">{{ coop.email }}</a>
-                </p>
+                <p><strong>Email:</strong> <a href="mailto:{{ coop.email }}"
+                        style="color: inherit; text-decoration: underline;">{{ coop.email }}</a></p>
             </div>
 
-            <!-- COLUMNA DERECHA -->
-            <div class="col-md-6">
-                <p><strong>Dirección:</strong> {{ coop.direccion }}</p>
-                <p><strong>Municipio:</strong> {{ coop.municipio }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL ALERTAS -->
+            <!-- MODAL ALERTAS -->
 <div class="modal fade" id="alertasModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg" style="border-radius: 15px; overflow: hidden;">
@@ -287,7 +284,7 @@
                 {% if alertas_documentos %}
                 <div class="list-group">
                     {% for alerta in alertas_documentos %}
-                    <a href="{% if alerta.tipo == 'conductor' %}{% url 'taxis:conductor_detail' alerta.conductor_id %}{% elif alerta.tipo == 'vehiculo' %}{% url 'taxis:vehiculo_detail' alerta.vehiculo_id %}{% endif %}"
+                    <a href="{% url 'taxis:dt5_detail' alerta.conductor_id %}?from=alertasdocumentos"
                         class="list-group-item list-group-item-action list-group-item-warning border-0 mb-2 shadow-sm"
                         style="border-radius: 10px;">
                         <div class="d-flex w-100 justify-content-between">

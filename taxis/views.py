@@ -3,6 +3,7 @@ import calendar
 import os
 import random
 import time
+
 from datetime import date, timedelta
 from io import BytesIO
 
@@ -31,7 +32,9 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.contrib.auth.hashers import make_password
@@ -408,6 +411,7 @@ class ConfirmarEliminacionCuentaView(LoginRequiredMixin, View):
 # CONDUCTORES Y VEHÍCULOS
 # ====================================================================
 
+@method_decorator(never_cache, name="dispatch")
 class ConductorListView(LoginRequiredMixin, ListView):
     model = Conductor
     template_name = "taxis/conductor_list.html"
@@ -415,7 +419,7 @@ class ConductorListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        qs = Conductor.objects.select_related('ubicacion').order_by('id')
+        qs = Conductor.objects.select_related('ubicacion').prefetch_related('vehiculos').order_by('id')
     
         q = self.request.GET.get('q')
         if q:
@@ -451,6 +455,11 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
     template_name = "taxis/conductor_form.html"
     success_url = reverse_lazy("taxis:conductor_list")
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['is_create'] = True
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
@@ -462,30 +471,41 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         context = self.get_context_data()
         ubicacion_form = context['ubicacion_form']
-
+        
         if form.is_valid() and ubicacion_form.is_valid():
             with transaction.atomic():
                 ubicacion = ubicacion_form.save()
                 self.object = form.save(commit=False)
                 self.object.ubicacion = ubicacion
                 self.object.save()
+                
                 MovimientoAudit.objects.create(
                     usuario=self.request.user,
                     accion=f"Creó afiliado: {self.object.nombres}",
                     modulo="Afiliados"
                 )
             messages.success(self.request, "Afiliado registrado exitosamente.")
-            return redirect(self.success_url)
+            
+            if self.object.vehiculos.exists():
+                vehiculo = self.object.vehiculos.first()
+                return redirect(f"/taxis/dt5/{vehiculo.pk}/?from=conductor_create")
+            else:
+                return redirect(f"/taxis/conductores/{self.object.pk}/?from=conductor_create")
 
         return self.render_to_response(self.get_context_data(form=form))
+
 
 class ConductorUpdateView(LoginRequiredMixin, UpdateView):
     model = Conductor
     form_class = ConductorForm
     template_name = "taxis/conductor_form.html"
 
+
     def get_success_url(self):
-        return reverse('taxis:conductor_detail', kwargs={'pk': self.object.pk})
+        next_url = self.request.GET.get("next")
+        if next_url:
+            return next_url
+        return reverse_lazy('taxis:conductor_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -513,11 +533,14 @@ class ConductorUpdateView(LoginRequiredMixin, UpdateView):
 
         return self.render_to_response(self.get_context_data(form=form))
 
+
 class ConductorDeleteView(LoginRequiredMixin, DeleteView):
     model = Conductor
     template_name = "taxis/conductor_confirm_delete.html"
     success_url = reverse_lazy("taxis:conductor_list")
 
+
+@method_decorator(never_cache, name="dispatch")
 class VehiculoListView(LoginRequiredMixin, ListView):
     model = Vehiculo
     template_name = "taxis/vehiculo_list.html"
@@ -550,16 +573,23 @@ class VehiculoListView(LoginRequiredMixin, ListView):
         context['estado_actual'] = self.request.GET.get('estado', 'todos')
         return context
 
+
 class VehiculoDetailView(LoginRequiredMixin, DetailView):
     model = Vehiculo
     template_name = "taxis/vehiculo_detail.html"
     context_object_name = "vehiculo"
+
 
 class VehiculoCreateView(LoginRequiredMixin, CreateView):
     model = Vehiculo
     form_class = VehiculoForm
     template_name = "taxis/vehiculo_form.html"
     success_url = reverse_lazy("taxis:vehiculo_list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['is_create'] = True
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
@@ -580,13 +610,22 @@ class VehiculoCreateView(LoginRequiredMixin, CreateView):
         
         return HttpResponseRedirect(self.success_url)
 
+
 class VehiculoUpdateView(LoginRequiredMixin, UpdateView):
     model = Vehiculo
     form_class = VehiculoForm
     template_name = "taxis/vehiculo_form.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['is_create'] = False
+        return kwargs
+
     def get_success_url(self):
-        return reverse_lazy("taxis:vehiculo_detail", kwargs={'pk': self.object.pk})
+        next_url = self.request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+            return next_url
+        return reverse("taxis:vehiculo_detail", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
         self.object = form.save()
@@ -599,6 +638,7 @@ class VehiculoUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Vehículo actualizado exitosamente.")
         
         return HttpResponseRedirect(self.get_success_url())
+
 
 class VehiculoDeleteView(LoginRequiredMixin, DeleteView):
     model = Vehiculo
@@ -640,43 +680,145 @@ class DT5ListView(LoginRequiredMixin, ListView):
         context['estado_actual'] = self.request.GET.get('estado', 'todos')
         return context
 
-class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+
+class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """
-    Vista de detalle completo de un transportista (Conductor + Vehículo)
-    Solo lectura, sin opción de editar o eliminar
+    Vista de detalle completo de un transportista (Conductor + Vehículo).
+    
+    ✅ Muestra SIEMPRE el Conductor aunque no tenga vehículo.
+    ✅ Si no hay vehículo, vehiculo=None y el template debe mostrar "Sin vehículo".
+    ✅ Preserva filtros (q, genero, edo_civil, estado, etc.) al volver.
+    ✅ Mapea módulos origen (conductores/vehiculos) a URLs seguras.
+    ✅ Detecta vencimientos de documentos en tiempo real (solo si hay vehículo).
+    ✅ VALIDA que el vehículo pertenece al conductor (FIX principal).
     """
-    model = Vehiculo
-    template_name = 'taxis/dt5_detail.html'
-    context_object_name = 'vehiculo'
+    template_name = "taxis/dt5_detail.html"
 
     def test_func(self):
         return self.request.user.is_authenticated
 
-    def get_queryset(self):
-        return Vehiculo.objects.select_related('conductor')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        vehiculo = self.get_object()
-        conductor = vehiculo.conductor
+
+        # ============================
+        # ✅ Conductor SIEMPRE existe
+        # ============================
+        conductor_id = kwargs.get("conductor_id")
+        vehicle_id = kwargs.get("vehicle_id")  # NUEVO: Vehículo específico (opcional)
         
-        # Calcular edad del conductor
-        if conductor.fechanacimiento:
-            hoy = timezone.now().date()
-            edad = hoy.year - conductor.fechanacimiento.year
-            if hoy.month < conductor.fechanacimiento.month or \
-               (hoy.month == conductor.fechanacimiento.month and hoy.day < conductor.fechanacimiento.day):
-                edad -= 1
-            context['edad'] = edad
+        conductor = get_object_or_404(
+            Conductor.objects.select_related("ubicacion").prefetch_related("vehiculos"),
+            pk=conductor_id
+        )
+
+        # ============================
+        # ✅ VALIDACIÓN DEL VEHÍCULO (FIX PRINCIPAL)
+        # ============================
+        # Si se pasó vehicle_id, obtenerlo Y validar que pertenece al conductor
+        if vehicle_id:
+            vehiculo = get_object_or_404(
+                conductor.vehiculos.all(),  # Asegurar que PERTENECE al conductor
+                pk=vehicle_id
+            )
+        else:
+            # Si NO se pasó vehicle_id, tomar el primero (compatibilidad)
+            vehiculo = conductor.vehiculos.order_by("id").first()
+
+        context["conductor"] = conductor
+        context["vehiculo"] = vehiculo
+        context["sin_vehiculo"] = vehiculo is None
+
+        # ========================================
+        # ✅ Back URL según origen
+        # ========================================
+        from_module = self.request.GET.get("from", "conductores")
         
-        # Verificar vencimientos (NOMBRES CORREGIDOS SEGÚN TU MODELO)
+        url_mapping = {
+            "vehiculos": reverse("taxis:vehiculo_list"),
+            "conductores": reverse("taxis:conductor_list"),
+            "conductor_create": reverse("taxis:conductor_list"),
+        }
+
+        base_url = url_mapping.get(from_module, reverse("taxis:conductor_list"))
+        
+        query_params = self.request.GET.copy()
+        query_params.pop("page", None)
+        query_params.pop("from", None)
+        
+        if query_params:
+            context["back_url"] = f"{base_url}?{query_params.urlencode()}"
+        else:
+            context["back_url"] = base_url
+
+        # ========================================
+        # ✅ Edad
+        # ========================================
         hoy = timezone.now().date()
-        context['cert_medico_vencido'] = vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy
-        context['patente_vencida'] = vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy
-        context['lic_circulacion_vencida'] = vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy
-        context['seguro_vencido'] = vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy
+        context["today"] = hoy
+
+        if conductor.fechanacimiento:
+            edad = hoy.year - conductor.fechanacimiento.year
+            if (hoy.month < conductor.fechanacimiento.month or
+                (hoy.month == conductor.fechanacimiento.month and hoy.day < conductor.fechanacimiento.day)):
+                edad -= 1
+            context["edad"] = edad
+
+        # ========================================
+        # ✅ Vencimientos (solo si hay vehículo)
+        # ========================================
+        if vehiculo:
+            context["cert_medico_vencido"] = (
+                vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy
+            )
+            context["patente_vencida"] = (
+                vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy
+            )
+            context["lic_circulacion_vencida"] = (
+                vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy
+            )
+            context["seguro_vencido"] = (
+                vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy
+            )
+        else:
+            context["cert_medico_vencido"] = False
+            context["patente_vencida"] = False
+            context["lic_circulacion_vencida"] = False
+            context["seguro_vencido"] = False
+
+            # ========================================
+        # ✅ Vencimientos del CONDUCTOR (antes de vehículos)
+        # ========================================
+        context["conductor_cedula_vencida"] = (
+            conductor.cedula_vencimiento and conductor.cedula_vencimiento < hoy
+        )
+        context["conductor_rif_vencido"] = (
+            conductor.rif_vencimiento and conductor.rif_vencimiento < hoy
+        )
         
+        # ========================================
+        # ✅ Vencimientos del VEHÍCULO (si existe)
+        # ========================================
+        if vehiculo:
+            context["cert_medico_vencido"] = (
+                vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy
+            )
+            context["patente_vencida"] = (
+                vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy
+            )
+            context["lic_circulacion_vencida"] = (
+                vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy
+            )
+            context["seguro_vencido"] = (
+                vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy
+            )
+        else:
+            context["cert_medico_vencido"] = False
+            context["patente_vencida"] = False
+            context["lic_circulacion_vencida"] = False
+            context["seguro_vencido"] = False
+
         return context
+
 
 # ====================================================================
 # REPORTES DT5 (PDF y EXCEL)
@@ -1808,58 +1950,88 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
         return context
 
 
+
 @login_required
 def panel_general(request):
-    # ====================================================================
-    # LOG AUDITORÍA - Login/Acceso al Panel
-    # ====================================================================
-    from datetime import date
-    from taxis.utils import log_login
-    
-    today = date.today()
-    last_login_date = request.session.get('last_login_date')
-    
-    if last_login_date != str(today):
-        log_login(request)
-        request.session['last_login_date'] = str(today)
-    
-    # ====================================================================
-    # PANEL GENERAL - Código Original
-    # ====================================================================
+    """Panel principal con tarjetas, alertas y stats"""
     
     hoy = timezone.now().date()
-    # Solo mostramos alertas de documentos YA VENCIDOS
     
+    # ====================================================================
+    # 1. CONTADORES TARJETAS
+    # ====================================================================
+    total_afiliados = Conductor.objects.filter(estado='activo').count()
+    total_vehiculos = Vehiculo.objects.count()
+    
+    # Pagos pendientes (conductores con vehículo operativo que NO pagaron este mes)
+    conductores_con_vehiculo = Conductor.objects.filter(
+        estado='activo',
+        vehiculos__condicion='operativo'
+    ).distinct()
+    
+    pagos_realizados = PagoMensual.objects.filter(
+        mes=hoy.month,
+        anio=hoy.year,
+        archivado=False
+    ).values_list('conductor_id', flat=True)
+    
+    pagos_pendientes = conductores_con_vehiculo.exclude(id__in=pagos_realizados).count()
+    
+    
+    # ====================================================================
+    # 2. INFORMACIÓN DE LA COOPERATIVA (USA DATOS_COOP)
+    # ====================================================================
+    coop = {
+        'nombre': 'WILSON TORRES 33, R.L.',
+        'rif': 'J-40126249-0',
+        'direccion': 'CALLE LA GLORIA, CASA N° 115-C, SECTOR JESÚS BANDRES. SAN JUAN DE LOS MORROS - ESTADO GUÁRICO',
+        'presidente': 'WILSON TORRES',
+        'telefono': '0416-6444886',
+        'email': 'wilsontorres27@gmail.com',
+        'municipio': 'JUAN GERMAN ROSCIO',
+    }
+    
+    
+    # ====================================================================
+    # 3. ALERTAS DE DOCUMENTOS VENCIDOS (CONDUCTORES)
+    # ====================================================================
     alertas_documentos = []
-
-    # Alertas de Conductores (Cédula y RIF)
-    conductores = Conductor.objects.filter(estado='activo')
+    
+    conductores = Conductor.objects.filter(estado='activo').prefetch_related('vehiculos')
     for c in conductores:
-        if c.cedula_vencimiento and c.cedula_vencimiento < hoy:
-            tipo_doc = 'Cédula'
+        vehiculo_c = c.vehiculos.first()
+        
+        # CÉDULA VENCIDA
+        if c.cedula_vencimiento and c.cedula_vencimiento <= hoy:
             alertas_documentos.append({
                 'tipo': 'conductor',
                 'conductor_id': c.id,
+                'vehiculo_id': vehiculo_c.id if vehiculo_c else None,
                 'conductor_nombre': f"{c.nombres} {c.apellidos}",
-                'titulo': f'{tipo_doc} vencida',
-                'descripcion': f"El documento {tipo_doc} venció el {c.cedula_vencimiento.strftime('%d/%m/%Y')}",
-                'documento_tipo': tipo_doc,
+                'titulo': 'Cédula vencida',
+                'descripcion': f"El documento Cédula venció el {c.cedula_vencimiento.strftime('%d/%m/%Y')}",
+                'documento_tipo': 'Cédula',
                 'fecha_vencimiento': c.cedula_vencimiento
             })
-        if c.rif_vencimiento and c.rif_vencimiento < hoy:
-            tipo_doc = 'RIF'
+        
+        # RIF VENCIDO
+        if c.rif_vencimiento and c.rif_vencimiento <= hoy:
             alertas_documentos.append({
                 'tipo': 'conductor',
                 'conductor_id': c.id,
+                'vehiculo_id': vehiculo_c.id if vehiculo_c else None,
                 'conductor_nombre': f"{c.nombres} {c.apellidos}",
-                'titulo': f'{tipo_doc} vencido',
-                'descripcion': f"El documento {tipo_doc} venció el {c.rif_vencimiento.strftime('%d/%m/%Y')}",
-                'documento_tipo': tipo_doc,
+                'titulo': 'RIF vencido',
+                'descripcion': f"El documento RIF venció el {c.rif_vencimiento.strftime('%d/%m/%Y')}",
+                'documento_tipo': 'RIF',
                 'fecha_vencimiento': c.rif_vencimiento
             })
-
-    # Alertas de Vehículos (Patente, Licencia, RCV, Médico)
-    vehiculos = Vehiculo.objects.select_related('conductor').all()
+    
+    
+    # ====================================================================
+    # 4. ALERTAS DE DOCUMENTOS VENCIDOS (VEHÍCULOS)
+    # ====================================================================
+    vehiculos = Vehiculo.objects.all()
     for v in vehiculos:
         checks = [
             ('Patente', v.patente_vencimiento),
@@ -1868,7 +2040,7 @@ def panel_general(request):
             ('Médico', v.medico_vencimiento)
         ]
         for tipo_doc, fecha in checks:
-            if fecha and fecha < hoy:
+            if fecha and fecha <= hoy:
                 alertas_documentos.append({
                     'tipo': 'vehiculo',
                     'vehiculo_id': v.id,
@@ -1878,42 +2050,30 @@ def panel_general(request):
                     'documento_tipo': tipo_doc,
                     'fecha_vencimiento': fecha
                 })
-
-    alertas_documentos.sort(key=lambda x: x['fecha_vencimiento'])
-
-    # ✅ CORREGIDO: Misma lógica que finanzas_principal
-    mes_actual = hoy.month
-    anio_actual = hoy.year
     
-    # Obtener conductores activos con vehículo operativo (minúscula)
-    conductores_con_vehiculo = Conductor.objects.filter(
-        estado='activo',
-        vehiculos__condicion='operativo'  # ✅ Con minúscula
-    ).distinct()
     
-    # Pre-fetch de pagos del mes actual
-    pagos_mes_actual = PagoMensual.objects.filter(
-        mes=mes_actual,
-        anio=anio_actual,
-        conductor__in=conductores_con_vehiculo
-    ).values_list('conductor_id', flat=True)
+    # ====================================================================
+    # 5. ORDENAR ALERTAS POR FECHA (más recientes primero)
+    # ====================================================================
+    alertas_documentos.sort(key=lambda x: x['fecha_vencimiento'], reverse=True)
     
-    # Contar conductores con vehículo operativo que NO pagaron el mes actual
-    pagos_pendientes_count = conductores_con_vehiculo.exclude(
-        id__in=pagos_mes_actual
-    ).count()
-
+    
+    # ====================================================================
+    # 6. CONTEXT COMPLETO
+    # ====================================================================
     context = {
-        'total_afiliados': Conductor.objects.count(),
-        'total_vehiculos': Vehiculo.objects.count(),
-        'pagos_pendientes': pagos_pendientes_count,
+        'total_afiliados': total_afiliados,
+        'total_vehiculos': total_vehiculos,
+        'pagos_pendientes': pagos_pendientes,
         'alertas_documentos': alertas_documentos,
-        'tasa_actual': ConfiguracionGlobal.get_tasa(),
-        'coop': DATOS_COOP
+        'coop': coop,
+        'today': hoy,
     }
+    
     return render(request, 'taxis/panel_general.html', context)
 
 
+  
 @login_required
 def ayuda_sistema(request):
     return render(request, 'taxis/ayuda.html')

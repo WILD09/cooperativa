@@ -9,225 +9,193 @@
 {% block content %}
 
 <style>
-    /* --- ESTILOS VISUALES --- */
-    :root {
-        --coop-green-primary: #00b300;
-        --coop-green-hover: #009900;
-        --coop-green-light: #e6f7e6;
-        --input-border: #B6ECAD;
-        --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
-        --error-color: #ef4444;
-        --success-color: #10b981;
-    }
+/* --- ESTILOS VISUALES --- */
+:root {
+    --coop-green-primary: #00b300;
+    --coop-green-hover: #009900;
+    --coop-green-light: #e6f7e6;
+    --input-border: #B6ECAD;
+    --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
+    --error-color: #ef4444;
+    --success-color: #10b981;
+}
 
-    body.dark-mode {
-        --coop-green-primary: #10b981;
-        --coop-green-hover: #059669;
-        --coop-green-light: rgba(16, 185, 129, 0.2);
-        --input-border: #4b5563;
-    }
+body.dark-mode {
+    --coop-green-primary: #10b981;
+    --coop-green-hover: #059669;
+    --coop-green-light: rgba(16, 185, 129, 0.2);
+    --input-border: #4b5563;
+}
 
-    /* WIZARD FORMS */
-    .wizard-container {
-        max-width: 950px;
-        margin: 0 auto 3rem;
-    }
+/* WIZARD FORMS */
+.wizard-container { max-width: 950px; margin: 0 auto 3rem; }
 
-    .wizard-progress {
-        display: flex;
-        justify-content: space-between;
-        position: relative;
-        margin-bottom: 3rem;
-        padding: 0 15px;
-    }
+.wizard-progress {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 3rem;
+    padding: 0 15px;
+}
 
-    .wizard-progress::before {
-        content: "";
-        position: absolute;
-        top: 22px;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: #e5e7eb;
-        z-index: 0;
-        border-radius: 2px;
-    }
+.wizard-progress::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    z-index: 0;
+    border-radius: 2px;
+}
 
-    body.dark-mode .wizard-progress::before {
-        background: #374151;
-    }
+body.dark-mode .wizard-progress::before { background: #374151; }
 
-    .progress-line-active {
-        position: absolute;
-        top: 22px;
-        left: 0;
-        height: 4px;
-        background: var(--coop-green-primary);
-        z-index: 1;
-        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        width: 0%;
-        border-radius: 2px;
-    }
+.progress-line-active {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    height: 4px;
+    background: var(--coop-green-primary);
+    z-index: 1;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+    border-radius: 2px;
+}
 
-    .step-node {
-        width: 48px;
-        height: 48px;
-        background: white;
-        border: 3px solid #e5e7eb;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2;
-        font-weight: 900;
-        color: #9ca3af;
-        transition: all 0.3s ease;
-        position: relative;
-        cursor: default;
-        font-size: 1.2rem;
-    }
+.step-node {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 3px solid #e5e7eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    font-weight: 900;
+    color: #9ca3af;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: default;
+    font-size: 1.2rem;
+}
 
-    body.dark-mode .step-node {
-        background: #1f2937;
-        border-color: #4b5563;
-    }
+body.dark-mode .step-node { background: #1f2937; border-color: #4b5563; }
 
-    .step-node.active {
-        border-color: var(--coop-green-primary);
-        color: var(--coop-green-primary);
-        transform: scale(1.1);
-        box-shadow: 0 0 0 5px var(--coop-green-light);
-        background: white;
-    }
+.step-node.active {
+    border-color: var(--coop-green-primary);
+    color: var(--coop-green-primary);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px var(--coop-green-light);
+    background: white;
+}
 
-    body.dark-mode .step-node.active {
-        background: #1f2937;
-    }
+body.dark-mode .step-node.active { background: #1f2937; }
 
-    .step-node.completed {
-        background: var(--coop-green-primary);
-        border-color: var(--coop-green-primary);
-        color: white;
-        transform: scale(1.05);
-    }
+.step-node.completed {
+    background: var(--coop-green-primary);
+    border-color: var(--coop-green-primary);
+    color: white;
+    transform: scale(1.05);
+}
 
-    .step-label {
-        position: absolute;
-        top: 55px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #9ca3af;
-        white-space: nowrap;
-        transition: color 0.3s;
-    }
+.step-label {
+    position: absolute;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #9ca3af;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
 
-    .step-node.active .step-label,
-    .step-node.completed .step-label {
-        color: var(--coop-green-primary);
-    }
+.step-node.active .step-label,
+.step-node.completed .step-label { color: var(--coop-green-primary); }
 
-    .form-card {
-        background: white;
-        border: 2px solid var(--input-border);
-        border-radius: 36px;
-        padding: 2.5rem;
-        box-shadow: 0 12px 50px rgba(0, 0, 0, 0.05);
-        position: relative;
-    }
+.form-card {
+    background: white;
+    border: 2px solid var(--input-border);
+    border-radius: 36px;
+    padding: 2.5rem;
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: visible; /* evita recortes raros */
+}
 
-    body.dark-mode .form-card {
-        background: #0f1a2e;
-        border-color: #374151;
-        box-shadow: none;
-    }
+body.dark-mode .form-card { background: #0f1a2e; border-color: #374151; box-shadow: none; }
 
-    .wizard-step {
-        display: none;
-        animation: fadeIn 0.4s ease;
-    }
+/* Anti-colapso suave del step (evita que quede en una línea) */
+.wizard-step {
+  display: none !important;      /* ← IMPORTANTE: !important */
+  animation: fadeIn 0.4s ease;
+  width: 100%;
+  opacity: 0;                    /* ← Añade esto */
+  transition: opacity 0.3s ease; /* ← Añade esto */
+}
 
-    .wizard-step.active {
-        display: block;
-    }
+.wizard-step.active {
+  display: block !important;     /* ← Añade !important */
+  height: auto;
+  overflow: visible;
+  opacity: 1;                    /* ← Añade esto */
+}
 
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--coop-green-primary);
-        margin-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--input-border);
-    }
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--coop-green-primary);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--input-border);
+}
 
-    .form-group {
-        margin-bottom: 1.5rem;
-        position: relative;
-    }
+.form-group { margin-bottom: 1.5rem; position: relative; }
 
-    .form-label {
-        display: block;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #444;
-        margin-bottom: 8px;
-        margin-left: 12px;
-    }
+.form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 8px;
+    margin-left: 12px;
+}
+.form-label .required { color: var(--error-color); font-weight: 900; }
+body.dark-mode .form-label { color: #ddd; }
 
-    .form-label .required {
-        color: var(--error-color);
-        font-weight: 900;
-    }
+/* INPUTS SELECTS LIMPIOS */
+.vsms-input {
+    width: 100%;
+    padding: 13px 22px;
+    border-radius: 25px;
+    border: 2px solid var(--input-border);
+    background: #FFFFFF;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+.vsms-input:focus {
+    border-color: var(--coop-green-primary);
+    box-shadow: var(--input-focus-shadow);
+    transform: translateY(-1px);
+}
+.vsms-input.is-valid { border-color: var(--success-color); }
+body.dark-mode .vsms-input { background: #1a2639; border-color: #2d3748; color: white; }
+.vsms-input::placeholder { color: #9ca3af; opacity: 0.7; font-style: italic; }
 
-    body.dark-mode .form-label {
-        color: #ddd;
-    }
-
-    /* INPUTS SELECTS LIMPIOS */
-    .vsms-input {
-        width: 100%;
-        padding: 13px 22px;
-        border-radius: 25px;
-        border: 2px solid var(--input-border);
-        background: #FFFFFF;
-        font-size: 0.95rem;
-        color: #333;
-        outline: none;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    .vsms-input:focus {
-        border-color: var(--coop-green-primary);
-        box-shadow: var(--input-focus-shadow);
-        transform: translateY(-1px);
-    }
-
-    .vsms-input.is-valid {
-        border-color: var(--success-color);
-    }
-
-    body.dark-mode .vsms-input {
-        background: #1a2639;
-        border-color: #2d3748;
-        color: white;
-    }
-
-    .vsms-input::placeholder {
-        color: #9ca3af;
-        opacity: 0.7;
-        font-style: italic;
-    }
-
-    /* SELECTS - MODO CLARO */
-select.vsms-input { 
-    appearance: none; 
-    -webkit-appearance: none; 
+/* SELECTS */
+select.vsms-input {
+    appearance: none;
+    -webkit-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300b300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 15px center;
@@ -235,8 +203,6 @@ select.vsms-input {
     padding-right: 40px;
     cursor: pointer;
 }
-
-/* SELECTS - MODO OSCURO */
 body.dark-mode select.vsms-input {
     appearance: none;
     -webkit-appearance: none;
@@ -244,123 +210,69 @@ body.dark-mode select.vsms-input {
     color: white !important;
     border-color: #2d3748 !important;
 }
+body.dark-mode select.vsms-input option { background-color: #0f1a2e; color: white; padding: 10px; }
 
-body.dark-mode select.vsms-input option {
-    background-color: #0f1a2e;
-    color: white;
-    padding: 10px;
+/* ERRORES */
+.field-error-text {
+    color: var(--error-color);
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 6px;
+    margin-left: 15px;
+    display: none;
+    animation: slideDown 0.3s ease;
 }
-    /* ERRORES */
-    .field-error-text {
-        color: var(--error-color);
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-top: 6px;
-        margin-left: 15px;
-        display: none;
-        animation: slideDown 0.3s ease;
-    }
+.field-success-text {
+    color: var(--success-color);
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 6px;
+    margin-left: 15px;
+    display: none;
+    animation: slideDown 0.3s ease;
+}
+.vsms-input.is-invalid {
+    border-color: var(--error-color) !important;
+    background-color: #fef2f2 !important;
+}
+body.dark-mode .vsms-input.is-invalid { background-color: rgba(239, 68, 68, 0.1) !important; }
 
-    .field-success-text {
-        color: var(--success-color);
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-top: 6px;
-        margin-left: 15px;
-        display: none;
-        animation: slideDown 0.3s ease;
-    }
+/* BOTONES */
+.wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    gap: 15px;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+body.dark-mode .wizard-actions { border-top-color: rgba(255, 255, 255, 0.1); }
 
-    .vsms-input.is-invalid {
-        border-color: var(--error-color) !important;
-        background-color: #fef2f2 !important;
-    }
+.btn-wizard {
+    padding: 1rem 2.2rem;
+    border-radius: 50px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+.btn-cancel { background: #fce7e7; color: #d32f2f; border: 1px solid #f5c6c6; }
+.btn-cancel:hover { background: #d32f2f; color: white !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2); }
+body.dark-mode .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
+body.dark-mode .btn-cancel:hover { background: #ef4444; color: white !important; }
+.btn-prev { background: #e5e7eb; color: #4b5563; }
+.btn-prev:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
 
-    body.dark-mode .vsms-input.is-invalid {
-        background-color: rgba(239, 68, 68, 0.1) !important;
-    }
+.btn-next, .btn-submit { background: var(--coop-green-primary); color: white; box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25); }
+.btn-next:hover, .btn-submit:hover { background: var(--coop-green-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 179, 0, 0.35); }
 
-    /* BOTONES */
-    .wizard-actions {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 2.5rem;
-        gap: 15px;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    body.dark-mode .wizard-actions {
-        border-top-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .btn-wizard {
-        padding: 1rem 2.2rem;
-        border-radius: 50px;
-        font-weight: 800;
-        border: none;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none !important;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-    }
-
-    .btn-cancel {
-        background: #fce7e7;
-        color: #d32f2f;
-        border: 1px solid #f5c6c6;
-    }
-
-    .btn-cancel:hover {
-        background: #d32f2f;
-        color: white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
-    }
-
-    body.dark-mode .btn-cancel {
-        background: rgba(239, 68, 68, 0.1);
-        border-color: rgba(239, 68, 68, 0.3);
-        color: #ef4444;
-    }
-
-    body.dark-mode .btn-cancel:hover {
-        background: #ef4444;
-        color: white !important;
-    }
-
-    .btn-prev {
-        background: #e5e7eb;
-        color: #4b5563;
-    }
-
-    .btn-prev:hover {
-        background: #d1d5db;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    body.dark-mode .btn-prev {
-        background: #374151;
-        color: #e5e7eb;
-    }
-
-    .btn-next, .btn-submit {
-        background: var(--coop-green-primary);
-        color: white;
-        box-shadow: 0 4px 15px rgba(0, 179, 0, 0.25);
-    }
-
-    .btn-next:hover, .btn-submit:hover {
-        background: var(--coop-green-hover);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 179, 0, 0.35);
-    }
-
-    /* --- DROPZONE --- */
+/* --- DROPZONE --- */
 .dropzone-container {
     border: 2px dashed #d1d5db;
     border-radius: 20px;
@@ -378,134 +290,70 @@ body.dark-mode select.vsms-input option {
     overflow: hidden;
     cursor: pointer;
 }
-
-body.dark-mode .dropzone-container {
-    background: #1a2639;
-    border-color: #4b5563;
-}
-
+body.dark-mode .dropzone-container { background: #1a2639; border-color: #4b5563; }
 .dropzone-container:hover {
     border-color: var(--coop-green-primary);
     background: #f0fdf4;
     transform: scale(1.02);
     box-shadow: 0 8px 20px rgba(0, 179, 0, 0.1);
 }
+body.dark-mode .dropzone-container:hover { background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.05); }
+.dropzone-container.uploaded { border-color: var(--success-color); background: rgba(16, 185, 129, 0.08); }
 
-body.dark-mode .dropzone-container:hover {
-    background: rgba(16, 185, 129, 0.15);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.05);
+.dropzone-visuals { pointer-events: none; z-index: 5; position: relative; }
+.dropzone-icon { font-size: 2.8rem; color: #9ca3af; margin-bottom: 0.5rem; transition: transform 0.3s ease, color 0.3s ease; }
+.dropzone-icon.uploaded-icon { color: var(--coop-green-primary) !important; }
+.dropzone-container:hover .dropzone-icon { color: var(--coop-green-primary); transform: translateY(-8px); }
+
+.dropzone-text { font-size: 0.95rem; color: #6b7280; font-weight: 700; line-height: 1.6; transition: color 0.3s; }
+.dropzone-container:hover .dropzone-text { color: #374151; }
+body.dark-mode .dropzone-container:hover .dropzone-text { color: #e5e7eb; }
+
+.django-input-wrapper {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    z-index: 10;
+    cursor: pointer;
 }
+.django-input-wrapper input[type="file"] { width: 100%; height: 100%; cursor: pointer; font-size: 100px; }
+.django-input-wrapper a, .django-input-wrapper label, .django-input-wrapper span { display: none !important; }
 
-.dropzone-container.uploaded {
-    border-color: var(--success-color);
-    background: rgba(16, 185, 129, 0.08);
-}
-
-.dropzone-visuals {
-    pointer-events: none;
-    z-index: 5;
-    position: relative;
-}
-
-.dropzone-icon {
-    font-size: 2.8rem;
-    color: #9ca3af;
-    margin-bottom: 0.5rem;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.dropzone-icon.uploaded-icon {
-    color: var(--coop-green-primary) !important;
-}
-
-
-.dropzone-container:hover .dropzone-icon {
-    color: var(--coop-green-primary);
-    transform: translateY(-8px);
-}
-
-.dropzone-text {
-    font-size: 0.95rem;
-    color: #6b7280;
-    font-weight: 700;
-    line-height: 1.6;
-    transition: color 0.3s;
-}
-
-.dropzone-container:hover .dropzone-text {
-    color: #374151;
-}
-
-body.dark-mode .dropzone-container:hover .dropzone-text {
-    color: #e5e7eb;
-}
-
-    .django-input-wrapper {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        z-index: 10;
-        cursor: pointer;
-    }
-
-    /* ✅ ALINEACIÓN Y TAMAÑO UNIFORME DE DROPZONES */
-.form-group .dropzone-container {
-    min-height: 150px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Cuando están en ROW/COLUMNAS - hacerlos igual Y CENTRADOS */
-.row[style*="gap: 20px"] {
+/* ✅ FILAS DROPZONE: usar clase .rowstylegap (no selector por style) */
+.row.rowstylegap {
     display: flex;
     justify-content: center;
     align-items: stretch;
-    gap: 20px !important;
+    gap: 20px;
     flex-wrap: wrap;
+    margin-left: 0;   /* evita conflictos con el gutter negativo de Bootstrap */
+    margin-right: 0;
 }
+.row.rowstylegap > [class*="col-"] { padding-left: 0; padding-right: 0; }
 
-.row[style*="gap: 20px"] .col-md-6 {
+.row.rowstylegap > .col-md-6 {
     flex: 0 0 calc(50% - 10px);
     max-width: calc(50% - 10px);
     display: flex;
 }
+.row.rowstylegap > .col-md-6 .dropzone-container { width: 100%; height: 150px; }
 
-.row[style*="gap: 20px"] .col-md-6 .dropzone-container {
-    width: 100%;
-    height: 150px;
-}
-
-/* Para el RIF que está en col-md-12 */
-.row[style*="gap: 20px"] .col-md-12 {
+.row.rowstylegap > .col-md-12 {
     flex: 0 0 100%;
     max-width: 100%;
     display: flex;
     justify-content: center;
 }
+.row.rowstylegap > .col-md-12 .dropzone-container { width: 50%; max-width: 500px; height: 150px; }
 
-.row[style*="gap: 20px"] .col-md-12 .dropzone-container {
-    width: 50%;
-    max-width: 500px;
-    height: 150px;
-}
-
-
-/* ARCHIVO CON ESTADO CARGADO - VERDE */
+/* Estados */
 .dropzone-container[style*="border-color: var(--coop-green-primary)"] {
     border-color: var(--coop-green-primary) !important;
     background: rgba(0, 179, 0, 0.05);
 }
+body.dark-mode .dropzone-container[style*="border-color: var(--coop-green-primary)"] { background: rgba(16, 185, 129, 0.08); }
 
-body.dark-mode .dropzone-container[style*="border-color: var(--coop-green-primary)"] {
-    background: rgba(16, 185, 129, 0.08);
-}
-
-/* ✅ ARCHIVO CON ERROR - ROJO (cuando está vacío) */
 .dropzone-container.error,
 .dropzone-container[style*="border-color: #ef4444"],
 .dropzone-container[style*="border-color: rgb(239, 68, 68)"] {
@@ -513,525 +361,151 @@ body.dark-mode .dropzone-container[style*="border-color: var(--coop-green-primar
     background: rgba(239, 68, 68, 0.08) !important;
     border-width: 2px !important;
 }
-
 body.dark-mode .dropzone-container.error,
 body.dark-mode .dropzone-container[style*="border-color: #ef4444"],
 body.dark-mode .dropzone-container[style*="border-color: rgb(239, 68, 68)"] {
     background: rgba(239, 68, 68, 0.12) !important;
 }
+.dropzone-container.uploaded { border-color: var(--coop-green-primary) !important; border-width: 2px !important; }
+.dropzone-container.error { border-color: #ef4444 !important; border-width: 2px !important; }
 
-/* Cuando el archivo está cargado - PERMANENTE */
-.dropzone-container.uploaded {
-    border-color: var(--coop-green-primary) !important;
-    border-width: 2px !important;
+/* Fechas */
+.date-wrapper { position: relative; }
+.calendar-trigger {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--coop-green-primary);
+    cursor: pointer;
+    font-size: 1.3rem;
+    z-index: 5;
+    transition: all 0.3s ease;
 }
+.calendar-trigger:hover { transform: translateY(-50%) scale(1.15); }
 
-/* Cuando hay error - ROJO */
-.dropzone-container.error {
-    border-color: #ef4444 !important;
-    border-width: 2px !important;
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Resumen */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
 }
-
-    .django-input-wrapper input[type="file"] {
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        font-size: 100px;
-    }
-
-    .django-input-wrapper a, .django-input-wrapper label, .django-input-wrapper span {
-        display: none !important;
-    }
-
-    .date-wrapper {
-        position: relative;
-    }
-
-    .calendar-trigger {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--coop-green-primary);
-        cursor: pointer;
-        font-size: 1.3rem;
-        z-index: 5;
-        transition: all 0.3s ease;
-    }
-
-    .calendar-trigger:hover {
-        transform: translateY(-50%) scale(1.15);
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 2rem;
-    }
-
-    .summary-item {
-        background: rgba(0,0,0,0.03);
-        padding: 18px;
-        border-radius: 15px;
-        border: 1px solid rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-    }
-
-    .summary-item:hover {
-        box-shadow: 0 4px 12px rgba(0, 179, 0, 0.1);
-        transform: translateY(-2px);
-    }
-
-    body.dark-mode .summary-item {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.1);
-    }
-
-    .summary-label {
-        font-size: 0.75rem;
-        color: #6b7280;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-    }
-
-    .summary-val {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: var(--coop-green-primary);
-        word-break: break-word;
-    }
-
-    body.dark-mode #id_zona_postal {
-        background-color: #1a2639 !important;
-        color: white !important;
-        border-color: #2d3748;
-    }
-
-    body.dark-mode .step-node {
-        background-color: #0f1a2e;
-        border-color: #374151;
-        color: #9ca3af;
-    }
-
-    body.dark-mode .step-node.active {
-        border-color: #10b981 !important;
-        color: #10b981 !important;
-        background-color: #0f1a2e !important;
-        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.25) !important;
-        transform: scale(1.1);
-    }
-
-    body.dark-mode .step-node.completed {
-        background-color: #10b981 !important;
-        border-color: #10b981 !important;
-        color: #ffffff !important;
-        transform: scale(1.05);
-        box-shadow: none;
-    }
-
-    body.dark-mode .step-label {
-        color: #9ca3af;
-    }
-
-    body.dark-mode .step-node.active .step-label,
-    body.dark-mode .step-node.completed .step-label {
-        color: #10b981 !important;
-    }
-
-    body.dark-mode .progress-line-active {
-        background-color: #10b981 !important;
-    }
-
-  /*RESPONDIVE*/
-    @media (max-width: 768px) {
-    /* --- WIZARD PROGRESS RESPONSIVO --- */
-    .wizard-progress {
-        padding: 0 8px;
-        margin-bottom: 2.5rem;
-    }
-
-    .step-node {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
-    /* LABELS ALTERNADOS: Arriba/Abajo para no chocar */
-    .step-label {
-        font-size: 0.65rem;
-        letter-spacing: 0px;
-        width: 50px;
-    }
-
-    /* Nodo 1: Label ARRIBA */
-    .step-node[data-step="1"] .step-label {
-        top: -35px;
-        bottom: auto;
-        white-space: normal;
-        line-height: 1.1;
-    }
-
-    /* Nodo 2: Label ABAJO */
-    .step-node[data-step="2"] .step-label {
-        top: 55px;
-        white-space: normal;
-        line-height: 1.1;
-    }
-
-    /* Nodo 3: Label ARRIBA */
-    .step-node[data-step="3"] .step-label {
-        top: -35px;
-        bottom: auto;
-        white-space: normal;
-        line-height: 1.1;
-    }
-
-    /* Nodo 4: Label ABAJO */
-    .step-node[data-step="4"] .step-label {
-        top: 55px;
-        white-space: normal;
-        line-height: 1.1;
-    }
-
-    /* --- FORM CARD --- */
-    .form-card {
-        padding: 1.5rem;
-        border-radius: 20px;
-    }
-
-    .section-title {
-        font-size: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* --- DROPZONE --- */
-    .dropzone-container {
-        padding: 1.2rem;
-        min-height: 110px;
-        border-radius: 16px;
-    }
-
-    .dropzone-icon {
-        font-size: 2.2rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .dropzone-text {
-        font-size: 0.85rem;
-        line-height: 1.4;
-    }
-
-    .row[style*="gap: 20px"] {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: stretch;
-    gap: 20px !important;
+.summary-item {
+    background: rgba(0,0,0,0.03);
+    padding: 18px;
+    border-radius: 15px;
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
 }
+.summary-item:hover { box-shadow: 0 4px 12px rgba(0, 179, 0, 0.1); transform: translateY(-2px); }
+body.dark-mode .summary-item { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
 
-.row[style*="gap: 20px"] > .col-md-6 {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
-    display: flex;
+.summary-label { font-size: 0.75rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+.summary-val { font-size: 1.05rem; font-weight: 700; color: var(--coop-green-primary); word-break: break-word; }
+
+body.dark-mode #id_zona_postal { background-color: #1a2639 !important; color: white !important; border-color: #2d3748; }
+
+/* Ajustes dark extra */
+body.dark-mode .step-node { background-color: #0f1a2e; border-color: #374151; color: #9ca3af; }
+body.dark-mode .step-node.active {
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+    background-color: #0f1a2e !important;
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.25) !important;
+    transform: scale(1.1);
 }
+body.dark-mode .step-node.completed { background-color: #10b981 !important; border-color: #10b981 !important; color: #ffffff !important; transform: scale(1.05); box-shadow: none; }
+body.dark-mode .step-label { color: #9ca3af; }
+body.dark-mode .step-node.active .step-label,
+body.dark-mode .step-node.completed .step-label { color: #10b981 !important; }
+body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 
-.row[style*="gap: 20px"] > .col-md-6 > .dropzone-container {
-    width: 100%;
-}
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .wizard-progress { padding: 0 8px; margin-bottom: 2.5rem; }
+    .step-node { width: 40px; height: 40px; font-size: 1rem; }
+    .step-label { font-size: 0.65rem; letter-spacing: 0px; width: 50px; }
+    .step-node[data-step="1"] .step-label { top: -35px; bottom: auto; white-space: normal; line-height: 1.1; }
+    .step-node[data-step="2"] .step-label { top: 55px; white-space: normal; line-height: 1.1; }
+    .step-node[data-step="3"] .step-label { top: -35px; bottom: auto; white-space: normal; line-height: 1.1; }
+    .step-node[data-step="4"] .step-label { top: 55px; white-space: normal; line-height: 1.1; }
 
-    /* --- BOTONES --- */
-    .btn-wizard {
-    padding: 0.9rem 1.5rem;
-    font-size: 0.9rem;
-    border-radius: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .form-card { padding: 1.5rem; border-radius: 20px; }
+    .section-title { font-size: 1.25rem; margin-bottom: 1.5rem; }
 
+    .dropzone-container { padding: 1.2rem; min-height: 110px; border-radius: 16px; }
+    .dropzone-icon { font-size: 2.2rem; margin-bottom: 0.3rem; }
+    .dropzone-text { font-size: 0.85rem; line-height: 1.4; }
 
-    .wizard-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
+    /* responsive de rowstylegap */
+    .row.rowstylegap > .col-md-6 { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); display: flex; }
 
-    .btn-wizard {
-        width: 100%;
-    }
+    .wizard-actions { flex-direction: column; gap: 10px; }
+    .btn-wizard { width: 100%; padding: 0.9rem 1.5rem; font-size: 0.9rem; border-radius: 40px; display: flex; justify-content: center; align-items: center; }
 
-    /* --- INPUTS --- */
-    .form-label {
-        font-size: 0.9rem;
-        margin-bottom: 6px;
-    }
-
-    .vsms-input {
-        padding: 11px 18px;
-        font-size: 0.9rem;
-        border-radius: 20px;
-    }
+    .form-label { font-size: 0.9rem; margin-bottom: 6px; }
+    .vsms-input { padding: 11px 18px; font-size: 0.9rem; border-radius: 20px; }
 }
 
 @media (max-width: 480px) {
-    .wizard-progress {
-        padding: 0 4px;
-        margin-bottom: 2rem;
-    }
+    .wizard-progress { padding: 0 4px; margin-bottom: 2rem; }
+    .wizard-progress::before, .progress-line-active { top: 17px; height: 2px; }
+    .step-node { width: 36px; height: 36px; font-size: 0.9rem; border: 2px solid #e5e7eb; }
+    .step-label { font-size: 0.6rem; width: 45px; text-align: center; }
+    .step-node[data-step="1"] .step-label { top: -32px; bottom: auto; }
+    .step-node[data-step="2"] .step-label { top: 50px; }
+    .step-node[data-step="3"] .step-label { top: -32px; bottom: auto; }
+    .step-node[data-step="4"] .step-label { top: 50px; }
 
-    /* 🔧 ALINEACIÓN DE LÍNEAS CON NODOS (tabla correcta) */
-    .wizard-progress::before,
-    .progress-line-active {
-        top: 17px;  /* ← Para nodos de 36px */
-        height: 2px;
-    }
+    .form-card { padding: 1rem; border-radius: 16px; }
+    .section-title { font-size: 1.1rem; margin-bottom: 1.2rem; gap: 8px; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { font-size: 0.85rem; margin-left: 8px; }
+    .vsms-input { padding: 10px 16px; font-size: 0.85rem; border-radius: 18px; }
 
-    .step-node {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-        border: 2px solid #e5e7eb;
-    }
+    .dropzone-container { padding: 1rem; min-height: 100px; border-radius: 14px; }
+    .dropzone-icon { font-size: 2rem; margin-bottom: 0.2rem; }
+    .dropzone-text { font-size: 0.78rem; line-height: 1.3; }
 
-    .step-label {
-        font-size: 0.6rem;
-        width: 45px;
-        text-align: center;
-    }
+    .row.rowstylegap { flex-direction: column; gap: 10px; }
+    .row.rowstylegap > .col-md-6 { flex: 0 0 100%; max-width: 100%; padding-left: 6px; padding-right: 6px; }
 
-    /* Labels alternados en móvil muy pequeño */
-    .step-node[data-step="1"] .step-label {
-        top: -32px;
-        bottom: auto;
-    }
+    .btn-wizard { padding: 0.8rem 1.2rem; font-size: 0.85rem; width: 100%; gap: 5px; border-radius: 35px; display: flex; justify-content: center; align-items: center; }
+    .btn-wizard i { font-size: 0.9rem; }
 
-    .step-node[data-step="2"] .step-label {
-        top: 50px;
-    }
+    .wizard-actions { margin-top: 1.8rem; gap: 8px; padding-top: 1.5rem; }
 
-    .step-node[data-step="3"] .step-label {
-        top: -32px;
-        bottom: auto;
-    }
+    .row { margin-left: -6px; margin-right: -6px; }
+    .col-md-6, .col-md-4, .col-md-3, .col-md-5, .col-md-7, .col-md-12 { padding-left: 6px; padding-right: 6px; }
 
-    .step-node[data-step="4"] .step-label {
-        top: 50px;
-    }
-
-    .form-card {
-        padding: 1rem;
-        border-radius: 16px;
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-        margin-bottom: 1.2rem;
-        gap: 8px;
-    }
-
-    .form-group {
-        margin-bottom: 1.2rem;
-    }
-
-    .form-label {
-        font-size: 0.85rem;
-        margin-left: 8px;
-    }
-
-    .vsms-input {
-        padding: 10px 16px;
-        font-size: 0.85rem;
-        border-radius: 18px;
-    }
-
-    .dropzone-container {
-        padding: 1rem;
-        min-height: 100px;
-        border-radius: 14px;
-    }
-
-    .dropzone-icon {
-        font-size: 2rem;
-        margin-bottom: 0.2rem;
-    }
-
-    .dropzone-text {
-        font-size: 0.78rem;
-        line-height: 1.3;
-    }
-
-    .row[style*="gap: 20px"] {
-        flex-direction: column;
-        gap: 10px !important;
-    }
-    
-    .row[style*="gap: 20px"] > .col-md-6 {
-        flex: 0 0 100%;
-        max-width: 100%;
-        padding-left: 6px;
-        padding-right: 6px;
-    }
-
-    .btn-wizard {
-        padding: 0.8rem 1.2rem;
-        font-size: 0.85rem;
-        width: 100%;
-        gap: 5px;
-        border-radius: 35px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .btn-wizard i {
-        font-size: 0.9rem;
-    }
-
-    .wizard-actions {
-        margin-top: 1.8rem;
-        gap: 8px;
-        padding-top: 1.5rem;
-    }
-
-    .row {
-        margin-left: -6px;
-        margin-right: -6px;
-    }
-
-    .col-md-6, .col-md-4, .col-md-3, .col-md-5, .col-md-7, .col-md-12 {
-        padding-left: 6px;
-        padding-right: 6px;
-    }
-
-    .summary-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .summary-item {
-        padding: 14px;
-        border-radius: 12px;
-    }
-
-    .summary-label {
-        font-size: 0.7rem;
-    }
-
-    .summary-val {
-        font-size: 0.95rem;
-    }
+    .summary-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .summary-item { padding: 14px; border-radius: 12px; }
+    .summary-label { font-size: 0.7rem; }
+    .summary-val { font-size: 0.95rem; }
 }
 
-/* 🎯 ULTRA PEQUEÑO: < 380px */
 @media (max-width: 380px) {
-    .wizard-progress {
-        padding: 0 2px;
-        margin-bottom: 1.8rem;
-    }
-
-    .wizard-progress::before,
-    .progress-line-active {
-        top: 15px;  /* ← Para nodos de 32px */
-        height: 2px;
-    }
-
-    .step-node {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-        border: 2px solid #e5e7eb;
-    }
-
-    .step-node.active {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 3px var(--coop-green-light);
-    }
-
-    .step-label {
-        font-size: 0.55rem;
-        width: 38px;
-        white-space: normal;
-    }
-
-    .section-title {
-        font-size: 1rem;
-        margin-bottom: 1rem;
-        gap: 6px;
-    }
-
-    .form-label {
-        font-size: 0.8rem;
-        margin-left: 6px;
-    }
-
-    .vsms-input {
-        padding: 9px 14px;
-        font-size: 0.8rem;
-        border-radius: 16px;
-    }
-
-    .btn-wizard {
-        padding: 0.75rem 1rem;
-        font-size: 0.8rem;
-    }
-
-    .wizard-actions {
-        margin-top: 1.5rem;
-        gap: 6px;
-        padding-top: 1.2rem;
-    }
-
-    .dropzone-container {
-        padding: 0.8rem;
-        min-height: 90px;
-        border-radius: 12px;
-    }
-
-    .dropzone-icon {
-        font-size: 1.8rem;
-        margin-bottom: 0.1rem;
-    }
-
-    .dropzone-text {
-        font-size: 0.7rem;
-    }
-
-    .summary-item {
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    .summary-label {
-        font-size: 0.65rem;
-    }
-
-    .summary-val {
-        font-size: 0.9rem;
-    }
+    .wizard-progress { padding: 0 2px; margin-bottom: 1.8rem; }
+    .wizard-progress::before, .progress-line-active { top: 15px; height: 2px; }
+    .step-node { width: 32px; height: 32px; font-size: 0.8rem; border: 2px solid #e5e7eb; }
+    .step-node.active { transform: scale(1.05); box-shadow: 0 0 0 3px var(--coop-green-light); }
+    .step-label { font-size: 0.55rem; width: 38px; white-space: normal; }
+    .section-title { font-size: 1rem; margin-bottom: 1rem; gap: 6px; }
+    .form-label { font-size: 0.8rem; margin-left: 6px; }
+    .vsms-input { padding: 9px 14px; font-size: 0.8rem; border-radius: 16px; }
+    .btn-wizard { padding: 0.75rem 1rem; font-size: 0.8rem; }
+    .wizard-actions { margin-top: 1.5rem; gap: 6px; padding-top: 1.2rem; }
+    .dropzone-container { padding: 0.8rem; min-height: 90px; border-radius: 12px; }
+    .dropzone-icon { font-size: 1.8rem; margin-bottom: 0.1rem; }
+    .dropzone-text { font-size: 0.7rem; }
+    .summary-item { padding: 10px; border-radius: 10px; }
+    .summary-label { font-size: 0.65rem; }
+    .summary-val { font-size: 0.9rem; }
 }
-
-
 </style>
 
 <div class="header-section text-center mb-5">
@@ -1113,20 +587,22 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                 </div>
 
                 <div class="wizard-actions">
-                    {% if object %}
-                        <a href="{% url 'taxis:conductor_detail' object.pk %}" class="btn-wizard btn-cancel">
-                            <i class="fas fa-times"></i> Cancelar
-                        </a>
-                    {% else %}
-                        <a href="{% url 'taxis:conductor_list' %}" class="btn-wizard btn-cancel">
-                            <i class="fas fa-arrow-left"></i> Cancelar
-                        </a>
-                    {% endif %}
-                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()">
-                        Siguiente <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
+    {% if request.GET.next %}
+        <!-- DT5 -->
+        <a href="{{ request.GET.next }}" class="btn-wizard btn-cancel">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
+    {% else %}
+        <!-- Creación nueva / otros -->
+        <a href="{% url 'taxis:conductor_list' %}" class="btn-wizard btn-cancel">
+            <i class="fas fa-arrow-left"></i> Cancelar
+        </a>
+    {% endif %}
+    <button type="button" class="btn-wizard btn-next" onclick="nextStep()">
+        Siguiente <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+</div>
 
             <!-- PASO 2: DOCUMENTOS -->
             <div class="wizard-step" id="step2">
@@ -1164,61 +640,67 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                 </div>
 
                 <!-- DROPZONE CÉDULA (FRENTE Y REVERSO) -->
-<div class="row" style="gap: 20px; margin-bottom: 30px;">
-    <!-- FRENTE -->
-    <div class="col-md-6 form-group mb-4">
-        <label class="form-label">Cédula - Frente <span class="required">*</span></label>
-        <div class="dropzone-container {% if object.cedula_archivo_frente %}uploaded{% endif %}" id="dropzone-cedula-frente">
-            <div class="dropzone-visuals">
-                <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_frente %}color: var(--coop-green-primary);{% endif %}"></i>
-                <div class="dropzone-text">
-                    {% if object.cedula_archivo_frente %}
-                        <span class="text-success fw-bold" style="font-size:1rem;">
-                            <i class="fas fa-check-circle"></i> Archivo cargado
-                        </span>
-                        <br>
-                        <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
-                    {% else %}
-                        Arrastra archivo o click para seleccionar
-                        <br>
-                        <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="django-input-wrapper">
-                {% render_field form.cedula_archivo_frente %}
+<!-- FRENTE -->
+<div class="col-md-6 form-group mb-4">
+    <label class="form-label">
+        Cédula - Frente 
+        {% if form.cedula_archivo_frente.field.required %}<span class="required">*</span>{% else %}<span class="text-muted">(Opcional)</span>{% endif %}
+    </label>
+    <div class="dropzone-container {% if object.cedula_archivo_frente %}uploaded{% endif %}" id="dropzone-cedula-frente">
+        <div class="dropzone-visuals">
+            <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_frente %}color: var(--coop-green-primary);{% endif %}"></i>
+            <div class="dropzone-text">
+                {% if object.cedula_archivo_frente %}
+                    <span class="text-success fw-bold" style="font-size:1rem;">
+                        <i class="fas fa-check-circle"></i> Archivo cargado
+                    </span>
+                    <br>
+                    <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
+                {% else %}
+                    Arrastra archivo o click para seleccionar
+                    <br>
+                    <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
+                {% endif %}
             </div>
         </div>
-        <div class="field-error-text"></div>
-    </div>
-
-    <!-- REVERSO -->
-    <div class="col-md-6 form-group mb-4">
-        <label class="form-label">Cédula - Reverso <span class="required">*</span></label>
-        <div class="dropzone-container {% if object.cedula_archivo_reverso %}uploaded{% endif %}" id="dropzone-cedula-reverso">
-            <div class="dropzone-visuals">
-                <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_reverso %}color: var(--coop-green-primary);{% endif %}"></i>
-                <div class="dropzone-text">
-                    {% if object.cedula_archivo_reverso %}
-                        <span class="text-success fw-bold" style="font-size:1rem;">
-                            <i class="fas fa-check-circle"></i> Archivo cargado
-                        </span>
-                        <br>
-                        <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
-                    {% else %}
-                        Arrastra archivo o click para seleccionar
-                        <br>
-                        <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="django-input-wrapper">
-                {% render_field form.cedula_archivo_reverso %}
-            </div>
+        <div class="django-input-wrapper">
+            {% render_field form.cedula_archivo_frente class="dropzone-input" %}
         </div>
     </div>
     <div class="field-error-text"></div>
 </div>
+
+<!-- REVERSO -->
+<div class="col-md-6 form-group mb-4">
+    <label class="form-label">
+        Cédula - Reverso 
+        {% if form.cedula_archivo_reverso.field.required %}<span class="required">*</span>{% else %}<span class="text-muted">(Opcional)</span>{% endif %}
+    </label>
+    <div class="dropzone-container {% if object.cedula_archivo_reverso %}uploaded{% endif %}" id="dropzone-cedula-reverso">
+        <div class="dropzone-visuals">
+            <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_reverso %}color: var(--coop-green-primary);{% endif %}"></i>
+            <div class="dropzone-text">
+                {% if object.cedula_archivo_reverso %}
+                    <span class="text-success fw-bold" style="font-size:1rem;">
+                        <i class="fas fa-check-circle"></i> Archivo cargado
+                    </span>
+                    <br>
+                    <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
+                {% else %}
+                    Arrastra archivo o click para seleccionar
+                    <br>
+                    <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
+                {% endif %}
+            </div>
+        </div>
+        <div class="django-input-wrapper">
+            {% render_field form.cedula_archivo_reverso class="dropzone-input" %}
+        </div>
+    </div>
+    <div class="field-error-text"></div>
+</div>
+
+
 
 
                 <!-- RIF -->
@@ -1250,9 +732,13 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                     </div>
                 </div>
 
+
                 <!-- ARCHIVO RIF -->
 <div class="form-group mb-4">
-    <label class="form-label">Archivo RIF <span class="required">*</span></label>
+    <label class="form-label">
+        Archivo RIF 
+        {% if form.rif_archivo.field.required %}<span class="required">*</span>{% else %}<span class="text-muted">(Opcional)</span>{% endif %}
+    </label>
     <div class="dropzone-container {% if object.rif_archivo %}uploaded{% endif %}" id="dropzone-rif-archivo">
         <div class="dropzone-visuals">
             <i class="fas fa-file-pdf dropzone-icon {% if object.rif_archivo %}uploaded-icon{% endif %}"></i>
@@ -1271,11 +757,12 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
             </div>
         </div>
         <div class="django-input-wrapper">
-            {% render_field form.rif_archivo %}
+            {% render_field form.rif_archivo class="dropzone-input" %}
         </div>
     </div>
     <div class="field-error-text"></div>
 </div>
+
 
 
 
@@ -1349,7 +836,7 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">Municipio <span class="required">*</span></label>
-                            {% render_field ubicacion_form.municipio class="vsms-input" required="required" id="id_municipio" style="pointer-events:none; background:#f9f9f9; opacity:0.8;" tabindex="-1" %}
+                            {% render_field ubicacion_form.municipio class="vsms-input" id="id_municipio" style="pointer-events:none; background:#f9f9f9; opacity:0.8;" tabindex="-1" %}
                             <div class="field-error-text">Requerido.</div>
                         </div>
                     </div>
@@ -1366,21 +853,21 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Sector/Barrio <span class="required">*</span></label>
-                            {% render_field ubicacion_form.sector class="vsms-input" placeholder="Ej. Los Laureles" %}
+                            {% render_field ubicacion_form.sector class="vsms-input" required="required" placeholder="Ej. Los Laureles" %}
                             <div class="field-error-text"></div>
                         </div>
                     </div>
                     <div class="col-md-5">
                         <div class="form-group">
                             <label class="form-label">Calle/Av <span class="required">*</span></label>
-                            {% render_field ubicacion_form.calle_avenida class="vsms-input" placeholder="Ej. Av. Bolívar" %}
+                            {% render_field ubicacion_form.calle_avenida class="vsms-input" required="required" placeholder="Ej. Av. Bolívar" %}
                             <div class="field-error-text"></div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Nº Casa <span class="required">*</span></label>
-                            {% render_field ubicacion_form.numero_casa class="vsms-input" placeholder="Ej. 12-A" %}
+                            {% render_field ubicacion_form.numero_casa class="vsms-input" required="required" placeholder="Ej. 12-A" %}
                             <div class="field-error-text"></div>
                         </div>
                     </div>
@@ -1936,78 +1423,185 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
     }
 
     // ========== WIZARD NAVIGATION ==========
-    let currentStep = 1;
+let currentStep = 1;
 
-    function nextStep() {
-        const currentStepContainer = $(`#step${currentStep}`);
-        let ok = true;
-        const dropzones = currentStepContainer.find('input[type="file"][required], input[type="file"]');
-        dropzones.each(function() {
-            const input = this;
-            const container = $(input).closest('.dropzone-container');
-            const errorMsg = container.closest('.form-group').find('.field-error-text');
-            if (!input.files || input.files.length === 0) {
-                ok = false;
-                container.addClass('error').removeClass('uploaded');
-                if (errorMsg.length) {
-                    errorMsg.text('Requerido.').show();
-                }
-            } else {
-                container.addClass('uploaded').removeClass('error');
-                if (errorMsg.length) {
-                    errorMsg.hide();
-                }
-            }
+function nextStep() {
+    const currentStepContainer = $('#step' + currentStep);
+    let ok = true;
+
+    // 1) Validar dropzones: SOLO las realmente required
+const dropzones = currentStepContainer.find('input[type="file"]');
+console.log('Step ' + currentStep + ' - Dropzones encontrados:', dropzones.length);
+
+dropzones.each(function() {
+  const input = $(this);
+  const isRequired = input.attr('required') !== undefined && input.attr('required') !== false; // ✅ Checa REALMENTE si tiene required
+  const container = input.closest('.dropzone-container');
+  const errorMsg = container.closest('.form-group').find('.field-error-text');
+  
+  console.log('Dropzone:', input.attr('name'), '- Required:', isRequired, '- Files:', input[0].files?.length);
+  
+  // ✅ SOLO valida si tiene required="required"
+  if (isRequired) {
+    if (!input[0].files || input[0].files.length === 0) {
+      ok = false;
+      container.addClass('error').removeClass('uploaded');
+      if (errorMsg.length) {
+        errorMsg.text('Requerido').show();
+      }
+    } else {
+      container.addClass('uploaded').removeClass('error');
+      if (errorMsg.length) {
+        errorMsg.hide();
+      }
+    }
+  } else {
+    // ✅ Si NO es required, limpia el error
+    container.removeClass('error');
+    if (errorMsg.length) {
+      errorMsg.hide();
+    }
+  }
+});
+    // 2) Validar required visibles (ignorando file, hidden, disabled, readonly)
+    const inputs = currentStepContainer
+        .find('input[required], select[required], textarea[required]')
+        .not('input[type="file"]')
+        .filter(':visible')
+        .filter(function () {
+            return !this.disabled && !this.readOnly;
         });
-        const inputs = currentStepContainer.find('input[required], select[required]').not('input[type="file"]');
-        inputs.each(function() {
-            const i = $(this);
-            const error = i.closest('.form-group').find('.field-error-text');
-            if (!i.val() || i.val().trim() === '') {
-                i.addClass('is-invalid');
-                if (error.text() === '') error.text('Requerido');
+
+    console.log('Step ' + currentStep + ' - Inputs encontrados:', inputs.length); // DEBUG
+
+    inputs.each(function () {
+        const i = $(this);
+        const error = i.closest('.form-group').find('.field-error-text');
+
+        const raw = i.val();
+        const value = (raw === null) ? '' : String(raw).trim();
+
+        // ✅ Validar SOLO si el campo está vacío
+        if (value === '') {
+            i.addClass('is-invalid');
+            if (error.length) {
+                if (error.text().trim() === '') error.text('Requerido');
                 error.show();
-                ok = false;
-            } else if (i.hasClass('is-invalid')) {
-                error.show();
-                ok = false;
             }
-        });
-        currentStepContainer.find('.date-mask').each(function() {
-            if ($(this).val() && !validarFechaInput(this)) {
-                ok = false;
-            }
-        });
-        if (currentStepContainer.find('.error-duplicado').length > 0) {
             ok = false;
+            console.log('Input vacío:', i.attr('name')); // DEBUG
+        } else {
+            // Si el input sigue marcado inválido por otra validación, bloquea igual
+            if (i.hasClass('is-invalid')) {
+                if (error.length) error.show();
+                ok = false;
+            } else {
+                // Si estaba mostrando "Requerido", lo ocultamos
+                if (error.length && error.text().trim() === 'Requerido') error.hide();
+            }
         }
-        if (ok) {
-            currentStep++;
-            showStep(currentStep);
-        }
-    }
+    });
 
-    function prevStep() {
-        currentStep--;
+    // 3) Validar fechas del paso (solo visibles)
+    currentStepContainer.find('.date-mask:visible').each(function () {
+        const v = $(this).val();
+        if (v && !validarFechaInput(this)) {
+            ok = false;
+            console.log('Fecha inválida:', $(this).attr('name')); // DEBUG
+        }
+    });
+
+    // 4) Duplicados: bloquear SOLO si hay error visible con texto
+    currentStepContainer.find('.error-duplicado:visible').each(function () {
+        if ($(this).text().trim().length > 0) {
+            ok = false;
+            console.log('Error duplicado:', $(this).text()); // DEBUG
+        }
+    });
+
+    console.log('nextStep - Resultado final:', ok ? '✅ AVANZAR' : '❌ BLOQUEAR'); // DEBUG
+
+    // 5) Avanzar
+    if (ok) {
+        currentStep++;
         showStep(currentStep);
+    } else {
+        // Enfocar primer inválido para que el usuario lo vea
+        const firstInvalid = currentStepContainer.find('.is-invalid:visible').first();
+        if (firstInvalid.length) {
+            firstInvalid[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function prevStep() {
+    currentStep--;
+    showStep(currentStep);
+}
+
+function showStep(s) {
+    $('.wizard-step').removeClass('active');
+    $('#step' + s).addClass('active');
+
+    // Primero limpia TODO
+    $('.step-node').removeClass('active completed');
+    
+    // Luego añade las clases correctas
+    for (let i = 1; i <= 4; i++) {
+        if (i < s) $('.step-node[data-step="' + i + '"]').addClass('completed');
+        if (i === s) $('.step-node[data-step="' + i + '"]').addClass('active');
     }
 
-    function showStep(s) {
-        $('.wizard-step').removeClass('active');
-        $(`#step${s}`).addClass('active');
-        $('.step-node').removeClass('active completed');
-        for (let i = 1; i <= 4; i++) {
-            if (i < s) {
-                $(`.step-node[data-step="${i}"]`).addClass('completed');
-            }
-            if (i === s) {
-                $(`.step-node[data-step="${i}"]`).addClass('active');
-            }
+    $('#progressLine').css('width', ((s - 1) / 3) * 100 + '%');
+    window.scrollTo(0, 0);
+}
+
+// ========== LIMPIEZA DE ERRORES EN TIEMPO REAL ==========
+$(document).on('input change', 'input[required], select[required], textarea[required]', function () {
+    const i = $(this);
+    const error = i.closest('.form-group').find('.field-error-text');
+    const value = (i.val() === null) ? '' : String(i.val()).trim();
+
+    // Si el usuario escribió algo, limpia el error y la clase invalid
+    if (value !== '') {
+        i.removeClass('is-invalid');
+        if (error.length && error.text().trim() === 'Requerido') {
+            error.hide();
         }
-        const progressLine = $('#progressLine');
-        progressLine.css('width', `${((s - 1) / 3) * 100}%`);
-        window.scrollTo(0, 0);
     }
+});
+
+// ========== LIMPIEZA DE ERRORES EN DROPZONES ==========
+$(document).on('change', 'input[type="file"]', function () {
+    const input = $(this);
+    const container = input.closest('.dropzone-container');
+    const errorMsg = container.closest('.form-group').find('.field-error-text');
+
+    if (this.files && this.files.length > 0) {
+        container.addClass('uploaded').removeClass('error');
+        if (errorMsg.length) errorMsg.hide();
+    }
+});
+
+// ========== LIMPIAR ERRORES Y ASTERISCO CUANDO SE LIMPIA EL INPUT ==========
+$(document).on('change', 'select[required], input[required], textarea[required]', function () {
+    const field = $(this);
+    const formGroup = field.closest('.form-group');
+    const errorMsg = formGroup.find('.field-error-text');
+    const requiredSpan = formGroup.find('.required');
+    
+    const value = field.val();
+    
+    // Si tiene valor, limpia el error Y el asterisco
+    if (value && value !== '') {
+        field.removeClass('is-invalid');
+        errorMsg.hide();
+        requiredSpan.hide();  // ← AQUÍ oculta el asterisco
+    } else {
+        // Si se vacía, muestra el asterisco de nuevo
+        requiredSpan.show();
+    }
+});
 
    // ========== FUNCIÓN PARA ACTUALIZAR RESUMEN ==========
     function updateSummary() {

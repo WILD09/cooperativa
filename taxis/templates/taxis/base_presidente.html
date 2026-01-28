@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no" />
-    <title>{% block title %}Panel Administrativo - Cooperativa{% endblock %}</title>
+    <title>{% block title %}Panel Administrativo{% endblock %}</title>
 
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
@@ -658,17 +658,13 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:panel_general' %}"><i
                         class="fas fa-fw fa-tachometer-alt"></i><span>Panel General</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:conductor_list' %}"><i
-                        class="fas fa-fw fa-users"></i><span>Afiliados</span></a></li>
+                        class="fas fa-fw fa-users"></i><span>Afiliados DT5</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:vehiculo_list' %}"><i
                         class="fas fa-fw fa-car"></i><span>Vehículos</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:dt5_list' %}"><i
-                        class="fas fa-fw fa-file-contract"></i><span>DT5</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:finanzas_principal' %}"><i
                         class="fas fa-fw fa-dollar-sign"></i><span>Finanzas</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:auditoria_list' %}"><i
                         class="fas fa-fw fa-clipboard-list"></i><span>Auditoría</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'taxis:perfil_usuario' %}"><i
-                        class="fas fa-fw fa-cog"></i><span>Configuración</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:ayuda_sistema' %}"><i
                         class="fas fa-fw fa-question-circle"></i><span>Ayuda</span></a></li>
 
