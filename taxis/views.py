@@ -2144,11 +2144,16 @@ def register_presidente(request):
                 messages.error(request, 'Ya existe un presidente activo.')
                 return render(request, 'registration/register_presidente.html', {'form': form})
 
-            # 2) No email duplicado
+            # 2) No email duplicado en CustomUser
             if CustomUser.objects.filter(email__iexact=cd['email']).exists():
                 messages.error(request, 'Email ya registrado.')
                 return render(request, 'registration/register_presidente.html', {'form': form})
-            
+
+            # 3) No email duplicado en PendingPresidentRegistration
+            if PendingPresidentRegistration.objects.filter(email__iexact=cd['email']).exists():
+                messages.error(request, 'Este email ya está en proceso de registro. Revisa tu correo.')
+                return render(request, 'registration/register_presidente.html', {'form': form})
+
             phone_number = (cd.get("phone_number") or "").strip()
             phone_country = (cd.get("phone_country") or "").strip()
 
@@ -2156,7 +2161,7 @@ def register_presidente(request):
                 messages.error(request, "El número de teléfono es obligatorio.")
                 return render(request, 'registration/register_presidente.html', {'form': form})
 
-            # 3) Crear registro pendiente en BD (token UUIDField del modelo)
+            # 4) Crear registro pendiente en BD (token UUIDField del modelo)
             pending = PendingPresidentRegistration.objects.create(
                 username=cd['username'],
                 first_name=cd['first_name'],
