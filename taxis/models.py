@@ -14,8 +14,6 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 import uuid, re
 from datetime import timedelta
-from typing import Optional
-
 
 
 # IMPORTANTE: Importamos el validador de archivos (Asegúrate de que validators.py exista)
@@ -432,8 +430,7 @@ class Conductor(models.Model):
     class Meta:
         ordering = ["apellidos", "nombres"]
 
-    def _solo_digitos(self, value: Optional[str]) -> Optional[str]:
-
+    def _solo_digitos(self, value: str | None) -> str | None:
         if value in (None, ""):
             return value
         return re.sub(r"\D", "", value)
@@ -509,7 +506,7 @@ class Vehiculo(models.Model):
         max_length=10, verbose_name="Medida Cauchos"
     )
     diametro_rin = models.CharField(
-        max_length=5, verbose_name="Diámetro Rin",
+        max_length=5, verbose_name="Diámetro Rin"
     )
 
 
