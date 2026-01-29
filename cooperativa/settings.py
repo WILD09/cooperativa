@@ -1,33 +1,38 @@
 """
 cooperativa/settings.py
 Configuración principal del proyecto Django 'cooperativa'.
+Optimizado para Railway y desarrollo local.
 """
 
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
-from decouple import config
+from dotenv import load_dotenv
 import dj_database_url
+
+load_dotenv()
 
 # -------------------------------------------------------------------
 # RUTA BASE DEL PROYECTO
 # -------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # -------------------------------------------------------------------
 # SEGURIDAD BÁSICA
 # -------------------------------------------------------------------
-SECRET_KEY = config(
-    "DJANGO_SECRET_KEY",
-    default="django-insecure-development-key-change-in-production",
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-development-key-change-in-production",
 )
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = config(
-    "DJANGO_ALLOWED_HOSTS",
-    default="localhost,127.0.0.1",
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1",
 ).split(",")
+
 
 # -------------------------------------------------------------------
 # CABECERAS Y COOKIES SEGURAS
@@ -38,9 +43,11 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = "DENY"
 
-SECURE_SSL_REDIRECT = config("DJANGO_SECURE_SSL_REDIRECT", default="False").lower() == "true"
-CSRF_COOKIE_SECURE = config("DJANGO_CSRF_COOKIE_SECURE", default="False").lower() == "true"
-SESSION_COOKIE_SECURE = config("DJANGO_SESSION_COOKIE_SECURE", default="False").lower() == "true"
+
+SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").lower() == "true"
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
+
 
 # -------------------------------------------------------------------
 # APLICACIONES INSTALADAS
@@ -60,6 +67,7 @@ INSTALLED_APPS = [
     "widget_tweaks", 
 ]
 
+
 # -------------------------------------------------------------------
 # MIDDLEWARE
 # -------------------------------------------------------------------
@@ -72,13 +80,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'django.middleware.csrf.CsrfViewMiddleware',
 ]
+
 
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE URLS Y TEMPLATES
 # -------------------------------------------------------------------
 ROOT_URLCONF = "cooperativa.urls"
+
 
 TEMPLATES = [
     {
@@ -96,7 +105,9 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = "cooperativa.wsgi.application"
+
 
 # -------------------------------------------------------------------
 # BASE DE DATOS
@@ -109,6 +120,7 @@ DATABASES = {
     )
 }
 
+
 # -------------------------------------------------------------------
 # VALIDACIÓN DE CONTRASEÑAS Y USUARIO
 # -------------------------------------------------------------------
@@ -119,7 +131,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 AUTH_USER_MODEL = "taxis.CustomUser"
+
 
 # -------------------------------------------------------------------
 # INTERNACIONALIZACIÓN
@@ -129,6 +143,7 @@ TIME_ZONE = "America/Caracas"
 USE_I18N = True
 USE_TZ = True
 
+
 # -------------------------------------------------------------------
 # ARCHIVOS ESTÁTICOS Y MEDIA
 # -------------------------------------------------------------------
@@ -137,10 +152,13 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE CORREO (SMTP REAL)
@@ -150,10 +168,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="tucorreo@gmail.com") 
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="tu_app_password")
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "tucorreo@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "tu_app_password")
+
 
 DEFAULT_FROM_EMAIL = f"Cooperativa <{EMAIL_HOST_USER}>"
+
 
 # -------------------------------------------------------------------
 # LOGIN / LOGOUT
@@ -161,8 +182,10 @@ DEFAULT_FROM_EMAIL = f"Cooperativa <{EMAIL_HOST_USER}>"
 LOGIN_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/login/"
 
+
 # CORRECCIÓN IMPORTANTE: Usamos el namespace 'taxis' para evitar errores de reversa
 LOGIN_REDIRECT_URL = "taxis:panel_general"
+
 
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-secondary",
@@ -171,6 +194,7 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
 
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE CACHE (Para reenvío de correos con límite)
@@ -189,9 +213,11 @@ CACHES = {
 # 86400 segundos = 24 horas
 PASSWORD_RESET_TIMEOUT = 86400
 
-# Al final del archivo
+
+# -------------------------------------------------------------------
+# COOKIES SEGURAS (FINAL)
+# -------------------------------------------------------------------
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # Cambia a True si usas HTTPS en producción
-CSRF_COOKIE_SECURE = False     # Cambia a True si usas HTTPS en producción
-
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
