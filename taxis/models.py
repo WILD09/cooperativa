@@ -497,7 +497,7 @@ class Vehiculo(models.Model):
     # FASE 2: TÉCNICOS
     bateria_amperaje = models.CharField(max_length=10, verbose_name="Amperaje Batería")
     aceite_viscosidad = models.CharField(
-        max_length=10, verbose_name="Viscosidad Aceite", default="15W40"
+        max_length=10, verbose_name="Viscosidad Aceite"
     )
     combustible_litros = models.CharField(
         max_length=10, verbose_name="Litros Tanque"
@@ -506,7 +506,7 @@ class Vehiculo(models.Model):
         max_length=10, verbose_name="Medida Cauchos"
     )
     diametro_rin = models.CharField(
-        max_length=5, verbose_name="Diámetro Rin", default="14"
+        max_length=5, verbose_name="Diámetro Rin",
     )
 
 

@@ -453,7 +453,7 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
     model = Conductor
     form_class = ConductorForm
     template_name = "taxis/conductor_form.html"
-    success_url = reverse_lazy("taxis:conductor_list")
+    success_url = reverse_lazy("taxis:conductor_list")  # ✅ Irá aquí después de guardar
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -486,13 +486,11 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
                 )
             messages.success(self.request, "Afiliado registrado exitosamente.")
             
-            if self.object.vehiculos.exists():
-                vehiculo = self.object.vehiculos.first()
-                return redirect(f"/taxis/dt5/{vehiculo.pk}/?from=conductor_create")
-            else:
-                return redirect(f"/taxis/conductores/{self.object.pk}/?from=conductor_create")
+            # ✅ NO hacer redirect manual, dejar que success_url lo haga
+            return super().form_valid(form)
 
         return self.render_to_response(self.get_context_data(form=form))
+
 
 
 class ConductorUpdateView(LoginRequiredMixin, UpdateView):
@@ -505,7 +503,7 @@ class ConductorUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get("next")
         if next_url:
             return next_url
-        return reverse_lazy('taxis:conductor_list')
+        return reverse_lazy('taxis:dt5_detail')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2044,6 +2042,7 @@ def panel_general(request):
                 alertas_documentos.append({
                     'tipo': 'vehiculo',
                     'vehiculo_id': v.id,
+                    'conductor_id': v.conductor.id,
                     'conductor_nombre': f"{v.conductor.nombres} {v.conductor.apellidos}",
                     'titulo': f'{tipo_doc} vencida' if tipo_doc != 'RCV' and tipo_doc != 'Médico' else f'{tipo_doc} vencido',
                     'descripcion': f"El documento {tipo_doc} del vehículo {v.placa} venció el {fecha.strftime('%d/%m/%Y')}",

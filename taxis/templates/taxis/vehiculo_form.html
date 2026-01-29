@@ -185,10 +185,9 @@
     }
 
     .django-input-wrapper a,
-    .django-input-wrapper label,
-    .django-input-wrapper span {
-        display: none !important;
-    }
+.django-input-wrapper label {
+  display: none !important;
+}
 
     /* OCULTAR EL CHECKBOX QUE GENERA DJANGO */
     .django-input-wrapper input[type="checkbox"] {
@@ -641,6 +640,24 @@ body.dark-mode select.vsms-input {
   }
 }
 
+/* FORZAR LABELS EN MÓVIL - EVITA RECORTE */
+@media (max-width: 768px) {
+  .wizard-progress {
+    margin-bottom: 5rem !important;  /* Más espacio abajo */
+  }
+  .step-label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ESPECÍFICO PARA NODO 2 "TÉCNICOS" */
+.step-node[data-step="2"] .step-label {
+  top: 52px !important;  /* Sube un poquito */
+  z-index: 999 !important;
+}
+
 
 </style>
 
@@ -671,7 +688,6 @@ body.dark-mode select.vsms-input {
         <div class="step-node" data-step="4">4 <span class="step-label">Resumen</span></div>
     </div>
 
-
     <form method="post" enctype="multipart/form-data" id="wizardForm" novalidate autocomplete="off">
         {% csrf_token %}
         <input type="hidden" id="current_vehicle_id" value="{{ object.id|default:'' }}">
@@ -680,7 +696,6 @@ body.dark-mode select.vsms-input {
         <!-- CAMPOS OCULTOS PARA EVITAR ERRORES DE VALIDACIÓN -->
         <input type="hidden" name="kilometraje_actual" value="0">
         <input type="hidden" name="tipo_unidad" value="Sedan">
-
 
         <div class="form-card">
             <!-- PASO 1: BÁSICOS -->
@@ -716,7 +731,6 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-md-4 form-group">
                         <label class="form-label">Placa *</label> 
@@ -749,7 +763,6 @@ body.dark-mode select.vsms-input {
                         <div class="field-error-text">Requerido (Mín 17).</div>
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col-md-4 form-group">
@@ -784,7 +797,6 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label class="form-label">Color *</label> 
@@ -808,91 +820,100 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="form-group mt-2">
-    <label class="form-label">Foto del Vehículo</label>
-    <label for="id_foto" class="dropzone-label" id="dropzone-container">
-        {% if form.instance.foto and form.instance.foto.name %}
-            <img src="{{ form.instance.foto.url }}" style="max-height: 120px; border-radius: 10px; display: block;" id="preview_img_main">
-            <span class="text-success fw-bold mt-2" id="msg_main" style="display:block;"><i class="fas fa-check-circle"></i> Imagen Cargada</span>
-            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:none;"></i>
-            <div class="dropzone-text mt-2" id="text_main" style="display:none;">Click para subir foto</div>
-        {% else %}
-            <img src="" style="max-height: 120px; border-radius: 10px; display: none;" id="preview_img_main">
-            <span class="text-success fw-bold mt-2" id="msg_main" style="display:none;"></span>
-            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:block;"></i>
-            <div class="dropzone-text mt-2" id="text_main" style="display:block;">Click para subir foto<br><small class="text-muted">(JPG o PNG, Máx 10MB)</small></div>
-        {% endif %}
-    </label>
+                    <label class="form-label">Foto del Vehículo</label>
 
-    <!-- INPUT FILE REAL (OBLIGATORIO) -->
-    <input 
-        type="file" 
-        id="id_foto" 
-        name="foto" 
-        class="hidden-file-input" 
-        accept="image/jpeg,image/png"
-        required
-        onchange="previewVehiclePhoto(this)">
+                    <label for="id_foto" class="dropzone-label" id="dropzone-container">
+                        {% if form.instance.foto and form.instance.foto.name %}
+                            <img src="{{ form.instance.foto.url }}"
+                                 style="max-height: 120px; border-radius: 10px; display: block;"
+                                 id="preview_img_main">
 
-    <!-- MENSAJE DE ERROR PARA LA FOTO -->
-    <div class="field-error-text" id="error_foto_required" style="display: none; margin-top: 8px; color: var(--error-color); font-size: 0.85rem; font-weight: 700; margin-left: 12px;">
-        <i class="fas fa-exclamation-circle"></i> Se requiere una foto del vehículo.
-    </div>
-</div>
+                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:block;">
+                                <i class="fas fa-check-circle"></i> Imagen Cargada
+                            </span>
 
+                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:none;"></i>
+                            <div class="dropzone-text mt-2" id="text_main" style="display:none;">Click para subir foto</div>
+                        {% else %}
+                            <img src=""
+                                 style="max-height: 120px; border-radius: 10px; display: none;"
+                                 id="preview_img_main">
 
+                            <span class="text-success fw-bold mt-2" id="msg_main" style="display:none;"></span>
+
+                            <i class="fas fa-camera dropzone-icon" id="icon_main" style="display:block;"></i>
+                            <div class="dropzone-text mt-2" id="text_main" style="display:block;">
+                                Click para subir foto<br>
+                                <small class="text-muted">(JPG o PNG, Máx 10MB)</small>
+                            </div>
+                        {% endif %}
+                    </label>
+
+                    <!-- Input real (oculto por CSS) -->
+                    <input type="file"
+                           id="id_foto"
+                           name="foto"
+                           class="hidden-file-input"
+                           accept="image/jpeg,image/png"
+                           {% if not form.instance.foto %}required{% endif %}>
+
+                    <!-- Error visual (lo muestra validatePhotoField) -->
+                    <div class="field-error-text" id="error_foto_required"
+                         style="display:none; margin-top: 8px; color: var(--error-color); font-size: 0.85rem; font-weight: 700; margin-left: 12px;">
+                        <i class="fas fa-exclamation-circle"></i> Se requiere una foto del vehículo.
+                    </div>
+                </div>
 
                 <div class="wizard-actions">
-    {% if request.GET.next %}
-        <!-- DT5 -->
-        <a href="{{ request.GET.next }}" class="btn-wizard btn-cancel">
-            <i class="fas fa-times"></i> Cancelar
-        </a>
-    {% else %}
-        <!-- Creación nueva / otros -->
-        <a href="{% url 'taxis:vehiculo_list' %}" class="btn-wizard btn-cancel">
-            <i class="fas fa-times"></i> Cancelar
-        </a>
-    {% endif %}
-    <button type="button" class="btn-wizard btn-next" onclick="validateAndNextStep1()">
-        Siguiente <i class="fas fa-arrow-right"></i>
-    </button>
-</div>
-
+                    {% if request.GET.next %}
+                        <!-- DT5 -->
+                        <a href="{{ request.GET.next }}" class="btn-wizard btn-cancel">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    {% else %}
+                        <!-- Creación nueva / otros -->
+                        <a href="{% url 'taxis:vehiculo_list' %}" class="btn-wizard btn-cancel">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    {% endif %}
+                    <button type="button" class="btn-wizard btn-next" onclick="validateAndNextStep1()">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>  <!-- Cierra wizard-step id="step1" -->
 
             <!-- PASO 2: TÉCNICOS -->
             <div class="wizard-step" id="step2">
                 <h5 class="section-title"><i class="fas fa-tools"></i> Ficha Mecánica</h5>
-                
+
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label class="form-label">Batería (Amperaje) *</label>
                         {% if form.bateria_amperaje.errors %}
-                            {% render_field form.bateria_amperaje class="vsms-input is-invalid" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
+                            {% render_field form.bateria_amperaje class="vsms-input is-invalid" id="id_bateria_amperaje" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
                             <div class="field-error-text d-block">{{ form.bateria_amperaje.errors.0 }}</div>
                         {% else %}
-                            {% render_field form.bateria_amperaje class="vsms-input" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
+                            {% render_field form.bateria_amperaje class="vsms-input" id="id_bateria_amperaje" placeholder="Ej: 700 AMP" autocomplete="off" required="required" maxlength="10" %}
                         {% endif %}
                         <div class="field-error-text">Requerido.</div>
                     </div>
                     <div class="col-md-6 form-group">
                         <label class="form-label">Aceite Motor (Viscosidad) *</label>
                         {% if form.aceite_viscosidad.errors %}
-                            {% render_field form.aceite_viscosidad class="vsms-input is-invalid" id="id_aceite" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
+                            {% render_field form.aceite_viscosidad class="vsms-input is-invalid" id="id_aceite_viscosidad" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
                             <div class="field-error-text d-block">{{ form.aceite_viscosidad.errors.0 }}</div>
                         {% else %}
-                            {% render_field form.aceite_viscosidad class="vsms-input" id="id_aceite" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
+                            {% render_field form.aceite_viscosidad class="vsms-input" id="id_aceite_viscosidad" placeholder="Ej: 15W40" autocomplete="new-password" required="required" maxlength="10" %}
                         {% endif %}
                         <div class="field-error-text">Requerido.</div>
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label class="form-label">Combustible (Tipo) *</label>
-                        <select name="combustible_tipo" class="vsms-input {% if form.combustible_tipo.errors %}is-invalid{% endif %}" required>
+                        <select name="combustible_tipo" id="id_combustible_tipo" class="vsms-input {% if form.combustible_tipo.errors %}is-invalid{% endif %}" required>
                             <option value="">Seleccione...</option>
                             <option value="Gasolina" {% if form.instance.combustible_tipo == 'Gasolina' %}selected{% endif %}>Gasolina</option>
                             <option value="Gasoil" {% if form.instance.combustible_tipo == 'Gasoil' %}selected{% endif %}>Gasoil</option>
@@ -903,29 +924,27 @@ body.dark-mode select.vsms-input {
                         {% endif %}
                         <div class="field-error-text">Requerido.</div>
                     </div>
-                    
                     <div class="col-md-6 form-group">
                         <label class="form-label">Tanque (Litros) *</label>
                         {% if form.combustible_litros.errors %}
-                            {% render_field form.combustible_litros class="vsms-input is-invalid" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
+                            {% render_field form.combustible_litros class="vsms-input is-invalid" id="id_combustible_litros" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
                             <div class="field-error-text d-block">{{ form.combustible_litros.errors.0 }}</div>
                         {% else %}
-                            {% render_field form.combustible_litros class="vsms-input" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
+                            {% render_field form.combustible_litros class="vsms-input" id="id_combustible_litros" type="text" placeholder="Ej: 45" autocomplete="off" required="required" maxlength="10" %}
                         {% endif %}
                         <div class="field-error-text">Requerido.</div>
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Medidas del caucho *</label>
                             {% if form.cauchos_medida.errors %}
-                                {% render_field form.cauchos_medida class="vsms-input is-invalid" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
+                                {% render_field form.cauchos_medida class="vsms-input is-invalid" id="id_cauchos_medida" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
                                 <div class="field-error-text d-block">{{ form.cauchos_medida.errors.0 }}</div>
                             {% else %}
-                                {% render_field form.cauchos_medida class="vsms-input" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
+                                {% render_field form.cauchos_medida class="vsms-input" id="id_cauchos_medida" placeholder="Ej: 185/65" autocomplete="off" required="required" maxlength="10" %}
                             {% endif %}
                             <div class="field-error-text">Requerido.</div>
                         </div>
@@ -954,13 +973,11 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="wizard-actions">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
                     <button type="button" class="btn-wizard btn-next" onclick="validateStep2()">Siguiente <i class="fas fa-arrow-right"></i></button>
                 </div>
-            </div>
-
+            </div>  <!-- Cierra wizard-step id="step2" -->
 
             <!-- PASO 3: LEGAL -->
             <div class="wizard-step" id="step3">
@@ -969,7 +986,6 @@ body.dark-mode select.vsms-input {
                 <div class="alert alert-warning mb-3" style="font-size: 0.9rem;">
                     <i class="fas fa-info-circle"></i> Todos los documentos son obligatorios. Si el formulario falla, deberá volver a seleccionarlos.
                 </div>
-
 
                 <div class="row g-4">
                     <!-- Patente -->
@@ -1001,14 +1017,12 @@ body.dark-mode select.vsms-input {
                                 <i class="fas fa-calendar-alt calendar-icon-inside" onclick="openCalendar('pickerPatente')"></i>
                                 <input type="date" id="pickerPatente" class="native-picker" onchange="syncDate(this, 'patenteVenc')" tabindex="-1">
                             </div>
-                            <!-- Contenedor para error de JS -->
                             <div class="field-error-text" style="display:none; margin-top:5px;"></div>
                             {% if form.patente_vencimiento.errors %}
                                 <div class="field-error-text d-block">{{ form.patente_vencimiento.errors.0 }}</div>
                             {% endif %}
                         </div>
                     </div>
-
 
                     <!-- Licencia -->
                     <div class="col-md-6">
@@ -1027,7 +1041,6 @@ body.dark-mode select.vsms-input {
                             <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.licencia_archivo.errors.0 }}</div>
                         {% endif %}
                         <div class="field-error-text text-center mt-2" id="err_file_licencia" style="display:none;">Debe subir este archivo.</div>
-
 
                         <div class="form-group mt-3">
                             <label class="form-label">Vencimiento Licencia *</label>
@@ -1048,7 +1061,6 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="row g-4 mt-2">
                     <!-- RCV -->
                     <div class="col-md-6">
@@ -1068,7 +1080,6 @@ body.dark-mode select.vsms-input {
                         {% endif %}
                         <div class="field-error-text text-center mt-2" id="err_file_rcv" style="display:none;">Debe subir este archivo.</div>
 
-
                         <div class="form-group mt-3">
                             <label class="form-label">Vencimiento RCV *</label>
                             <div class="position-relative">
@@ -1087,7 +1098,6 @@ body.dark-mode select.vsms-input {
                         </div>
                     </div>
 
-
                     <!-- Médico -->
                     <div class="col-md-6">
                         <label class="form-label">Certificado Médico *</label>
@@ -1105,7 +1115,6 @@ body.dark-mode select.vsms-input {
                             <div class="field-error-text d-block text-center mt-2"><i class="fas fa-exclamation-circle"></i> {{ form.medico_archivo.errors.0 }}</div>
                         {% endif %}
                         <div class="field-error-text text-center mt-2" id="err_file_medico" style="display:none;">Debe subir este archivo.</div>
-
 
                         <div class="form-group mt-3">
                             <label class="form-label">Vencimiento Médico *</label>
@@ -1126,7 +1135,6 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="row g-4 mt-2">
                     <div class="col-md-6">
                         <label class="form-label">Carnet Circulación *</label>
@@ -1145,7 +1153,6 @@ body.dark-mode select.vsms-input {
                         {% endif %}
                         <div class="field-error-text text-center mt-2" id="err_file_circ" style="display:none;">Debe subir este archivo.</div>
                     </div>
-
 
                     <div class="col-md-6">
                         <label class="form-label">Título Propiedad *</label>
@@ -1166,147 +1173,144 @@ body.dark-mode select.vsms-input {
                     </div>
                 </div>
 
-
                 <div class="wizard-actions">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">Anterior</button>
-                    <!-- CAMBIO: Ahora llama a validation, no es submit -->
                     <button type="button" class="btn-wizard btn-next" onclick="validateStep3()">Siguiente <i class="fas fa-arrow-right"></i></button>
                 </div>
-            </div>
+            </div>  <!-- Cierra wizard-step id="step3" -->
 
+            <!-- PASO 4: RESUMEN COMPLETO DE VEHÍCULO -->
+            <div class="wizard-step" id="step4">
+                <h5 class="section-title">
+                    <i class="fas fa-clipboard-check"></i> Resumen de Datos del Vehículo
+                </h5>
 
-            <!-- ===== PASO 4: RESUMEN COMPLETO DE VEHÍCULO ===== -->
-<div class="wizard-step" id="step4">
-    <h5 class="section-title">
-        <i class="fas fa-clipboard-check"></i> Resumen de Datos del Vehículo
-    </h5>
+                <div class="summary-box" style="background: rgba(0, 179, 0, 0.04); border: 1px dashed var(--coop-green-primary); border-radius: 20px; padding: 20px;">
 
-    <div class="summary-box" style="background: rgba(0, 179, 0, 0.04); border: 1px dashed var(--coop-green-primary); border-radius: 20px; padding: 20px;">
+                    <!-- SECCIÓN 1: IDENTIFICACIÓN DEL VEHÍCULO -->
+                    <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+                        <i class="fas fa-id-card-alt"></i> Identificación del Vehículo
+                    </h6>
 
-        <!-- SECCIÓN 1: IDENTIFICACIÓN DEL VEHÍCULO -->
-        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
-            <i class="fas fa-id-card-alt"></i> Identificación del Vehículo
-        </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Conductor Asignado</div>
+                            <div class="sum-value" id="sum_conductor">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Placa del Vehículo</div>
+                            <div class="sum-value" id="sum_placa">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Número de Casco</div>
+                            <div class="sum-value" id="sum_casco">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Serial Carrocera (NIV)</div>
+                            <div class="sum-value" id="sum_serial">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Marca</div>
+                            <div class="sum-value" id="sum_marca_solo">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Modelo</div>
+                            <div class="sum-value" id="sum_modelo">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Año</div>
+                            <div class="sum-value" id="sum_anio">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Color</div>
+                            <div class="sum-value" id="sum_color">---</div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <div class="sum-label">Condición General</div>
+                            <div class="sum-value" id="sum_condicion">---</div>
+                        </div>
+                    </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Conductor Asignado</div>
-                <div class="sum-value" id="sum_conductor">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Placa del Vehículo</div>
-                <div class="sum-value" id="sum_placa">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Número de Casco</div>
-                <div class="sum-value" id="sum_casco">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Serial Carrocera (NIV)</div>
-                <div class="sum-value" id="sum_serial">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Marca</div>
-                <div class="sum-value" id="sum_marca_solo">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Modelo</div>
-                <div class="sum-value" id="sum_modelo">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Año</div>
-                <div class="sum-value" id="sum_anio">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Color</div>
-                <div class="sum-value" id="sum_color">---</div>
-            </div>
-            <div class="col-md-12 mb-3">
-                <div class="sum-label">Condición General</div>
-                <div class="sum-value" id="sum_condicion">---</div>
-            </div>
-        </div>
+                    <!-- SECCIÓN 2: FICHA MECÁNICA -->
+                    <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+                        <i class="fas fa-tools"></i> Ficha Mecánica
+                    </h6>
 
-        <!-- SECCIÓN 2: FICHA MECÁNICA -->
-        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
-            <i class="fas fa-tools"></i> Ficha Mecánica
-        </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Batería (Amperaje)</div>
+                            <div class="sum-value" id="sum_bateria_amperaje">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Aceite Motor (Viscosidad)</div>
+                            <div class="sum-value" id="sum_aceite_viscosidad">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Combustible - Tipo</div>
+                            <div class="sum-value" id="sum_combustible_tipo">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Combustible - Litros Tanque</div>
+                            <div class="sum-value" id="sum_combustible_litros">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Medidas del Caucho</div>
+                            <div class="sum-value" id="sum_caucho">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Diámetro del Rin</div>
+                            <div class="sum-value" id="sum_rin">---</div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <div class="sum-label">Capacidad de Pasajeros</div>
+                            <div class="sum-value" id="sum_capacidad">---</div>
+                        </div>
+                    </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Batería (Amperaje)</div>
-                <div class="sum-value" id="sum_bateria">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Aceite Motor (Viscosidad)</div>
-                <div class="sum-value" id="sum_aceite">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Combustible - Tipo</div>
-                <div class="sum-value" id="sum_combustible_tipo">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Combustible - Litros Tanque</div>
-                <div class="sum-value" id="sum_combustible_litros">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Medidas del Caucho</div>
-                <div class="sum-value" id="sum_caucho">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Diámetro del Rin</div>
-                <div class="sum-value" id="sum_rin">---</div>
-            </div>
-            <div class="col-md-12 mb-3">
-                <div class="sum-label">Capacidad de Pasajeros</div>
-                <div class="sum-value" id="sum_capacidad">---</div>
-            </div>
-        </div>
+                    <!-- SECCIÓN 3: DOCUMENTACIÓN LEGAL -->
+                    <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
+                        <i class="fas fa-folder-open"></i> Documentación Legal - Vencimientos
+                    </h6>
 
-        <!-- SECCIÓN 3: DOCUMENTACIÓN LEGAL -->
-        <h6 style="color: var(--coop-green-primary); font-weight: 700; margin-top: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--input-border); padding-bottom: 0.8rem;">
-            <i class="fas fa-folder-open"></i> Documentación Legal - Vencimientos
-        </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Vencimiento Patente</div>
+                            <div class="sum-value" id="sum_patente_venc">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Vencimiento Licencia</div>
+                            <div class="sum-value" id="sum_licencia_venc">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Vencimiento RCV</div>
+                            <div class="sum-value" id="sum_rcv_venc">---</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="sum-label">Vencimiento Certificado Médico</div>
+                            <div class="sum-value" id="sum_medico_venc">---</div>
+                        </div>
+                    </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Vencimiento Patente</div>
-                <div class="sum-value" id="sum_patente_venc">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Vencimiento Licencia</div>
-                <div class="sum-value" id="sum_licencia_venc">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Vencimiento RCV</div>
-                <div class="sum-value" id="sum_rcv_venc">---</div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="sum-label">Vencimiento Certificado Médico</div>
-                <div class="sum-value" id="sum_medico_venc">---</div>
-            </div>
-        </div>
+                </div>
 
-    </div>
+                <!-- ALERTA INFORMATIVA -->
+                <div class="alert alert-info" style="margin-top: 2rem; border-radius: 15px; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
+                    <div>
+                        <strong>Antes de guardar:</strong> Por favor verifica que todos los datos sean correctos. Los archivos (fotos y documentos) NO aparecen aquí por razones de seguridad.
+                    </div>
+                </div>
 
-    <!-- ALERTA INFORMATIVA -->
-    <div class="alert alert-info" style="margin-top: 2rem; border-radius: 15px; display: flex; align-items: center; gap: 12px;">
-        <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
-        <div>
-            <strong>Antes de guardar:</strong> Por favor verifica que todos los datos sean correctos. Los archivos (fotos y documentos) NO aparecen aquí por razones de seguridad.
-        </div>
-    </div>
-
-    <!-- BOTONES DE ACCIÓN -->
-    <div class="wizard-actions" style="margin-top: 2rem;">
-        <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">
-            <i class="fas fa-arrow-left"></i> Editar Información
-        </button>
-        <button type="submit" class="btn-wizard btn-submit">
-            <i class="fas fa-save"></i> Confirmar y Guardar
-        </button>
-    </div>
-</div>
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="wizard-actions" style="margin-top: 2rem;">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Editar Información
+                    </button>
+                    <button type="submit" class="btn-wizard btn-submit">
+                        <i class="fas fa-save"></i> Confirmar y Guardar
+                    </button>
+                </div>
+            </div>  <!-- Cierra wizard-step id="step4" -->
 
         </div>
     </form>
@@ -1314,7 +1318,10 @@ body.dark-mode select.vsms-input {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // --- LÓGICA RESTAURAR ESTADO ---
+    // ============================================================================
+    // INICIALIZACIÓN Y RESTAURACIÓN DE ESTADO
+    // ============================================================================
+    
     $(document).ready(function() {
         restoreState();
         
@@ -1322,7 +1329,7 @@ body.dark-mode select.vsms-input {
         if(document.getElementById('current_vehicle_id').value === '' && document.getElementById('server_errors').value !== 'yes') {
              setTimeout(function() {
                  $('#search_cedula, #id_placa, #id_serial_niv').val('');
-                 $('#id_aceite, #id_rin').val('');
+                 $('#id_bateriaamperaje, #id_rin').val('');
              }, 100);
         }
         
@@ -1334,11 +1341,20 @@ body.dark-mode select.vsms-input {
                 $(this).parent().find('.field-error-text').hide();
             }
         });
+        
+        // Inicializar eventos de la foto
+        initializePhotoHandling();
+        
+        // Inicializar búsqueda de conductor
+        initializeSearchConductor();
+        
+        // Inicializar validaciones de campos únicos
+        initializeUniqueFieldValidation();
     });
 
     function restoreState() {
         const conductorSelect = document.getElementById('id_conductor');
-        if (conductorSelect.value) {
+        if (conductorSelect && conductorSelect.value) {
             const selectedText = conductorSelect.options[conductorSelect.selectedIndex].text;
             document.getElementById('chofer_nombre_display').value = selectedText;
             $('#search_cedula').removeClass('is-invalid');
@@ -1346,6 +1362,8 @@ body.dark-mode select.vsms-input {
             $('#chofer_msg').hide();
             $('#chofer_success_msg').show();
         }
+
+        updateSummary();
 
         const hasErrors = document.getElementById('server_errors').value === 'yes';
         if (hasErrors) {
@@ -1363,9 +1381,9 @@ body.dark-mode select.vsms-input {
         }
     }
 
-    $(document).on('keydown', ':input:not(textarea)', function(event) {
-        if (event.key == "Enter") event.preventDefault();
-    });
+    // ============================================================================
+    // NAVEGACIÓN DEL WIZARD
+    // ============================================================================
 
     function showStep(step) {
         document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
@@ -1379,6 +1397,12 @@ body.dark-mode select.vsms-input {
             if (nodeStep < step) node.classList.add('completed');
         });
         currentStep = step;
+        
+        // Cargar datos cuando se muestra paso 2 o 4
+        if (step === 2 || step === 4) {
+            setTimeout(updateSummary, 100);
+        }
+        
         window.scrollTo(0, 0);
     }
     
@@ -1386,56 +1410,89 @@ body.dark-mode select.vsms-input {
     function nextStep() { if(currentStep < 4) showStep(currentStep + 1); }
     function prevStep() { if(currentStep > 1) showStep(currentStep - 1); }
 
+    // ============================================================================
+    // VALIDACIONES POR PASO
+    // ============================================================================
+
     function validateStep1() {
-    let valid = true;
+        let valid = true;
 
-    const choferId = document.getElementById('id_conductor').value;
-    const choferMsg = document.getElementById('chofer_msg');
-    const searchInput = document.getElementById('search_cedula');
+        const choferId = document.getElementById('id_conductor').value;
+        const choferMsg = document.getElementById('chofer_msg');
+        const searchInput = document.getElementById('search_cedula');
 
-    // 1. Validar Chofer
-    if (!choferId) {
-        choferMsg.style.display = 'block';
-        searchInput.classList.add('is-invalid');
-        document.getElementById('chofer_nombre_display').classList.add('is-invalid');
-        valid = false;
-    } else {
-        choferMsg.style.display = 'none';
-    }
-
-    // 2. Validar Campos Requeridos
-    $('#step1 input[required], #step1 select[required]').each(function() {
-        if (!this.value.trim()) {
-            $(this).addClass('is-invalid');
-            $(this).next('.field-error-text').show();
+        // 1. Validar Chofer
+        if (!choferId) {
+            choferMsg.style.display = 'block';
+            searchInput.classList.add('is-invalid');
+            document.getElementById('chofer_nombre_display').classList.add('is-invalid');
             valid = false;
         } else {
-            if (!$(this).next('.field-error-text').text().includes('ya existe') && 
-                !$(this).next('.field-error-text').text().includes('ya está registrada')) {
-                $(this).removeClass('is-invalid');
-                $(this).next('.field-error-text').hide();
-            }
+            choferMsg.style.display = 'none';
         }
-    });
 
-    // ✅ NUEVA VALIDACIÓN: Validar foto
-    if (!validatePhotoField()) {
-        valid = false;
+        // 2. Validar Campos Requeridos
+        $('#step1 input[required], #step1 select[required]').each(function() {
+            if (!this.value.trim()) {
+                $(this).addClass('is-invalid');
+                $(this).next('.field-error-text').show();
+                valid = false;
+            } else {
+                if (!$(this).next('.field-error-text').text().includes('ya existe') && 
+                    !$(this).next('.field-error-text').text().includes('ya está registrada')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.field-error-text').hide();
+                }
+            }
+        });
+
+        // ✅ NUEVA VALIDACIÓN: Validar foto
+        if (!validatePhotoField()) {
+            valid = false;
+        }
+
+        if ($('#step1 .is-invalid').length > 0) {
+            valid = false;
+        }
+
+        return valid;
     }
 
-    if ($('#step1 .is-invalid').length > 0) {
-        valid = false;
+    // 1️⃣ validateAndNextStep1 - permitir edición
+    function validateAndNextStep1() {
+        const vehicleId = document.getElementById('current_vehicle_id').value;
+        
+        // EN EDICIÓN: Si tiene ID, permite avanzar sin validación estricta
+        if (vehicleId && vehicleId.trim() !== '') {
+            console.log('✅ EDICIÓN: Avanza directo a paso 2');
+            nextStep();
+            return;
+        }
+        
+        // EN CREACIÓN: Valida normalmente
+        console.log('📝 CREACIÓN: Validando paso 1...');
+        if (validateStep1()) {
+            nextStep();
+        }
     }
 
-    return valid;
-}
-
-    function validateAndNextStep1() { if(validateStep1()) nextStep(); }
-
+    // 2️⃣ validateStep2 - permitir edición
     function validateStep2() {
+        const vehicleId = document.getElementById('current_vehicle_id').value;
+        
+        // EN EDICIÓN: Salta validación (ya tiene datos)
+        if (vehicleId && vehicleId.trim() !== '') {
+            console.log('✅ EDICIÓN: Avanza directo a paso 3');
+            updateSummary();
+            nextStep();
+            return;
+        }
+        
+        // EN CREACIÓN: Valida campos técnicos
         let valid = true;
         $('#step2 input[required], #step2 select[required]').each(function() {
-            const errorText = $(this).next('.field-error-text').length ? $(this).next('.field-error-text') : $(this).parent().find('.field-error-text');
+            const errorText = $(this).next('.field-error-text').length ? 
+                $(this).next('.field-error-text') : $(this).parent().find('.field-error-text');
             if (!this.value.trim()) {
                 $(this).addClass('is-invalid');
                 errorText.show();
@@ -1445,10 +1502,24 @@ body.dark-mode select.vsms-input {
                 errorText.hide();
             }
         });
-        if(valid) nextStep();
+        if(valid) {
+            updateSummary();
+            nextStep();
+        }
     }
 
+    // 3️⃣ validateStep3 - permitir edición
     function validateStep3() {
+        const vehicleId = document.getElementById('current_vehicle_id').value;
+        
+        // EN EDICIÓN: Salta validación (ya están los archivos)
+        if (vehicleId && vehicleId.trim() !== '') {
+            console.log('✅ EDICIÓN: Cargando resumen y paso 4');
+            updateSummary();
+            nextStep();
+            return;
+        }
+        
         let valid = true;
 
         // 1. Validar Inputs de Fecha (Clase date-mask-input)
@@ -1456,7 +1527,6 @@ body.dark-mode select.vsms-input {
              const errorDiv = $(this).parent().next('.field-error-text'); 
              const val = this.value.trim();
              
-             // Validar que tenga contenido y longitud completa de fecha (10 caracteres)
              if(!val || val.length < 10) {
                  $(this).addClass('is-invalid');
                  if(errorDiv.length) errorDiv.show().text('Fecha requerida completa');
@@ -1496,24 +1566,22 @@ body.dark-mode select.vsms-input {
         }
     }
 
+    // ============================================================================
+    // ACTUALIZACIÓN DE RESUMEN
+    // ============================================================================
+
    function updateSummary() {
     try {
         console.log('🔄 Iniciando updateSummary()...');
 
-        // Helper function para actualizar por ID O NAME
-        function updateField(sourceId, targetId, isSelect = false, isDateMask = false) {
+        // Helper function para actualizar por ID
+        function updateField(sourceId, targetId, isSelect = false) {
             let sourceEl = document.getElementById(sourceId);
-            
-            // Si no existe por ID, buscar por NAME (Django a veces no genera ID)
-            if (!sourceEl) {
-                const fieldName = sourceId.replace('id_', '');
-                sourceEl = document.querySelector(`[name="${fieldName}"]`);
-            }
-            
             const targetEl = document.getElementById(targetId);
             
             if (!sourceEl) {
                 console.warn(`⚠️ No encontrado: ${sourceId}`);
+                if (targetEl) targetEl.textContent = '---';
                 return;
             }
             if (!targetEl) {
@@ -1524,33 +1592,27 @@ body.dark-mode select.vsms-input {
             let value = '---';
 
             if (isSelect) {
-                // Para SELECT
                 if (sourceEl.options && sourceEl.selectedIndex >= 0) {
                     value = sourceEl.options[sourceEl.selectedIndex].text;
-                }
-            } else if (isDateMask) {
-                // Para <input class="date-mask-input"> (mascara personalizada DD/MM/YYYY)
-                if (sourceEl.value) {
-                    // Verifica si ya está en formato DD/MM/YYYY
-                    if (sourceEl.value.includes('/')) {
-                        value = sourceEl.value;
-                    } else if (sourceEl.value.includes('-')) {
-                        // Si es YYYY-MM-DD, convierte a DD/MM/YYYY
-                        const [year, month, day] = sourceEl.value.split('-');
-                        value = `${day}/${month}/${year}`;
-                    }
+                    if (value === 'Seleccione...') value = '---';
                 }
             } else {
-                // Para TEXT input
-                value = sourceEl.value || '---';
+                value = sourceEl.value.trim() || '---';
             }
 
             targetEl.textContent = value;
-            console.log(`✅ ${sourceId} → ${value}`);
+            console.log(`✅ ${sourceId} = "${value}" → ${targetId}`);
         }
 
         // SECCIÓN 1: IDENTIFICACIÓN
-        updateField('chofer_nombre_display', 'sum_conductor');
+        const choferSelect = document.getElementById('id_conductor');
+        if (choferSelect && choferSelect.selectedIndex >= 0) {
+            const choferValue = choferSelect.options[choferSelect.selectedIndex].text;
+            document.getElementById('sum_conductor').textContent = choferValue || '---';
+        } else {
+            document.getElementById('sum_conductor').textContent = '---';
+        }
+
         updateField('id_placa', 'sum_placa');
         updateField('id_numero_casco', 'sum_casco');
         updateField('id_serial_niv', 'sum_serial');
@@ -1560,28 +1622,34 @@ body.dark-mode select.vsms-input {
         updateField('id_color', 'sum_color');
         updateField('id_condicion', 'sum_condicion', true);
 
-        // SECCIÓN 2: FICHA MECÁNICA
-        updateField('id_bateria_amperaje', 'sum_bateria');
-        updateField('id_aceite_viscosidad', 'sum_aceite');
+        // SECCIÓN 2: FICHA MECÁNICA ✅ 
+        console.log('🔧 Cargando Ficha Mecánica...');
+        updateField('id_bateria_amperaje', 'sum_bateria_amperaje');        // ← sum_bateria, no sum_bateria_amperaje
+        updateField('id_aceite_viscosidad', 'sum_aceite_viscosidad');        // ← sum_aceite, no sum_aceite_viscosidad
         updateField('id_combustible_tipo', 'sum_combustible_tipo', true);
         updateField('id_combustible_litros', 'sum_combustible_litros');
         updateField('id_cauchos_medida', 'sum_caucho');
-        updateField('id_diametro_rin', 'sum_rin');
+        updateField('id_rin', 'sum_rin');                         // ← id_rin (NOT id_diametro_rin)
         updateField('id_capacidad', 'sum_capacidad');
 
-        // SECCIÓN 3: DOCUMENTACIÓN LEGAL (con date-mask-input)
-        updateField('id_patente_vencimiento', 'sum_patente_venc', false, true);
-        updateField('id_licencia_vencimiento', 'sum_licencia_venc', false, true);
-        updateField('id_rcv_vencimiento', 'sum_rcv_venc', false, true);
-        updateField('id_medico_vencimiento', 'sum_medico_venc', false, true);
+        // SECCIÓN 3: DOCUMENTACIÓN LEGAL
+        console.log('📄 Cargando Documentación Legal...');
+        updateField('patenteVenc', 'sum_patente_venc');
+        updateField('licenciaVenc', 'sum_licencia_venc');
+        updateField('rcvVenc', 'sum_rcv_venc');
+        updateField('medicoVenc', 'sum_medico_venc');
 
         console.log('✅ updateSummary() completado');
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Error en updateSummary():', error);
     }
 }
 
-    // --- FUNCIONES AUXILIARES ---
+
+    // ============================================================================
+    // FUNCIONES AUXILIARES - ARCHIVOS
+    // ============================================================================
+
     function checkFile(input, iconId, textId) {
         if (input.files && input.files[0]) {
             document.getElementById(iconId).className = 'fas fa-check-circle dropzone-icon text-success';
@@ -1594,17 +1662,9 @@ body.dark-mode select.vsms-input {
         }
     }
 
-    function previewVehiclePhoto(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview_img_main').attr('src', e.target.result).show();
-                $('#icon_main, #text_main').hide();
-                $('#msg_main').show().html('<i class="fas fa-check-circle"></i> Foto lista');
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+    // ============================================================================
+    // FUNCIONES AUXILIARES - CALENDARIO Y FECHAS
+    // ============================================================================
 
     function openCalendar(pickerId) {
         document.getElementById(pickerId).showPicker();
@@ -1620,6 +1680,7 @@ body.dark-mode select.vsms-input {
         }
     }
 
+    // Inicializar máscaras de fecha
     document.querySelectorAll('.date-mask-input').forEach(input => {
         input.addEventListener('input', function(e) {
             let v = this.value.replace(/\D/g, '');
@@ -1634,196 +1695,242 @@ body.dark-mode select.vsms-input {
         });
     });
 
-    let timeout = null;
-    document.getElementById('search_cedula').addEventListener('input', function() {
-        clearTimeout(timeout);
-        const val = this.value.trim();
-        const lenMsg = document.getElementById('cedula_len_msg');
+    // ============================================================================
+    // BÚSQUEDA DE CONDUCTOR
+    // ============================================================================
+
+    function initializeSearchConductor() {
+        let timeout = null;
+        const searchInput = document.getElementById('search_cedula');
         
-        if(val.length < 7) {
-            lenMsg.style.display = 'block';
-            return;
-        } else {
-            lenMsg.style.display = 'none';
-        }
+        if (!searchInput) return;
 
-        timeout = setTimeout(() => {
-            fetch(`{% url 'taxis:buscar_chofer' %}?cedula=${val}`)
-            .then(r => r.json())
-            .then(data => {
-                const msg = document.getElementById('chofer_msg');
-                const successMsg = document.getElementById('chofer_success_msg');
-                const nameDisplay = document.getElementById('chofer_nombre_display');
-                const select = document.getElementById('id_conductor');
-                
-                if (data.encontrado) {
-                    select.value = data.id;
-                    nameDisplay.value = data.nombre;
-                    msg.style.display = 'none';
-                    successMsg.style.display = 'block';
-                    this.classList.remove('is-invalid');
-                    nameDisplay.classList.remove('is-invalid');
-                } else {
-                    select.value = "";
-                    nameDisplay.value = "";
-                    msg.style.display = 'block';
-                    successMsg.style.display = 'none';
-                    nameDisplay.classList.add('is-invalid');
-                }
-            });
-        }, 500);
-    });
-
-    const camposValidar = [
-        { id: 'id_placa', campo: 'placa' },
-        { id: 'id_serial_niv', campo: 'serial_niv' },
-        { id: 'id_numero_casco', campo: 'numero_casco' }
-    ];
-
-    camposValidar.forEach(item => {
-        const input = document.getElementById(item.id);
-        if (!input) return;
-
-        input.addEventListener('blur', function() {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
             const val = this.value.trim();
-            if (!val) return;
+            const lenMsg = document.getElementById('cedula_len_msg');
+            
+            if(val.length < 7) {
+                lenMsg.style.display = 'block';
+                return;
+            } else {
+                lenMsg.style.display = 'none';
+            }
 
-            $(this).removeClass('is-invalid');
-            $(this).next('.field-error-text').hide();
-
-            const currentId = document.getElementById('current_vehicle_id').value;
-            fetch(`{% url 'taxis:validar_datos_vehiculo' %}?campo=${item.campo}&valor=${val}&exclude_id=${currentId}`)
+            timeout = setTimeout(() => {
+                fetch(`{% url 'taxis:buscar_chofer' %}?cedula=${val}`)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.existe) {
-                        $(this).addClass('is-invalid');
-                        let errorDiv = $(this).next('.field-error-text');
-                        if (errorDiv.length === 0) {
-                            if(item.id === 'id_placa') errorDiv = $('#error_placa');
-                            else errorDiv = $('<div class="field-error-text"></div>').insertAfter(this);
-                        }
-                        errorDiv.text(data.mensaje).show();
+                    const msg = document.getElementById('chofer_msg');
+                    const successMsg = document.getElementById('chofer_success_msg');
+                    const nameDisplay = document.getElementById('chofer_nombre_display');
+                    const select = document.getElementById('id_conductor');
+                    
+                    if (data.encontrado) {
+                        select.value = data.id;
+                        nameDisplay.value = data.nombre;
+                        msg.style.display = 'none';
+                        successMsg.style.display = 'block';
+                        searchInput.classList.remove('is-invalid');
+                        nameDisplay.classList.remove('is-invalid');
+                    } else {
+                        select.value = "";
+                        nameDisplay.value = "";
+                        msg.style.display = 'block';
+                        successMsg.style.display = 'none';
+                        nameDisplay.classList.add('is-invalid');
                     }
                 });
+            }, 500);
         });
-        
-        input.addEventListener('input', function() {
-             $(this).removeClass('is-invalid');
-             $(this).next('.field-error-text').hide();
-             if(item.id === 'id_placa') $('#error_placa').hide();
-        });
-    });
-
-    // ==========================================
-// VALIDACIÓN Y MANEJO DE FOTO DEL VEHÍCULO
-// ==========================================
-
-function validatePhotoField() {
-    const photoInput = document.getElementById('id_foto');
-    const errorDiv = document.getElementById('error_foto_required');
-    const dropzoneContainer = document.getElementById('dropzone-container');
-    
-    if (!photoInput.files || photoInput.files.length === 0) {
-        errorDiv.style.display = 'block';
-        dropzoneContainer.classList.add('border-danger');
-        return false;
     }
-    
-    errorDiv.style.display = 'none';
-    dropzoneContainer.classList.remove('border-danger');
-    return true;
-}
 
-function previewVehiclePhoto(input) {
-    const photoInput = document.getElementById('id_foto');
-    const previewImg = document.getElementById('preview_img_main');
-    const iconMain = document.getElementById('icon_main');
-    const textMain = document.getElementById('text_main');
-    const msgMain = document.getElementById('msg_main');
-    const errorDiv = document.getElementById('error_foto_required');
-    const dropzoneContainer = document.getElementById('dropzone-container');
-    
-    if (photoInput.files && photoInput.files[0]) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            previewImg.style.display = 'block';
-            iconMain.style.display = 'none';
-            textMain.style.display = 'none';
-            msgMain.style.display = 'block';
-            errorDiv.style.display = 'none';
-            dropzoneContainer.classList.remove('border-danger');
-        };
-        
-        reader.readAsDataURL(photoInput.files[0]);
-    }
-}
+    // ============================================================================
+    // VALIDACIONES DE CAMPOS ÚNICOS
+    // ============================================================================
 
-// Inicializar drag & drop y eventos de la foto
-document.addEventListener('DOMContentLoaded', function() {
-    const dropzoneContainer = document.getElementById('dropzone-container');
-    const photoInput = document.getElementById('id_foto');
-    const errorDiv = document.getElementById('error_foto_required');
-    
-    if (!dropzoneContainer || !photoInput) return;
-    
-    dropzoneContainer.addEventListener('click', function() {
-        photoInput.click();
-    });
-    
-    // Drag & drop
-    dropzoneContainer.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzoneContainer.style.backgroundColor = 'var(--dropzone-hover-bg)';
-    });
-    
-    dropzoneContainer.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzoneContainer.style.backgroundColor = '';
-    });
-    
-    dropzoneContainer.addEventListener('drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            photoInput.files = e.dataTransfer.files;
-            const event = new Event('change', { bubbles: true });
-            photoInput.dispatchEvent(event);
-        }
-        
-        dropzoneContainer.style.backgroundColor = '';
-    });
-    
-    // Remover error cuando se selecciona un archivo
-    photoInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            errorDiv.style.display = 'none';
-            dropzoneContainer.classList.remove('border-danger');
-        }
-    });
-});
+    function initializeUniqueFieldValidation() {
+        const camposValidar = [
+            { id: 'id_placa', campo: 'placa' },
+            { id: 'id_serial_niv', campo: 'serial_niv' },
+            { id: 'id_numero_casco', campo: 'numero_casco' }
+        ];
 
+        camposValidar.forEach(item => {
+            const input = document.getElementById(item.id);
+            if (!input) return;
 
-      /* ========================================
-       LIMPIAR BASURA DE DJANGO
-       ======================================== */
-    $(document).ready(function(){
-        // Encontrar los contenedores de input
-        $('.django-input-wrapper').each(function(){
-            // Buscar si hay enlaces o labels generados por Django ClearableFileInput
-            // y ocultarlos explícitamente, pero dejando el input file
-            $(this).find('a, label, span').hide();
+            input.addEventListener('blur', function() {
+                const val = this.value.trim();
+                if (!val) return;
+
+                $(this).removeClass('is-invalid');
+                $(this).next('.field-error-text').hide();
+
+                const currentId = document.getElementById('current_vehicle_id').value;
+                
+                // ✅ NUEVA LÓGICA: Para número de casco, validar que no esté asignado a otro conductor
+                let url = `{% url 'taxis:validar_datos_vehiculo' %}?campo=${item.campo}&valor=${val}&exclude_id=${currentId}`;
+                
+                // Si es número_casco, buscar si está asignado a otro conductor
+                if (item.campo === 'numero_casco') {
+                    url += '&check_conductor=true';
+                }
+                
+                fetch(url)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.existe) {
+                            $(this).addClass('is-invalid');
+                            let errorDiv = $(this).next('.field-error-text');
+                            if (errorDiv.length === 0) {
+                                if(item.id === 'id_placa') errorDiv = $('#error_placa');
+                                else errorDiv = $('<div class="field-error-text"></div>').insertAfter(this);
+                            }
+                            errorDiv.text(data.mensaje).show();
+                        }
+                    });
+            });
             
-            // Si hay texto suelto (TextNodes) como "Actualmente", "Modificar", elimínalos
-            $(this).contents().filter(function(){
+            input.addEventListener('input', function() {
+                 $(this).removeClass('is-invalid');
+                 $(this).next('.field-error-text').hide();
+                 if(item.id === 'id_placa') $('#error_placa').hide();
+            });
+        });
+    }
+
+    // ============================================================================
+    // VALIDACIÓN Y MANEJO DE FOTO DEL VEHÍCULO
+    // ============================================================================
+
+    function vehicleAlreadyHasPhoto() {
+        const previewImg = document.getElementById('preview_img_main');
+        const msgMain = document.getElementById('msg_main');
+
+        // Si en edición se renderiza la imagen o el mensaje "Imagen Cargada", ya hay foto guardada
+        const imgVisible = previewImg && previewImg.style.display !== 'none' && previewImg.getAttribute('src');
+        const msgVisible = msgMain && msgMain.style.display !== 'none' && msgMain.textContent.trim().length > 0;
+
+        return Boolean(imgVisible || msgVisible);
+    }
+
+    function validatePhotoField() {
+        const photoInput = document.getElementById('id_foto');
+        const errorDiv = document.getElementById('error_foto_required');
+        const dropzoneContainer = document.getElementById('dropzone-container');
+
+        // ✅ En edición: si ya existe foto renderizada, no exigir re-subir
+        if (vehicleAlreadyHasPhoto()) {
+            if (errorDiv) errorDiv.style.display = 'none';
+            if (dropzoneContainer) dropzoneContainer.classList.remove('border-danger');
+            return true;
+        }
+
+        // ✅ En creación (o sin foto guardada): exigir archivo nuevo
+        if (!photoInput || !photoInput.files || photoInput.files.length === 0) {
+            if (errorDiv) errorDiv.style.display = 'block';
+            if (dropzoneContainer) dropzoneContainer.classList.add('border-danger');
+            return false;
+        }
+
+        if (errorDiv) errorDiv.style.display = 'none';
+        if (dropzoneContainer) dropzoneContainer.classList.remove('border-danger');
+        return true;
+    }
+
+    function previewVehiclePhoto(input) {
+        const previewImg = document.getElementById('preview_img_main');
+        const iconMain = document.getElementById('icon_main');
+        const textMain = document.getElementById('text_main');
+        const msgMain = document.getElementById('msg_main');
+        const errorDiv = document.getElementById('error_foto_required');
+        const dropzoneContainer = document.getElementById('dropzone-container');
+
+        if (input && input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (previewImg) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                }
+                if (iconMain) iconMain.style.display = 'none';
+                if (textMain) textMain.style.display = 'none';
+                if (msgMain) {
+                    msgMain.style.display = 'block';
+                    msgMain.innerHTML = '<i class="fas fa-check-circle"></i> Foto lista';
+                }
+                if (errorDiv) errorDiv.style.display = 'none';
+                if (dropzoneContainer) dropzoneContainer.classList.remove('border-danger');
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function initializePhotoHandling() {
+        const dropzoneContainer = document.getElementById('dropzone-container');
+        const photoInput = document.getElementById('id_foto');
+        const errorDiv = document.getElementById('error_foto_required');
+
+        if (!dropzoneContainer || !photoInput) return;
+
+        dropzoneContainer.addEventListener('click', function() {
+            photoInput.click();
+        });
+
+        photoInput.addEventListener('change', function() {
+            previewVehiclePhoto(this);
+            if (errorDiv) errorDiv.style.display = 'none';
+            dropzoneContainer.classList.remove('border-danger');
+        });
+
+        dropzoneContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzoneContainer.style.backgroundColor = 'var(--dropzone-hover-bg)';
+        });
+
+        dropzoneContainer.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzoneContainer.style.backgroundColor = '';
+        });
+
+        dropzoneContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                photoInput.files = e.dataTransfer.files;
+                photoInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            dropzoneContainer.style.backgroundColor = '';
+        });
+    }
+
+    // ============================================================================
+    // LIMPIAR BASURA DE DJANGO
+    // ============================================================================
+
+    $(document).ready(function () {
+        $('.django-input-wrapper').each(function () {
+            // Solo si hay input file
+            if ($(this).find('input[type=file]').length === 0) return;
+
+            // Oculta solo lo que molesta del ClearableFileInput
+            $(this).find('a, label').hide();
+
+            // Quita SOLO texto suelto (nodos de texto) del wrapper
+            $(this).contents().filter(function () {
                 return this.nodeType === 3 && $.trim(this.nodeValue) !== '';
             }).remove();
         });
     });
 
 </script>
+
+
 {% endblock %}

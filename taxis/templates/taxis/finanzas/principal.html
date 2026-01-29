@@ -620,6 +620,794 @@
             padding: 0.3rem 0.6rem;
         }
     }
+
+ /* ═══════════════════════════════════════════════════════════════
+   📱 RESPONSIVE DESIGN COMPLETO - MOBILE FIRST
+   Mantiene diseño visual intacto, solo ajusta layout/espacios
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* PANTALLAS ULTRA PEQUEÑAS (320px - 359px)                      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 359px) {
+    /* HEADER - APILADO */
+    .d-flex.align-items-center.justify-content-between {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        margin-bottom: 1rem;
+    }
+
+    .d-flex.align-items-center.justify-content-between h1.h3 {
+        width: 100%;
+        font-size: 0.95rem;
+        text-align: left;
+        margin-bottom: 0;
+    }
+
+    .d-flex.align-items-center.justify-content-between h1.h3 i {
+        margin-right: 0.35rem;
+        font-size: 1rem;
+    }
+
+    a.btn-history {
+        width: 100%;
+        padding: 10px 12px !important;
+        font-size: 0.8rem !important;
+        gap: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 20px !important;
+    }
+
+    a.btn-history i {
+        font-size: 0.9rem;
+    }
+
+    a.btn-history span {
+        display: inline !important;
+    }
+
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 100%;
+        padding: 0 0.5rem;
+        margin: 0 auto;
+    }
+
+    /* ITEMS */
+    .finance-item {
+        flex-wrap: wrap;
+        padding: 0.65rem 0.75rem;
+        gap: 0.4rem;
+        align-items: flex-start;
+    }
+
+    .check-indicator {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.4rem;
+        flex-shrink: 0;
+        margin-top: 0.15rem;
+    }
+
+    .casco-badge {
+        min-width: 35px;
+        font-size: 0.65rem;
+        padding: 0.15rem 0.35rem;
+        margin-right: 0.3rem;
+        flex-shrink: 0;
+    }
+
+    .conductor-info {
+        flex: 0 1 100%;
+        min-width: 0;
+        order: 3;
+    }
+
+    .conductor-name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 1px;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+
+    .conductor-meta {
+        font-size: 0.65rem;
+        opacity: 0.65;
+        display: block;
+        word-break: break-word;
+        line-height: 1.15;
+    }
+
+    .price-tag {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-align: right;
+        flex-shrink: 0;
+        order: 2;
+        min-width: auto;
+        padding-left: 0.5rem;
+    }
+
+    .action-buttons {
+        width: 100%;
+        order: 4;
+        margin-top: 0.5rem;
+        gap: 0.35rem;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .btn-action {
+        flex: 1;
+        font-size: 0.6rem;
+        padding: 0.3rem 0.4rem;
+        min-height: 26px;
+        justify-content: center;
+        gap: 0.15rem;
+    }
+
+    .btn-action i {
+        font-size: 0.65rem;
+    }
+
+    .btn-action span {
+        display: none;
+    }
+
+    /* SECCIONES */
+    .deuda-acumulada {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.6rem;
+        margin-top: 0.3rem;
+        flex: 0 1 100%;
+    }
+
+    .mes-badge {
+        padding: 0.08rem 0.25rem;
+        font-size: 0.55rem;
+        margin: 0.08rem;
+    }
+
+    .info-banner {
+        padding: 0.75rem 0.9rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.8rem;
+    }
+
+    .info-banner i {
+        margin-right: 0.6rem;
+        font-size: 1.3rem;
+    }
+
+    .section-header {
+        margin: 1.25rem 0 0.6rem;
+        padding-bottom: 0.35rem;
+    }
+
+    .section-header h5 {
+        font-size: 0.75rem;
+        letter-spacing: 0.3px;
+    }
+
+    .status-count {
+        font-size: 0.6rem;
+        padding: 0.1rem 0.3rem;
+        margin-left: 0.5rem;
+    }
+
+    /* BÚSQUEDA */
+    .search-box {
+        margin-bottom: 1.25rem;
+    }
+
+    .search-input {
+        padding: 0.6rem 1rem;
+        padding-left: 2.2rem;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+
+    .search-icon {
+        left: 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* BOTONES */
+    .btn-ver-mas {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.75rem;
+        justify-content: center;
+        margin-top: 0.8rem;
+        gap: 0.4rem;
+    }
+
+    .btn-ver-mas i {
+        font-size: 0.8rem;
+    }
+
+    .btn-back-finance {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        gap: 5px;
+    }
+
+    .btn-back-finance span {
+        display: none;
+    }
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* PANTALLAS PEQUEÑAS (360px - 479px)                             */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 360px) and (max-width: 479px) {
+    /* HEADER - FLEX WRAP */
+    .d-flex.align-items-center.justify-content-between {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .d-flex.align-items-center.justify-content-between h1.h3 {
+        flex: 1 1 100%;
+        font-size: 1rem;
+        text-align: left;
+        margin-bottom: 0;
+    }
+
+    .d-flex.align-items-center.justify-content-between h1.h3 i {
+        margin-right: 0.35rem;
+        font-size: 1.1rem;
+    }
+
+    a.btn-history {
+        flex: 1 1 auto;
+        padding: 9px 14px !important;
+        font-size: 0.8rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        border-radius: 20px !important;
+    }
+
+    a.btn-history span {
+        display: inline !important;
+    }
+
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 100%;
+        padding: 0 0.75rem;
+        margin: 0 auto;
+    }
+
+    /* ITEMS */
+    .finance-item {
+        flex-wrap: wrap;
+        padding: 0.75rem 0.85rem;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .check-indicator {
+        width: 22px;
+        height: 22px;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+    }
+
+    .casco-badge {
+        min-width: 38px;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+        margin-right: 0.35rem;
+        flex-shrink: 0;
+    }
+
+    .conductor-info {
+        flex: 0 1 100%;
+        min-width: 0;
+        order: 3;
+    }
+
+    .conductor-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+        word-break: break-word;
+    }
+
+    .conductor-meta {
+        font-size: 0.7rem;
+        opacity: 0.67;
+        display: block;
+        word-break: break-word;
+    }
+
+    .price-tag {
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-align: right;
+        flex-shrink: 0;
+        order: 2;
+        min-width: 55px;
+    }
+
+    .action-buttons {
+        width: 100%;
+        order: 4;
+        margin-top: 0.5rem;
+        gap: 0.35rem;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .btn-action {
+        flex: 1;
+        font-size: 0.65rem;
+        padding: 0.35rem 0.5rem;
+        min-height: 28px;
+        justify-content: center;
+    }
+
+    .btn-action span {
+        display: inline;
+    }
+
+    /* SECCIONES */
+    .deuda-acumulada {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.65rem;
+        margin-top: 0.35rem;
+        flex: 0 1 100%;
+    }
+
+    .mes-badge {
+        padding: 0.1rem 0.35rem;
+        font-size: 0.6rem;
+        margin: 0.1rem;
+    }
+
+    .info-banner {
+        padding: 0.85rem 1.1rem;
+        margin-bottom: 1.75rem;
+        font-size: 0.85rem;
+    }
+
+    .info-banner i {
+        margin-right: 0.75rem;
+    }
+
+    .section-header {
+        margin: 1.5rem 0 0.75rem;
+        padding-bottom: 0.4rem;
+    }
+
+    .section-header h5 {
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+
+    .status-count {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.4rem;
+        margin-left: 0.6rem;
+    }
+
+    /* BÚSQUEDA */
+    .search-box {
+        margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+        padding: 0.7rem 1.2rem;
+        padding-left: 2.5rem;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+
+    .search-icon {
+        left: 0.95rem;
+    }
+
+    /* BOTONES */
+    .btn-ver-mas {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        font-size: 0.8rem;
+        justify-content: center;
+        margin-top: 0.9rem;
+    }
+
+    .btn-back-finance {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .btn-back-finance span {
+        display: inline;
+    }
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* TABLETS PEQUEÑAS (480px - 575px)                               */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 480px) and (max-width: 575px) {
+    /* HEADER */
+    .d-flex.align-items-center.justify-content-between {
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .d-flex.align-items-center.justify-content-between h1.h3 {
+        flex: 1 1 auto;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    a.btn-history {
+        padding: 9px 16px !important;
+        font-size: 0.85rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        border-radius: 20px !important;
+    }
+
+    a.btn-history span {
+        display: inline !important;
+    }
+
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 100%;
+        padding: 0 1rem;
+        margin: 0 auto;
+    }
+
+    /* ITEMS */
+    .finance-item {
+        flex-wrap: wrap;
+        padding: 0.85rem 1rem;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
+
+    .check-indicator {
+        width: 23px;
+        height: 23px;
+        margin-right: 0.6rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+    }
+
+    .casco-badge {
+        min-width: 42px;
+        font-size: 0.75rem;
+        padding: 0.22rem 0.45rem;
+        margin-right: 0.4rem;
+        flex-shrink: 0;
+    }
+
+    .conductor-info {
+        flex: 0 1 100%;
+        min-width: 0;
+        order: 3;
+    }
+
+    .conductor-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .conductor-meta {
+        font-size: 0.75rem;
+        opacity: 0.68;
+    }
+
+    .price-tag {
+        font-size: 1rem;
+        font-weight: 800;
+        order: 2;
+        flex-shrink: 0;
+    }
+
+    .action-buttons {
+        width: 100%;
+        order: 4;
+        margin-top: 0.6rem;
+        gap: 0.4rem;
+        flex-direction: row;
+    }
+
+    .btn-action {
+        flex: 1;
+        font-size: 0.7rem;
+        padding: 0.4rem 0.6rem;
+        min-height: 30px;
+    }
+
+    /* SECCIONES */
+    .deuda-acumulada {
+        padding: 0.45rem 0.65rem;
+        font-size: 0.7rem;
+        margin-top: 0.4rem;
+        flex: 0 1 100%;
+    }
+
+    .mes-badge {
+        padding: 0.12rem 0.4rem;
+        font-size: 0.65rem;
+        margin: 0.12rem;
+    }
+
+    .info-banner {
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+    }
+
+    .section-header {
+        margin: 1.75rem 0 0.85rem;
+        padding-bottom: 0.45rem;
+    }
+
+    .section-header h5 {
+        font-size: 0.85rem;
+        letter-spacing: 0.6px;
+    }
+
+    /* BÚSQUEDA */
+    .search-input {
+        padding: 0.75rem 1.3rem;
+        padding-left: 2.7rem;
+        font-size: 0.95rem;
+    }
+
+    /* BOTONES */
+    .btn-ver-mas {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+    }
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* TABLETS MEDIAS (576px - 767px)                                 */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 576px) and (max-width: 767px) {
+    /* HEADER */
+    .d-flex.align-items-center.justify-content-between {
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    a.btn-history {
+        padding: 10px 18px !important;
+        font-size: 0.88rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        border-radius: 25px !important;
+    }
+
+    a.btn-history span {
+        display: inline !important;
+    }
+
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 100%;
+        padding: 0 1.2rem;
+        margin: 0 auto;
+    }
+
+    /* ITEMS */
+    .finance-item {
+        padding: 0.95rem 1.15rem;
+        gap: 0.7rem;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+
+    .check-indicator {
+        width: 24px;
+        height: 24px;
+        margin-right: 0.7rem;
+        flex-shrink: 0;
+    }
+
+    .casco-badge {
+        min-width: 45px;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.55rem;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .conductor-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .conductor-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .conductor-meta {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    .price-tag {
+        font-size: 1.05rem;
+        font-weight: 800;
+        text-align: right;
+        flex-shrink: 0;
+        min-width: 70px;
+    }
+
+    .action-buttons {
+        gap: 0.5rem;
+        flex-direction: row;
+        flex-shrink: 0;
+    }
+
+    .btn-action {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        min-height: 32px;
+    }
+
+    /* SECCIONES */
+    .deuda-acumulada {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.72rem;
+        margin-top: 0.5rem;
+    }
+
+    .info-banner {
+        padding: 1.1rem 1.4rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-header h5 {
+        font-size: 0.88rem;
+    }
+
+    /* BÚSQUEDA */
+    .search-input {
+        padding: 0.8rem 1.4rem;
+        padding-left: 2.8rem;
+    }
+
+    /* BOTONES */
+    .btn-ver-mas {
+        padding: 0.75rem 1.3rem;
+        font-size: 0.88rem;
+    }
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* TABLETS GRANDES (768px - 991px)                                */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 768px) and (max-width: 991px) {
+    /* HEADER */
+    a.btn-history {
+        padding: 10px 20px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 750px;
+        padding: 0 1.3rem;
+        margin: 0 auto;
+    }
+
+    /* ITEMS */
+    .finance-item {
+        padding: 1rem 1.25rem;
+        gap: 0.85rem;
+    }
+
+    .action-buttons {
+        gap: 0.55rem;
+    }
+
+    .btn-action {
+        font-size: 0.76rem;
+        padding: 0.42rem 0.8rem;
+    }
+
+    /* BANNER */
+    .info-banner {
+        padding: 1.15rem 1.5rem;
+    }
+
+    h1.h3 {
+        font-size: 1.5rem;
+    }
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* DESKTOPS (992px en adelante) - ORIGINAL SIN CAMBIOS            */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 992px) {
+    /* CONTENEDOR */
+    .checklist-container {
+        max-width: 800px;
+        padding: 0;
+        margin: 0 auto;
+    }
+
+    /* ITEMS - LAYOUT ORIGINAL */
+    .finance-item {
+        padding: 1rem 1.25rem;
+        gap: 1rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    /* BOTONES DE ACCIÓN */
+    .action-buttons {
+        gap: 0.5rem;
+        flex-direction: row;
+    }
+
+    .btn-action {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        min-height: auto;
+    }
+
+    /* DEUDA */
+    .deuda-acumulada {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    /* BANNER */
+    .info-banner {
+        padding: 1rem 1.5rem;
+    }
+
+    /* BOTÓN HISTORIAL */
+    a.btn-history {
+        padding: 10px 20px !important;
+        font-size: 0.9rem !important;
+    }
+
+    h1.h3 {
+        font-size: 1.75rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FIN RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════ */
+
 </style>
 
 

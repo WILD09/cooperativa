@@ -471,6 +471,650 @@ body.dark-mode .btn-print:hover, body.dark-mode .btn-comprobante:hover {
     padding: 0 !important;
     gap: 0 !important;
 }
+
+//* ===== RESPONSIVE MEJORADO ===== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .receipt-container {
+        margin: 1.75rem auto;
+        padding: 0 0.75rem;
+    }
+
+    .receipt-header {
+        padding: 1.75rem 1.25rem;
+    }
+
+    .receipt-body {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .total-amount {
+        font-size: 2.3rem;
+        font-weight: 900;
+    }
+
+    .logo-circle {
+        width: 85px !important;
+        height: 85px !important;
+    }
+
+    .btn-actions-container {
+        padding: 0 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-print,
+    .btn-comprobante,
+    .btn-no-comprobante {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.85rem;
+        min-width: auto;
+        max-width: none;
+        flex: 1;
+        letter-spacing: 0.5px;
+    }
+}
+
+/* Tablet pequeño (640px - 768px) */
+@media (max-width: 768px) {
+    .receipt-container {
+        margin: 1.5rem auto;
+        padding: 0 0.65rem;
+        max-width: 100%;
+    }
+
+    .receipt-card {
+        border-radius: 16px;
+    }
+
+    .receipt-header {
+        padding: 1.5rem 1.15rem;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .stamp {
+        top: 12px;
+        right: -22px;
+        padding: 3px 30px;
+        font-size: 0.65rem;
+    }
+
+    .logo-circle {
+        width: 78px !important;
+        height: 78px !important;
+        margin: 0 auto 0.45rem auto;
+    }
+
+    .receipt-header h4 {
+        font-size: 1.05rem;
+        margin: 0.65rem 0 0.35rem 0 !important;
+        font-weight: 900;
+    }
+
+    .receipt-header small {
+        font-size: 0.75rem;
+    }
+
+    .receipt-body {
+        padding: 1.4rem 1.15rem;
+    }
+
+    .total-amount {
+        font-size: 2.2rem;
+        margin: 0.4rem 0;
+    }
+
+    .badge {
+        padding: 0.4rem 1rem !important;
+        font-size: 0.78rem !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .dotted-line {
+        margin: 1.2rem 0;
+    }
+
+    .data-row {
+        margin-bottom: 0.8rem;
+        gap: 0.9rem;
+    }
+
+    .data-label {
+        font-size: 0.7rem;
+        min-width: 65px;
+        font-weight: 700;
+    }
+
+    .data-value {
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+
+    .desglose-box {
+        padding: 1rem;
+        margin: 1.2rem 0;
+    }
+
+    .desglose-item {
+        padding: 0.5rem 0;
+        font-size: 0.82rem;
+    }
+
+    .observaciones-section {
+        margin-bottom: 1.3rem;
+    }
+
+    .observaciones-text {
+        font-size: 0.87rem;
+    }
+
+    .signature {
+        margin-top: 1.6rem;
+        padding-top: 0.5rem;
+    }
+
+    .signature small {
+        font-size: 0.72rem;
+    }
+
+    .btn-back-finance {
+        padding: 0.65rem 1.25rem;
+        font-size: 0.78rem;
+        margin-bottom: 1.1rem;
+        font-weight: 600;
+    }
+
+    .btn-actions-container {
+        gap: 0.65rem;
+        margin-top: 1.35rem;
+        padding: 0 0.65rem;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    .btn-print,
+    .btn-comprobante,
+    .btn-no-comprobante {
+        padding: 0.65rem 1rem;
+        font-size: 0.75rem;
+        min-width: auto;
+        max-width: none;
+        flex: 1;
+        border-radius: 23px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }
+
+    .btn-print i,
+    .btn-comprobante i,
+    .btn-no-comprobante i {
+        font-size: 0.82rem;
+        margin-right: 0.35rem;
+    }
+
+    .btn-print span,
+    .btn-comprobante span,
+    .btn-no-comprobante span {
+        display: inline;
+    }
+}
+
+/* Mobile (480px - 640px) */
+@media (max-width: 640px) {
+    .receipt-container {
+        margin: 1.25rem auto;
+        padding: 0 0.55rem;
+    }
+
+    .receipt-header {
+        padding: 1.4rem 1.05rem;
+    }
+
+    .stamp {
+        top: 10px;
+        right: -20px;
+        padding: 2px 25px;
+        font-size: 0.6rem;
+    }
+
+    .logo-circle {
+        width: 72px !important;
+        height: 72px !important;
+        margin: 0 auto 0.38rem auto;
+    }
+
+    .receipt-header h4 {
+        font-size: 0.98rem;
+        margin: 0.55rem 0 0.28rem 0 !important;
+    }
+
+    .receipt-header small {
+        font-size: 0.72rem;
+    }
+
+    .receipt-body {
+        padding: 1.3rem 1.05rem;
+    }
+
+    .total-amount {
+        font-size: 2rem;
+        margin: 0.35rem 0;
+    }
+
+    .badge {
+        padding: 0.35rem 0.85rem !important;
+        font-size: 0.72rem !important;
+        margin-top: 0.45rem !important;
+    }
+
+    .dotted-line {
+        margin: 1.05rem 0;
+    }
+
+    .data-row {
+        margin-bottom: 0.75rem;
+        gap: 0.8rem;
+    }
+
+    .data-label {
+        font-size: 0.67rem;
+        min-width: 58px;
+    }
+
+    .data-value {
+        font-size: 0.87rem;
+    }
+
+    .desglose-box {
+        padding: 0.85rem;
+        margin: 1.05rem 0;
+        border-radius: 11px;
+    }
+
+    .desglose-item {
+        padding: 0.42rem 0;
+        font-size: 0.77rem;
+    }
+
+    .observaciones-section {
+        margin-bottom: 1.15rem;
+    }
+
+    .observaciones-section small {
+        font-size: 0.72rem;
+    }
+
+    .observaciones-text {
+        font-size: 0.82rem;
+        margin-top: 0.42rem;
+    }
+
+    .signature {
+        margin-top: 1.3rem;
+        padding-top: 0.42rem;
+    }
+
+    .signature small {
+        font-size: 0.67rem;
+    }
+
+    .no-print.mb-4 {
+        margin-bottom: 0.9rem !important;
+        text-align: center;
+    }
+
+    .btn-back-finance {
+        padding: 0.58rem 1.05rem;
+        font-size: 0.72rem;
+        margin-bottom: 0.95rem;
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .btn-back-finance i {
+        font-size: 0.82rem;
+    }
+
+    .btn-actions-container {
+        gap: 0.55rem;
+        margin-top: 1.15rem;
+        width: 100%;
+        padding: 0 0.55rem;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    .btn-print,
+    .btn-comprobante,
+    .btn-no-comprobante {
+        padding: 0.58rem 0.85rem;
+        font-size: 0.72rem;
+        min-width: auto;
+        max-width: none;
+        flex: 1 1 auto;
+        border-radius: 22px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-print i,
+    .btn-comprobante i,
+    .btn-no-comprobante i {
+        font-size: 0.77rem;
+        margin-right: 0.28rem;
+    }
+
+    .btn-print span,
+    .btn-comprobante span,
+    .btn-no-comprobante span {
+        display: inline;
+    }
+}
+
+/* Mobile pequeño (360px - 480px) */
+@media (max-width: 480px) {
+    .receipt-container {
+        margin: 1rem auto;
+        padding: 0 0.45rem;
+    }
+
+    .receipt-card {
+        border-radius: 15px;
+        border-width: 1.5px;
+    }
+
+    .receipt-header {
+        padding: 1.25rem 0.95rem;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .stamp {
+        top: 8px;
+        right: -18px;
+        padding: 2px 22px;
+        font-size: 0.55rem;
+    }
+
+    .logo-circle {
+        width: 68px !important;
+        height: 68px !important;
+        margin: 0 auto 0.35rem auto;
+    }
+
+    .receipt-header h4 {
+        font-size: 0.93rem;
+        margin: 0.48rem 0 0.24rem 0 !important;
+        letter-spacing: -0.2px;
+    }
+
+    .receipt-header small {
+        font-size: 0.67rem;
+        line-height: 1.25;
+    }
+
+    .receipt-body {
+        padding: 1.15rem 0.95rem;
+    }
+
+    .total-amount {
+        font-size: 1.82rem;
+        margin: 0.3rem 0;
+    }
+
+    .badge {
+        padding: 0.28rem 0.75rem !important;
+        font-size: 0.67rem !important;
+        margin-top: 0.38rem !important;
+        border-radius: 19px !important;
+    }
+
+    .dotted-line {
+        margin: 0.95rem 0;
+        border-bottom-width: 1.5px;
+    }
+
+    .data-row {
+        margin-bottom: 0.68rem;
+        gap: 0.68rem;
+        flex-wrap: wrap;
+    }
+
+    .data-label {
+        font-size: 0.64rem;
+        letter-spacing: 0.2px;
+        min-width: 52px;
+        font-weight: 700;
+    }
+
+    .data-value {
+        font-size: 0.82rem;
+        text-align: left;
+        width: calc(100% - 57px);
+    }
+
+    .desglose-box {
+        padding: 0.78rem;
+        margin: 1rem 0;
+        border-radius: 10px;
+    }
+
+    .desglose-item {
+        padding: 0.37rem 0;
+        font-size: 0.74rem;
+    }
+
+    .observaciones-section {
+        margin-bottom: 1.05rem;
+    }
+
+    .observaciones-section small {
+        font-size: 0.67rem;
+        letter-spacing: 0.15px;
+    }
+
+    .observaciones-text {
+        font-size: 0.77rem;
+        margin-top: 0.37rem;
+        line-height: 1.35;
+    }
+
+    .signature {
+        margin-top: 1.15rem;
+        padding-top: 0.37rem;
+    }
+
+    .signature small {
+        font-size: 0.64rem;
+    }
+
+    .no-print.mb-4 {
+        margin-bottom: 0.78rem !important;
+    }
+
+    .btn-back-finance {
+        padding: 0.52rem 0.98rem;
+        font-size: 0.67rem;
+        margin-bottom: 0.82rem;
+        gap: 0.38rem;
+        font-weight: 600;
+    }
+
+    .btn-back-finance i {
+        font-size: 0.77rem;
+    }
+
+    .btn-actions-container {
+        gap: 0.38rem;
+        margin-top: 1.05rem;
+        padding: 0 0.45rem;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-print,
+    .btn-comprobante,
+    .btn-no-comprobante {
+        padding: 0.52rem 0.88rem;
+        font-size: 0.67rem;
+        min-width: auto;
+        max-width: none;
+        flex: 1;
+        width: 100%;
+        border-radius: 21px;
+        gap: 0.37rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .btn-print i,
+    .btn-comprobante i,
+    .btn-no-comprobante i {
+        font-size: 0.77rem;
+    }
+
+    .btn-print span,
+    .btn-comprobante span,
+    .btn-no-comprobante span {
+        display: inline;
+    }
+}
+
+/* Extra pequeño (menos de 360px) */
+@media (max-width: 360px) {
+    .receipt-container {
+        margin: 0.9rem auto;
+        padding: 0 0.4rem;
+    }
+
+    .receipt-card {
+        border-radius: 13px;
+    }
+
+    .receipt-header {
+        padding: 1.15rem 0.85rem;
+        border-radius: 13px 13px 0 0;
+    }
+
+    .stamp {
+        top: 6px;
+        right: -15px;
+        padding: 1.5px 18px;
+        font-size: 0.52rem;
+    }
+
+    .logo-circle {
+        width: 62px !important;
+        height: 62px !important;
+        margin: 0 auto 0.3rem auto;
+    }
+
+    .receipt-header h4 {
+        font-size: 0.88rem;
+        margin: 0.42rem 0 0.18rem 0 !important;
+        font-weight: 900;
+    }
+
+    .receipt-header small {
+        font-size: 0.62rem;
+    }
+
+    .receipt-body {
+        padding: 1.05rem 0.85rem;
+    }
+
+    .total-amount {
+        font-size: 1.65rem;
+        margin: 0.25rem 0;
+    }
+
+    .badge {
+        padding: 0.22rem 0.65rem !important;
+        font-size: 0.62rem !important;
+        margin-top: 0.32rem !important;
+    }
+
+    .dotted-line {
+        margin: 0.88rem 0;
+    }
+
+    .data-row {
+        margin-bottom: 0.6rem;
+        gap: 0.55rem;
+    }
+
+    .data-label {
+        font-size: 0.6rem;
+        min-width: 48px;
+    }
+
+    .data-value {
+        font-size: 0.77rem;
+        width: calc(100% - 52px);
+    }
+
+    .desglose-box {
+        padding: 0.72rem;
+        margin: 0.88rem 0;
+        border-radius: 9px;
+    }
+
+    .desglose-item {
+        font-size: 0.7rem;
+        padding: 0.32rem 0;
+    }
+
+    .observaciones-section {
+        margin-bottom: 0.95rem;
+    }
+
+    .observaciones-section small {
+        font-size: 0.62rem;
+    }
+
+    .observaciones-text {
+        font-size: 0.72rem;
+        margin-top: 0.32rem;
+    }
+
+    .signature {
+        margin-top: 1.05rem;
+    }
+
+    .signature small {
+        font-size: 0.6rem;
+    }
+
+    .btn-back-finance {
+        padding: 0.48rem 0.85rem;
+        font-size: 0.62rem;
+        margin-bottom: 0.72rem;
+    }
+
+    .btn-actions-container {
+        gap: 0.32rem;
+        margin-top: 0.95rem;
+        padding: 0 0.4rem;
+        flex-direction: column;
+    }
+
+    .btn-print,
+    .btn-comprobante,
+    .btn-no-comprobante {
+        padding: 0.48rem 0.78rem;
+        font-size: 0.62rem;
+        border-radius: 18px;
+        width: 100%;
+        font-weight: 700;
+    }
+
+    .btn-print i,
+    .btn-comprobante i,
+    .btn-no-comprobante i {
+        font-size: 0.72rem;
+    }
+}
+
 </style>
 
 <div class="receipt-container">

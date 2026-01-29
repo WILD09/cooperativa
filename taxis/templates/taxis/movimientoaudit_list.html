@@ -26,39 +26,44 @@
     }
 
     /* ============================================================
-       SCROLLBAR MODERNO
-       ============================================================ */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
+   SCROLLBAR MODERNO - VERDE CLARO / TEAL OSCURO
+   ============================================================ */
+::-webkit-scrollbar {
+    width: 10px;
+}
 
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-        margin: 4px 0;
-    }
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+    margin: 4px 0;
+}
 
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1f2937;
-    }
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #1f2937;
+}
 
-    ::-webkit-scrollbar-thumb {
-        background: #00b300;
-        border-radius: 10px;
-        min-height: 40px;
-    }
+/* MODO CLARO - Verde */
+::-webkit-scrollbar-thumb {
+    background: #00b300 !important;
+    border-radius: 10px;
+    min-height: 40px;
+}
 
-    body.dark-mode ::-webkit-scrollbar-thumb {
-        background: #10b981;
-    }
+::-webkit-scrollbar-thumb:hover {
+    background: #009900 !important;
+}
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: #009900;
-    }
+/* MODO OSCURO - TEAL FUERZA */
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #2dd4bf !important;
+    border-radius: 10px;
+    min-height: 40px;
+}
 
-    body.dark-mode ::-webkit-scrollbar-thumb:hover {
-        background: #059669;
-    }
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #14b8a6 !important;
+}
+
 
     /* ============================================================
        BARRA DE BÚSQUEDA + FILTROS
@@ -98,6 +103,7 @@
         background-color: transparent;
         transition: all 0.3s ease;
         font-size: 1rem;
+        box-sizing: border-box;
     }
 
     body.dark-mode .search-input {
@@ -246,6 +252,7 @@
         background-repeat: no-repeat;
         background-position: right 15px center;
         padding-right: 40px;
+        box-sizing: border-box;
     }
 
     body.dark-mode .filter-select {
@@ -313,6 +320,7 @@
         transition: all 0.2s ease;
         text-decoration: none !important;
         color: #1f2937;
+        overflow: hidden;
     }
 
     body.dark-mode .audit-row {
@@ -358,6 +366,8 @@
         display: flex;
         flex-direction: column;
         gap: 0.6rem;
+        overflow: hidden;
+        min-width: 0;
     }
 
     .audit-info-main {
@@ -391,6 +401,7 @@
         font-weight: 500;
         line-height: 1.4;
         word-break: break-word;
+        overflow: hidden;
     }
 
     body.dark-mode .audit-description {
@@ -544,6 +555,8 @@
         gap: 0.5rem;
         align-items: center;
         padding: 0;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .page-item {
@@ -616,27 +629,134 @@
     }
 
     /* ============================================================
-       RESPONSIVE
+       RESPONSIVE - COMPLETO Y MEJORADO
        ============================================================ */
-    @media (max-width: 1024px) {
+
+    /* TABLET GRANDE (1024px - 1440px) */
+    @media (max-width: 1440px) {
         .audit-row {
             grid-template-columns: auto 1fr auto;
         }
     }
 
-    @media (max-width: 768px) {
+    /* TABLET (768px - 1024px) */
+    @media (max-width: 1024px) {
+        .page-title {
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+        }
+
         .header-controls {
-            flex-direction: column;
-            align-items: stretch;
+            gap: 12px;
+            margin-bottom: 1.2rem;
         }
 
         .search-container {
-            max-width: 100%;
+            width: 100%;
+            max-width: none;
+        }
+
+        .search-input {
+            font-size: 0.95rem;
+            height: 44px;
+        }
+
+        .filter-btn {
+            width: 44px;
+            height: 44px;
+            margin-left: 10px;
+        }
+
+        .audit-row {
+            grid-template-columns: auto 1fr auto;
+            gap: 1.2rem;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .audit-avatar {
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
+        }
+
+        .audit-timestamp {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* TABLET PEQUEÑO (640px - 768px) */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            gap: 8px;
+        }
+
+        .header-controls {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            margin-bottom: 1rem;
+        }
+
+        .search-container {
+            width: 100%;
+            flex-direction: row;
+        }
+
+        .search-input-group {
+            min-width: 0;
+        }
+
+        .search-input {
+            height: 42px;
+            font-size: 0.9rem;
+            padding: 0 0.75rem 0 2.5rem;
+        }
+
+        .search-icon {
+            left: 12px;
+            font-size: 1rem;
+        }
+
+        .filter-btn {
+            width: 42px;
+            height: 42px;
+            margin-left: 8px;
+        }
+
+        .filter-dropdown {
+            width: 280px;
+            right: 0;
         }
 
         .audit-row {
             grid-template-columns: auto 1fr;
-            gap: 1rem;
+            gap: 0.8rem;
+            padding: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .audit-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .audit-info-main {
+            font-size: 0.85rem;
+        }
+
+        .audit-info-secondary {
+            font-size: 0.85rem;
+        }
+
+        .audit-description {
+            font-size: 0.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         .audit-row-right {
@@ -649,12 +769,322 @@
         }
 
         .audit-badge {
-            justify-content: flex-start;
+            font-size: 0.65rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        .audit-timestamp {
+            font-size: 0.85rem;
+            order: -1;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* MOBILE GRANDE (480px - 640px) */
+    @media (max-width: 640px) {
+        .page-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+        }
+
+        .header-controls {
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .search-input {
+            height: 40px;
+            font-size: 0.88rem;
+            padding: 0 0.6rem 0 2.3rem;
+            border-radius: 20px;
+        }
+
+        .search-icon {
+            left: 10px;
+            font-size: 0.95rem;
+        }
+
+        .filter-btn {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .filter-dropdown {
+            width: 260px;
+            right: -10px;
+            padding: 20px;
+        }
+
+        .audit-row {
+            grid-template-columns: auto 1fr;
+            gap: 0.6rem;
+            padding: 0.8rem;
+            margin-bottom: 0.75rem;
+            border-radius: 10px;
+        }
+
+        .audit-avatar {
+            width: 38px;
+            height: 38px;
+            font-size: 0.95rem;
+        }
+
+        .audit-info-main {
+            font-size: 0.87rem;
+        }
+
+        .audit-info-secondary {
+            font-size: 0.75rem;
+        }
+
+        .audit-description {
+            font-size: 0.77rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .audit-row-right {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            align-items: center;
+            text-align: left;
+        }
+
+        .audit-badge {
+            font-size: 0.62rem;
+            padding: 0.35rem 0.65rem;
+        }
+
+        .audit-timestamp {
+            font-size: 0.8rem;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.3rem;
+            order: -1;
+        }
+
+        .total-indicator {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            gap: 0.3rem;
+            margin-top: 1rem;
+        }
+
+        .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.6rem;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* MOBILE PEQUEÑO (360px - 480px) */
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.15rem;
+            margin-bottom: 0.7rem;
+            gap: 6px;
+        }
+
+        .header-controls {
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 0.7rem;
+        }
+
+        .search-container {
+            width: 100%;
+        }
+
+        .search-input {
+            height: 38px;
+            font-size: 0.85rem;
+            padding: 0 0.5rem 0 2.1rem;
+            border-width: 1.5px;
+        }
+
+        .search-icon {
+            left: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn {
+            width: 38px;
+            height: 38px;
+            border-width: 1.5px;
+        }
+
+        .filter-dropdown {
+            width: 240px;
+            right: -15px;
+            padding: 18px;
+        }
+
+        .audit-row {
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.7rem;
+            border-radius: 9px;
+        }
+
+        .audit-avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+        }
+
+        .audit-info-main {
+            font-size: 0.82rem;
+        }
+
+        .audit-info-secondary {
+            font-size: 0.7rem;
+        }
+
+        .audit-description {
+            font-size: 0.73rem;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .audit-row-right {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+
+        .audit-badge {
+            font-size: 0.58rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .audit-timestamp {
+            font-size: 0.75rem;
+            width: 100%;
+            margin-bottom: 0.25rem;
+            order: -1;
+        }
+
+        .total-indicator {
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .page-link {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 0.5rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* EXTRA PEQUEÑO (menos de 360px) */
+    @media (max-width: 360px) {
+        .page-title {
+            font-size: 1rem;
+            margin-bottom: 0.6rem;
+            margin-top: 0.8rem;
+            gap: 5px;
+        }
+
+        .header-controls {
+            gap: 6px;
+            margin-bottom: 0.6rem;
+        }
+
+        .search-input {
+            height: 36px;
+            font-size: 0.8rem;
+            padding: 0 0.4rem 0 2rem;
+            border-radius: 18px;
+        }
+
+        .search-icon {
+            left: 7px;
+            font-size: 0.85rem;
+        }
+
+        .filter-btn {
+            width: 36px;
+            height: 36px;
+            border-width: 1px;
+        }
+
+        .filter-dropdown {
+            width: 220px;
+            right: -20px;
+            padding: 16px;
+            font-size: 0.85rem;
+        }
+
+        .audit-row {
+            grid-template-columns: auto 1fr;
+            gap: 0.4rem;
+            padding: 0.65rem;
+            margin-bottom: 0.6rem;
+            border-radius: 8px;
+        }
+
+        .audit-avatar {
+            width: 34px;
+            height: 34px;
+            font-size: 0.85rem;
+        }
+
+        .audit-info-main {
+            font-size: 0.78rem;
+        }
+
+        .audit-info-secondary {
+            font-size: 0.65rem;
+        }
+
+        .audit-description {
+            font-size: 0.7rem;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .audit-badge {
+            font-size: 0.55rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .audit-timestamp {
+            font-size: 0.7rem;
+            width: 100%;
+            order: -1;
+        }
+
+        .page-link {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 0.4rem;
+            font-size: 0.75rem;
         }
     }
 
     /* ============================================================
-       FUERZA BADGE PRESIDENTE BLANCO EN AMBOS MODOS - SIN EXCEPCIÓN
+       FUERZA BADGE PRESIDENTE BLANCO EN AMBOS MODOS
        ============================================================ */
     .sidebar-brand-container .badge {
         color: #ffffff !important;
@@ -675,11 +1105,11 @@
         border: 1px solid rgba(255, 255, 255, 0.25) !important;
     }
 
-    /* ULTRA ESPECÍFICO PARA PRESIDENTE */
     .sidebar-brand-container .badge.badge-success {
         color: white !important;
     }
 </style>
+
 
 <!-- TITULO -->
 <h1 class="page-title">

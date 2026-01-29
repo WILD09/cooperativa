@@ -404,6 +404,662 @@
         font-weight: 900;
         color: var(--coop-green-primary);
     }
+
+   /* ═══════════════════════════════════════════════════════════════
+   📱 RESPONSIVE DESIGN REGISTRAR PAGO V2 - MOBILE FIRST
+   ═══════════════════════════════════════════════════════════════ */
+
+/* PANTALLAS ULTRA PEQUEÑAS (320px - 359px) */
+@media (max-width: 359px) {
+    .form-container {
+        max-width: 100%;
+        padding: 0 0.5rem;
+        margin: 0 auto;
+    }
+
+    .mb-4 {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .btn-back-finance {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+        gap: 5px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn-back-finance span {
+        display: inline;
+    }
+
+    .reg-card {
+        border-radius: 24px;
+    }
+
+    .reg-hero {
+        padding: 1.75rem 1rem;
+    }
+
+    .profile-img {
+        width: 75px;
+        height: 75px;
+        margin-bottom: 0.65rem;
+    }
+
+    .reg-hero h4 {
+        font-size: 0.95rem !important;
+        margin-top: 0.65rem !important;
+        margin-bottom: 0.45rem !important;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .badge.badge-light {
+        font-size: 0.65rem !important;
+        padding: 0.3rem 0.65rem !important;
+        margin-top: 0.45rem !important;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        row-gap: 0.7rem;
+        padding: 0.9rem 1rem;
+        margin: 0.85rem;
+    }
+
+    .info-item label {
+        font-size: 0.6rem;
+        margin-bottom: 1px;
+    }
+
+    .info-item span {
+        font-size: 0.8rem;
+        word-break: break-word;
+    }
+
+    .deuda-card,
+    .adelanto-card {
+        padding: 0.9rem;
+        margin: 0.85rem 0.65rem;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .deuda-title,
+    .adelanto-title {
+        font-size: 0.78rem;
+        margin-bottom: 0.65rem;
+        gap: 4px;
+        flex-wrap: wrap;
+        word-break: break-word;
+    }
+
+    .deuda-card p.small,
+    .adelanto-card p.small {
+        font-size: 0.7rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+
+    /* CHECKBOX ITEM - REVISADO PARA 320px */
+    .mes-checkbox-item {
+        padding: 0.6rem 0.65rem;
+        margin-bottom: 0.55rem;
+        border-radius: 9px;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .mes-checkbox-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        margin-right: 6px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    /* LABEL + PRECIO en una línea con flex */
+    .mes-checkbox-label {
+        font-size: 0.75rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        word-break: break-word;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem;
+        align-items: baseline;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        font-size: 0.58rem;
+        padding: 0.15rem 0.45rem;
+        flex-basis: 100%;
+        text-align: center;
+        margin-top: 0.3rem;
+    }
+
+    .alert {
+        margin: 0.85rem 0.65rem !important;
+        padding: 0.65rem 0.85rem !important;
+        font-size: 0.75rem;
+        border-radius: 12px;
+    }
+
+    .total-pagar-box {
+        margin: 0.7rem 0.65rem !important;
+        padding: 0.75rem !important;
+    }
+
+    .total-pagar-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .total-pagar-value {
+        font-size: 1.4rem;
+    }
+
+    .px-4 {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+    }
+
+    .px-2 {
+        padding-left: 0.65rem !important;
+        padding-right: 0.65rem !important;
+    }
+
+    .mb-3 {
+        margin-bottom: 0.8rem !important;
+    }
+
+    .pb-4 {
+        padding-bottom: 0.85rem !important;
+    }
+
+    .field-label {
+        font-size: 0.75rem;
+        margin-left: 4px;
+        margin-bottom: 2px;
+    }
+
+    .vsms-input {
+        padding: 9px 14px;
+        font-size: 0.85rem;
+        border-radius: 18px;
+    }
+
+    .upload-area {
+        padding: 0.85rem;
+        border-radius: 14px;
+        font-size: 0.75rem;
+    }
+
+    .upload-area i {
+        font-size: 1.3rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+
+    .btn-submit {
+        padding: 0.8rem 1.4rem;
+        font-size: 0.8rem;
+        border-radius: 35px;
+        margin-top: 0.65rem;
+        letter-spacing: 0.5px;
+    }
+
+    textarea.vsms-input {
+        min-height: 85px;
+    }
+}
+
+/* PANTALLAS PEQUEÑAS (360px - 479px) */
+@media (min-width: 360px) and (max-width: 479px) {
+    .form-container {
+        max-width: 100%;
+        padding: 0 0.75rem;
+    }
+
+    .btn-back-finance {
+        padding: 7px 12px;
+        font-size: 0.75rem;
+        width: 100%;
+    }
+
+    .reg-hero {
+        padding: 2rem 1.2rem;
+    }
+
+    .profile-img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 0.8rem;
+    }
+
+    .reg-hero h4 {
+        font-size: 1rem !important;
+        margin-top: 0.8rem !important;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr;
+        padding: 1.1rem 1.4rem;
+        margin: 1.1rem;
+        row-gap: 0.85rem;
+    }
+
+    .info-item label {
+        font-size: 0.68rem;
+    }
+
+    .info-item span {
+        font-size: 0.88rem;
+    }
+
+    .deuda-card,
+    .adelanto-card {
+        padding: 1.1rem;
+        margin: 1.1rem;
+        overflow: hidden;
+    }
+
+    .deuda-title,
+    .adelanto-title {
+        font-size: 0.88rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* CHECKBOX ITEM - REVISADO */
+    .mes-checkbox-item {
+        padding: 0.65rem 0.8rem;
+        margin-bottom: 0.65rem;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .mes-checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
+
+    .mes-checkbox-label {
+        font-size: 0.85rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        align-items: baseline;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        font-size: 0.62rem;
+        padding: 0.18rem 0.55rem;
+        flex-basis: 100%;
+        text-align: center;
+        margin-top: 0.2rem;
+    }
+
+    .total-pagar-box {
+        margin: 0.95rem !important;
+        padding: 0.95rem !important;
+    }
+
+    .total-pagar-label {
+        font-size: 0.78rem;
+    }
+
+    .total-pagar-value {
+        font-size: 1.65rem;
+    }
+
+    .px-4 {
+        padding-left: 1.1rem !important;
+        padding-right: 1.1rem !important;
+    }
+
+    .px-2 {
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+    }
+
+    .field-label {
+        font-size: 0.82rem;
+    }
+
+    .vsms-input {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    .btn-submit {
+        padding: 0.85rem 1.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* TABLETS PEQUEÑAS (480px - 575px) */
+@media (min-width: 480px) and (max-width: 575px) {
+    .form-container {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+
+    .btn-back-finance {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        width: auto;
+    }
+
+    .reg-hero {
+        padding: 2.2rem 1.4rem;
+    }
+
+    .profile-img {
+        width: 88px;
+        height: 88px;
+    }
+
+    .reg-hero h4 {
+        font-size: 1.08rem !important;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1.8rem;
+        padding: 1.2rem 1.6rem;
+        margin: 1.2rem;
+        row-gap: 0.9rem;
+    }
+
+    .deuda-card,
+    .adelanto-card {
+        padding: 1.1rem;
+        margin: 1.1rem;
+        overflow: hidden;
+    }
+
+    .deuda-title,
+    .adelanto-title {
+        flex-wrap: wrap;
+    }
+
+    /* CHECKBOX ITEM */
+    .mes-checkbox-item {
+        padding: 0.7rem 0.9rem;
+        margin-bottom: 0.7rem;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .mes-checkbox-item input[type="checkbox"] {
+        flex-shrink: 0;
+    }
+
+    .mes-checkbox-label {
+        font-size: 0.88rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        font-size: 0.65rem;
+        padding: 0.22rem 0.65rem;
+        flex-basis: auto;
+        flex-shrink: 0;
+    }
+
+    .total-pagar-box {
+        margin: 1.1rem !important;
+        padding: 1rem !important;
+    }
+
+    .total-pagar-value {
+        font-size: 1.85rem;
+    }
+
+    .vsms-input {
+        padding: 11px 18px;
+    }
+
+    .btn-submit {
+        padding: 0.9rem 1.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* TABLETS MEDIAS (576px - 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    .form-container {
+        max-width: 100%;
+        padding: 0 1.25rem;
+    }
+
+    .reg-hero {
+        padding: 2.3rem 1.6rem;
+    }
+
+    .profile-img {
+        width: 95px;
+        height: 95px;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 2.8rem;
+        padding: 1.3rem 1.85rem;
+        margin: 1.3rem;
+    }
+
+    .info-item label {
+        font-size: 0.72rem;
+    }
+
+    .info-item span {
+        font-size: 0.93rem;
+    }
+
+    .deuda-card,
+    .adelanto-card {
+        padding: 1.3rem;
+        margin: 1.3rem;
+        overflow: hidden;
+    }
+
+    .deuda-title,
+    .adelanto-title {
+        flex-wrap: wrap;
+    }
+
+    .mes-checkbox-item {
+        padding: 0.78rem 1.08rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .mes-checkbox-label {
+        font-size: 0.92rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        flex-basis: auto;
+        flex-shrink: 0;
+    }
+
+    .total-pagar-box {
+        margin: 1.2rem !important;
+        padding: 1.1rem !important;
+    }
+
+    .px-4 {
+        padding-left: 1.6rem !important;
+        padding-right: 1.6rem !important;
+    }
+
+    .vsms-input {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .btn-submit {
+        padding: 1rem 2.1rem;
+        font-size: 0.96rem;
+    }
+}
+
+/* TABLETS GRANDES (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .form-container {
+        max-width: 650px;
+        padding: 0 1.5rem;
+    }
+
+    .reg-hero {
+        padding: 2.4rem 1.8rem;
+    }
+
+    .profile-img {
+        width: 100px;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 3.2rem;
+        padding: 1.4rem 2.1rem;
+        margin: 1.4rem;
+    }
+
+    .deuda-card,
+    .adelanto-card {
+        padding: 1.4rem;
+        margin: 1.4rem;
+        overflow: hidden;
+    }
+
+    .deuda-title,
+    .adelanto-title {
+        flex-wrap: wrap;
+    }
+
+    .mes-checkbox-item {
+        padding: 0.78rem 1.12rem;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .mes-checkbox-label {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        flex-basis: auto;
+        flex-shrink: 0;
+    }
+
+    .px-4 {
+        padding-left: 1.8rem !important;
+        padding-right: 1.8rem !important;
+    }
+
+    .btn-submit {
+        padding: 1rem 2.3rem;
+    }
+}
+
+/* DESKTOPS (992px en adelante) - ORIGINAL */
+@media (min-width: 992px) {
+    .form-container {
+        max-width: 650px;
+        margin: 0 auto;
+    }
+
+    .reg-card {
+        border: 2px solid var(--input-border);
+        border-radius: 36px;
+    }
+
+    .reg-hero {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .info-strip {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 4rem;
+        row-gap: 1.2rem;
+        padding: 1.5rem 2.5rem;
+    }
+
+    .mes-checkbox-item {
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .mes-checkbox-label {
+        font-size: 0.95rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .mes-badge-actual,
+    .mes-badge-futuro {
+        flex-basis: auto;
+        flex-shrink: 0;
+    }
+
+    .total-pagar-box {
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .total-pagar-value {
+        font-size: 2rem;
+    }
+
+    .btn-submit {
+        padding: 1rem 2rem;
+        width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FIN RESPONSIVE REGISTRAR PAGO V2
+   ═══════════════════════════════════════════════════════════════ */
+
 </style>
 
 <div class="form-container">

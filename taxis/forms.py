@@ -209,8 +209,11 @@ class ConductorForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        # ✅ EXTRAER is_create ANTES de pasarlo a super()
+        self.is_create = kwargs.pop('is_create', not bool(self.instance.pk if args and hasattr(args[0], 'pk') else False))
+        
+        # ✅ Ahora sí llamar a super SIN el parámetro problemático
         super().__init__(*args, **kwargs)
-        self.is_create = not bool(self.instance.pk)
 
         if "avatar" in self.fields:
             self.fields["avatar"].required = False
@@ -374,19 +377,25 @@ class ConductorForm(forms.ModelForm):
 
         return cleaned_data
 
-# ====================================================================
-# FORMULARIOS VEHICULO
-# ====================================================================
 
 class VehiculoForm(forms.ModelForm):
     # --- FECHAS CON SOPORTE DD/MM/YYYY ---
-    patente_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
-    licencia_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
-    rcv_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
-    medico_vencimiento = forms.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"}))
-
-
-
+    patente_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'], 
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"})
+    )
+    licencia_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'], 
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"})
+    )
+    rcv_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'], 
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"})
+    )
+    medico_vencimiento = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'], 
+        widget=forms.DateInput(attrs={"class": "date-mask", "placeholder": "DD/MM/AAAA"})
+    )
 
     class Meta:
         model = Vehiculo
@@ -400,38 +409,69 @@ class VehiculoForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
-        is_create = kwargs.pop('is_create', True)  # ✅ NUEVO: Recibir flag
+        is_create = kwargs.pop('is_create', True)
         super().__init__(*args, **kwargs)
 
         for field in self.fields.values():
             if not isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs["class"] = "vsms-input"
 
-        # ✅ NUEVO: Si es CREATE, todos requeridos. Si es UPDATE, opcionales.
+        # ✅ Archivos: Obligatorios en CREATE, opcionales en UPDATE
         file_fields = [
             "patente_archivo", "licencia_archivo", "rcv_archivo", "medico_archivo",
             "circulacion_archivo", "registro_archivo", "foto"
         ]
         
         if is_create:
-            # En creación: archivos OBLIGATORIOS
             for f_name in file_fields:
                 if f_name in self.fields:
                     self.fields[f_name].required = True
         else:
-            # En edición: archivos OPCIONALES
             for f_name in file_fields:
                 if f_name in self.fields:
                     self.fields[f_name].required = False
 
-        desactivar_autocomplete(self)
+        # ✅ FILTRAR NÚMEROS DE CASCO YA ASIGNADOS A CONDUCTORES
+        if 'numero_casco' in self.fields:
+            from taxis.models import Conductor
+            
+            # Obtener números ASIGNADOS a conductores (búsqueda de un campo que no existe)
+            # NOTA: Si Conductor NO tiene numero_casco, esto está bien y solo filtra por vehículos
+            
+            # Números YA EN USO en otros vehículos
+            numeros_en_uso = Vehiculo.objects.filter(
+                numero_casco__isnull=False
+            ).values_list('numero_casco', flat=True).distinct()
+            
+            # TODOS los números (1-50)
+            todos_numeros = [str(i) for i in range(1, 51)]
+            
+            # DISPONIBLES = todos - en uso
+            numeros_disponibles = [
+                n for n in todos_numeros 
+                if n not in numeros_en_uso
+            ]
+            
+            # Si EDITANDO, agregar el número actual del vehículo
+            if self.instance.pk and self.instance.numero_casco:
+                numero_actual = str(self.instance.numero_casco)
+                if numero_actual not in numeros_disponibles:
+                    numeros_disponibles.append(numero_actual)
+                    numeros_disponibles.sort(key=lambda x: int(x))
+            
+            # Actualizar choices del select
+            self.fields['numero_casco'].choices = [
+                (n, f"Casco #{n}") for n in numeros_disponibles
+            ]
 
+        desactivar_autocomplete(self)
 
     def clean(self):
         cleaned_data = super().clean()
         numero_casco = cleaned_data.get('numero_casco')
         
         if numero_casco:
+            # Validar que no esté duplicado en otros vehículos
             qs = Vehiculo.objects.filter(numero_casco=numero_casco)
             if self.instance.pk:
                 qs = qs.exclude(pk=self.instance.pk)
@@ -440,9 +480,6 @@ class VehiculoForm(forms.ModelForm):
                 raise ValidationError("Este número de casco ya está registrado en otro vehículo.")
         
         return cleaned_data
-
-
-
 
 
 # ====================================================================
