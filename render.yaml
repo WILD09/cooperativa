@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: Cooperativa-Wilson-Torres-33-RL
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn cooperativa.wsgi:application
+    envVars:
+      - key: DATABASE_URL
+        scope: run
+      - key: SECRET_KEY
+        scope: run
+      - key: DEBUG
+        scope: run
+      - key: ALLOWED_HOSTS
+        scope: run
+      - key: EMAIL_HOST_USER
+        scope: run
+      - key: EMAIL_HOST_PASSWORD
+        scope: run
