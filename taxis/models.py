@@ -14,6 +14,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 import uuid, re
 from datetime import timedelta
+from typing import Optional
+
 
 
 # IMPORTANTE: Importamos el validador de archivos (Asegúrate de que validators.py exista)
@@ -430,7 +432,8 @@ class Conductor(models.Model):
     class Meta:
         ordering = ["apellidos", "nombres"]
 
-    def _solo_digitos(self, value: str | None) -> str | None:
+    def _solo_digitos(self, value: Optional[str]) -> Optional[str]:
+
         if value in (None, ""):
             return value
         return re.sub(r"\D", "", value)
