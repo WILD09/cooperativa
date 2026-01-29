@@ -2184,7 +2184,7 @@ def register_presidente(request):
             send_president_activation_email_initial(request, pending.email, pending.token)
 
             messages.success(request, f'¡Registrado! Revisa {pending.email}')
-            return render(request, 'taxis/verification_pending.html', {'pending_email': pending.email})
+            return redirect('taxis:verification_pending')  # ✅ CAMBIO AQUÍ
 
         # Form inválido
         for field, errors in form.errors.items():
@@ -2195,7 +2195,6 @@ def register_presidente(request):
     # GET
     form = PresidenteRegisterForm()
     return render(request, 'registration/register_presidente.html', {'form': form})
-
 
 @require_POST
 @csrf_protect
