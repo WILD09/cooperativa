@@ -2283,7 +2283,7 @@ def confirm_president_registration(request, token):
         email=pending.email,
         phone_country=pending.phone_country,
         phone_number=pending.phone_number,
-        fecha_nacimiento=pending.fechanacimiento,
+        fecha_nacimiento=pending.fecha_nacimiento,
         sexo=pending.sexo,
         role='presidente',
         is_active=True,
