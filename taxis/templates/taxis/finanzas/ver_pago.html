@@ -1119,10 +1119,11 @@ body.dark-mode .btn-print:hover, body.dark-mode .btn-comprobante:hover {
 
 <div class="receipt-container">
     <div class="no-print mb-4">
-        <a href="{% url 'taxis:finanzas_principal' %}" class="btn-back-finance">
-            <i class="fas fa-arrow-left"></i>
-            <span>Volver a Finanzas</span>
-        </a>
+        <a href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'taxis:finanzas_principal' %}{% endif %}"
+   class="btn-back-finance">
+  <i class="fas fa-arrow-left"></i>
+  <span>Volver</span>
+</a>
     </div>
 
     <div class="receipt-card shadow-lg">

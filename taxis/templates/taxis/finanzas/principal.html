@@ -1414,7 +1414,7 @@
 <div class="checklist-container">
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 font-weight-bold" style="color: var(--finance-primary);">
-            <i class="fas fa-wallet mr-2"></i>Finanzas de servicios cooperativos: {{ mes_nombre }} {{ anio_actual }}
+            <i class="fas fa-wallet mr-2"></i>Servicios cooperativos: {{ mes_nombre }} {{ anio_actual }}
         </h1>
         <a href="{% url 'taxis:finanzas_historial' %}" class="btn-history">
             <i class="fas fa-history"></i>
@@ -1432,15 +1432,16 @@
         </div>
     </div>
 
-
+    
     <!-- Buscador -->
     <div class="search-box">
-        <form method="get">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" name="q" value="{{ query|default:'' }}" class="search-input"
-                placeholder="Buscar por cédula, nombre o casco...">
-        </form>
-    </div>
+  <form method="get" id="mainFilterForm">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="qInput" name="q" value="{{ query|default:'' }}" class="search-input"
+           placeholder="Buscar por cédula, nombre o casco">
+  </form>
+</div>
+
 
 
     <!-- Pendientes (Con Deuda Acumulada) -->
@@ -1518,7 +1519,7 @@
                class="btn-action btn-action-primary"
                title="Registrar otro pago o adelantar meses">
                 <i class="fas fa-plus"></i>
-                <span>Pagar</span>
+                <span>Adelantar Pago</span>
             </a>
             <a href="{% url 'taxis:finanzas_ver_pago' item.pago.id %}" 
                class="btn-action btn-action-info"
@@ -1621,6 +1622,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function debounce(fn, delay) {
+    let t = null;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('mainFilterForm');
+    const qInput = document.getElementById('qInput');
+    const dropdown = document.getElementById('filterDropdown'); // opcional
+
+    if (!form || !qInput) return;
+
+    const debouncedSubmit = debounce(() => {
+      // Si el dropdown está abierto, no auto-enviar
+      if (dropdown && dropdown.classList.contains('show')) return;
+
+      const v = (qInput.value || '').trim();
+
+      // con 1 carácter evitamos spam
+      if (v.length === 1) return;
+
+      // Enviar (requestSubmit si existe)
+      if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+    }, 650);
+
+    qInput.addEventListener('input', debouncedSubmit);
+  });
 </script>
 
 

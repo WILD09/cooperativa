@@ -17,14 +17,15 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.views import LoginView, PasswordChangeView
+from django.contrib.auth.views import LoginView
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q, Sum, Count
+from django.db.models.functions import Lower
+from django.db.models import Q, Sum, Count, Exists, OuterRef, Subquery 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
@@ -33,6 +34,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
+from taxis.utils import registrar_movimiento, texto_filtros, log_pago
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
@@ -289,11 +291,13 @@ def ejecutar_cierre_mensual(request):
         count_borrados = pagos_viejos.count()
         pagos_viejos.delete()
 
-    MovimientoAudit.objects.create(
-        usuario=request.user,
-        accion=f"Ejecutó cierre mensual: {count_deudas} deudas generadas",
-        modulo="Finanzas"
+    registrar_movimiento(
+       request=request,
+       accion=f"Ejecutó cierre mensual {count_deudas} deudas generadas",
+       modulo="finanzas",
     )
+
+
     messages.success(request, f"Cierre completado: {count_deudas} deudas nuevas, {count_borrados} pagos archivados.")
     return redirect('taxis:panel_general')
 
@@ -301,111 +305,7 @@ def ejecutar_cierre_mensual(request):
 # PERFIL Y GESTOR DOCUMENTAL
 # ====================================================================
 
-class PerfilUsuarioView(LoginRequiredMixin, UpdateView):
-    model = CustomUser
-    fields = ['first_name', 'last_name', 'email', 'phone_number', 'avatar']
-    template_name = 'taxis/perfil_usuario.html'
-    success_url = reverse_lazy('taxis:perfil_usuario')
 
-    def get_object(self):
-        return self.request.user
-
-    def form_valid(self, form):
-        messages.success(self.request, "Tu perfil ha sido actualizado.")
-
-        MovimientoAudit.objects.create(
-        usuario=self.request.user,
-        accion=f"Actualizó perfil ({self.request.user.first_name} {self.request.user.last_name})",
-        modulo="Perfiles"
-    )
-        return super().form_valid(form)
-
-class CambiarClaveView(LoginRequiredMixin, PasswordChangeView):
-    form_class = PasswordChangeForm
-    template_name = 'taxis/cambiar_clave.html'
-    success_url = reverse_lazy('taxis:perfil_usuario')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Contraseña actualizada correctamente.")
-        return super().form_valid(form)
-
-class DocumentoLegalListView(LoginRequiredMixin, ListView):
-    model = DocumentoLegal
-    template_name = 'taxis/legal_list.html'
-    context_object_name = 'documentos'
-
-class DocumentoLegalCreateView(LoginRequiredMixin, CreateView):
-    model = DocumentoLegal
-    fields = ['titulo', 'archivo', 'descripcion']
-    template_name = 'taxis/legal_form.html'
-    success_url = reverse_lazy('taxis:legal_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Documento subido al repositorio.")
-        return super().form_valid(form)
-
-class DocumentoLegalDeleteView(LoginRequiredMixin, DeleteView):
-    model = DocumentoLegal
-    template_name = 'taxis/legal_confirm_delete.html'
-    success_url = reverse_lazy('taxis:legal_list')
-
-# ====================================================================
-# ELIMINACIÓN DE CUENTA
-# ====================================================================
-
-class SolicitarEliminacionCuentaView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'taxis/eliminar_cuenta_paso1.html')
-
-    def post(self, request):
-        codigo = str(random.randint(100000, 999999))
-        EmailVerificationCode.objects.create(
-            user=request.user, code=codigo, email_type='delete_account',
-            created_at=timezone.now(), expires_at=timezone.now() + timedelta(minutes=10)
-        )
-        asunto = "CÓDIGO DE SEGURIDAD: Eliminar Cuenta"
-        mensaje = (
-            f"Hola {request.user.first_name}.\n\n"
-            f"Has solicitado eliminar tu cuenta.\n"
-            f"TU CÓDIGO DE SEGURIDAD ES: {codigo}\n\n"
-            f"Este código expirará en 10 minutos.\n"
-            f"Si no fuiste tú, cambia tu contraseña inmediatamente."
-        )
-        try:
-            send_mail(asunto, mensaje, 'sistema@cooperativa.com', [request.user.email], fail_silently=True)
-            messages.info(request, f"Hemos enviado un código de 6 dígitos a {request.user.email}")
-            return redirect('taxis:confirmar_eliminacion')
-        except Exception:
-            messages.error(request, "Error enviando el correo. Revisa la consola.")
-            return redirect('taxis:solicitar_eliminacion')
-
-class ConfirmarEliminacionCuentaView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'taxis/eliminar_cuenta_paso2.html')
-
-    def post(self, request):
-        codigo_ingresado = request.POST.get('codigo')
-        verificacion = EmailVerificationCode.objects.filter(
-            user=request.user, code=codigo_ingresado, email_type='delete_account',
-            is_used=False, expires_at__gte=timezone.now()
-        ).first()
-        
-        if verificacion:
-            verificacion.is_used = True
-            verificacion.save()
-            user = request.user
-            MovimientoAudit.objects.create(
-                usuario=None,
-                accion=f"El usuario {user.email} eliminó su cuenta permanentemente.",
-                modulo="Seguridad"
-            )
-            logout(request)
-            user.delete()
-            messages.success(request, "Tu cuenta ha sido eliminada permanentemente.")
-            return redirect('taxis:login')
-        else:
-            messages.error(request, "Código incorrecto o expirado.")
-            return redirect('taxis:confirmar_eliminacion')
 
 # ====================================================================
 # CONDUCTORES Y VEHÍCULOS
@@ -414,40 +314,62 @@ class ConfirmarEliminacionCuentaView(LoginRequiredMixin, View):
 @method_decorator(never_cache, name="dispatch")
 class ConductorListView(LoginRequiredMixin, ListView):
     model = Conductor
-    template_name = "taxis/conductor_list.html"
+    template_name = "taxisconductorlist.html"
     context_object_name = "conductores"
     paginate_by = 10
 
     def get_queryset(self):
-        qs = Conductor.objects.select_related('ubicacion').prefetch_related('vehiculos').order_by('id')
-    
-        q = self.request.GET.get('q')
+        qs = (
+            Conductor.objects
+            .select_related("ubicacion")
+            .prefetch_related("vehiculos")
+            .order_by("id")
+        )
+
+        vehiculo_operativo = (
+            Vehiculo.objects
+            .filter(conductor=OuterRef("pk"), condicion__isnull=False)
+            .annotate(c=Lower("condicion"))
+            .filter(c="operativo")
+        )
+
+        vehiculo_inoperativo = (
+            Vehiculo.objects
+            .filter(conductor=OuterRef("pk"), condicion__isnull=False)
+            .annotate(c=Lower("condicion"))
+            .filter(c="inoperativo")
+        )
+
+        qs = qs.annotate(
+            tienevehiculooperativo=Exists(vehiculo_operativo),
+            tienevehiculoinoperativo=Exists(vehiculo_inoperativo),
+        )
+
+        # --- BÚSQUEDA: cédula, nombres, apellidos ---
+        q = (self.request.GET.get("q") or "").strip()
         if q:
-           qs = qs.filter(
+            qs = qs.filter(
                 Q(nombres__icontains=q) |
                 Q(apellidos__icontains=q) |
                 Q(cedula_identidad__icontains=q)
             )
 
-        genero = self.request.GET.get('genero')
-        if genero:
-           qs = qs.filter(sexo=genero)
+        # --- FILTRO: género ---
+        genero = (self.request.GET.get("genero") or "").strip()
+        if genero in ("M", "F"):
+            qs = qs.filter(sexo=genero)
 
-        edo_civil = self.request.GET.get('edo_civil')
-        if edo_civil:
-           qs = qs.filter(estadocivil=edo_civil)
+        # --- FILTRO: estatus vehículo ---
+        estatus = (self.request.GET.get("estatus") or "").strip().lower()
+        if estatus == "operativo":
+            qs = qs.filter(tienevehiculooperativo=True)
+        elif estatus == "inoperativo":
+            qs = qs.filter(tienevehiculoinoperativo=True)
+        elif estatus in ("sinvehiculo", "sin_vehiculo"):
+            qs = qs.filter(vehiculos__isnull=True)
 
         return qs
 
-class ConductorDetailView(LoginRequiredMixin, DetailView):
-    model = Conductor
-    template_name = "taxis/conductor_detail.html"
-    context_object_name = "conductor"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["today"] = timezone.now().date()
-        return context
 
 class ConductorCreateView(LoginRequiredMixin, CreateView):
     model = Conductor
@@ -479,11 +401,12 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
                 self.object.ubicacion = ubicacion
                 self.object.save()
                 
-                MovimientoAudit.objects.create(
-                    usuario=self.request.user,
-                    accion=f"Creó afiliado: {self.object.nombres}",
-                    modulo="Afiliados"
+                registrar_movimiento(
+                  request=self.request,
+                  accion=f"Creó afiliado {self.object.nombres}",
+                  modulo="afiliados",
                 )
+
             messages.success(self.request, "Afiliado registrado exitosamente.")
             
             # ✅ NO hacer redirect manual, dejar que success_url lo haga
@@ -521,11 +444,12 @@ class ConductorUpdateView(LoginRequiredMixin, UpdateView):
             with transaction.atomic():
                 ubicacion_form.save()
                 self.object = form.save()
-                MovimientoAudit.objects.create(
-                    usuario=self.request.user,
-                    accion=f"Actualizó afiliado: {self.object.nombres}",
-                    modulo="Afiliados"
+                registrar_movimiento(
+                  request=self.request,
+                  accion=f"Actualizó afiliado {self.object.nombres}",
+                  modulo="afiliados",
                 )
+
             messages.success(self.request, "Afiliado actualizado.")
             return redirect(self.get_success_url())
 
@@ -572,12 +496,6 @@ class VehiculoListView(LoginRequiredMixin, ListView):
         return context
 
 
-class VehiculoDetailView(LoginRequiredMixin, DetailView):
-    model = Vehiculo
-    template_name = "taxis/vehiculo_detail.html"
-    context_object_name = "vehiculo"
-
-
 class VehiculoCreateView(LoginRequiredMixin, CreateView):
     model = Vehiculo
     form_class = VehiculoForm
@@ -599,11 +517,12 @@ class VehiculoCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save()
         
-        MovimientoAudit.objects.create(
-            usuario=self.request.user,
-            accion=f"Vehículo creado: {self.object.placa}",
-            modulo="Vehículos"
+        registrar_movimiento(
+          request=self.request,
+          accion=f"Vehículo creado {self.object.placa}",
+          modulo="vehiculos",
         )
+
         messages.success(self.request, "Vehículo registrado exitosamente.")
         
         return HttpResponseRedirect(self.success_url)
@@ -628,55 +547,21 @@ class VehiculoUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         
-        MovimientoAudit.objects.create(
-            usuario=self.request.user,
-            accion=f"Vehículo actualizado: {self.object.placa}",
-            modulo="Vehículos"
+        registrar_movimiento(
+          request=self.request,
+          accion=f"Vehículo actualizado {self.object.placa}",
+          modulo="vehiculos",
         )
+
         messages.success(self.request, "Vehículo actualizado exitosamente.")
         
         return HttpResponseRedirect(self.get_success_url())
 
 
-class VehiculoDeleteView(LoginRequiredMixin, DeleteView):
-    model = Vehiculo
-    template_name = "taxis/vehiculo_confirm_delete.html"
-    success_url = reverse_lazy("taxis:vehiculo_list")
 
 # ====================================================================
 # DT5 - DATOS DE TRANSPORTISTAS (Consolidado Conductor + Vehículo)
 # ====================================================================
-
-class DT5ListView(LoginRequiredMixin, ListView):
-    """Vista de Datos de Transportistas (Conductores + Vehículos)"""
-    model = Vehiculo
-    template_name = "taxis/dt5_list.html"
-    context_object_name = "transportistas"
-    paginate_by = 15
-
-    def get_queryset(self):
-        qs = Vehiculo.objects.select_related('conductor').order_by('numero_casco')
-        
-        q = self.request.GET.get('q')
-        if q:
-            qs = qs.filter(
-                Q(numero_casco__icontains=q) |
-                Q(placa__icontains=q) |
-                Q(conductor__nombres__icontains=q) |
-                Q(conductor__apellidos__icontains=q) |
-                Q(conductor__cedula_identidad__icontains=q)
-            )
-        
-        estado = self.request.GET.get('estado')
-        if estado in ['operativo', 'inoperativo']:
-            qs = qs.filter(condicion=estado)
-        
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['estado_actual'] = self.request.GET.get('estado', 'todos')
-        return context
 
 
 class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -848,26 +733,102 @@ def obtener_transportistas_filtrados(request):
     
     return qs
 
+def obtener_dt5_unificado(request):
+    """
+    Devuelve filas tipo DT5 basadas en Conductor, con campos de vehículo opcionales.
+    
+    Parámetros GET:
+    - modo=vehiculos (default): solo conductores con vehículo
+    - modo=sinvehiculo: solo conductores sin vehículo
+    - estado=operativo/inoperativo: filtra condición del vehículo (desde vehiculo_list)
+    - estatus=operativo/inoperativo/sinvehiculo: filtra condición (desde conductor_list)
+    - genero=M/F: filtra por sexo del conductor
+    - q: búsqueda por nombre, apellido, cédula, placa, casco
+    """
+    # Leer parámetros
+    modo = (request.GET.get("modo") or "vehiculos").strip().lower()
+    q = (request.GET.get("q") or "").strip()
+    
+    # Acepta "estado" (vehiculo_list) O "estatus" (conductor_list)
+    estado_param = (request.GET.get("estado") or request.GET.get("estatus") or "").strip().lower()
+    
+    # NUEVO: filtro de género
+    genero = (request.GET.get("genero") or "").strip().upper()
+
+    # Subquery: tomar primer vehículo del conductor (ordenado por id)
+    vqs = Vehiculo.objects.filter(conductor=OuterRef("pk")).order_by("id")
+
+    qs = Conductor.objects.all().order_by("id").annotate(
+        v_marca=Subquery(vqs.values("marca")[:1]),
+        v_modelo=Subquery(vqs.values("modelo")[:1]),
+        v_anio=Subquery(vqs.values("anio")[:1]),
+        v_placa=Subquery(vqs.values("placa")[:1]),
+        v_color=Subquery(vqs.values("color")[:1]),
+        v_numero_casco=Subquery(vqs.values("numero_casco")[:1]),
+        v_capacidad=Subquery(vqs.values("capacidad")[:1]),
+        v_bateria_amperaje=Subquery(vqs.values("bateria_amperaje")[:1]),
+        v_aceite_viscosidad=Subquery(vqs.values("aceite_viscosidad")[:1]),
+        v_cauchos_medida=Subquery(vqs.values("cauchos_medida")[:1]),
+        v_diametro_rin=Subquery(vqs.values("diametro_rin")[:1]),
+        v_combustible_tipo=Subquery(vqs.values("combustible_tipo")[:1]),
+        v_combustible_litros=Subquery(vqs.values("combustible_litros")[:1]),
+        v_condicion=Subquery(vqs.values("condicion")[:1]),
+    )
+
+    # BÚSQUEDA
+    if q:
+        qs = qs.filter(
+            Q(nombres__icontains=q) |
+            Q(apellidos__icontains=q) |
+            Q(cedula_identidad__icontains=q) |
+            Q(vehiculos__placa__icontains=q) |
+            Q(vehiculos__numero_casco__icontains=q)
+        ).distinct()
+
+    # FILTRO DE GÉNERO
+    if genero in ("M", "F"):
+        qs = qs.filter(sexo=genero)
+
+    # MODO/ESTATUS (con/sin vehículo)
+    # Si viene "estatus=sinvehiculo" desde conductor_list, forzar modo=sinvehiculo
+    if estado_param == "sinvehiculo":
+        modo = "sinvehiculo"
+    
+    if modo == "sinvehiculo":
+        qs = qs.filter(vehiculos__isnull=True)
+    else:
+        qs = qs.filter(vehiculos__isnull=False)
+        
+        # ESTADO DE VEHÍCULO (operativo/inoperativo) - solo si modo=vehiculos
+        if estado_param in ("operativo", "inoperativo"):
+            qs = qs.annotate(v_condicion_lower=Lower("v_condicion")).filter(v_condicion_lower=estado_param)
+
+    return qs
+
+
 @login_required
-def reporte_dt5_pdf(request):
+def reporte_dt5_pdf(request, *args, **kwargs):
     """
-    Genera reporte DT5 oficial en PDF con filtros idénticos a la lista
-    SOLO muestra conductores QUE TIENEN vehículo registrado
+    Genera reporte DT5 oficial en PDF con filtros idénticos a la lista.
+    Soporta modo=vehiculos (default) y modo=sinvehiculo.
     """
-    transportistas = obtener_transportistas_filtrados(request)
+    modulo_origen = kwargs.get("modulo_origen") or "vehiculos"
+
+    filas = obtener_dt5_unificado(request)
 
     # 🔥 RUTAS DE LOS LOGOS - CORREGIDAS
     logo_transporte, logo_mision = obtener_rutas_logos()
 
     context = {
-        'transportistas': transportistas,
+        'filas': filas,
         'coop': DATOS_COOP,
         'fecha_hoy': timezone.now(),
         'logo_transporte': logo_transporte,
         'logo_mision': logo_mision,
         'filtros': {
             'q': request.GET.get('q'),
-            'estado': request.GET.get('estado')
+            'estado': request.GET.get('estado'),
+            'modo': request.GET.get('modo'),
         }
     }
 
@@ -887,18 +848,17 @@ def reporte_dt5_pdf(request):
         filename = f"DT5_Transportistas_{timezone.now().strftime('%d-%m-%Y')}.pdf"
         response['Content-Disposition'] = f'inline; filename="{filename}"'
         
-        # AUDITORÍA (AQUÍ)
-        from taxis.utils import texto_filtros
-        MovimientoAudit.objects.create(
-            usuario=request.user,
-            accion="Generó reporte DT5 PDF",
-            modulo="DT5",
-            descripcion=texto_filtros(
-            q=request.GET.get("q") or None,
-            estado=request.GET.get("estado") or "todos",
-        ),
-           fecha=timezone.localtime(),
-    )
+        # AUDITORÍA
+        # (ELIMINA) from taxis.utils import texto_filtros
+        registrar_movimiento(
+         request,
+         accion="exportar_pdf",
+         modulo=modulo_origen,
+         objeto_tipo="Reporte",
+         objeto_nombre="DT5 PDF",
+         descripcion=texto_filtros(request.GET, fecha=timezone.localtime()),
+        )
+ 
         
         return response
 
@@ -906,9 +866,13 @@ def reporte_dt5_pdf(request):
 
 
 @login_required
-def reporte_dt5_excel(request):
-    """Genera reporte DT5 en Excel con estructura completa"""
-    transportistas = obtener_transportistas_filtrados(request)
+def reporte_dt5_excel(request, *args, **kwargs):
+    """
+    Genera reporte DT5 en Excel con estructura completa.
+    Soporta modo=vehiculos (default) y modo=sinvehiculo.
+    """
+    modulo_origen = kwargs.get("modulo_origen") or "vehiculos"
+    filas = obtener_dt5_unificado(request)
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -918,8 +882,12 @@ def reporte_dt5_excel(request):
     ws.merge_cells('A1:T1')
     titulo = f"DT5 - DATOS DE TRANSPORTISTAS - {DATOS_COOP['nombre']}"
     
+    modo = (request.GET.get('modo') or 'vehiculos').strip().lower()
     estado_filtro = request.GET.get('estado')
-    if estado_filtro == 'operativo':
+    
+    if modo == 'sinvehiculo':
+        titulo += " (SIN VEHÍCULO)"
+    elif estado_filtro == 'operativo':
         titulo += " (SOLO OPERATIVOS)"
     elif estado_filtro == 'inoperativo':
         titulo += " (SOLO INOPERATIVOS)"
@@ -950,34 +918,32 @@ def reporte_dt5_excel(request):
         cell.alignment = Alignment(horizontal='center', vertical='center')
 
     # DATOS DE TRANSPORTISTAS
-    for i, t in enumerate(transportistas, start=1):
-        cedula_full = f"{t.conductor.cedula_prefijo}-{t.conductor.cedula_identidad}"
+    for i, f in enumerate(filas, start=1):
+        cedula_full = f"{f.cedula_prefijo}-{f.cedula_identidad}"
         
         # Checkmarks para campos booleanos
-        bateria = t.bateria_amperaje or "—"
-        aceite = t.aceite_viscosidad or "—"
-        operativo = "✓" if t.condicion == 'operativo' else "—"
-        inoperativo = "✓" if t.condicion == 'inoperativo' else "—"
+        operativo = "✓" if (f.v_condicion or "").lower() == "operativo" else "—"
+        inoperativo = "✓" if (f.v_condicion or "").lower() == "inoperativo" else "—"
 
         row = [
             i,
-            t.conductor.nombres,
-            t.conductor.apellidos,
+            f.nombres or "—",
+            f.apellidos or "—",
             cedula_full,
-            t.conductor.telefono_principal or "—",
-            t.marca or "—",
-            t.modelo or "—",
-            t.anio or "—",
-            t.color or "—",
-            t.placa or "—",
-            t.numero_casco or "—",
-            t.capacidad or "—",
-            bateria,
-            aceite,
-            t.combustible_tipo or "—",
-            t.combustible_litros or "—",
-            t.cauchos_medida or "—",
-            t.diametro_rin or "—",
+            f.telefono_principal or "—",
+            f.v_marca or "—",
+            f.v_modelo or "—",
+            f.v_anio or "—",
+            f.v_color or "—",
+            f.v_placa or "—",
+            f.v_numero_casco or "—",
+            f.v_capacidad or "—",
+            f.v_bateria_amperaje or "—",
+            f.v_aceite_viscosidad or "—",
+            f.v_combustible_tipo or "—",
+            f.v_combustible_litros or "—",
+            f.v_cauchos_medida or "—",
+            f.v_diametro_rin or "—",
             operativo,
             inoperativo
         ]
@@ -999,20 +965,22 @@ def reporte_dt5_excel(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     wb.save(response)
-    # ========== AUDITORÍA AQUÍ ==========
-    from taxis.utils import texto_filtros
-    MovimientoAudit.objects.create(
-      usuario=request.user,
-      accion="Generó reporte DT5 Excel",
-      modulo="DT5",
-      descripcion=texto_filtros(
-        q=request.GET.get("q") or None,
-        estado=request.GET.get("estado") or "todos",
-    ),
-      fecha=timezone.localtime(),
-)
+    
+    
+    # AUDITORÍA (EXCEL)
+    registrar_movimiento(
+       request,
+       accion="exportar_excel",
+       modulo=modulo_origen,
+       objeto_tipo="Reporte",
+       objeto_nombre="DT5 Excel",
+       descripcion=texto_filtros(request.GET, fecha=timezone.localtime()),
+    )
+
     return response
 
+
+   
 # ====================================================================
 # FINANZAS
 # ====================================================================
@@ -1262,7 +1230,6 @@ def finanzas_registrar_pago(request, conductor_id):
                 pagos_registrados.append(MESES_NOMBRES[mes-1])
 
                 # LOG AUDITORÍA - Pago registrado
-                from taxis.utils import log_pago
                 log_pago(
                     conductor=conductor, 
                     monto=config.monto_cuota_usd, 
@@ -1536,143 +1503,7 @@ class RegistrarPagoView(LoginRequiredMixin, CreateView):
         return context
 
 # ====================================================================
-# REPORTES AFILIADOS (PDF y EXCEL)
-# ====================================================================
-
-def obtener_conductores_filtrados(request):
-    qs = Conductor.objects.all().order_by('id')
-    q = request.GET.get('q')
-    if q:
-        qs = qs.filter(Q(nombres__icontains=q) | Q(apellidos__icontains=q) | Q(cedula_identidad__icontains=q))
-    genero = request.GET.get('genero')
-    if genero:
-        qs = qs.filter(sexo=genero)
-    edo_civil = request.GET.get('edo_civil')
-    if edo_civil:
-        qs = qs.filter(estadocivil=edo_civil)
-    return qs
-
-@login_required
-def reporte_afiliados_pdf(request):
-    conductores = obtener_conductores_filtrados(request)
-
-    # 🔥 RUTAS DE LOS LOGOS - CORREGIDAS
-    logo_transporte, logo_mision = obtener_rutas_logos()
-
-    context = {
-        'conductores': conductores,
-        'coop': DATOS_COOP,
-        'fecha_hoy': timezone.now(),
-        'logo_transporte': logo_transporte,
-        'logo_mision': logo_mision,
-        'filtros': {
-            'q': request.GET.get('q'),
-            'genero': request.GET.get('genero'),
-            'edo_civil': request.GET.get('edo_civil')
-        }
-    }
-
-    template = get_template('taxis/reportes/pdf_afiliados.html')
-    html = template.render(context)
-
-    result = BytesIO()
-
-    pdf = pisa.pisaDocument(
-        BytesIO(html.encode("UTF-8")),
-        result,
-        encoding='UTF-8'
-    )
-
-    if not pdf.err:
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        filename = f"Afiliados_{timezone.now().strftime('%d-%m-%Y')}.pdf"
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
-
-        from taxis.utils import texto_filtros
-        MovimientoAudit.objects.create(
-          usuario=request.user,
-          accion="Generó reporte afiliados PDF",
-          modulo="Afiliados",
-          descripcion=texto_filtros(
-          q=request.GET.get("q") or None,
-          genero=request.GET.get("genero") or "todos",
-          edocivil=request.GET.get("edocivil") or "todos",
-          ),
-         fecha=timezone.localtime(),
-      )
-
-        return response
-
-    return HttpResponse("Error generando PDF", status=500)
-
-@login_required
-def reporte_afiliados_excel(request):
-    conductores = obtener_conductores_filtrados(request)
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Afiliados"
-
-    ws.merge_cells('A1:J1')
-    titulo = f"AFILIADOS DE LA COOPERATIVA {DATOS_COOP['nombre']}"
-    if request.GET.get('q') or request.GET.get('genero') or request.GET.get('edo_civil'):
-        titulo += " (REPORTE FILTRADO)"
-
-    ws['A1'] = titulo
-    ws['A1'].font = Font(bold=True, size=14)
-    ws['A1'].alignment = Alignment(horizontal='center')
-
-    headers = ["N°", "NOMBRES", "APELLIDOS", "FECHA NAC.", "GÉNERO", "ESTADO CIVIL", "CÉDULA", "RIF", "CORREO", "TELÉFONO"]
-    ws.append([])
-    ws.append(headers)
-
-    header_fill = PatternFill(start_color="CC0000", end_color="CC0000", fill_type="solid")
-    header_font = Font(color="FFFFFF", bold=True)
-
-    for cell in ws[3]:
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = Alignment(horizontal='center')
-
-    for i, c in enumerate(conductores, start=1):
-        fecha_nac = c.fechanacimiento.strftime('%d/%m/%Y') if c.fechanacimiento else "-"
-        cedula_full = f"{c.cedula_prefijo}-{c.cedula_identidad}"
-        rif_full = f"{c.rif_prefijo}-{c.rif}"
-
-        row = [
-            i, c.nombres, c.apellidos, fecha_nac,
-            c.get_sexo_display(), c.get_estadocivil_display(),
-            cedula_full, rif_full, c.email, c.telefono_principal
-        ]
-        ws.append(row)
-
-    dims = {'A': 5, 'B': 20, 'C': 20, 'D': 12, 'E': 10, 'F': 12, 'G': 12, 'H': 15, 'I': 25, 'J': 15}
-    for col, width in dims.items():
-        ws.column_dimensions[col].width = width
-
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    filename = f"Afiliados_{timezone.now().strftime('%d-%m-%Y')}.xlsx"
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    wb.save(response)
-    # ========== AUDITORÍA AQUÍ ==========
-    from taxis.utils import texto_filtros
-    MovimientoAudit.objects.create(
-     usuario=request.user,
-     accion="Generó reporte afiliados Excel",
-     modulo="Afiliados",
-     descripcion=texto_filtros(
-        q=request.GET.get("q") or None,
-        genero=request.GET.get("genero") or "todos",
-        edocivil=request.GET.get("edocivil") or "todos",
-      ),
-       fecha=timezone.localtime(),
-   )
-
-    return response
-
-# ====================================================================
-# REPORTES VEHÍCULOS (PDF y EXCEL)
+# Filtro de los Vehículos
 # ====================================================================
 
 def obtener_vehiculos_filtrados(request):
@@ -1695,161 +1526,6 @@ def obtener_vehiculos_filtrados(request):
     
     return qs
 
-@login_required
-def reporte_vehiculos_pdf(request):
-    """Genera reporte PDF de vehículos con filtros activos."""
-    vehiculos = obtener_vehiculos_filtrados(request)
-
-    # 🔥 RUTAS DE LOS LOGOS - CORREGIDAS
-    logo_transporte, logo_mision = obtener_rutas_logos()
-
-    context = {
-        'vehiculos': vehiculos,
-        'coop': DATOS_COOP,
-        'fecha_hoy': timezone.now(),
-        'logo_transporte': logo_transporte,
-        'logo_mision': logo_mision,
-        'filtros': {
-            'q': request.GET.get('q'),
-            'estado': request.GET.get('estado')
-        }
-    }
-
-    template = get_template('taxis/reportes/pdf_vehiculos.html')
-    html = template.render(context)
-
-    result = BytesIO()
-
-    pdf = pisa.pisaDocument(
-        BytesIO(html.encode("UTF-8")),
-        result,
-        encoding='UTF-8'
-    )
-
-    if not pdf.err:
-       response = HttpResponse(result.getvalue(), content_type='application/pdf')
-       filename = f"Vehiculos_Flota_{timezone.now().strftime('%d-%m-%Y')}.pdf"
-       response['Content-Disposition'] = f'inline; filename="{filename}"'
-
-    # AUDITORÍA (AQUÍ)
-    from taxis.utils import texto_filtros
-    MovimientoAudit.objects.create(
-        usuario=request.user,
-        accion="Generó reporte vehículos PDF",
-        modulo="Vehículos",
-        descripcion=texto_filtros(
-            q=request.GET.get('q') or None,
-            estado=request.GET.get('estado') or "todos"
-        ),
-        fecha=timezone.localtime(),
-    )
-
-    return response
-    return HttpResponse("Error generando PDF", status=500)
-
-@login_required
-def reporte_vehiculos_excel(request):
-    """Genera reporte Excel de vehículos con filtros activos."""
-    vehiculos = obtener_vehiculos_filtrados(request)
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Flota Vehicular"
-
-    ws.merge_cells('A1:J1')
-    titulo = f"FLOTA VEHICULAR - {DATOS_COOP['nombre']}"
-    
-    estado_filtro = request.GET.get('estado')
-    if estado_filtro == 'operativo':
-        titulo += " (SOLO OPERATIVOS)"
-    elif estado_filtro == 'inoperativo':
-        titulo += " (SOLO INOPERATIVOS)"
-    elif request.GET.get('q'):
-        titulo += " (REPORTE FILTRADO)"
-
-    ws['A1'] = titulo
-    ws['A1'].font = Font(bold=True, size=14)
-    ws['A1'].alignment = Alignment(horizontal='center')
-
-    headers = ["N°", "AFILIADO", "CÉDULA", "MARCA", "MODELO", "AÑO", "COLOR", "PLACA", "SERIAL NIV", "CAPACIDAD"]
-    ws.append([])
-    ws.append(headers)
-
-    header_fill = PatternFill(start_color="CC0000", end_color="CC0000", fill_type="solid")
-    header_font = Font(color="FFFFFF", bold=True)
-
-    for cell in ws[3]:
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = Alignment(horizontal='center')
-
-    for i, v in enumerate(vehiculos, start=1):
-        conductor_nombre = f"{v.conductor.nombres} {v.conductor.apellidos}"
-        cedula_full = f"{v.conductor.cedula_prefijo}-{v.conductor.cedula_identidad}"
-
-        row = [
-            i,
-            conductor_nombre,
-            cedula_full,
-            v.marca,
-            v.modelo,
-            v.anio,
-            v.color,
-            v.placa,
-            v.serial_niv,
-            v.capacidad
-        ]
-        ws.append(row)
-
-    dims = {
-        'A': 5,
-        'B': 25,
-        'C': 12,
-        'D': 12,
-        'E': 12,
-        'F': 6,
-        'G': 10,
-        'H': 12,
-        'I': 20,
-        'J': 10
-    }
-    for col, width in dims.items():
-        ws.column_dimensions[col].width = width
-
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    filename = f"Vehiculos_Flota_{timezone.now().strftime('%d-%m-%Y')}.xlsx"
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    wb.save(response)
-
-    from taxis.utils import texto_filtros
-    MovimientoAudit.objects.create(
-        usuario=request.user,
-        accion="Generar reporte vehículos Excel",
-        modulo="Vehículos",
-        descripcion=texto_filtros(
-            q=request.GET.get('q') or None,
-            estado=request.GET.get('estado') or "todos",
-            fecha=timezone.localtime()
-        )
-    )
-    
-    return response
-    # ========== AUDITORÍA AQUÍ ==========
-    from taxis.utils import texto_filtros
-    MovimientoAudit.objects.create(
-      usuario=request.user,
-      accion="Generó reporte vehículos Excel",
-      modulo="Vehículos",
-      descripcion=texto_filtros(
-        q=request.GET.get("q") or None,
-        estado=request.GET.get("estado") or "todos",
-     ),
-      fecha=timezone.localtime(),
-   )
-    return response
-
-
 
 # ====================================================================
 # AUDITORÍA Y NOTIFICACIONES
@@ -1861,22 +1537,13 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
     context_object_name = "movimientos"
     paginate_by = 30
 
+    # Keys (BD / filtros) -> Label (UI)
     MODULO_MAP = {
         "autenticacion": "Autenticación",
         "afiliados": "Afiliados",
         "vehiculos": "Vehículos",
         "finanzas": "Finanzas",
-        "dt5": "DT5",
-        "configuracion": "Configuración",
-    }
-
-    ACCION_KEYWORDS = {
-        "login": ["login", "inicio de sesión", "inició sesión"],
-        "logout": ["logout", "cierre de sesión"],
-        "crear": ["creó", "creado", "registró"],
-        "editar": ["editó", "actualizó", "modificó"],
-        "eliminar": ["eliminó", "eliminado"],
-        "reporte": ["generó reporte", "reporte", "pdf", "excel"],
+        "perfiles": "Perfiles",
     }
 
     ORDERING_MAP = {
@@ -1887,44 +1554,65 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
     }
 
     def get_ordering(self):
-        orden = self.request.GET.get("orden", "").strip()
+        orden = (self.request.GET.get("orden") or "").strip()
         return self.ORDERING_MAP.get(orden, "-fecha")
 
     def get_queryset(self):
         qs = MovimientoAudit.objects.select_related("usuario").all()
 
-        # Búsqueda general
-        q = self.request.GET.get("q", "").strip()
+        # =====================
+        # Búsqueda general (q)
+        # =====================
+        q = (self.request.GET.get("q") or "").strip()
         if q:
             qs = qs.filter(
                 Q(usuario__first_name__icontains=q) |
                 Q(usuario__last_name__icontains=q) |
                 Q(usuario__email__icontains=q) |
+                Q(descripcion__icontains=q) |
                 Q(accion__icontains=q) |
                 Q(modulo__icontains=q)
             )
 
-        # Acción
-        accion = self.request.GET.get("accion", "").strip().lower()
-        if accion:
-            keys = self.ACCION_KEYWORDS.get(accion)
-            if keys:
-                q_acc = Q()
-                for k in keys:
-                    q_acc |= Q(accion__icontains=k)
-                qs = qs.filter(q_acc)
-
-        # Módulo
-        modulo = self.request.GET.get("modulo", "").strip()
+        # ==========
+        # Módulo (Opción B: EXACT MATCH, solo claves)
+        # ==========
+        modulo = (self.request.GET.get("modulo") or "").strip().lower()
         if modulo:
-            modulo_real = self.MODULO_MAP.get(modulo.lower(), modulo)
-            qs = qs.filter(modulo__icontains=modulo_real)
+            # Si te llega cualquier cosa rara por URL, no filtramos para evitar "0 resultados" confusos
+            if modulo in self.MODULO_MAP:
+                qs = qs.filter(modulo=modulo)
 
-        # Año/Mes
-        anio = self.request.GET.get("anio", "").strip()
-        mes = self.request.GET.get("mes", "").strip()
+        # ======================
+        # Período
+        # ======================
+        periodo = (self.request.GET.get("periodo") or "").strip().lower()
+        if periodo:
+            now = timezone.localtime(timezone.now())
+
+            if periodo == "hoy":
+                qs = qs.filter(fecha__date=now.date())
+
+            elif periodo == "7d":
+                qs = qs.filter(fecha__gte=now - timedelta(days=7))
+
+            elif periodo == "mes":
+                inicio_mes = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                qs = qs.filter(fecha__gte=inicio_mes)
+
+            elif periodo == "anio":
+                inicio_anio = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+                qs = qs.filter(fecha__gte=inicio_anio)
+
+        # ==================================
+        # Año/Mes (opcional, si lo mantienes)
+        # ==================================
+        anio = (self.request.GET.get("anio") or "").strip()
+        mes = (self.request.GET.get("mes") or "").strip()
+
         if anio.isdigit():
             qs = qs.filter(fecha__year=int(anio))
+
         if mes.isdigit():
             m = int(mes)
             if 1 <= m <= 12:
@@ -1934,17 +1622,20 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context["q"] = self.request.GET.get("q", "")
-        context["accion_filtro"] = self.request.GET.get("accion", "")
         context["modulo_filtro"] = self.request.GET.get("modulo", "")
+        context["periodo_filtro"] = self.request.GET.get("periodo", "")
         context["anio_filtro"] = self.request.GET.get("anio", "")
         context["mes_filtro"] = self.request.GET.get("mes", "")
         context["orden_filtro"] = self.request.GET.get("orden", "")
+
         context["modulos_choices"] = list(self.MODULO_MAP.items())
 
         params = self.request.GET.copy()
         params.pop("page", None)
         context["query_params"] = params.urlencode()
+
         return context
 
 
@@ -2084,11 +1775,12 @@ def actualizar_avatar_presidente(request):
     if 'avatar' in request.FILES:
         request.user.avatar = request.FILES['avatar']
         request.user.save()
-        MovimientoAudit.objects.create(
-          usuario=request.user,
+        registrar_movimiento(
+          request=request,
           accion="Actualizó foto de perfil",
-          modulo="Configuración",
-      )
+          modulo="perfiles",
+        )
+
         return JsonResponse({'status': 'ok', 'url': request.user.avatar.url})
     return JsonResponse({'status': 'error'}, status=400)
 
@@ -2102,6 +1794,20 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return reverse_lazy("taxis:panel_general")
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)  # aquí ya está logueado
+        registrar_movimiento(
+            request=self.request,
+            accion="login",
+            modulo="autenticacion",
+            objeto_tipo=self.request.user.__class__.__name__,
+            objeto_id=self.request.user.id,
+            objeto_nombre=getattr(self.request.user, "username", "") or "",
+            descripcion=f"Inicio de sesión: {getattr(self.request.user, 'email', '') or ''}",
+            usuario=self.request.user,
+        )
+        return response
 
 
 def login_redirect_view(request):
@@ -2120,6 +1826,7 @@ def select_role(request):
             return redirect('taxis:register_presidente')
 
     return render(request, 'taxis/select_role.html', {'presidente_existente': presidente_activo_existe})
+
 
 
 def register_presidente(request):

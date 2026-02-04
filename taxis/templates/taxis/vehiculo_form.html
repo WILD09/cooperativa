@@ -1876,10 +1876,7 @@ body.dark-mode select.vsms-input {
 
         if (!dropzoneContainer || !photoInput) return;
 
-        dropzoneContainer.addEventListener('click', function() {
-            photoInput.click();
-        });
-
+       
         photoInput.addEventListener('change', function() {
             previewVehiclePhoto(this);
             if (errorDiv) errorDiv.style.display = 'none';

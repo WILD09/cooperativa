@@ -60,8 +60,9 @@ SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default="False").lower()
 # -------------------------------------------------------------------
 INSTALLED_APPS = [
     # TUS APPS PRIMERO
-    "taxis",   
-    "core",    
+    'taxis.apps.TaxisConfig',   
+    "core",
+        
     
     "django.contrib.admin",
     "django.contrib.auth",

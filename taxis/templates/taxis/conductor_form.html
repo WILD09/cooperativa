@@ -424,6 +424,28 @@ body.dark-mode .step-node.active .step-label,
 body.dark-mode .step-node.completed .step-label { color: #10b981 !important; }
 body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 
+/* ===========================
+   ✅ CENTRADO DROPZONES CÉDULA
+   (sin tocar HTML/JS)
+   =========================== */
+@media (min-width: 768px) {
+    /* Centra el bloque completo (label + dropzone) */
+    #dropzone-cedula-frente,
+    #dropzone-cedula-reverso {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 520px; /* ajusta si lo quieres más ancho/angosto */
+    }
+
+    /* Evita que el label quede “pegado” a la izquierda del todo
+       cuando el dropzone se centra con max-width */
+    #dropzone-cedula-frente,
+    #dropzone-cedula-reverso {
+        box-sizing: border-box;
+    }
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .wizard-progress { padding: 0 8px; margin-bottom: 2.5rem; }
@@ -506,7 +528,41 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
     .summary-label { font-size: 0.65rem; }
     .summary-val { font-size: 0.9rem; }
 }
+
+/* ===========================
+   ✅ RIF: que NO se encoja con error
+   (solo por ID, no afecta otros dropzones)
+   =========================== */
+#dropzone-rif-archivo{
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Opcional: si lo quieres centrado pero con límite en pantallas grandes */
+@media (min-width: 992px){
+    #dropzone-rif-archivo{
+        max-width: 900px !important;  /* ajusta a gusto */
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Que el mensaje de error debajo se alinee y tenga el mismo ancho */
+#dropzone-rif-archivo + .field-error-text{
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+}
+@media (min-width: 992px){
+    #dropzone-rif-archivo + .field-error-text{
+        max-width: 900px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
+
 </style>
+
 
 <div class="header-section text-center mb-5">
     <h1 style="color: var(--coop-green-primary); font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">
@@ -639,68 +695,78 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                     </div>
                 </div>
 
-                <!-- DROPZONE CÉDULA (FRENTE Y REVERSO) -->
-<!-- FRENTE -->
-<div class="col-md-6 form-group mb-4">
-    <label class="form-label">
-        Cédula - Frente 
-        {% if form.cedula_archivo_frente.field.required %}<span class="required">*</span>{% else %}<span class="text-muted">(Opcional)</span>{% endif %}
-    </label>
-    <div class="dropzone-container {% if object.cedula_archivo_frente %}uploaded{% endif %}" id="dropzone-cedula-frente">
-        <div class="dropzone-visuals">
-            <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_frente %}color: var(--coop-green-primary);{% endif %}"></i>
-            <div class="dropzone-text">
-                {% if object.cedula_archivo_frente %}
-                    <span class="text-success fw-bold" style="font-size:1rem;">
-                        <i class="fas fa-check-circle"></i> Archivo cargado
-                    </span>
-                    <br>
-                    <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
-                {% else %}
-                    Arrastra archivo o click para seleccionar
-                    <br>
-                    <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
-                {% endif %}
+               <!-- DROPZONE CEDULA FRENTE Y REVERSO -->
+<div class="row rowstylegap mb-3">
+
+    <!-- FRENTE -->
+    <div class="col-md-6 form-group mb-4">
+        <label class="form-label">Cédula - Frente
+            {% if form.cedula_archivo_frente.field.required %}
+                <span class="required">*</span>
+            {% else %}
+                <span class="text-muted">Opcional</span>
+            {% endif %}
+        </label>
+
+        <div class="dropzone-container {% if object.cedula_archivo_frente %}uploaded{% endif %}" id="dropzone-cedula-frente">
+            <div class="dropzone-visuals">
+                <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_frente %}color: var(--coop-green-primary);{% endif %}"></i>
+                <div class="dropzone-text">
+                    {% if object.cedula_archivo_frente %}
+                        <span class="text-success fw-bold" style="font-size:1rem;">
+                            <i class="fas fa-check-circle"></i> Archivo cargado
+                        </span><br>
+                        <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
+                    {% else %}
+                        Arrastra archivo o click para seleccionar<br>
+                        <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="django-input-wrapper">
+                {% render_field form.cedula_archivo_frente class="dropzone-input" %}
             </div>
         </div>
-        <div class="django-input-wrapper">
-            {% render_field form.cedula_archivo_frente class="dropzone-input" %}
-        </div>
-    </div>
-    <div class="field-error-text"></div>
-</div>
 
-<!-- REVERSO -->
-<div class="col-md-6 form-group mb-4">
-    <label class="form-label">
-        Cédula - Reverso 
-        {% if form.cedula_archivo_reverso.field.required %}<span class="required">*</span>{% else %}<span class="text-muted">(Opcional)</span>{% endif %}
-    </label>
-    <div class="dropzone-container {% if object.cedula_archivo_reverso %}uploaded{% endif %}" id="dropzone-cedula-reverso">
-        <div class="dropzone-visuals">
-            <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_reverso %}color: var(--coop-green-primary);{% endif %}"></i>
-            <div class="dropzone-text">
-                {% if object.cedula_archivo_reverso %}
-                    <span class="text-success fw-bold" style="font-size:1rem;">
-                        <i class="fas fa-check-circle"></i> Archivo cargado
-                    </span>
-                    <br>
-                    <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
-                {% else %}
-                    Arrastra archivo o click para seleccionar
-                    <br>
-                    <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
-                {% endif %}
+        <div class="field-error-text"></div>
+    </div>
+
+    <!-- REVERSO -->
+    <div class="col-md-6 form-group mb-4">
+        <label class="form-label">Cédula - Reverso
+            {% if form.cedula_archivo_reverso.field.required %}
+                <span class="required">*</span>
+            {% else %}
+                <span class="text-muted">Opcional</span>
+            {% endif %}
+        </label>
+
+        <div class="dropzone-container {% if object.cedula_archivo_reverso %}uploaded{% endif %}" id="dropzone-cedula-reverso">
+            <div class="dropzone-visuals">
+                <i class="fas fa-address-card dropzone-icon" style="{% if object.cedula_archivo_reverso %}color: var(--coop-green-primary);{% endif %}"></i>
+                <div class="dropzone-text">
+                    {% if object.cedula_archivo_reverso %}
+                        <span class="text-success fw-bold" style="font-size:1rem;">
+                            <i class="fas fa-check-circle"></i> Archivo cargado
+                        </span><br>
+                        <small class="text-muted" style="font-weight: 400;">Click para reemplazar</small>
+                    {% else %}
+                        Arrastra archivo o click para seleccionar<br>
+                        <small class="text-muted" style="font-weight: 400;">PDF, JPG, PNG - Máx 10MB</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="django-input-wrapper">
+                {% render_field form.cedula_archivo_reverso class="dropzone-input" %}
             </div>
         </div>
-        <div class="django-input-wrapper">
-            {% render_field form.cedula_archivo_reverso class="dropzone-input" %}
-        </div>
+
+        <div class="field-error-text"></div>
     </div>
-    <div class="field-error-text"></div>
+
 </div>
-
-
 
 
                 <!-- RIF -->

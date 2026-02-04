@@ -1,7 +1,7 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
 
-{% block title %}Vehículos - Cooperativa{% endblock %}
+{% block title %}Vehículos{% endblock %}
 
 {% block content %}
 <style>
@@ -27,33 +27,20 @@
     }
 
     /* ✅ SCROLLBAR VERTICAL */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
-
+    ::-webkit-scrollbar { width: 10px; }
     ::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
         margin: 4px 0;
     }
-
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1f2937;
-    }
-
+    body.dark-mode ::-webkit-scrollbar-track { background: #1f2937; }
     ::-webkit-scrollbar-thumb {
         background: var(--coop-green-primary);
         border-radius: 10px;
         min-height: 40px;
     }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--coop-green-secondary);
-    }
-
-    body.dark-mode ::-webkit-scrollbar-thumb:hover {
-        background: #059669;
-    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--coop-green-secondary); }
+    body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #059669; }
 
     .page-title {
         color: var(--coop-green-primary);
@@ -71,7 +58,7 @@
         align-items: center;
         max-width: 600px;
         position: relative;
-        gap: 15px;
+        gap: 22px; /* ✅ más separación, estilo conductor_list */
     }
 
     .search-input-group {
@@ -81,7 +68,6 @@
         display: flex;
         align-items: center;
     }
-
 
     .search-input {
         width: 100%;
@@ -148,6 +134,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         position: relative;
+        margin-left: 6px; /* ✅ pequeño aire extra */
     }
 
     .filter-btn:hover {
@@ -179,9 +166,7 @@
         box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     }
 
-    .filter-dropdown.show {
-        display: block;
-    }
+    .filter-dropdown.show { display: block; }
 
     .filter-label {
         font-size: 0.85rem;
@@ -193,9 +178,7 @@
         letter-spacing: 0.5px;
     }
 
-    body.dark-mode .filter-label {
-        color: #d1d5db;
-    }
+    body.dark-mode .filter-label { color: #d1d5db; }
 
     .filter-select {
         width: 100%;
@@ -223,9 +206,7 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     }
 
-    body.dark-mode .filter-select option {
-        background-color: #1f2937;
-    }
+    body.dark-mode .filter-select option { background-color: #1f2937; }
 
     .filter-select:focus {
         border-color: var(--coop-green-primary);
@@ -251,15 +232,8 @@
     }
 
     @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     /* --- BOTONES ACCION - TAMAÑO AUMENTADO --- */
@@ -329,60 +303,18 @@
         letter-spacing: 0.05em;
     }
 
-    .col-num {
-        width: 5%;
-        text-align: center;
-        min-width: 25px;
-    }
+    .col-num { width: 5%; text-align: center; min-width: 25px; }
+    .col-cedula { width: 12%; text-align: center; min-width: 60px; }
+    .col-chofer { width: 23%; text-align: left; padding-left: 15px; min-width: 120px; }
+    .col-casco { width: 10%; text-align: center; min-width: 60px; }
+    .col-placa { width: 12%; text-align: center; min-width: 80px; }
+    .col-marca { width: 10%; text-align: center; min-width: 60px; }
+    .col-modelo { width: 10%; text-align: center; min-width: 60px; }
+    .col-color { width: 10%; text-align: center; min-width: 60px; }
+    .col-anio { width: 8%; text-align: center; min-width: 50px; }
 
-    .col-cedula {
-        width: 12%;
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .col-chofer {
-        width: 23%;
-        text-align: left;
-        padding-left: 15px;
-        min-width: 120px;
-    }
-
-    .col-casco {
-        width: 10%;
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .col-placa {
-        width: 12%;
-        text-align: center;
-        min-width: 80px;
-    }
-
-    .col-marca {
-        width: 10%;
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .col-modelo {
-        width: 10%;
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .col-color {
-        width: 10%;
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .col-anio {
-        width: 8%;
-        text-align: center;
-        min-width: 50px;
-    }
+    /* ✅ NUEVA COLUMNA */
+    .col-estatus { width: 10%; text-align: center; min-width: 90px; }
 
     .afiliado-row {
         background: white;
@@ -399,9 +331,7 @@
         font-size: 0.95rem;
     }
 
-    body.dark-mode .afiliado-row {
-        background-color: #1f2937;
-    }
+    body.dark-mode .afiliado-row { background-color: #1f2937; }
 
     .afiliado-row:hover {
         transform: translateY(-2px);
@@ -409,32 +339,13 @@
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
     }
 
-    .row-text-normal {
-        font-weight: 400;
-        color: var(--text-color);
-        text-align: center;
-    }
+    .row-text-normal { font-weight: 400; color: var(--text-color); text-align: center; }
+    .row-text-highlight { color: var(--coop-green-primary); font-weight: 600; text-align: center; }
+    .row-text-muted { color: #6b7280; font-size: 0.9rem; font-weight: 400; text-align: center; }
 
-    .row-text-highlight {
-        color: var(--coop-green-primary);
-        font-weight: 600;
-        text-align: center;
-    }
+    body.dark-mode .row-text-muted { color: #9ca3af; }
 
-    .row-text-muted {
-        color: #6b7280;
-        font-size: 0.9rem;
-        font-weight: 400;
-        text-align: center;
-    }
-
-    body.dark-mode .row-text-muted {
-        color: #9ca3af;
-    }
-
-    .col-chofer.row-text-normal {
-        text-align: left;
-    }
+    .col-chofer.row-text-normal { text-align: left; }
 
     .total-indicator {
         font-weight: 800;
@@ -446,35 +357,36 @@
         display: inline-block;
     }
 
-    body.dark-mode .total-indicator {
-        color: #9ca3af;
+    body.dark-mode .total-indicator { color: #9ca3af; }
+
+    /* ✅ DOT DE ESTATUS */
+    .status-pill{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
+    .status-dot{
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+        background: #9ca3af;
+    }
+    .status-dot.ok{ background: #10b981; }
+    .status-dot.bad{ background: #ef4444; }
 
     /* =====================================================
-   RESPONSIVE: TABLET (1024px - 769px)
-   ===================================================== */
+       RESPONSIVE: TABLET (1024px - 769px)
+       ===================================================== */
     @media (max-width: 1024px) {
-        .col-color {
-            display: none;
-        }
+        .col-color { display: none; }
+        .list-header-row .col-color { display: none; }
 
-        .list-header-row .col-color {
-            display: none;
-        }
+        .col-marca { width: 12%; }
+        .col-modelo { width: 12%; }
+        .col-chofer { width: 30%; }
 
-        .col-marca {
-            width: 12%;
-        }
-
-        .col-modelo {
-            width: 12%;
-        }
-
-        .col-chofer {
-            width: 30%;
-        }
-
-        /* Dropdown en tablet - posición correcta */
         .filter-dropdown {
             position: fixed;
             top: 50%;
@@ -490,18 +402,11 @@
     }
 
     /* =====================================================
-   RESPONSIVE: MÓVIL (768px y abajo)
-   ===================================================== */
+       RESPONSIVE: MÓVIL (768px y abajo)
+       ===================================================== */
     @media (max-width: 768px) {
-        .page-title {
-            font-size: 1.4rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .search-container {
-            max-width: 100%;
-            gap: 10px;
-        }
+        .page-title { font-size: 1.4rem; margin-bottom: 1.2rem; }
+        .search-container { max-width: 100%; gap: 10px; }
 
         .header-controls {
             flex-direction: column;
@@ -517,14 +422,8 @@
             gap: 8px;
         }
 
-        .btn-boceto-outline {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-        }
-
-        .list-header-row {
-            display: none;
-        }
+        .btn-boceto-outline { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+        .list-header-row { display: none; }
 
         .afiliado-row {
             flex-direction: column;
@@ -572,8 +471,7 @@
             order: 2;
         }
 
-        .col-marca,
-        .col-modelo {
+        .col-marca, .col-modelo {
             width: auto;
             display: inline;
             order: 3;
@@ -589,8 +487,7 @@
             margin: 0 4px;
         }
 
-        .col-color,
-        .col-anio {
+        .col-color, .col-anio, .col-estatus {
             width: auto;
             display: inline;
             font-size: 0.8rem;
@@ -598,14 +495,6 @@
             order: 3;
             text-align: left;
             font-weight: 400;
-        }
-
-        .col-color::before {
-            content: "";
-        }
-
-        .col-anio::before {
-            content: "";
         }
 
         .col-chofer {
@@ -634,13 +523,8 @@
             font-weight: 600;
         }
 
-        .row-text-normal,
-        .row-text-highlight,
-        .row-text-muted {
-            text-align: left;
-        }
+        .row-text-normal, .row-text-highlight, .row-text-muted { text-align: left; }
 
-        /* Dropdown en móvil - CENTRADO Y FUNCIONAL */
         .filter-dropdown {
             position: fixed;
             top: 50%;
@@ -656,14 +540,10 @@
     }
 
     /* =====================================================
-   RESPONSIVE: MÓVIL PEQUEÑO (480px y abajo)
-   ===================================================== */
+       RESPONSIVE: MÓVIL PEQUEÑO (480px y abajo)
+       ===================================================== */
     @media (max-width: 480px) {
-        .page-title {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            gap: 6px;
-        }
+        .page-title { font-size: 1.2rem; margin-bottom: 1rem; gap: 6px; }
 
         .search-input {
             height: 44px;
@@ -672,25 +552,11 @@
             border-radius: 20px;
         }
 
-        .search-icon {
-            left: 12px;
-            font-size: 1rem;
-        }
+        .search-icon { left: 12px; font-size: 1rem; }
+        .filter-btn { width: 44px; height: 44px; border-radius: 10px; }
 
-        .filter-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-        }
-
-        .action-buttons-container {
-            gap: 6px;
-        }
-
-        .btn-boceto-outline {
-            padding: 0.55rem 1rem;
-            font-size: 0.85rem;
-        }
+        .action-buttons-container { gap: 6px; }
+        .btn-boceto-outline { padding: 0.55rem 1rem; font-size: 0.85rem; }
 
         .afiliado-row {
             padding: 0.8rem;
@@ -699,46 +565,16 @@
             border-radius: 10px;
         }
 
-        .col-num {
-            top: 0.6rem;
-            right: 0.6rem;
-            font-size: 1rem;
-        }
+        .col-num { top: 0.6rem; right: 0.6rem; font-size: 1rem; }
+        .col-casco { font-size: 0.8rem; margin-bottom: 1px; }
+        .col-casco::before { font-size: 0.75rem; }
 
-        .col-casco {
-            font-size: 0.8rem;
-            margin-bottom: 1px;
-        }
+        .col-placa { font-size: 0.95rem; margin-bottom: 2px; }
+        .col-marca, .col-modelo, .col-anio, .col-color, .col-estatus { font-size: 0.75rem; }
 
-        .col-casco::before {
-            font-size: 0.75rem;
-        }
+        .col-chofer { font-size: 0.85rem; margin-top: 4px; padding-top: 4px; }
+        .col-cedula { font-size: 0.7rem; padding: 1px 4px; margin-top: 2px; }
 
-        .col-placa {
-            font-size: 0.95rem;
-            margin-bottom: 2px;
-        }
-
-        .col-marca,
-        .col-modelo,
-        .col-anio,
-        .col-color {
-            font-size: 0.75rem;
-        }
-
-        .col-chofer {
-            font-size: 0.85rem;
-            margin-top: 4px;
-            padding-top: 4px;
-        }
-
-        .col-cedula {
-            font-size: 0.7rem;
-            padding: 1px 4px;
-            margin-top: 2px;
-        }
-
-        /* Dropdown en móvil pequeño */
         .filter-dropdown {
             position: fixed;
             top: 50%;
@@ -753,23 +589,11 @@
             margin-top: 0;
         }
 
-        .filter-label {
-            font-size: 0.8rem;
-            margin-bottom: 6px;
-        }
-
-        .filter-select {
-            height: 40px;
-            font-size: 0.9rem;
-            padding: 0 12px;
-        }
-
-        .total-indicator {
-            font-size: 0.85rem;
-        }
+        .filter-label { font-size: 0.8rem; margin-bottom: 6px; }
+        .filter-select { height: 40px; font-size: 0.9rem; padding: 0 12px; }
+        .total-indicator { font-size: 0.85rem; }
     }
 </style>
-
 
 <!-- TITULO -->
 <h1 class="page-title">
@@ -783,8 +607,9 @@
         <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
             <div class="search-input-group">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" name="q" class="search-input"
-                    placeholder="Buscar por N° Casco, placa, chofer o cédula..." value="{{ request.GET.q|default:'' }}">
+                <input id="qInput" type="text" name="q" class="search-input"
+                       placeholder="Buscar por Cédula, chofer, placa, marca o modelo"
+                       value="{{ request.GET.q|default:'' }}">
             </div>
 
             <div style="position: relative;">
@@ -816,15 +641,13 @@
             <i class="fas fa-plus"></i> Nuevo Vehículo
         </a>
 
-        <!-- Botón Excel -->
-        <a href="{% url 'taxis:reporte_vehiculos_excel' %}?{{ request.GET.urlencode }}"
-            class="btn-boceto-outline btn-reporte-excel" title="Descargar Excel">
+        <a href="{% url 'taxis:reporte_dt5_excel_vehiculos' %}?modo=vehiculos&{{ request.GET.urlencode }}"
+           class="btn-boceto-outline btn-reporte-excel" title="Descargar Excel">
             <i class="fas fa-file-excel"></i> Descargar Excel
         </a>
 
-        <!-- Botón PDF -->
-        <a href="{% url 'taxis:reporte_vehiculos_pdf' %}?{{ request.GET.urlencode }}"
-            class="btn-boceto-outline btn-reporte-pdf" target="_blank" title="Generar PDF">
+        <a href="{% url 'taxis:reporte_dt5_pdf_vehiculos' %}?modo=vehiculos&{{ request.GET.urlencode }}"
+           class="btn-boceto-outline btn-reporte-pdf" target="_blank" title="Generar PDF">
             <i class="fas fa-file-pdf"></i> Generar PDF
         </a>
 
@@ -841,7 +664,7 @@
     {% endif %}
 </div>
 
-<!-- ENCABEZADOS TABLA (NUEVO ORDEN) -->
+<!-- ENCABEZADOS TABLA -->
 <div class="list-header-row">
     <div class="col-num">#</div>
     <div class="col-cedula">Cédula</div>
@@ -852,17 +675,17 @@
     <div class="col-modelo">Modelo</div>
     <div class="col-color">Color</div>
     <div class="col-anio">Año</div>
+    <div class="col-estatus">Estatus</div>
 </div>
 
 <!-- LISTA DE VEHÍCULOS -->
 <div>
-   {% for v in vehiculos %}
+    {% for v in vehiculos %}
     <a href="{% url 'taxis:dt5_detail_with_vehicle' v.conductor.pk v.pk %}?from=vehiculos" class="afiliado-row">
 
         <div class="col-num row-text-muted">
             {{ forloop.counter }}
         </div>
-
 
         <div class="col-cedula row-text-highlight">
             {{ v.conductor.cedula_prefijo }}-{{ v.conductor.cedula_identidad }}
@@ -895,14 +718,30 @@
         <div class="col-anio row-text-muted">
             {{ v.anio }}
         </div>
+
+        <div class="col-estatus row-text-muted">
+            {% if v.condicion|lower == 'operativo' %}
+                <span class="status-pill">
+                    <span class="status-dot ok"></span>
+                    <span>Operativo</span>
+                </span>
+            {% else %}
+                <span class="status-pill">
+                    <span class="status-dot bad"></span>
+                    <span>Inoperativo</span>
+                </span>
+            {% endif %}
+        </div>
+
     </a>
     {% empty %}
     <div class="text-center py-5 text-muted">
         <i class="fas fa-car-crash fa-3x mb-3 opacity-25"></i>
         <p class="h5">No se encontraron vehículos.</p>
         {% if request.GET %}
-        <a href="{% url 'taxis:vehiculo_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">Limpiar
-            filtros</a>
+        <a href="{% url 'taxis:vehiculo_list' %}" class="text-success font-weight-bold mt-2 d-inline-block">
+            Limpiar filtros
+        </a>
         {% endif %}
     </div>
     {% endfor %}
@@ -916,19 +755,18 @@
             {% if page_obj.has_previous %}
             <li class="page-item">
                 <a class="page-link text-success"
-                    href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo;
-                    Anterior</a>
+                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">&laquo; Anterior</a>
             </li>
             {% endif %}
 
-            <li class="page-item disabled"><span class="page-link text-muted">{{ page_obj.number }} de {{
-                    page_obj.paginator.num_pages }}</span></li>
+            <li class="page-item disabled">
+                <span class="page-link text-muted">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            </li>
 
             {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link text-success"
-                    href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente
-                    &raquo;</a>
+                   href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente &raquo;</a>
             </li>
             {% endif %}
         </ul>
@@ -937,18 +775,43 @@
 {% endif %}
 
 <script>
-    function toggleFilters() {
-        const dropdown = document.getElementById('filterDropdown');
-        dropdown.classList.toggle('show');
+  function toggleFilters() {
+    const dropdown = document.getElementById('filterDropdown');
+    dropdown.classList.toggle('show');
+  }
+
+  document.addEventListener('mouseup', function (e) {
+    const container = document.getElementById('filterDropdown');
+    const btn = document.querySelector('.filter-btn');
+    if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+      container.classList.remove('show');
     }
-    // Cerrar click fuera
-    document.addEventListener('mouseup', function (e) {
-        var container = document.getElementById('filterDropdown');
-        var btn = document.querySelector('.filter-btn');
-        if (container && !container.contains(e.target) && !btn.contains(e.target)) {
-            container.classList.remove('show');
-        }
-    });
+  });
+
+  function debounce(fn, delay) {
+    let t = null;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  const form = document.getElementById('mainFilterForm');
+  const qInput = document.getElementById('qInput');
+  const dropdown = document.getElementById('filterDropdown');
+
+  const debouncedSubmit = debounce(() => {
+    if (dropdown && dropdown.classList.contains('show')) return;
+
+    const v = (qInput.value || '').trim();
+    if (v.length === 1) return;
+
+    form.requestSubmit ? form.requestSubmit() : form.submit();
+  }, 650);
+
+  if (qInput) {
+    qInput.addEventListener('input', debouncedSubmit);
+  }
 </script>
 
 {% endblock %}
