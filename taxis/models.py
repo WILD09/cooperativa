@@ -1,10 +1,3 @@
-"""
-models.py
-Modelos de la aplicación 'taxis' con validación de seguridad y soporte responsive.
-ACTUALIZADO: Municipios, Parroquias y Códigos Postales como CharField con choices
-"""
-
-
 from datetime import date
 from decimal import Decimal
 from django.db import models
