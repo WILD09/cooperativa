@@ -790,6 +790,61 @@
           localStorage.setItem('theme', newTheme);
         });
       }
+
+       (function () {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar) return;
+
+  // Botones típicos en SB Admin / similares
+  const toggleBtns = ['sidebarToggle', 'sidebarToggleTop']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+
+  const isMobile = () => window.matchMedia('(max-width: 991.98px)').matches;
+
+  function closeSidebar() {
+    document.body.classList.add('sidebar-toggled');
+    sidebar.classList.add('toggled');
+    if (window.jQuery) {
+      jQuery('.sidebar .collapse').collapse('hide');
+    }
+  }
+
+  function isFormField(el) {
+    return el && el.matches && el.matches('input, textarea, select');
+  }
+
+  // Cuando un campo toma foco (focusin) volvemos a cerrar y re-enfocar el campo
+  document.addEventListener('focusin', function (e) {
+    if (!isMobile()) return;
+    if (!isFormField(e.target)) return;
+
+    // Deshabilita el botón toggle mientras se escribe (evita taps accidentales)
+    toggleBtns.forEach(b => b.style.pointerEvents = 'none');
+
+    // Cierra sidebar justo después del evento (por si se abrió “en el click”)
+    const target = e.target;
+    setTimeout(() => {
+      closeSidebar();
+      // Recupera el foco para que no interrumpa el flujo
+      try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
+    }, 0);
+  }); // focusin existe y burbujea, útil para esto [web:535]
+
+  // Cuando sales del input, vuelve a habilitar el toggle
+  document.addEventListener('focusout', function (e) {
+    if (!isMobile()) return;
+    if (!isFormField(e.target)) return;
+    setTimeout(() => toggleBtns.forEach(b => b.style.pointerEvents = ''), 150);
+  });
+
+  // Si el teclado dispara resize, y hay un input activo, re-cierra
+  window.addEventListener('resize', function () {
+    if (!isMobile()) return;
+    const ae = document.activeElement;
+    if (isFormField(ae)) closeSidebar();
+  }, { passive: true });
+})();
     </script>
 </body>
 </html>
