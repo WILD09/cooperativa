@@ -395,17 +395,32 @@ document.addEventListener('click', function(e){
 });
 </script>
 
+<script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
 <script>
-(function(){
+document.addEventListener('DOMContentLoaded', function () {
   const btn = document.querySelector('.logo-btn');
-  if(!btn) return;
+  if (!btn) return;
 
-  const pressOn = () => btn.classList.add('is-pressed');
-  const pressOff = () => btn.classList.remove('is-pressed');
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  btn.addEventListener('click', function () {
+    if (reduceMotion) return;
+    if (typeof window.confetti !== 'function') return;
 
-  btn.addEventListener('touchstart', pressOn, {passive:true});
-  btn.addEventListener('touchend', () => setTimeout(pressOff, 120), {passive:true});
-  btn.addEventListener('touchcancel', pressOff, {passive:true});
-})();
+    const rect = btn.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    window.confetti({
+      particleCount: 28,
+      spread: 55,
+      startVelocity: 22,
+      gravity: 0.8,
+      scalar: 0.8,
+      ticks: 140,
+      origin: { x: x, y: y },
+      colors: ['#00b300', '#10b981', '#ffffff']
+    });
+  });
+});
 </script>
 {% endblock %}

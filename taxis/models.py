@@ -11,7 +11,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator, FileExtensionValidator
 import uuid, re
 from datetime import timedelta
 
@@ -926,3 +926,55 @@ class PendingPresidentRegistration(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.expires_at
+    
+
+
+
+class CooperativaLegalDocs(models.Model):
+    acta_constitutiva_estatutos = models.FileField(
+        upload_to="cooperativa/legal/",
+        null=True, blank=True,
+        validators=[FileExtensionValidator(["pdf"])],
+    )
+    acta_asamblea_extraordinaria = models.FileField(
+        upload_to="cooperativa/legal/",
+        null=True, blank=True,
+        validators=[FileExtensionValidator(["pdf"])],
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="coop_legal_docs_updates"
+    )
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+    
+def upload_presidente_docs(instance, filename):
+    # perfiles/presidente/<user_id>/<filename>
+    return f"perfiles/presidente/{instance.usuario_id}/{filename}"
+
+class PresidenteIdentificacionDocs(models.Model):
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ident_docs"
+    )
+
+    cedula_frente = models.FileField(upload_to=upload_presidente_docs, blank=True, null=True)
+    cedula_detras = models.FileField(upload_to=upload_presidente_docs, blank=True, null=True)
+    rif = models.FileField(upload_to=upload_presidente_docs, blank=True, null=True)
+
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="ident_docs_updates"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Docs ID - {self.usuario_id}"

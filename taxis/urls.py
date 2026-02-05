@@ -22,7 +22,9 @@ urlpatterns = [
     # 2. DASHBOARD Y PANEL (Privados)
     # ==========================================
     path('panel/', views.panel_general, name='panel_general'),
+    path("mi-perfil/", views.mi_perfil_presidente, name="mi_perfil_presidente"),
     path('ayuda/', views.ayuda_sistema, name='ayuda_sistema'),
+    path("cooperativa/documentos-legales/", views.cooperativa_docs_update, name="cooperativa_docs_update"),
 
     # ==========================================
     # 3. GESTIÓN DE CONDUCTORES (AFILIADOS)

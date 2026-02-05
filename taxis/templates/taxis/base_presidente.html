@@ -657,6 +657,8 @@
 
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:panel_general' %}"><i
                         class="fas fa-fw fa-tachometer-alt"></i><span>Panel General</span></a></li>
+            <li class="nav-item {% if current_view == 'taxis:mi_perfil_presidente' %}active{% endif %}"><a class="nav-link" href="{% url 'taxis:mi_perfil_presidente' %}">
+                  <i class="fas fa-fw fa-id-card"></i><span>Mi perfil</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:conductor_list' %}"><i
                         class="fas fa-fw fa-users"></i><span>Afiliados DT5</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'taxis:vehiculo_list' %}"><i

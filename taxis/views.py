@@ -47,14 +47,14 @@ from django.views.decorators.http import require_http_methods
 from .forms import (
     ConductorForm, VehiculoForm, PresidenteRegisterForm,
     EmailOrUsernameAuthenticationForm, PagoForm,
-    UbicacionGeograficaForm, PagoMensualForm
+    UbicacionGeograficaForm, PagoMensualForm, PresidentePerfilForm, CooperativaLegalDocsForm, PresidenteIdentificacionDocsForm
 )
 from .models import (
     Conductor, Vehiculo, CustomUser, UbicacionGeografica,
     Deuda, Pago, MovimientoAudit, ConfiguracionCooperativa, ConfiguracionGlobal,
     DocumentoLegal, EmailVerificationCode,
     ConfiguracionFinanzas,
-    PagoMensual, PendingPresidentRegistration
+    PagoMensual, PendingPresidentRegistration, CooperativaLegalDocs, PresidenteIdentificacionDocs
 )
 from .utils import render_to_pdf
 
@@ -985,6 +985,7 @@ def reporte_dt5_excel(request, *args, **kwargs):
 # FINANZAS
 # ====================================================================
 
+
 class DeudaListView(LoginRequiredMixin, ListView):
     model = Deuda
     template_name = "taxis/finanzas/deuda_list.html"
@@ -1009,22 +1010,22 @@ def finanzas_principal(request):
     hoy = timezone.localtime().date()
     mes_actual = hoy.month
     anio_actual = hoy.year
-    
+
     config = ConfiguracionFinanzas.get_solo()
-    
+
     # Búsqueda
     q = request.GET.get('q', '')
-    
+
     # 1. Filtrar solo conductores ACTIVOS con VEHÍCULO OPERATIVO
     conductores = Conductor.objects.filter(
-        estado='activo', 
+        estado='activo',
         vehiculos__condicion='operativo'
     ).distinct().select_related('ubicacion')
-    
+
     if q:
         conductores = conductores.filter(
-            Q(cedula_identidad__icontains=q) | 
-            Q(nombres__icontains=q) | 
+            Q(cedula_identidad__icontains=q) |
+            Q(nombres__icontains=q) |
             Q(apellidos__icontains=q) |
             Q(vehiculos__numero_casco__icontains=q)
         ).distinct()
@@ -1040,66 +1041,76 @@ def finanzas_principal(request):
     mapa_pagos = {}
     for p in pagos_anio:
         cid = p['conductor_id']
-        if cid not in mapa_pagos: 
+        if cid not in mapa_pagos:
             mapa_pagos[cid] = set()
         mapa_pagos[cid].add(p['mes'])
-    
+
     pendientes = []
     pagados_completo = []
-    
+
     conductores = conductores.prefetch_related('vehiculos')
-    
-    # Meses a verificar (Desde Enero hasta el mes actual)
-    meses_a_verificar = list(range(1, mes_actual + 1))
-    
+
+    import calendar
+
+    # Día de vencimiento (por defecto 5)
+    dia_venc = getattr(config, 'dia_vencimiento', 5) or 5
+
+    # Ajustar vencimiento al último día del mes actual (por si config pone 31 y el mes tiene 28/30)
+    ultimo_dia_mes_actual = calendar.monthrange(anio_actual, mes_actual)[1]
+    dia_venc_efectivo = min(dia_venc, ultimo_dia_mes_actual)
+
+    # Si hoy es el día de vencimiento (00:00 ya cuenta) o después, contamos el mes actual como deuda
+    tope = mes_actual + 1 if hoy.day >= dia_venc_efectivo else mes_actual
+    meses_a_verificar = list(range(1, tope))
+
     for c in conductores:
         pagos_c = mapa_pagos.get(c.id, set())
-        
-        # Verificar Solvencia del Mes Actual
+
+        # Verificar Solvencia del Mes Actual (solo para la lista de pagados del mes)
         if mes_actual in pagos_c:
             pago_obj = PagoMensual.objects.filter(
-                conductor=c, 
-                mes=mes_actual, 
+                conductor=c,
+                mes=mes_actual,
                 anio=anio_actual,
                 archivado=False
             ).first()
             pagados_completo.append({'conductor': c, 'pago': pago_obj})
-        
-        # Calcular Deuda Acumulada
+
+        # Calcular Deuda Acumulada (hasta el tope definido por vencimiento)
         deuda_meses = []
         for m in meses_a_verificar:
             if m not in pagos_c:
                 deuda_meses.append(m)
-        
+
+        # IMPORTANTE: si debe meses anteriores, debe aparecer en pendientes aunque ya pagó el mes actual
         if deuda_meses:
-            if mes_actual not in pagos_c:
-                total_deuda = len(deuda_meses) * config.monto_cuota_usd
-                pendientes.append({
-                    'conductor': c, 
-                    'meses_deuda': deuda_meses,
-                    'total_deuda': total_deuda,
-                    'cant_meses': len(deuda_meses)
-                })
-    
+            total_deuda = len(deuda_meses) * config.monto_cuota_usd
+            pendientes.append({
+                'conductor': c,
+                'meses_deuda': deuda_meses,
+                'total_deuda': total_deuda,
+                'cant_meses': len(deuda_meses)
+            })
+
     # Convertir números de mes a nombres
     MESES_NOMBRES = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ]
-    
+
     for item in pendientes:
-        item['meses_nombres'] = [MESES_NOMBRES[m-1] for m in item['meses_deuda']]
-    
+        item['meses_nombres'] = [MESES_NOMBRES[m - 1] for m in item['meses_deuda']]
+
     # Ordenar listas
     pendientes.sort(key=lambda x: x['conductor'].id)
     pagados_completo.sort(key=lambda x: x['conductor'].id)
-    
+
     # Limitar pagados visibles
     LIMITE_INICIAL = 5
     pagados_visibles = pagados_completo[:LIMITE_INICIAL]
     pagados_ocultos = pagados_completo[LIMITE_INICIAL:]
     total_ocultos = len(pagados_ocultos)
-    
+
     context = {
         'pendientes': pendientes,
         'pagados': pagados_visibles,
@@ -1119,100 +1130,129 @@ def finanzas_principal(request):
 def finanzas_registrar_pago(request, conductor_id):
     """Registrar pago mensual para un conductor"""
     conductor = get_object_or_404(Conductor, pk=conductor_id)
-    
+
     vehiculo = conductor.vehiculos.filter(condicion='operativo').first()
-    
+
     if not vehiculo:
         messages.error(request, 'El conductor no tiene un vehículo operativo asignado.')
         return redirect('taxis:finanzas_principal')
-    
+
     config = ConfiguracionFinanzas.get_solo()
     hoy = timezone.localtime().date()
     mes_actual = hoy.month
     anio_actual = hoy.year
-    
+
     # Obtener pagos realizados
     pagos_realizados = PagoMensual.objects.filter(
         conductor=conductor,
         anio=anio_actual,
         archivado=False
     ).values_list('mes', flat=True)
-    
+
     meses_pagados = set(pagos_realizados)
-    
+
     MESES_NOMBRES = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ]
-    
+
+    import calendar
+    from datetime import date
+
+    # Día de vencimiento (por defecto 5)
+    dia_venc = getattr(config, 'dia_vencimiento', 5) or 5
+
+    # Ajustar vencimiento al último día del mes actual (por si config pone 31 y el mes tiene 28/30)
+    ultimo_dia_mes_actual = calendar.monthrange(anio_actual, mes_actual)[1]
+    dia_venc_efectivo = min(dia_venc, ultimo_dia_mes_actual)
+
+    # Mes actual cuenta como adeudado desde las 00:00 del día de vencimiento (>=)
+    tope = mes_actual + 1 if hoy.day >= dia_venc_efectivo else mes_actual
+
     # Meses adeudados
     meses_adeudados = []
-    for m in range(1, mes_actual + 1):
+    for m in range(1, tope):
         if m not in meses_pagados:
             meses_adeudados.append({
                 'mes': m,
                 'anio': anio_actual,
-                'nombre': MESES_NOMBRES[m-1],
+                'nombre': MESES_NOMBRES[m - 1],
                 'tipo': 'adeudado',
                 'es_actual': (m == mes_actual)
             })
-    
-    # Meses futuros
+
+    # Meses futuros (incluye el mes actual como "futuro" solo antes del vencimiento)
     meses_futuros = []
-    for m in range(mes_actual + 1, 13):
+    inicio_futuros = mes_actual if hoy.day < dia_venc_efectivo else (mes_actual + 1)
+    for m in range(inicio_futuros, 13):
         if m not in meses_pagados:
             meses_futuros.append({
                 'mes': m,
                 'anio': anio_actual,
-                'nombre': MESES_NOMBRES[m-1],
+                'nombre': MESES_NOMBRES[m - 1],
                 'tipo': 'futuro'
             })
-    
+
     esta_al_dia = len(meses_adeudados) == 0
     deuda_total = len(meses_adeudados) * config.monto_cuota_usd
-    
-    import calendar
-    from datetime import date
-    # Día de vencimiento (por defecto 5)
-    dia_venc = getattr(config, 'dia_vencimiento', 5) or 5
 
-# Mes de referencia: el primer mes adeudado; si no hay deuda, mes actual
-    mes_ref = meses_adeudados[0]['mes'] if meses_adeudados else mes_actual
-    anio_ref = anio_actual
+    # Mes de referencia para vencimiento:
+    # - si hay deuda: primer mes adeudado
+    # - si no hay deuda y NO ha pagado el mes actual: mes actual (por vencer)
+    # - si no hay deuda y ya pagó: próximo mes no pagado (si existe), si no: mes actual
+    if meses_adeudados:
+        mes_ref = meses_adeudados[0]['mes']
+        anio_ref = anio_actual
+    else:
+        if mes_actual not in meses_pagados:
+            mes_ref = mes_actual
+            anio_ref = anio_actual
+        else:
+            prox = None
+            for item in meses_futuros:
+                prox = item
+                break
+            if prox:
+                mes_ref = prox['mes']
+                anio_ref = prox['anio']
+            else:
+                mes_ref = mes_actual
+                anio_ref = anio_actual
 
-# Ajuste para meses con menos días (ej: febrero)
+    # Ajuste para meses con menos días (ej: febrero)
     ultimo_dia = calendar.monthrange(anio_ref, mes_ref)[1]
-    dia_venc = min(dia_venc, ultimo_dia)
+    dia_venc_ajustado = min(dia_venc, ultimo_dia)
 
-    fecha_vencimiento = date(anio_ref, mes_ref, dia_venc)
+    fecha_vencimiento = date(anio_ref, mes_ref, dia_venc_ajustado)
     mes_vencimiento_nombre = MESES_NOMBRES[mes_ref - 1]
+
     # PROCESAR POST
     if request.method == 'POST':
         meses_pagar = request.POST.getlist('meses_pagar[]')
-        
+
         if not meses_pagar:
             messages.error(request, 'Debes seleccionar al menos un mes para pagar.')
             return redirect('taxis:finanzas_registrar_pago', conductor_id=conductor_id)
-        
+
         form = PagoMensualForm(request.POST, request.FILES)
-        
+
         if form.is_valid():
             pagos_registrados = []
             meses_duplicados = []
-            
+
             for mes_str in meses_pagar:
                 mes, anio = map(int, mes_str.split('-'))
-                
+
                 # Verificar duplicados
                 if PagoMensual.objects.filter(
-                    conductor=conductor, 
-                    mes=mes, 
+                    conductor=conductor,
+                    mes=mes,
                     anio=anio,
                     archivado=False
                 ).exists():
-                    meses_duplicados.append(MESES_NOMBRES[mes-1])
+                    meses_duplicados.append(MESES_NOMBRES[mes - 1])
                     continue
-                
+
                 # Crear el pago
                 PagoMensual.objects.create(
                     conductor=conductor,
@@ -1227,31 +1267,31 @@ def finanzas_registrar_pago(request, conductor_id):
                     conductor_nombre_cache=f"{conductor.nombres} {conductor.apellidos}",
                     conductor_cedula_cache=f"{conductor.cedula_prefijo}-{conductor.cedula_identidad}"
                 )
-                pagos_registrados.append(MESES_NOMBRES[mes-1])
+                pagos_registrados.append(MESES_NOMBRES[mes - 1])
 
                 # LOG AUDITORÍA - Pago registrado
                 log_pago(
-                    conductor=conductor, 
-                    monto=config.monto_cuota_usd, 
-                    mes=mes, 
-                    anio=anio, 
+                    conductor=conductor,
+                    monto=config.monto_cuota_usd,
+                    mes=mes,
+                    anio=anio,
                     request=request
                 )
-            
+
             # Mensajes
             if meses_duplicados and not pagos_registrados:
                 messages.warning(
-                    request, 
+                    request,
                     f'⚠️ Los meses seleccionados ya están registrados: {", ".join(meses_duplicados)}'
                 )
                 return redirect('taxis:finanzas_principal')
-            
+
             if meses_duplicados and pagos_registrados:
                 messages.warning(
-                    request, 
+                    request,
                     f'⚠️ Ya registrados: {", ".join(meses_duplicados)}'
                 )
-            
+
             if pagos_registrados:
                 MovimientoAudit.objects.create(
                     usuario=request.user,
@@ -1259,19 +1299,19 @@ def finanzas_registrar_pago(request, conductor_id):
                     modulo='Finanzas'
                 )
                 messages.success(request, f'✅ Pagos registrados: {", ".join(pagos_registrados)}')
-            
+
             return redirect('taxis:finanzas_principal')
-        
+
         else:
             # Mostrar errores del formulario
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'Error en {field}: {error}')
-    
+
     else:
         # GET: Formulario vacío
         form = PagoMensualForm()
-    
+
     context = {
         'conductor': conductor,
         'vehiculo': vehiculo,
@@ -1293,31 +1333,36 @@ def finanzas_registrar_pago(request, conductor_id):
 def finanzas_historial(request):
     """Historial financiero con estadísticas y paginación"""
     from datetime import date
-    
+    import calendar
+
     # Verificación de permisos
     if not hasattr(request.user, 'role'):
         messages.error(request, '⚠️ Tu usuario no tiene un rol asignado.')
         return redirect('taxis:panel_general')
-    
+
     if request.user.role.upper() != 'PRESIDENTE':
         messages.warning(request, '⚠️ Solo el presidente puede acceder al historial financiero.')
         return redirect('taxis:finanzas_principal')
-    
+
     hoy = date.today()
     anio_seleccionado = int(request.GET.get('anio', hoy.year))
     mes_seleccionado = request.GET.get('mes', '')
     query = request.GET.get('q', '').strip()
     orden = request.GET.get('orden', '-anio,-mes,-fecha_pago')
-    
+
+    # Día de vencimiento (para puntualidad)
+    config = ConfiguracionFinanzas.get_solo()
+    dia_venc = getattr(config, 'dia_vencimiento', 5) or 5
+
     # Consulta base - FILTRAR NO ARCHIVADOS
     pagos_qs = PagoMensual.objects.filter(
         archivado=False
     ).select_related('conductor', 'vehiculo').filter(anio=anio_seleccionado)
-    
+
     # Filtro por mes
     if mes_seleccionado:
         pagos_qs = pagos_qs.filter(mes=int(mes_seleccionado))
-    
+
     # Búsqueda
     if query:
         pagos_qs = pagos_qs.filter(
@@ -1326,66 +1371,73 @@ def finanzas_historial(request):
             Q(conductor__cedula_identidad__icontains=query) |
             Q(vehiculo__numero_casco__icontains=query)
         ).distinct()
-    
-    # Ordenamiento
+
+    # Ordenamiento seguro
     orden = request.GET.get("orden", "-anio,-mes,-fecha_pago")
-    
+    orden_lista = [o.strip() for o in orden.split(",") if o.strip()]
+    permitidos = {'anio', '-anio', 'mes', '-mes', 'fecha_pago', '-fecha_pago'}
+    orden_final = [o for o in orden_lista if o in permitidos] or ['-anio', '-mes', '-fecha_pago']
+    pagos_qs = pagos_qs.order_by(*orden_final)
+
     # Estadísticas globales
     stats_globales = pagos_qs.aggregate(
         total_recaudado=Sum('monto_usd'),
         total_pagos=Count('id'),
         afiliados_pagaron=Count('conductor', distinct=True)
     )
-    
+
     # Calcular promedio
     if stats_globales['total_pagos'] and stats_globales['total_pagos'] > 0:
         stats_globales['promedio_pago'] = stats_globales['total_recaudado'] / stats_globales['total_pagos']
     else:
         stats_globales['promedio_pago'] = 0
-    
+
     # Manejar valores None
     stats_globales['total_recaudado'] = stats_globales['total_recaudado'] or 0
     stats_globales['total_pagos'] = stats_globales['total_pagos'] or 0
     stats_globales['afiliados_pagaron'] = stats_globales['afiliados_pagaron'] or 0
-    
+
     # Paginación
     paginator = Paginator(pagos_qs, 20)
     page = request.GET.get('page', 1)
-    
+
     try:
         pagos_paginados = paginator.page(page)
     except PageNotAnInteger:
         pagos_paginados = paginator.page(1)
     except EmptyPage:
         pagos_paginados = paginator.page(paginator.num_pages)
-    
+
     # Enriquecer pagos con estados
     for pago in pagos_paginados:
+        ultimo_dia_pago = calendar.monthrange(pago.anio, pago.mes)[1]
+        dia_venc_pago = min(dia_venc, ultimo_dia_pago)
+
         if pago.anio > hoy.year:
             pago.es_adelantado = True
             pago.es_puntual = False
         elif pago.anio == hoy.year and pago.mes > hoy.month:
             pago.es_adelantado = True
             pago.es_puntual = False
-        elif pago.anio == hoy.year and pago.mes == hoy.month and pago.fecha_pago.day <= 5:
+        elif pago.anio == hoy.year and pago.mes == hoy.month and pago.fecha_pago.day <= dia_venc_pago:
             pago.es_puntual = True
             pago.es_adelantado = False
         else:
             pago.es_adelantado = False
             pago.es_puntual = False
-    
+
     # Estadísticas del filtro actual
     total_filtrado = pagos_qs.aggregate(total=Sum('monto_usd'))['total'] or 0
-    
+
     stats_filtradas = {
         'total_pagos_filtrados': pagos_paginados.paginator.count,
         'total_filtrado': total_filtrado,
         'afiliados_unicos': pagos_qs.values('conductor').distinct().count()
     }
-    
+
     # Años disponibles
     anios_disponibles = list(range(hoy.year, hoy.year - 5, -1))
-    
+
     # Meses
     meses_lista = [
         {'num': 1, 'nombre': 'Enero'},
@@ -1401,18 +1453,18 @@ def finanzas_historial(request):
         {'num': 11, 'nombre': 'Noviembre'},
         {'num': 12, 'nombre': 'Diciembre'},
     ]
-    
+
     context = {
         'pagos': pagos_paginados,
         'stats': {**stats_globales, **stats_filtradas},
         'anio_seleccionado': anio_seleccionado,
         'mes_seleccionado': int(mes_seleccionado) if mes_seleccionado else '',
         'query': query,
-        'orden': orden,
+        'orden': ",".join(orden_final),
         'anios_disponibles': anios_disponibles,
         'meses_lista': meses_lista,
     }
-    
+
     return render(request, 'taxis/finanzas/historial.html', context)
 
 
@@ -1420,35 +1472,35 @@ def finanzas_historial(request):
 def finanzas_ver_pago(request, pago_id):
     """Detalle de un pago mensual con agrupación inteligente"""
     pago = get_object_or_404(
-        PagoMensual.objects.select_related('conductor', 'vehiculo', 'registrado_por'), 
+        PagoMensual.objects.select_related('conductor', 'vehiculo', 'registrado_por'),
         id=pago_id
     )
-    
+
     # Detectar pagos relacionados (misma transacción)
     pagos_agrupados = PagoMensual.objects.filter(
         conductor=pago.conductor,
         fecha_pago=pago.fecha_pago,
         archivado=False
     ).order_by('anio', 'mes')
-    
+
     # Si hay comprobante, filtrar por mismo comprobante
     if pago.comprobante:
         pagos_agrupados = pagos_agrupados.filter(comprobante=pago.comprobante.name)
-    
+
     # Calcular total acumulado
     total_acumulado = sum(p.monto_usd for p in pagos_agrupados)
-    
+
     # Generar string de meses
     MESES_NOMBRES = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ]
-    
+
     meses_str = ', '.join([MESES_NOMBRES[p.mes - 1] for p in pagos_agrupados])
-    
+
     # Determinar si es pago múltiple
     es_pago_multiple = pagos_agrupados.count() > 1
-    
+
     context = {
         'pago': pago,
         'pagos_agrupados': pagos_agrupados,
@@ -1457,13 +1509,14 @@ def finanzas_ver_pago(request, pago_id):
         'es_pago_multiple': es_pago_multiple,
         'coop': DATOS_COOP,
     }
+
     # AUDITORÍA (AQUÍ)
     MovimientoAudit.objects.create(
-       usuario=request.user,
-       accion="Imprimió ticket de pago",
-       modulo="Finanzas",
-       descripcion=f"Pago ID: {pago_id}"
-   )
+        usuario=request.user,
+        accion="Imprimió ticket de pago",
+        modulo="Finanzas",
+        descripcion=f"Pago ID: {pago_id}"
+    )
 
     return render(request, 'taxis/finanzas/ver_pago.html', context)
 
@@ -1501,6 +1554,7 @@ class RegistrarPagoView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['deuda'] = self.deuda
         return context
+
 
 # ====================================================================
 # Filtro de los Vehículos
@@ -1643,30 +1697,45 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
 @login_required
 def panel_general(request):
     """Panel principal con tarjetas, alertas y stats"""
-    
-    hoy = timezone.now().date()
-    
+
+    import calendar
+
+    hoy = timezone.localtime().date()
+
     # ====================================================================
     # 1. CONTADORES TARJETAS
     # ====================================================================
     total_afiliados = Conductor.objects.filter(estado='activo').count()
     total_vehiculos = Vehiculo.objects.count()
-    
+
     # Pagos pendientes (conductores con vehículo operativo que NO pagaron este mes)
     conductores_con_vehiculo = Conductor.objects.filter(
         estado='activo',
         vehiculos__condicion='operativo'
     ).distinct()
-    
+
     pagos_realizados = PagoMensual.objects.filter(
         mes=hoy.month,
         anio=hoy.year,
         archivado=False
     ).values_list('conductor_id', flat=True)
-    
-    pagos_pendientes = conductores_con_vehiculo.exclude(id__in=pagos_realizados).count()
-    
-    
+
+    # ✅ Ajuste por vencimiento: contar pendientes solo desde las 00:00 del día de vencimiento
+    config_finanzas = ConfiguracionFinanzas.get_solo()
+    dia_venc = getattr(config_finanzas, 'dia_vencimiento', 5) or 5
+
+    ultimo_dia_mes = calendar.monthrange(hoy.year, hoy.month)[1]
+    dia_venc_efectivo = min(dia_venc, ultimo_dia_mes)
+
+    if hoy.day >= dia_venc_efectivo:
+        pagos_pendientes = conductores_con_vehiculo.exclude(id__in=pagos_realizados).count()
+    else:
+        pagos_pendientes = 0
+
+    legal_docs = CooperativaLegalDocs.get_solo()
+    legal_form = CooperativaLegalDocsForm(instance=legal_docs)
+    edit_mode = request.GET.get("edit") == "1"
+
     # ====================================================================
     # 2. INFORMACIÓN DE LA COOPERATIVA (USA DATOS_COOP)
     # ====================================================================
@@ -1679,17 +1748,16 @@ def panel_general(request):
         'email': 'wilsontorres27@gmail.com',
         'municipio': 'JUAN GERMAN ROSCIO',
     }
-    
-    
+
     # ====================================================================
     # 3. ALERTAS DE DOCUMENTOS VENCIDOS (CONDUCTORES)
     # ====================================================================
     alertas_documentos = []
-    
+
     conductores = Conductor.objects.filter(estado='activo').prefetch_related('vehiculos')
     for c in conductores:
         vehiculo_c = c.vehiculos.first()
-        
+
         # CÉDULA VENCIDA
         if c.cedula_vencimiento and c.cedula_vencimiento <= hoy:
             alertas_documentos.append({
@@ -1702,7 +1770,7 @@ def panel_general(request):
                 'documento_tipo': 'Cédula',
                 'fecha_vencimiento': c.cedula_vencimiento
             })
-        
+
         # RIF VENCIDO
         if c.rif_vencimiento and c.rif_vencimiento <= hoy:
             alertas_documentos.append({
@@ -1715,8 +1783,7 @@ def panel_general(request):
                 'documento_tipo': 'RIF',
                 'fecha_vencimiento': c.rif_vencimiento
             })
-    
-    
+
     # ====================================================================
     # 4. ALERTAS DE DOCUMENTOS VENCIDOS (VEHÍCULOS)
     # ====================================================================
@@ -1740,14 +1807,12 @@ def panel_general(request):
                     'documento_tipo': tipo_doc,
                     'fecha_vencimiento': fecha
                 })
-    
-    
+
     # ====================================================================
     # 5. ORDENAR ALERTAS POR FECHA (más recientes primero)
     # ====================================================================
     alertas_documentos.sort(key=lambda x: x['fecha_vencimiento'], reverse=True)
-    
-    
+
     # ====================================================================
     # 6. CONTEXT COMPLETO
     # ====================================================================
@@ -1759,7 +1824,13 @@ def panel_general(request):
         'coop': coop,
         'today': hoy,
     }
-    
+
+    context.update({
+        "legal_docs": legal_docs,   # tu template usa legal_docs
+        "legal_form": legal_form,   # tu template usa legal_form
+        "edit_mode": edit_mode,
+    })
+
     return render(request, 'taxis/panel_general.html', context)
 
 
@@ -2257,3 +2328,157 @@ def password_reset_resend(request):
         "remaining": remaining,
         "message": f"Correo reenviado. Te quedan {remaining} intentos."
     }, status=200)
+
+# ====================================================================
+# PERFIL PRESIDENTE
+# ====================================================================
+@login_required
+def mi_perfil_presidente(request):
+    if getattr(request.user, "role", "").upper() != "PRESIDENTE":
+        return redirect("taxis:panel_general")
+
+    docs_obj, _ = PresidenteIdentificacionDocs.objects.get_or_create(usuario=request.user)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        # ===== Guardar datos de perfil =====
+        if action == "perfil":
+            form = PresidentePerfilForm(request.POST, instance=request.user)
+            docs_form = PresidenteIdentificacionDocsForm(instance=docs_obj)
+
+            if form.is_valid():
+                form.save()
+                registrar_movimiento(request, accion="Actualizó su perfil", modulo="Perfiles")  # ya lo haces [file:16]
+                messages.success(request, "Perfil actualizado correctamente.")
+                return redirect("taxis:mi_perfil_presidente")
+
+        # ===== Guardar documentos (dropzones) =====
+        elif action == "docs":
+            form = PresidentePerfilForm(instance=request.user)
+            before_empty = (not docs_obj.cedula_frente) and (not docs_obj.cedula_detras) and (not docs_obj.rif)
+
+            docs_form = PresidenteIdentificacionDocsForm(request.POST, request.FILES, instance=docs_obj)
+
+            if docs_form.is_valid():
+                obj = docs_form.save(commit=False)
+
+                # Mantener anterior si no llegó archivo nuevo (igual que cooperativa docs) [file:16]
+                if "cedula_frente" not in request.FILES:
+                    obj.cedula_frente = docs_obj.cedula_frente
+                if "cedula_detras" not in request.FILES:
+                    obj.cedula_detras = docs_obj.cedula_detras
+                if "rif" not in request.FILES:
+                    obj.rif = docs_obj.rif
+
+                obj.updated_by = request.user
+                obj.save()
+
+                uploaded = []
+                if "cedula_frente" in request.FILES: uploaded.append("Cédula (frente)")
+                if "cedula_detras" in request.FILES: uploaded.append("Cédula (detrás)")
+                if "rif" in request.FILES: uploaded.append("RIF")
+
+                if uploaded:
+                    accion = "Agregó documentos de identificación" if before_empty else "Actualizó documentos de identificación"
+                    registrar_movimiento(
+                        request,
+                        accion=accion,
+                        modulo="Perfiles",
+                        descripcion="; ".join(uploaded),
+                        usuario=request.user,
+                    )
+
+                messages.success(request, "Documentos actualizados correctamente.")
+                return redirect("taxis:mi_perfil_presidente")
+
+        else:
+            form = PresidentePerfilForm(instance=request.user)
+            docs_form = PresidenteIdentificacionDocsForm(instance=docs_obj)
+            messages.warning(request, "Acción no válida.")
+
+    else:
+        form = PresidentePerfilForm(instance=request.user)
+        docs_form = PresidenteIdentificacionDocsForm(instance=docs_obj)
+
+    movimientos = MovimientoAudit.objects.filter(usuario=request.user).order_by("-id")[:8]
+
+    return render(request, "taxis/mi_perfil_presidente.html", {
+        "form": form,
+        "docs_form": docs_form,
+        "docs_obj": docs_obj,
+        "movimientos": movimientos,
+    })
+
+
+@login_required
+@require_POST
+def cooperativa_docs_update(request):
+    if getattr(request.user, "role", "").upper() != "PRESIDENTE":
+        messages.error(request, "No tienes permisos para actualizar documentos.")
+        return redirect("taxis:panel_general")
+
+    docs = CooperativaLegalDocs.get_solo()
+
+    # --- estado ANTES (para saber si es primera vez o edición) ---
+    before_acta = bool(getattr(docs, "acta_constitutiva_estatutos", None))
+    before_asam = bool(getattr(docs, "acta_asamblea_extraordinaria", None))
+    was_empty = (not before_acta) and (not before_asam)
+
+    form = CooperativaLegalDocsForm(request.POST, request.FILES, instance=docs)
+
+    # permitir submit sin re-subir archivos
+    for f in ("acta_constitutiva_estatutos", "acta_asamblea_extraordinaria"):
+        if f in form.fields:
+            form.fields[f].required = False
+
+    if form.is_valid():
+        obj = form.save(commit=False)
+
+        # mantener anterior si no llegó uno nuevo
+        if "acta_constitutiva_estatutos" not in request.FILES:
+            obj.acta_constitutiva_estatutos = docs.acta_constitutiva_estatutos
+
+        if "acta_asamblea_extraordinaria" not in request.FILES:
+            obj.acta_asamblea_extraordinaria = docs.acta_asamblea_extraordinaria
+
+        if hasattr(obj, "updated_by"):
+            obj.updated_by = request.user
+
+        obj.save()
+
+        # --- AUDITORÍA: solo si hubo upload real ---
+        uploaded = []
+        if "acta_constitutiva_estatutos" in request.FILES:
+            uploaded.append("Acta Constitutiva y Estatutos")
+        if "acta_asamblea_extraordinaria" in request.FILES:
+            uploaded.append("Acta de Asamblea Extraordinaria")
+
+        if uploaded:
+            accion = "Agregó documentos legales de la cooperativa" if was_empty else "Actualizó documentos legales de la cooperativa"
+            # Lo enganchas a Perfiles para no crear módulo nuevo
+            registrar_movimiento(
+                request,
+                accion=accion,
+                modulo="perfiles",
+                descripcion="; ".join(uploaded),
+                usuario=request.user,
+            )
+
+        if not request.FILES:
+            messages.info(request, "No seleccionaste archivos nuevos; se mantuvieron los documentos actuales.")
+        else:
+            messages.success(request, "Documentos legales actualizados correctamente.")
+
+        return redirect("taxis:panel_general")
+
+    # errores -> edición
+    for field, errors in form.errors.items():
+        for error in errors:
+            if field == "__all__":
+                messages.error(request, str(error))
+            else:
+                label = form.fields.get(field).label if field in form.fields else field
+                messages.error(request, f"{label}: {error}")
+
+    return redirect(reverse("taxis:panel_general") + "?edit=1")

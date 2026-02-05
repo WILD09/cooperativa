@@ -1,0 +1,1199 @@
+{% extends "taxis/base_presidente.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Mi perfil{% endblock %}
+
+{% block content %}
+<style>
+  /* ===========================
+     Variables de tema
+     =========================== */
+  :root{
+    --coop-green-primary: #00b300;
+    --coop-green-hover: #009900;
+    --coop-green-light: #e6f7e6;
+
+    --input-border: #B6ECAD;
+    --input-bg: #ffffff;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+
+    --shadow-soft: rgba(0, 0, 0, 0.08);
+    --shadow-green: rgba(0, 179, 0, 0.18);
+    --focus-shadow: 0 0 0 5px rgba(0, 179, 0, 0.18);
+
+    --error-color: #ef4444;
+
+    /* Dropzones */
+    --dz-bg:#f8fafc;
+    --dz-border:#d1d5db;
+    --dz-hover:#f0fdf4;
+
+    /* Scrollbar (CLARO) -> aquí, no en body */
+    --sb-track: #f1f1f1;
+    --sb-thumb: #00b300;
+    --sb-thumb-hover: #009900;
+  }
+
+  body.dark-mode{
+    --coop-green-primary: #10b981;
+    --coop-green-hover: #059669;
+    --coop-green-light: rgba(16, 185, 129, 0.25);
+
+    --input-border: #2d3748;
+    --input-bg: #1a2639;
+    --card-bg: #0f1a2e;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+
+    --shadow-soft: rgba(0,0,0,.35);
+    --shadow-green: rgba(16,185,129,.22);
+    --focus-shadow: 0 0 0 5px rgba(16,185,129,.22);
+
+    --dz-bg:#111c33;
+    --dz-border:#374151;
+    --dz-hover:#0f2233;
+
+    /* Scrollbar (OSCURO) */
+    --sb-track: #1f2937;
+    --sb-thumb: #10b981;      /* mismo color del botón guardar en oscuro */
+    --sb-thumb-hover: #059669;
+  }
+
+  /* ============================================================
+     SCROLLBAR MODERNO (NO SE PISA ENTRE MODOS)
+     Claro: #00b300 / hover #009900
+     Oscuro: #10b981 / hover #059669
+     ============================================================ */
+
+  /* WebKit (Chrome/Edge/Safari): usa ::-webkit-scrollbar */
+  @supports selector(::-webkit-scrollbar){
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar{ width: 10px; height: 10px; }
+
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track{
+      background: var(--sb-track);
+      border-radius: 10px;
+      margin: 4px 0;
+    }
+
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb{
+      background: var(--sb-thumb);
+      border-radius: 10px;
+      min-height: 40px;
+    }
+
+    html::-webkit-scrollbar-thumb:hover,
+    body::-webkit-scrollbar-thumb:hover{
+      background: var(--sb-thumb-hover);
+    }
+
+    /* Scrollbars internos */
+    *::-webkit-scrollbar{ width: 10px; height: 10px; }
+    *::-webkit-scrollbar-track{
+      background: var(--sb-track);
+      border-radius: 10px;
+      margin: 4px 0;
+    }
+    *::-webkit-scrollbar-thumb{
+      background: var(--sb-thumb);
+      border-radius: 10px;
+      min-height: 40px;
+    }
+    *::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+  }
+
+  /* No-WebKit (Firefox): usa estándar, sin adelgazarse */
+  @supports not selector(::-webkit-scrollbar){
+    html{
+      scrollbar-width: auto; /* NO thin */
+      scrollbar-color: var(--sb-thumb) var(--sb-track);
+    }
+  }
+
+  /* ===========================
+     Layout base
+     =========================== */
+  .perfil-wrap{ max-width: 1200px; margin: 0 auto; }
+
+  .perfil-hero{
+    border-radius: 22px;
+    padding: 18px 18px;
+    background:
+      radial-gradient(900px 220px at 10% 0%, rgba(0,179,0,.12), transparent 60%),
+      radial-gradient(900px 220px at 90% 0%, rgba(16,185,129,.10), transparent 55%),
+      linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+    border: 2px solid rgba(0,0,0,.06);
+    box-shadow: 0 14px 40px var(--shadow-soft);
+  }
+  body.dark-mode .perfil-hero{
+    background:
+      radial-gradient(900px 220px at 10% 0%, rgba(16,185,129,.22), transparent 60%),
+      radial-gradient(900px 220px at 90% 0%, rgba(0,179,0,.12), transparent 55%),
+      linear-gradient(180deg, rgba(15,26,46,.94), rgba(15,26,46,.78));
+    border-color: rgba(16,185,129,.16);
+    box-shadow: 0 18px 55px var(--shadow-soft);
+  }
+
+  .perfil-title{
+    font-weight: 900;
+    letter-spacing: -.3px;
+    color: var(--coop-green-primary);
+    margin: 0;
+  }
+  .perfil-sub{
+    margin-top: 6px;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .perfil-grid{
+    display: grid;
+    grid-template-columns: 1.25fr .9fr;
+    gap: 1.25rem;
+  }
+
+  .perfil-card{
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 2px solid var(--input-border);
+    box-shadow: 0 12px 45px rgba(0,0,0,.06);
+  }
+  body.dark-mode .perfil-card{ box-shadow: none; }
+
+  .perfil-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: .75rem;
+    padding: 1.1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(0,179,0,.08), rgba(0,153,0,.06));
+    border-bottom: 2px solid rgba(0,0,0,.06);
+  }
+  body.dark-mode .perfil-card-header{
+    background: linear-gradient(135deg, rgba(16,185,129,.10), rgba(5,150,105,.06));
+    border-bottom-color: rgba(255,255,255,.06);
+  }
+
+  .perfil-card-title{
+    font-weight: 900;
+    margin: 0;
+    color: var(--text-main);
+    letter-spacing: .2px;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    padding:.38rem .7rem;
+    border-radius:999px;
+    background: rgba(0,179,0,.10);
+    color: var(--coop-green-primary);
+    border: 2px solid rgba(0,179,0,.18);
+    font-size: .82rem;
+    font-weight: 900;
+    white-space: nowrap;
+    max-width: 100%;
+    text-align:center;
+  }
+  body.dark-mode .pill{
+    background: rgba(16,185,129,.10);
+    border-color: rgba(16,185,129,.18);
+  }
+
+  .perfil-top{
+    display:flex;
+    align-items:center;
+    gap: 1rem;
+  }
+
+  .avatar-lg{
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: zoom-in;
+    border: 3px solid rgba(255,255,255,.85);
+    box-shadow: 0 14px 34px rgba(0,0,0,.14);
+    flex: 0 0 auto;
+  }
+  body.dark-mode .avatar-lg{
+    border-color: rgba(16,185,129,.20);
+    box-shadow: 0 18px 42px rgba(0,0,0,.45);
+  }
+
+  .perfil-name{
+    font-weight: 900;
+    font-size: 1.08rem;
+    color: var(--text-main);
+    margin: 0;
+  }
+  .mini-hint{
+    font-size: .86rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .form-group{ margin-bottom: 1.25rem; position: relative; }
+  .field-label{
+    display:block;
+    font-size: .9rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    margin-left: 12px;
+  }
+
+  .vsms-input{
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 2px solid var(--input-border);
+    background: var(--input-bg);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    transition: all .25s ease;
+    box-sizing: border-box;
+  }
+  .vsms-input:focus{
+    border-color: var(--coop-green-primary);
+    box-shadow: var(--focus-shadow);
+    transform: translateY(-1px);
+  }
+
+  select.vsms-input{
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300b300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    padding-right: 42px;
+    cursor: pointer;
+  }
+  body.dark-mode select.vsms-input{
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  }
+  body.dark-mode select.vsms-input option{ background-color: #0f1a2e; color: #fff; }
+
+  .invalid-text{
+    color: var(--error-color);
+    font-size: .82rem;
+    font-weight: 900;
+    margin-top: 6px;
+    margin-left: 14px;
+  }
+
+  .date-wrapper{ position: relative; }
+  .calendar-trigger{
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--coop-green-primary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 5;
+    transition: transform .2s ease;
+  }
+  .calendar-trigger:hover{ transform: translateY(-50%) scale(1.12); }
+
+  .native-picker{
+    position: absolute;
+    visibility: hidden;
+    width: 1px;
+    height: 1px;
+    left: 0;
+    bottom: 0;
+  }
+
+  /* ===========================
+     Sección documentos (dropzones)
+     =========================== */
+  .docs-box{
+    margin-top: 1.25rem;
+    border-radius: 20px;
+    border: 2px solid rgba(0,0,0,.06);
+    background: rgba(0,0,0,.01);
+    padding: 1rem;
+  }
+  body.dark-mode .docs-box{
+    border-color: rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+  }
+
+  .docs-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: .75rem;
+    flex-wrap:wrap;
+    margin-bottom: .85rem;
+  }
+  .docs-title{
+    margin:0;
+    font-weight: 900;
+    color: var(--coop-green-primary);
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .docs-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .doc-col{ min-width:0; }
+  .doc-label{
+    display:block;
+    font-size:.9rem;
+    font-weight:900;
+    color: var(--text-muted);
+    margin: 0 0 .55rem .75rem;
+  }
+
+  .dropzone-label{
+    border:2px dashed var(--dz-border);
+    background:var(--dz-bg);
+    border-radius:16px;
+    padding:1.15rem;
+    min-height:130px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
+    text-align:center;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition:all .2s ease;
+    width:100%;
+  }
+  .dropzone-label:hover{
+    border-color: var(--coop-green-primary);
+    background: var(--dz-hover);
+    transform: translateY(-2px);
+  }
+
+  .dropzone-icon{
+    font-size: 2.05rem;
+    color: var(--coop-green-primary);
+    opacity:.9;
+    pointer-events:none;
+  }
+  .dropzone-text{
+    color: var(--text-main);
+    font-weight: 900;
+    line-height: 1.15;
+    pointer-events:none;
+  }
+  .dropzone-sub{
+    font-size:.85rem;
+    color: var(--text-muted);
+    font-weight: 800;
+    pointer-events:none;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .dropzone-input{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    cursor:pointer;
+    z-index:10;
+  }
+
+  .doc-meta{
+    margin-top: .65rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.6rem;
+    flex-wrap:wrap;
+  }
+
+  .file-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
+    padding:.35rem .7rem;
+    border-radius:999px;
+    border:1px solid rgba(0,0,0,.12);
+    background:rgba(0,0,0,.03);
+    font-weight:900;
+    font-size:.8rem;
+    color: var(--text-main);
+    max-width:100%;
+    text-align:center;
+  }
+  body.dark-mode .file-pill{
+    border-color:rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+  }
+
+  .btn-doc{
+    border-radius:999px !important;
+    border: 2px solid var(--coop-green-primary) !important;
+    color: var(--coop-green-primary) !important;
+    background: transparent !important;
+    font-weight: 900 !important;
+
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    flex-wrap:wrap !important;
+    white-space:normal !important;
+    line-height:1.1 !important;
+    padding: .55rem .95rem !important;
+  }
+  .btn-doc:hover,
+  .btn-doc:focus{
+    background: var(--coop-green-primary) !important;
+    color: #fff !important;
+    box-shadow: 0 10px 20px var(--shadow-green);
+    transform: translateY(-1px);
+  }
+
+  /* ===========================
+     Acciones (botones)
+     =========================== */
+  .perfil-actions{
+    margin-top: 1rem;
+    display:flex;
+    justify-content:flex-end;
+    gap:.6rem;
+    padding-top: .5rem;
+  }
+
+  .btn-soft{
+    border-radius: 50px !important;
+    font-weight: 900 !important;
+    padding: .75rem 1.2rem !important;
+    transition: all .25s ease !important;
+    border: 2px solid rgba(0,0,0,.08) !important;
+
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    flex-wrap:wrap !important;
+    white-space:normal !important;
+    line-height:1.1 !important;
+  }
+  .btn-soft:hover{
+    transform: translateY(-2px);
+    border-color: var(--coop-green-primary) !important;
+    color: var(--coop-green-primary) !important;
+    background: rgba(0,179,0,.08) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.10);
+  }
+  body.dark-mode .btn-soft:hover{
+    background: rgba(16,185,129,.10) !important;
+    box-shadow: 0 14px 30px rgba(0,0,0,.40);
+  }
+
+  .btn-save{
+    border-radius: 50px !important;
+    font-weight: 900 !important;
+    padding: .75rem 1.2rem !important;
+    background: var(--coop-green-primary) !important;
+    border: none !important;
+    box-shadow: 0 6px 18px var(--shadow-green);
+    transition: all .25s ease !important;
+
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    flex-wrap:wrap !important;
+    white-space:normal !important;
+    line-height:1.1 !important;
+  }
+  .btn-save,
+  .btn-save:hover,
+  .btn-save:focus{ color: #fff !important; }
+  .btn-save i{ color: inherit !important; }
+  .btn-save:hover{
+    background: var(--coop-green-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px var(--shadow-green);
+  }
+
+  /* ===========================
+     Actividad
+     =========================== */
+  .activity-list{ display:flex; flex-direction:column; gap:.85rem; }
+  .activity-item{
+    border-radius: 18px;
+    padding: .95rem 1rem;
+    background: rgba(0,0,0,.02);
+    border: 2px solid rgba(0,0,0,.05);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  body.dark-mode .activity-item{
+    background: rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.07);
+  }
+  .activity-item:hover{
+    transform: translateY(-2px);
+    border-color: rgba(0,179,0,.22);
+    box-shadow: 0 10px 22px rgba(0,0,0,.10);
+  }
+  body.dark-mode .activity-item:hover{
+    border-color: rgba(16,185,129,.20);
+    box-shadow: 0 14px 30px rgba(0,0,0,.40);
+  }
+
+  .activity-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.75rem;
+  }
+  .activity-left{
+    display:flex;
+    align-items:flex-start;
+    gap:.75rem;
+    min-width: 0;
+  }
+  .act-icon{
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--coop-green-light);
+    color: var(--coop-green-primary);
+    flex: 0 0 auto;
+  }
+  .act-title{
+    font-weight: 900;
+    margin: 0;
+    color: var(--text-main);
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .act-meta{
+    margin-top: .25rem;
+    font-size: .86rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    word-break: break-word;
+  }
+
+  /* ===========================
+     Responsive
+     =========================== */
+  @media (max-width: 992px){
+    .perfil-grid{ grid-template-columns: 1fr; }
+    .avatar-lg{ width: 96px; height: 96px; }
+    .perfil-card-header{ padding: 1rem 1rem; }
+    .docs-grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px){
+    .container-fluid{ padding-left: .75rem !important; padding-right: .75rem !important; }
+    .perfil-hero{ padding: 14px; border-radius: 18px; }
+    .perfil-top{ align-items:flex-start; }
+    .pill{ font-size: .78rem; }
+    .vsms-input{ padding: 11px 18px; border-radius: 20px; font-size: .92rem; }
+    .perfil-actions{ flex-direction: column; }
+    .perfil-actions .btn{ width: 100%; }
+    .docs-grid{ grid-template-columns: 1fr; }
+    .doc-meta{ justify-content: stretch; }
+    .doc-meta .btn{ width: 100%; }
+  }
+
+  @media (max-width: 480px){
+    .container-fluid{ padding-left: .55rem !important; padding-right: .55rem !important; }
+    .avatar-lg{ width: 86px; height: 86px; }
+    .perfil-name{ font-size: 1rem; }
+    .mini-hint{ font-size: .82rem; }
+    .vsms-input{ padding: 10px 16px; border-radius: 18px; font-size: .88rem; border-width: 2px; }
+    .calendar-trigger{ right: 13px; font-size: 1.1rem; }
+    .activity-item{ padding: .85rem .9rem; border-radius: 16px; }
+  }
+
+  @media (max-width: 420px){
+    .perfil-card-header{
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: .55rem;
+    }
+    .pill{
+      white-space: normal;
+      max-width: 100%;
+      line-height: 1.1;
+    }
+    .perfil-top{
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .mini-hint{ text-align: center; }
+    .perfil-top .mt-3{ justify-content: center; }
+    .perfil-top .mt-3 .pill{ max-width: 100%; }
+
+    .activity-top{
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+    .activity-left{ width: 100%; }
+    .activity-top > .pill{ align-self: flex-start; }
+    .act-title{ word-break: normal; overflow-wrap: anywhere; }
+    .act-meta{ word-break: normal; overflow-wrap: anywhere; }
+    .act-icon{ width: 34px; height: 34px; border-radius: 12px; }
+  }
+
+  @media (max-width: 380px){
+    .perfil-hero{ padding: 12px; border-radius: 16px; }
+    .perfil-card{ border-radius: 18px; }
+    .avatar-lg{ width: 78px; height: 78px; }
+    .pill{
+      padding: .3rem .6rem;
+      border-width: 1px;
+      font-size: .75rem;
+    }
+    .vsms-input{
+      padding: 9px 14px;
+      border-radius: 16px;
+      font-size: .84rem;
+      border-width: 1px;
+    }
+    .field-label{ margin-left: 8px; font-size: .82rem; }
+    .act-title{ font-size: .95rem; }
+    .act-meta{ font-size: .8rem; }
+    .docs-box{ padding: .85rem; border-radius: 16px; }
+    .dropzone-label{ min-height: 118px; padding: 1rem; border-radius: 14px; }
+    .dropzone-icon{ font-size: 1.9rem; }
+  }
+
+  @media (max-width: 360px){
+    .container-fluid{ padding-left: .45rem !important; padding-right: .45rem !important; }
+    .perfil-card-header{ padding: .9rem .9rem; }
+    .activity-item{ padding: .75rem .75rem; border-radius: 14px; }
+  }
+
+  @media (max-width: 340px){
+    .container-fluid{ padding-left: .4rem !important; padding-right: .4rem !important; }
+    .perfil-hero{ padding: 10px; }
+    .perfil-name{ font-size: .96rem; }
+    .mini-hint{ font-size: .78rem; }
+    .pill{ font-size: .72rem; }
+    .vsms-input{ padding: 8px 12px; border-radius: 14px; font-size: .82rem; }
+    .calendar-trigger{ right: 10px; font-size: 1rem; }
+  }
+
+  @media (max-width: 320px){
+    .perfil-card{ border-radius: 16px; }
+    .avatar-lg{ width: 70px; height: 70px; }
+    .act-icon{ width: 32px; height: 32px; border-radius: 11px; }
+    .act-title{ font-size: .92rem; }
+    .act-meta{ font-size: .78rem; }
+  }
+
+  /* ===========================
+     ZOOM AVATAR (overlay propio)
+     =========================== */
+  .zoom-modal{
+    display:none;
+    position:fixed;
+    z-index:10550;
+    left:0; top:0;
+    width:100%;
+    height:100%;
+    background-color:rgba(0,0,0,0.92);
+    overflow:auto;
+    align-items:center;
+    justify-content:center;
+  }
+  .zoom-modal.show{ display:flex; }
+  .zoom-modal-content{
+    max-width:90vw;
+    max-height:90vh;
+    object-fit:contain;
+    box-shadow:0 18px 40px rgba(0,0,0,0.7);
+    border-radius:16px;
+  }
+  .zoom-close{
+    position:absolute;
+    right:25px;
+    top:15px;
+    color:#fff;
+    font-size:38px;
+    font-weight:bold;
+    cursor:pointer;
+    z-index:10600;
+  }
+  .zoom-close:hover{ transform:scale(1.1); }
+</style>
+
+
+<div class="perfil-wrap container-fluid px-4 py-3">
+  <div class="perfil-hero mb-4">
+    <div class="d-flex align-items-start justify-content-between flex-wrap" style="gap: .75rem;">
+      <div>
+        <h1 class="h4 perfil-title">Mi perfil</h1>
+        <div class="perfil-sub">Edita tus datos personales. El correo y el rol son de solo lectura.</div>
+      </div>
+      <span class="pill"><i class="fas fa-shield-alt"></i>Seguridad activa</span>
+    </div>
+  </div>
+
+  <div class="perfil-grid">
+    <!-- IZQ: PERFIL -->
+    <div class="perfil-card">
+      <div class="perfil-card-header">
+        <h6 class="perfil-card-title">Datos del presidente</h6>
+        <span class="pill"><i class="fas fa-user-check"></i>Cuenta verificada</span>
+      </div>
+
+      <div class="p-4">
+        <div class="perfil-top">
+          <div>
+            {% if request.user.avatar %}
+              <img class="avatar-lg"
+                   src="{{ request.user.avatar.url }}"
+                   alt="Foto de perfil"
+                   onclick="openAvatarZoom('{{ request.user.avatar.url }}')">
+            {% else %}
+              <img class="avatar-lg"
+                   src="{% static 'img/undraw_profile.svg' %}"
+                   alt="Foto de perfil"
+                   onclick="openAvatarZoom('{% static 'img/undraw_profile.svg' %}')">
+            {% endif %}
+          </div>
+
+          <div class="flex-grow-1" style="min-width:0;">
+            <p class="perfil-name">
+              {{ request.user.get_full_name|default:request.user.username }}
+            </p>
+
+            <div class="mini-hint">
+              <i class="fas fa-camera mr-1"></i>
+              Para actualizar la foto usa el ícono de cámara del avatar (sidebar).
+            </div>
+
+            <div class="mt-3 d-flex flex-wrap" style="gap:.5rem;">
+              <span class="pill"><i class="fas fa-user"></i>@{{ request.user.username }}</span>
+              <span class="pill"><i class="fas fa-id-badge"></i>{{ request.user.role|upper }}</span>
+              <span class="pill"><i class="fas fa-envelope"></i>{{ request.user.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <hr style="opacity:.12;">
+
+        {% if form %}
+          <!-- FORM PERFIL -->
+          <form method="post" novalidate id="perfilForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="perfil">
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="field-label">Nombres</label>
+                  {% render_field form.first_name class="vsms-input" placeholder="Ej: Juan Carlos" autocomplete="off" %}
+                  {% if form.first_name.errors %}
+                    <div class="invalid-text">{{ form.first_name.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="field-label">Apellidos</label>
+                  {% render_field form.last_name class="vsms-input" placeholder="Ej: Pérez Suárez" autocomplete="off" %}
+                  {% if form.last_name.errors %}
+                    <div class="invalid-text">{{ form.last_name.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="field-label">Código país</label>
+                  {% render_field form.phone_country class="vsms-input" placeholder="+58" autocomplete="off" %}
+                  {% if form.phone_country.errors %}
+                    <div class="invalid-text">{{ form.phone_country.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label class="field-label">Teléfono</label>
+                  {% render_field form.phone_number class="vsms-input num-mask" placeholder="04166444886" inputmode="numeric" autocomplete="off" %}
+                  {% if form.phone_number.errors %}
+                    <div class="invalid-text">{{ form.phone_number.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="field-label">Fecha de nacimiento</label>
+
+                  <div class="date-wrapper">
+                    {% render_field form.fecha_nacimiento class="vsms-input date-mask" id="fechaNacInput" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" inputmode="numeric" oninput="applyDateMask(this)" onkeydown="blockNonNumeric(event)" %}
+                    <input type="date" id="nativeDatePickerPerfil" class="native-picker" tabindex="-1">
+                    <i class="fas fa-calendar-alt calendar-trigger" onclick="openCalendar('nativeDatePickerPerfil')"></i>
+                  </div>
+
+                  {% if form.fecha_nacimiento.errors %}
+                    <div class="invalid-text">{{ form.fecha_nacimiento.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="field-label">Sexo</label>
+                  {% render_field form.sexo class="vsms-input" %}
+                  {% if form.sexo.errors %}
+                    <div class="invalid-text">{{ form.sexo.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger mt-2 mb-0" style="border-radius: 16px;">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <div class="perfil-actions">
+              <a class="btn btn-light btn-soft" href="{% url 'taxis:mi_perfil_presidente' %}">
+                <i class="fas fa-undo mr-2"></i>Reiniciar
+              </a>
+              <button type="submit" class="btn btn-save">
+                <i class="fas fa-save mr-2"></i>Guardar cambios
+              </button>
+            </div>
+          </form>
+
+          <!-- DOCUMENTOS (Dropzones) -->
+          <div class="docs-box">
+            <div class="docs-header">
+              <h6 class="docs-title"><i class="fas fa-id-card"></i>Documentos de identificación</h6>
+              <span class="pill"><i class="fas fa-file-upload"></i>PDF o imagen</span>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate id="docsForm">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="docs">
+
+              <div class="docs-grid">
+                <!-- CÉDULA FRENTE -->
+                <div class="doc-col">
+                  <div class="doc-label">Cédula por delante</div>
+
+                  <label class="dropzone-label">
+                    <input class="dropzone-input" type="file" name="cedula_frente" accept="application/pdf,image/*"
+                           onchange="dzName(this,'dz_frente_name')">
+                    <i class="far fa-id-card dropzone-icon"></i>
+                    <div class="dropzone-text">Cargar / Reemplazar</div>
+                    <div class="dropzone-sub" id="dz_frente_name">
+                      {% if docs_obj and docs_obj.cedula_frente %}Cargado{% else %}Solo PDF o imagen{% endif %}
+                    </div>
+                  </label>
+
+                  <div class="doc-meta">
+                    {% if docs_obj and docs_obj.cedula_frente %}
+                      <span class="file-pill"><i class="fas fa-check-circle"></i>Cargado</span>
+                      <a class="btn btn-outline-success btn-doc" target="_blank" href="{{ docs_obj.cedula_frente.url }}">
+                        <i class="far fa-eye mr-1"></i>Ver
+                      </a>
+                    {% else %}
+                      <span class="file-pill"><i class="fas fa-info-circle"></i>Sin archivo</span>
+                    {% endif %}
+                  </div>
+
+                  {% if docs_form and docs_form.cedula_frente.errors %}
+                    <div class="invalid-text">{{ docs_form.cedula_frente.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+
+                <!-- CÉDULA DETRÁS -->
+                <div class="doc-col">
+                  <div class="doc-label">Cédula por detrás</div>
+
+                  <label class="dropzone-label">
+                    <input class="dropzone-input" type="file" name="cedula_detras" accept="application/pdf,image/*"
+                           onchange="dzName(this,'dz_detras_name')">
+                    <i class="far fa-id-card dropzone-icon"></i>
+                    <div class="dropzone-text">Cargar / Reemplazar</div>
+                    <div class="dropzone-sub" id="dz_detras_name">
+                      {% if docs_obj and docs_obj.cedula_detras %}Cargado{% else %}Solo PDF o imagen{% endif %}
+                    </div>
+                  </label>
+
+                  <div class="doc-meta">
+                    {% if docs_obj and docs_obj.cedula_detras %}
+                      <span class="file-pill"><i class="fas fa-check-circle"></i>Cargado</span>
+                      <a class="btn btn-outline-success btn-doc" target="_blank" href="{{ docs_obj.cedula_detras.url }}">
+                        <i class="far fa-eye mr-1"></i>Ver
+                      </a>
+                    {% else %}
+                      <span class="file-pill"><i class="fas fa-info-circle"></i>Sin archivo</span>
+                    {% endif %}
+                  </div>
+
+                  {% if docs_form and docs_form.cedula_detras.errors %}
+                    <div class="invalid-text">{{ docs_form.cedula_detras.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+
+                <!-- RIF -->
+                <div class="doc-col">
+                  <div class="doc-label">RIF</div>
+
+                  <label class="dropzone-label">
+                    <input class="dropzone-input" type="file" name="rif" accept="application/pdf,image/*"
+                           onchange="dzName(this,'dz_rif_name')">
+                    <i class="far fa-file-alt dropzone-icon"></i>
+                    <div class="dropzone-text">Cargar / Reemplazar</div>
+                    <div class="dropzone-sub" id="dz_rif_name">
+                      {% if docs_obj and docs_obj.rif %}Cargado{% else %}Solo PDF o imagen{% endif %}
+                    </div>
+                  </label>
+
+                  <div class="doc-meta">
+                    {% if docs_obj and docs_obj.rif %}
+                      <span class="file-pill"><i class="fas fa-check-circle"></i>Cargado</span>
+                      <a class="btn btn-outline-success btn-doc" target="_blank" href="{{ docs_obj.rif.url }}">
+                        <i class="far fa-eye mr-1"></i>Ver
+                      </a>
+                    {% else %}
+                      <span class="file-pill"><i class="fas fa-info-circle"></i>Sin archivo</span>
+                    {% endif %}
+                  </div>
+
+                  {% if docs_form and docs_form.rif.errors %}
+                    <div class="invalid-text">{{ docs_form.rif.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if docs_form and docs_form.non_field_errors %}
+                <div class="alert alert-danger mt-3 mb-0" style="border-radius:16px;">
+                  {{ docs_form.non_field_errors }}
+                </div>
+              {% endif %}
+
+              <div class="perfil-actions">
+                <button type="submit" class="btn btn-save">
+                  <i class="fas fa-save mr-2"></i>Guardar documentos
+                </button>
+              </div>
+            </form>
+          </div>
+        {% else %}
+          <div class="alert alert-warning mb-0" style="border-radius: 16px;">
+            Falta pasar el <strong>form</strong> desde la vista.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- DER: ACTIVIDAD -->
+    <div class="perfil-card">
+      <div class="perfil-card-header">
+        <h6 class="perfil-card-title">Mi actividad reciente</h6>
+        <span class="pill"><i class="fas fa-history"></i>Últimos movimientos</span>
+      </div>
+
+      <div class="p-4">
+        {% if movimientos %}
+          <div class="activity-list">
+            {% for m in movimientos %}
+              <div class="activity-item">
+                <div class="activity-top">
+                  <div class="activity-left">
+                    <div class="act-icon">
+                      {% if m.modulo|lower == "finanzas" %}
+                        <i class="fas fa-dollar-sign"></i>
+                      {% elif m.modulo|lower == "vehiculos" %}
+                        <i class="fas fa-car"></i>
+                      {% elif m.modulo|lower == "afiliados" %}
+                        <i class="fas fa-users"></i>
+                      {% elif m.modulo|lower == "autenticacion" %}
+                        <i class="fas fa-key"></i>
+                      {% elif m.modulo|lower == "auditoria" %}
+                        <i class="fas fa-clipboard-check"></i>
+                      {% else %}
+                        <i class="fas fa-bolt"></i>
+                      {% endif %}
+                    </div>
+
+                    <div style="min-width:0;">
+                      <div class="act-title">{{ m.accion|default:"Movimiento" }}</div>
+                      <div class="act-meta">
+                        {% if m.fecha %}{{ m.fecha|date:"d/m/Y H:i" }}{% else %}—{% endif %}
+                        {% if m.descripcion %}<div class="mt-1">{{ m.descripcion }}</div>{% endif %}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span class="pill">{{ m.modulo|default:"Sistema" }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="perfil-sub mb-0">Aún no hay movimientos para mostrar.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY ZOOM AVATAR -->
+<div id="avatarZoomOverlay" class="zoom-modal" onclick="closeAvatarZoom()">
+  <span class="zoom-close" onclick="closeAvatarZoom(event)">&times;</span>
+  <img id="avatarZoomImg" class="zoom-modal-content" alt="Foto ampliada">
+</div>
+
+<script>
+  // ===== Zoom avatar con overlay propio =====
+  function openAvatarZoom(src){
+    const overlay = document.getElementById('avatarZoomOverlay');
+    const img = document.getElementById('avatarZoomImg');
+    if (!overlay || !img) return;
+    img.src = src || '';
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAvatarZoom(e){
+    if (e && e.stopPropagation) e.stopPropagation();
+    const overlay = document.getElementById('avatarZoomOverlay');
+    const img = document.getElementById('avatarZoomImg');
+    if (!overlay || !img) return;
+    overlay.classList.remove('show');
+    img.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){ closeAvatarZoom(); }
+  });
+
+  // ===== Dropzones: mostrar nombre =====
+  function dzName(input, targetId){
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const f = input && input.files && input.files[0];
+    el.textContent = f ? ("Seleccionado: " + f.name) : "Solo PDF o imagen";
+  }
+
+  // ===== Bloquear letras en fecha =====
+  function blockNonNumeric(e){
+    const allowedKeys = ['Backspace','Tab','ArrowLeft','ArrowRight','Delete','Home','End'];
+    if (allowedKeys.includes(e.key)) return;
+    if (e.key >= '0' && e.key <= '9') return;
+    e.preventDefault();
+  }
+
+  function applyDateMask(el){
+    let v = (el.value || '').replace(/\D/g, '');
+    if (v.length > 8) v = v.substring(0, 8);
+
+    if (v.length >= 5) el.value = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4,8);
+    else if (v.length >= 3) el.value = v.substring(0,2) + '/' + v.substring(2,4);
+    else el.value = v;
+  }
+
+  function syncNativeToMasked(nativeId, maskedId){
+    const native = document.getElementById(nativeId);
+    const masked = document.getElementById(maskedId);
+    if (!native || !masked) return;
+
+    native.addEventListener('input', function(){
+      const parts = (this.value || '').split('-');
+      if (parts.length === 3){
+        masked.value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        masked.classList.remove('is-invalid');
+      }
+    });
+  }
+
+  function syncMaskedToNative(maskedId, nativeId){
+    const masked = document.getElementById(maskedId);
+    const native = document.getElementById(nativeId);
+    if (!native || !masked) return;
+
+    function toISO(v){
+      const s = (v || '').trim();
+      if (s.length !== 10) return '';
+      const p = s.split('/');
+      if (p.length !== 3) return '';
+      const dd = p[0], mm = p[1], yyyy = p[2];
+      if (yyyy.length !== 4) return '';
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    const isoInicial = toISO(masked.value);
+    if (isoInicial) native.value = isoInicial;
+
+    masked.addEventListener('blur', function(){
+      const iso = toISO(masked.value);
+      if (iso) native.value = iso;
+    });
+  }
+
+  function openCalendar(id){
+    try{ document.getElementById(id).showPicker(); }
+    catch(e){ document.getElementById(id).click(); }
+  }
+
+  function applyNumMask(el){
+    el.value = (el.value || '').replace(/\D/g, '');
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const el = document.getElementById('fechaNacInput');
+    if (el){
+      applyDateMask(el);
+      el.addEventListener('input', function(){ applyDateMask(el); });
+      el.addEventListener('keydown', blockNonNumeric);
+    }
+
+    document.querySelectorAll('.date-mask').forEach(function(x){
+      if (x.id === 'fechaNacInput') return;
+      x.addEventListener('input', function(){ applyDateMask(x); });
+      x.addEventListener('keydown', blockNonNumeric);
+    });
+
+    syncNativeToMasked('nativeDatePickerPerfil', 'fechaNacInput');
+    syncMaskedToNative('fechaNacInput', 'nativeDatePickerPerfil');
+
+    document.querySelectorAll('.num-mask').forEach(function(x){
+      x.addEventListener('input', function(){ applyNumMask(x); });
+    });
+  });
+</script>
+{% endblock %}

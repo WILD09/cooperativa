@@ -8,13 +8,13 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import PendingPresidentRegistration
 from django.contrib.auth.hashers import make_password
-import re
+import re, os
 
 
 from .models import (
     Conductor, Vehiculo, CustomUser, UbicacionGeografica, Pago, PagoMensual,
     PendingPresidentRegistration,
-    MUNICIPIOS_CHOICES, PARROQUIAS_CHOICES, CODIGOS_POSTALES_CHOICES,
+    MUNICIPIOS_CHOICES, PARROQUIAS_CHOICES, CODIGOS_POSTALES_CHOICES, CooperativaLegalDocs, PresidenteIdentificacionDocs,
     ESTADO_CIVIL_CHOICES, SEXO_CHOICES, CEDULA_PREFIJO_CHOICES, RIF_PREFIJO_CHOICES
 )
 
@@ -719,3 +719,94 @@ class CustomPasswordResetForm(PasswordResetForm):
         if not User.objects.filter(email=email, is_active=True).exists():
             raise forms.ValidationError("No existe una cuenta activa asociada a este correo.")
         return email
+
+
+
+
+class PresidentePerfilForm(forms.ModelForm):
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        input_formats=["%d/%m/%Y", "%Y-%m-%d"],
+        widget=forms.DateInput(format="%d/%m/%Y", attrs={"type": "text"}),
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ("first_name", "last_name", "phone_country", "phone_number", "fecha_nacimiento", "sexo")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # En GET: deja el valor listo como dd/mm/aaaa para que aparezca bien en el input.
+        if (not self.is_bound) and self.instance and self.instance.fecha_nacimiento:
+            self.initial["fecha_nacimiento"] = self.instance.fecha_nacimiento.strftime("%d/%m/%Y")
+
+        self.fields["phone_country"].widget.attrs.setdefault("placeholder", "+58")
+        self.fields["phone_number"].widget.attrs.setdefault("placeholder", "0416...")
+
+        # (Opcional) Clase base si alguna vez lo renderizas directo sin widget_tweaks
+        for name, field in self.fields.items():
+            css = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = (css + " form-control").strip()
+
+
+class CooperativaLegalDocsForm(forms.ModelForm):
+    class Meta:
+        model = CooperativaLegalDocs
+        fields = ["acta_constitutiva_estatutos", "acta_asamblea_extraordinaria"]
+        widgets = {
+            "acta_constitutiva_estatutos": forms.FileInput(attrs={
+                "accept": "application/pdf",
+                "class": "dropzone-input",
+            }),
+            "acta_asamblea_extraordinaria": forms.FileInput(attrs={
+                "accept": "application/pdf",
+                "class": "dropzone-input",
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # ✅ Fuerza opcional SIEMPRE (evita “no me deja guardar si está vacío”)
+        for f in self.Meta.fields:
+            self.fields[f].required = False
+
+    def clean(self):
+        cleaned = super().clean()
+        for field in self.Meta.fields:
+            f = cleaned.get(field)
+            if f and not f.name.lower().endswith(".pdf"):
+                self.add_error(field, "Solo se permite PDF.")
+        return cleaned
+    
+ALLOWED_EXTS = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+
+class PresidenteIdentificacionDocsForm(forms.ModelForm):
+    class Meta:
+        model = PresidenteIdentificacionDocs
+        fields = ("cedula_frente", "cedula_detras", "rif")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in self.fields.values():
+            f.required = False
+
+    def _validate_file(self, f):
+        if not f:
+            return f
+        ext = os.path.splitext(f.name.lower())[1]
+        if ext not in ALLOWED_EXTS:
+            raise forms.ValidationError("Formato no permitido. Usa PDF o imagen (JPG/PNG/WEBP).")
+        # opcional: límite (ej 6MB)
+        if getattr(f, "size", 0) > 6 * 1024 * 1024:
+            raise forms.ValidationError("Archivo muy pesado. Máximo 6MB.")
+        return f
+
+    def clean_cedula_frente(self):
+        return self._validate_file(self.cleaned_data.get("cedula_frente"))
+
+    def clean_cedula_detras(self):
+        return self._validate_file(self.cleaned_data.get("cedula_detras"))
+
+    def clean_rif(self):
+        return self._validate_file(self.cleaned_data.get("rif"))

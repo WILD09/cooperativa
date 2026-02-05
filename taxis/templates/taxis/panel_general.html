@@ -1,237 +1,451 @@
 {% extends 'taxis/base_presidente.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Panel General - Cooperativa{% endblock %}
 
 {% block content %}
 <style>
-    :root {
-        --card-bg: #ffffff;
-        --text-color: #111827;
-        --border-color: #00b300;
-        --shadow-hover: 0 10px 25px rgba(0, 179, 0, 0.2);
+    :root{
+        --card-bg:#ffffff;
+        --text-color:#111827;
+        --muted:#6b7280;
+        --border-color:#00b300;
+        --shadow-hover:0 10px 25px rgba(0,179,0,.20);
+
+        --dz-bg:#f8fafc;
+        --dz-border:#d1d5db;
+        --dz-hover:#f0fdf4;
+    }
+    body.dark-mode{
+        --card-bg:#0b1220;
+        --text-color:#e2e8f0;
+        --muted:#9ca3af;
+        --border-color:#10b981;
+
+        --dz-bg:#111c33;
+        --dz-border:#374151;
+        --dz-hover:#0f2233;
     }
 
-    body.dark-mode {
-        --card-bg: #0b1220;
-        --text-color: #e2e8f0;
-        --border-color: #10b981;
+    ✅ SCROLLBAR MODERNO (NO SE PISA ENTRE MODOS)
+       - /* ============================================================
+       Claro: #00b300 / hover #009900
+       - Oscuro: #10b981 / hover #059669
+       ============================================================ */
+
+    body{
+        --sb-track: #f1f1f1;
+        --sb-thumb: #00b300;
+        --sb-thumb-hover: #009900;
+    }
+    body.dark-mode{
+        --sb-track: #1f2937;
+        --sb-thumb: #10b981;
+        --sb-thumb-hover: #059669;
     }
 
-    /* DARK MODE OVERRIDES */
-    body.dark-mode .tarjeta-resumen,
-    body.dark-mode .info-card,
-    body.dark-mode .modal-content,
-    body.dark-mode .modal-body {
-        background-color: var(--card-bg) !important;
+    ::-webkit-scrollbar{ width:10px; height:10px; }
+    ::-webkit-scrollbar-track{
+        background: var(--sb-track);
+        border-radius:10px;
+        margin:4px 0;
+    }
+    ::-webkit-scrollbar-thumb{
+        background: var(--sb-thumb);
+        border-radius:10px;
+        min-height:40px;
+    }
+    ::-webkit-scrollbar-thumb:hover{
+        background: var(--sb-thumb-hover);
+    }
+
+    *::-webkit-scrollbar{ width:10px; height:10px; }
+    *::-webkit-scrollbar-track{
+        background: var(--sb-track);
+        border-radius:10px;
+        margin:4px 0;
+    }
+    *::-webkit-scrollbar-thumb{
+        background: var(--sb-thumb);
+        border-radius:10px;
+        min-height:40px;
+    }
+    *::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+
+    html{
+        scrollbar-width: thin;
+        scrollbar-color: var(--sb-thumb) var(--sb-track);
+    }
+    body.dark-mode html{
+        scrollbar-color: var(--sb-thumb) var(--sb-track);
+    }
+
+    /* Cards top */
+    .tarjetas-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:1.5rem;
+        margin-bottom:2rem;
+        min-height:200px;
+    }
+    .tarjeta-resumen{
+        background:var(--card-bg);
+        border:2px solid var(--border-color);
+        border-radius:15px;
+        padding:2rem 1rem;
+        text-align:center;
+        text-decoration:none !important;
+        color:var(--text-color);
+        transition:all .3s ease;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        min-height:180px;
+    }
+    .tarjeta-resumen:hover{
+        transform:translateY(-5px);
+        box-shadow:var(--shadow-hover);
+        color:var(--text-color);
+    }
+
+    button.tarjeta-resumen{
+        width:100%;
+        cursor:pointer;
+        appearance:none;
+        -webkit-appearance:none;
+        background:var(--card-bg) !important;
+        border:2px solid var(--border-color) !important;
+        font:inherit;
+        color:var(--text-color);
+        outline:none;
+    }
+    button.tarjeta-resumen:focus{ outline:none; }
+
+    .icon-circle{
+        width:70px;height:70px;
+        background:var(--border-color);
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:1rem;
+    }
+    .icon-circle i{ font-size:2rem; color:#fff; }
+
+    .tarjeta-resumen h2{
+        font-size:2.2rem;
+        margin:.5rem 0;
+        font-weight:800;
+        line-height:1.2;
+    }
+    .tarjeta-resumen h6{
+        font-size:.95rem;
+        font-weight:600;
+        margin:0;
+        text-transform:uppercase;
+        letter-spacing:.5px;
+    }
+
+    .info-card{
+        background:var(--card-bg);
+        border:2px solid var(--border-color);
+        border-radius:20px;
+        padding:2rem;
+    }
+    .info-card strong{ color:var(--border-color); }
+    .info-card a{
+        word-break:break-word;
+        overflow-wrap:break-word;
+        display:inline-block;
+        max-width:100%;
+    }
+
+    /* Dropzones */
+    .legal-box{ margin-top:1.25rem; }
+    .legal-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:1rem;
+        flex-wrap:wrap;
+        margin-bottom:1rem;
+    }
+    .legal-title{
+        margin:0;
+        font-weight:900;
+        color:var(--border-color);
+        display:flex;
+        align-items:center;
+        gap:.5rem;
+    }
+    .btn-legal{
+        border-radius:999px;
+        font-weight:800;
+        padding:.55rem 1rem;
+        border:2px solid var(--border-color);
+        background:transparent;
+        color:var(--border-color);
+        text-decoration:none !important;
+        transition:all .2s ease;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:.5rem;
+        white-space:nowrap;
+        text-align:center; /* ✅ por si se parte en ultra small */
+    }
+    .btn-legal:hover{
+        background:var(--border-color);
+        color:#fff !important;
+        transform:translateY(-1px);
+        box-shadow:0 10px 20px rgba(0,179,0,.15);
+    }
+    body.dark-mode .btn-legal:hover{ box-shadow:0 10px 20px rgba(16,185,129,.15); }
+
+    .dropzone-label{
+        border:2px dashed var(--dz-border);
+        background:var(--dz-bg);
+        border-radius:16px;
+        padding:1.25rem;
+        min-height:130px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:.4rem;
+        text-align:center;
+        cursor:pointer;
+        position:relative;
+        overflow:hidden;
+        transition:all .2s ease;
+        width:100%;
+    }
+    .dropzone-label:hover{
+        border-color:var(--border-color);
+        background:var(--dz-hover);
+        transform:translateY(-2px);
+    }
+    .dropzone-icon{
+        font-size:2.1rem;
+        color:var(--border-color);
+        opacity:.9;
+        pointer-events:none;
+    }
+    .dropzone-text{
+        color:var(--text-color);
+        font-weight:800;
+        line-height:1.2;
+        pointer-events:none;
+    }
+    .dropzone-sub{
+        font-size:.85rem;
+        color:var(--muted);
+        font-weight:600;
+        pointer-events:none;
+    }
+
+    .dropzone-input{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        opacity:0;
+        cursor:pointer;
+        z-index:10;
+    }
+
+    .file-pill{
+        display:inline-flex;
+        align-items:center;
+        gap:.4rem;
+        padding:.35rem .7rem;
+        border-radius:999px;
+        border:1px solid rgba(0,0,0,.12);
+        background:rgba(0,0,0,.03);
+        font-weight:800;
+        font-size:.8rem;
+        color:var(--text-color);
+        max-width:100%;
+    }
+    body.dark-mode .file-pill{
+        border-color:rgba(255,255,255,.14);
+        background:rgba(255,255,255,.06);
+    }
+
+    /* Botones modernos (Volver / Guardar) */
+    .btn-coop{
+        border:none;
+        border-radius:999px;
+        font-weight:900;
+        padding:12px 22px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        text-decoration:none !important;
+        transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        line-height:1.1;
+        text-align:center;     /* ✅ FIX: centra texto cuando se parte */
+        flex-wrap:wrap;        /* ✅ permite wrap sin “desalinear” */
+        white-space:normal;    /* ✅ permite 2 líneas centradas */
+    }
+    .btn-coop:active{ transform:translateY(-1px) scale(.99); }
+
+    .btn-coop-back{
+        background:#6b7280;
+        color:#fff !important;
+        box-shadow:0 6px 16px rgba(107,114,128,.25);
+    }
+    .btn-coop-back:hover{
+        transform:translateY(-3px);
+        box-shadow:0 10px 24px rgba(107,114,128,.35);
+        filter:brightness(1.02);
+        color:#fff !important;
+    }
+
+    .btn-coop-save{
+        background:linear-gradient(135deg, var(--border-color) 0%, #007700 100%);
+        color:#fff !important;
+        box-shadow:0 8px 20px rgba(0,179,0,.25);
+    }
+    body.dark-mode .btn-coop-save{
+        background:linear-gradient(135deg, var(--border-color) 0%, #059669 100%);
+        box-shadow:0 10px 26px rgba(16,185,129,.25);
+    }
+    .btn-coop-save:hover{
+        transform:translateY(-3px);
+        box-shadow:0 14px 34px rgba(0,179,0,.35);
+        filter:brightness(1.03);
+        color:#fff !important;
+    }
+
+    /* Modal alertas tweaks */
+    .badge-name-alerta{
+        background:var(--border-color);
+        color:#fff;
+        border-radius:8px;
+        transition:background .3s ease;
+    }
+    body.dark-mode .badge-name-alerta{ background:#14b8a6; }
+    #alertasModal .list-group-item{
+        display:block !important;
+        width:100% !important;
+        max-width:100% !important;
+        margin:0 0 .5rem 0 !important;
+        white-space:normal !important;
+    }
+    #alertasModal .badge-name-alerta{
+        display:inline-flex !important;
+        align-items:center !important;
+        max-width:100% !important;
+        white-space:normal !important;
+    }
+
+    /* FIX color botón "Ver PDF" */
+    .info-card a.btn.btn-outline-success{
         border-color: var(--border-color) !important;
-        color: var(--text-color) !important;
-    }
-
-    /* Modal Header Dark */
-    body.dark-mode .modal-header {
-        background-color: #064e3b !important;
-        border-bottom: 1px solid #10b981;
-    }
-
-    body.dark-mode .modal-title {
-        color: #fbbf24 !important;
+        color: var(--border-color) !important;
+        background: transparent !important;
         font-weight: 800;
     }
-
-    body.dark-mode .close {
+    .info-card a.btn.btn-outline-success:hover,
+    .info-card a.btn.btn-outline-success:focus{
+        background: var(--border-color) !important;
+        border-color: var(--border-color) !important;
         color: #fff !important;
+        box-shadow: 0 10px 20px rgba(0,179,0,.15);
+    }
+    body.dark-mode .info-card a.btn.btn-outline-success:hover,
+    body.dark-mode .info-card a.btn.btn-outline-success:focus{
+        box-shadow: 0 10px 20px rgba(16,185,129,.15);
     }
 
-    .badge-name-alerta {
-        background: #00b300;
-        color: white;
-        border-radius: 8px;
-        transition: background 0.3s ease;
+    /* Responsive */
+    @media (max-width: 992px){
+        .tarjetas-grid{ grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+    }
+    @media (max-width: 576px){
+        .tarjetas-grid{ grid-template-columns:1fr; gap:1rem; }
+        .tarjeta-resumen{ min-height:160px; padding:1.5rem .75rem; }
     }
 
-    body.dark-mode .badge-name-alerta {
-        background: #14b8a6;
-    }
+    /* 360px */
+    @media (max-width: 360px){
+        .info-card{
+            padding:1.25rem;
+            border-radius:16px;
+        }
 
-    /* TARJETAS 4 EN 1 FILA - FULL WIDTH */
-    .tarjetas-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);  /* ← FIJO: 4 columnas 1 fila */
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        min-height: 200px;
-    }
+        .legal-header{ gap:.75rem; }
+        .legal-title{
+            font-size:1rem;
+            line-height:1.15;
+        }
+        .btn-legal{
+            width:100%;
+            justify-content:center;
+            padding:.55rem .9rem;
+        }
 
-    .tarjeta-resumen {
-        background: var(--card-bg);
-        border: 2px solid var(--border-color);
-        border-radius: 15px;
-        padding: 2rem 1rem;
-        text-align: center;
-        text-decoration: none !important;
-        color: var(--text-color);
-        position: relative;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 180px;
-    }
+        .dropzone-label{
+            min-height:115px;
+            padding:1rem;
+            border-radius:14px;
+        }
+        .dropzone-icon{ font-size:1.9rem; }
 
-    button.tarjeta-resumen {
-        width: 100%;
-        cursor: pointer;
-    }
+        .file-pill{
+            font-size:.78rem;
+            padding:.32rem .6rem;
+        }
 
-    .tarjeta-resumen:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-hover);
-        color: var(--text-color);
-    }
+        .btn-coop{
+            width:100%;
+            padding:12px 16px;
+        }
 
-    .icon-circle {
-        width: 70px;
-        height: 70px;
-        background: #00b300;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1rem;
-    }
-
-    body.dark-mode .icon-circle {
-        background: #10b981;
-    }
-
-    .icon-circle i {
-        font-size: 2rem;
-        color: white;
-    }
-
-    .tarjeta-resumen h2 {
-        font-size: 2.2rem;
-        margin: 0.5rem 0;
-        font-weight: 800;
-        line-height: 1.2;
-    }
-
-    .tarjeta-resumen h6 {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .info-card {
-        background: var(--card-bg);
-        border: 2px solid var(--border-color);
-        border-radius: 20px;
-        padding: 2rem;
-    }
-
-    .info-card strong {
-        color: #00b300;
-    }
-
-    body.dark-mode .info-card strong {
-        color: #10b981;
-    }
-
-    /* RESPONSIVE: Mantiene 4 columnas hasta móvil chico */
-    @media (max-width: 1200px) {
-        .tarjetas-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
+        .d-flex.justify-content-end{
+            justify-content:stretch !important;
+        }
+        .d-flex.justify-content-end[style*="gap"]{
+            gap:.6rem !important;
         }
     }
 
-    @media (max-width: 992px) {
-        .tarjetas-grid {
-            grid-template-columns: repeat(2, 1fr); /* Solo aquí baja a 2 */
-            gap: 1.2rem;
+    /* 340px o menos */
+    @media (max-width: 340px){
+        .tarjeta-resumen h2{ font-size:2rem; }
+        .tarjeta-resumen h6{ font-size:.88rem; }
+
+        .icon-circle{
+            width:62px;
+            height:62px;
+            margin-bottom:.75rem;
         }
+        .icon-circle i{ font-size:1.8rem; }
+
+        .dropzone-sub{ font-size:.82rem; }
     }
-
-    @media (max-width: 576px) {
-        .tarjetas-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .tarjeta-resumen {
-            min-height: 160px;
-            padding: 1.5rem 0.75rem;
-        }
-    }
-
-    /* ✅ SCROLLBAR VERTICAL MODERNO (CON EXTREMOS CIRCULARES) */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
-
-
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-        margin: 4px 0;
-    }
-
-
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1f2937;
-    }
-
-
-    ::-webkit-scrollbar-thumb {
-        background: var(--finance-primary);
-        border-radius: 10px;
-        min-height: 40px;
-    }
-
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--finance-secondary);
-    }
-
-
-    body.dark-mode ::-webkit-scrollbar-thumb:hover {
-        background: #059669;
-    }
-
-    /* Normaliza el list-group dentro del modal de alertas */
-#alertasModal .list-group-item{
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 0 .5rem 0 !important; /* respeta el mb-2 */
-    white-space: normal !important;
-}
-
-/* Evita que el badge estire o comprima raro */
-#alertasModal .badge-name-alerta{
-    display: inline-flex !important;
-    align-items: center !important;
-    max-width: 100% !important;
-    white-space: normal !important;
-}
-.info-card a {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    display: inline-block;
-    max-width: 100%;
-}
-
 </style>
 
 
 <div class="d-flex align-items-center mb-4">
-    <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);"><i class="fas fa-home mr-2"></i>Panel
-        General</h1>
+    <h1 class="h3 mb-0 font-weight-bold" style="color: var(--border-color);">
+        <i class="fas fa-home mr-2"></i>Panel General
+    </h1>
 </div>
+
+{% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} shadow-sm mb-2" style="border-radius:14px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 <div class="tarjetas-grid">
     <a href="{% url 'taxis:conductor_list' %}" class="tarjeta-resumen">
@@ -239,43 +453,217 @@
         <h2>{{ total_afiliados|default:"0" }}</h2>
         <h6>Afiliados</h6>
     </a>
+
     <a href="{% url 'taxis:vehiculo_list' %}" class="tarjeta-resumen">
         <div class="icon-circle"><i class="fas fa-taxi"></i></div>
         <h2>{{ total_vehiculos|default:"0" }}</h2>
         <h6>Vehículos</h6>
     </a>
+
     <a href="{% url 'taxis:finanzas_principal' %}" class="tarjeta-resumen">
         <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
         <h2>{{ pagos_pendientes|default:"0" }}</h2>
         <h6>Pagos Pendientes</h6>
     </a>
 
-
-    <button class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal">
+    <button type="button" class="tarjeta-resumen" data-toggle="modal" data-target="#alertasModal" aria-controls="alertasModal">
         <div class="icon-circle"><i class="fas fa-exclamation-circle"></i></div>
         <h2>{{ alertas_documentos|length|default:"0" }}</h2>
         <h6>Alertas Doc.</h6>
     </button>
 </div>
 
-<!-- INFORMACIÓN REAL DE LA COOPERATIVA (REORGANIZADA) -->
+<!-- BASES LEGALES (INFO) -->
 <div class="mb-4">
-    <h4 class="font-weight-bold mb-3" style="color: var(--border-color);"><i class="fas fa-info-circle mr-2"></i>Acerca
-        de la Cooperativa</h4>
+    <h4 class="font-weight-bold mb-3" style="color: var(--border-color);">
+        <i class="fas fa-info-circle mr-2"></i>Bases Legales de la Cooperativa
+    </h4>
+
     <div class="info-card shadow-sm">
         <div class="row">
-            <!-- COLUMNA IZQUIERDA -->
             <div class="col-md-6 mb-2">
                 <p><strong>RIF:</strong> {{ coop.rif }}</p>
                 <p><strong>Nombre:</strong> {{ coop.nombre }}</p>
                 <p><strong>Presidente:</strong> {{ coop.presidente }}</p>
-                <!-- CONTACTO Y EMAIL MOVIDOS AQUÍ -->
                 <p><strong>Contacto:</strong> {{ coop.telefono }}</p>
-                <p><strong>Email:</strong> <a href="mailto:{{ coop.email }}"
-                        style="color: inherit; text-decoration: underline;">{{ coop.email }}</a></p>
+                <p>
+                    <strong>Email:</strong>
+                    <a href="mailto:{{ coop.email }}" style="color: inherit; text-decoration: underline;">
+                        {{ coop.email }}
+                    </a>
+                </p>
             </div>
 
-            <!-- MODAL ALERTAS -->
+            <div class="col-md-6 mb-2">
+                {% if coop.direccion %}<p><strong>Dirección:</strong> {{ coop.direccion }}</p>{% endif %}
+                {% if coop.estado %}<p><strong>Estado:</strong> {{ coop.estado }}</p>{% endif %}
+                {% if coop.municipio %}<p><strong>Municipio:</strong> {{ coop.municipio }}</p>{% endif %}
+                {% if coop.parroquia %}<p><strong>Parroquia:</strong> {{ coop.parroquia }}</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENTOS LEGALES (LECTURA / EDICIÓN) -->
+    <div class="info-card shadow-sm legal-box">
+        <div class="legal-header">
+            <h5 class="legal-title">
+                <i class="fas fa-file-contract"></i> Documentos Legales (PDF)
+            </h5>
+
+            {# SIN Cancelar: solo mostrar "Editar" en modo lectura #}
+            {% if request.GET.edit != "1" %}
+                <a class="btn-legal" href="{% url 'taxis:panel_general' %}?edit=1">
+                    <i class="fas fa-pen"></i> Editar
+                </a>
+            {% endif %}
+        </div>
+
+        {% if request.GET.edit == "1" %}
+            <form method="post"
+                  action="{% url 'taxis:cooperativa_docs_update' %}"
+                  enctype="multipart/form-data"
+                  novalidate>
+                {% csrf_token %}
+
+                {% if legal_form.non_field_errors %}
+                    <div class="alert alert-danger shadow-sm" style="border-radius:14px;">
+                        {{ legal_form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-2 font-weight-bold" style="color: var(--text-color);">
+                            Acta Constitutiva y Estatutos
+                        </div>
+
+                        <label class="dropzone-label">
+                            <i class="fas fa-file-pdf dropzone-icon" id="icon_acta"></i>
+
+                            <div class="dropzone-text" id="text_acta">
+                                {% if legal_docs and legal_docs.acta_constitutiva_estatutos %}
+                                    Cargado
+                                    <div class="dropzone-sub">Click para reemplazar (solo PDF)</div>
+                                {% else %}
+                                    Click para subir (solo PDF)
+                                    <div class="dropzone-sub">Máximo recomendado: 10MB</div>
+                                {% endif %}
+                            </div>
+
+                            <input
+                                type="file"
+                                name="acta_constitutiva_estatutos"
+                                id="id_acta_constitutiva_estatutos"
+                                class="dropzone-input"
+                                accept="application/pdf"
+                                onchange="legalCheckFile(this,'icon_acta','text_acta')"
+                            >
+                        </label>
+
+                        {% if legal_form.acta_constitutiva_estatutos.errors %}
+                            <div class="text-danger mt-2 font-weight-bold">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ legal_form.acta_constitutiva_estatutos.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-2 font-weight-bold" style="color: var(--text-color);">
+                            Acta de Asamblea Extraordinaria
+                        </div>
+
+                        <label class="dropzone-label">
+                            <i class="fas fa-file-pdf dropzone-icon" id="icon_asamblea"></i>
+
+                            <div class="dropzone-text" id="text_asamblea">
+                                {% if legal_docs and legal_docs.acta_asamblea_extraordinaria %}
+                                    Cargado
+                                    <div class="dropzone-sub">Click para reemplazar (solo PDF)</div>
+                                {% else %}
+                                    Click para subir (solo PDF)
+                                    <div class="dropzone-sub">Máximo recomendado: 10MB</div>
+                                {% endif %}
+                            </div>
+
+                            <input
+                                type="file"
+                                name="acta_asamblea_extraordinaria"
+                                id="id_acta_asamblea_extraordinaria"
+                                class="dropzone-input"
+                                accept="application/pdf"
+                                onchange="legalCheckFile(this,'icon_asamblea','text_asamblea')"
+                            >
+                        </label>
+
+                        {% if legal_form.acta_asamblea_extraordinaria.errors %}
+                            <div class="text-danger mt-2 font-weight-bold">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ legal_form.acta_asamblea_extraordinaria.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <small style="color: var(--muted); font-weight:700; display:block; margin-bottom:.9rem;">
+                    Si no seleccionas un PDF, se conserva el que ya está guardado (si existía).
+                </small>
+
+                <div class="d-flex justify-content-end" style="gap:.75rem; flex-wrap:wrap;">
+                    <a class="btn-coop btn-coop-back" href="{% url 'taxis:panel_general' %}">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn-coop btn-coop-save">
+                        <i class="fas fa-save"></i> Guardar documentos
+                    </button>
+                </div>
+            </form>
+
+        {% else %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="font-weight-bold mb-2" style="color: var(--text-color);">
+                        Acta Constitutiva y Estatutos
+                    </div>
+
+                    {% if legal_docs and legal_docs.acta_constitutiva_estatutos %}
+                        <div class="d-flex align-items-center" style="gap:.6rem; flex-wrap:wrap;">
+                            <span class="file-pill"><i class="fas fa-check-circle text-success"></i> Cargado</span>
+                            <a class="btn btn-sm btn-outline-success rounded-pill font-weight-bold"
+                               href="{{ legal_docs.acta_constitutiva_estatutos.url }}" target="_blank" rel="noopener">
+                                <i class="fas fa-eye mr-1"></i> Ver PDF
+                            </a>
+                        </div>
+                    {% else %}
+                        <span class="file-pill"><i class="fas fa-times-circle text-danger"></i> No cargado</span>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="font-weight-bold mb-2" style="color: var(--text-color);">
+                        Acta de Asamblea Extraordinaria
+                    </div>
+
+                    {% if legal_docs and legal_docs.acta_asamblea_extraordinaria %}
+                        <div class="d-flex align-items-center" style="gap:.6rem; flex-wrap:wrap;">
+                            <span class="file-pill"><i class="fas fa-check-circle text-success"></i> Cargado</span>
+                            <a class="btn btn-sm btn-outline-success rounded-pill font-weight-bold"
+                               href="{{ legal_docs.acta_asamblea_extraordinaria.url }}" target="_blank" rel="noopener">
+                                <i class="fas fa-eye mr-1"></i> Ver PDF
+                            </a>
+                        </div>
+                    {% else %}
+                        <span class="file-pill"><i class="fas fa-times-circle text-danger"></i> No cargado</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <small style="color: var(--muted); font-weight:700;">
+                Tip: Presiona “Editar” para cargar o reemplazar los PDF.
+            </small>
+        {% endif %}
+    </div>
+</div>
+
+<!-- MODAL ALERTAS -->
 <div class="modal fade" id="alertasModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg" style="border-radius: 15px; overflow: hidden;">
@@ -283,41 +671,76 @@
                 <h5 class="modal-title font-weight-bold">
                     <i class="fas fa-exclamation-triangle mr-2"></i>Alertas de Documentos
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+
             <div class="modal-body">
                 {% if alertas_documentos %}
-                <div class="list-group">
-                    {% for alerta in alertas_documentos %}
-                    <a href="{% url 'taxis:dt5_detail' alerta.conductor_id %}?from=alertasdocumentos"
-                        class="list-group-item list-group-item-action list-group-item-warning border-0 mb-2 shadow-sm"
-                        style="border-radius: 10px;">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1 font-weight-bold">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>{{ alerta.titulo }}
-                            </h6>
-                            <small class="font-weight-bold">{{ alerta.fecha_vencimiento|date:"d/m/Y" }}</small>
-                        </div>
-                        <p class="mb-1 small">{{ alerta.descripcion }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="badge badge-name-alerta p-2 px-3 shadow-sm">
-                                <i class="fas fa-user-circle mr-1"></i> {{ alerta.conductor_nombre }}
-                            </span>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
+                    <div class="list-group">
+                        {% for alerta in alertas_documentos %}
+                            <a href="{% url 'taxis:dt5_detail' alerta.conductor_id %}?from=alertasdocumentos"
+                               class="list-group-item list-group-item-action list-group-item-warning border-0 mb-2 shadow-sm"
+                               style="border-radius: 10px;">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 font-weight-bold">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>{{ alerta.titulo }}
+                                    </h6>
+                                    <small class="font-weight-bold">{{ alerta.fecha_vencimiento|date:"d/m/Y" }}</small>
+                                </div>
+                                <p class="mb-1 small">{{ alerta.descripcion }}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="badge badge-name-alerta p-2 px-3 shadow-sm">
+                                        <i class="fas fa-user-circle mr-1"></i> {{ alerta.conductor_nombre }}
+                                    </span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
                 {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                    <h5 class="font-weight-bold">¡Todo en orden!</h5>
-                    <p class="text-muted">No hay documentos próximos a vencer.</p>
-                </div>
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h5 class="font-weight-bold">¡Todo en orden!</h5>
+                        <p class="text-muted">No hay documentos próximos a vencer.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    function legalCheckFile(input, iconId, textId){
+        const icon = document.getElementById(iconId);
+        const text = document.getElementById(textId);
+
+        if (!input || !input.files || !input.files.length){
+            return;
+        }
+
+        const file = input.files[0];
+        const name = (file && file.name) ? file.name : "Archivo seleccionado";
+
+        const isPdfByName = name.toLowerCase().endsWith(".pdf");
+        const isPdfByType = (file && file.type) ? (file.type === "application/pdf") : true;
+        if(!isPdfByName || !isPdfByType){
+            text.innerHTML = "Solo PDF" + "<div class='dropzone-sub'>Selecciona un archivo .pdf</div>";
+            icon.className = "fas fa-exclamation-circle dropzone-icon";
+            try { input.value = ""; } catch(e) {}
+            return;
+        }
+
+        icon.className = "fas fa-check-circle dropzone-icon";
+        text.innerHTML = "Seleccionado" + "<div class='dropzone-sub'>" + name + "</div>";
+    }
+
+     setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(el => {
+      el.style.transition = 'opacity .25s ease';
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 300);
+    });
+  }, 5000); // 5 segundos
+</script>
 {% endblock %}

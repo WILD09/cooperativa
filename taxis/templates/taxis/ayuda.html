@@ -1,121 +1,1867 @@
-A. templates/taxis/perfil_usuario.html (Estilo App Moderna)
-Este reemplaza al "Configuración" antiguo. Es un dashboard personal.
+{# templates/taxis/ayuda.html #}
+{% extends "taxis/base_presidente.html" %}
+{% load static %}
 
-xml
-{% extends 'taxis/base_presidente.html' %}
+{% block title %}Ayuda del sistema{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-lg border-0 rounded-lg">
-            <div class="card-header bg-primary text-white text-center py-4">
-                <div class="avatar-wrapper mb-3">
-                    {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}" class="rounded-circle border border-white shadow" width="120" height="120" style="object-fit:cover;">
-                    {% else %}
-                        <i class="fas fa-user-circle fa-6x text-white-50"></i>
-                    {% endif %}
-                </div>
-                <h3 class="mb-0">{{ user.first_name }} {{ user.last_name }}</h3>
-                <small class="text-white-50">{{ user.email }} | {{ user.get_role_display }}</small>
-            </div>
-            <div class="card-body p-5">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h5 class="text-primary mb-4"><i class="fas fa-user-edit"></i> Editar Datos Personales</h5>
-                    
-                    <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label>Nombre</label>
-                            {{ form.first_name }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Apellido</label>
-                            {{ form.last_name }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        {{ form.email }}
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono</label>
-                        {{ form.phone_number }}
-                    </div>
-                    <div class="form-group">
-                        <label>Cambiar Foto de Perfil</label>
-                        {{ form.avatar }}
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{% url 'cambiar_clave' %}" class="btn btn-outline-danger">
-                            <i class="fas fa-key"></i> Cambiar Contraseña
-                        </a>
-                        <button type="submit" class="btn btn-primary px-5">
-                            <i class="fas fa-save"></i> Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Pequeño CSS para embellecer inputs -->
 <style>
-    .form-control { border-radius: 10px; padding: 20px 15px; }
-    input[type=file] { padding: 10px; background: #f8f9fa; border-radius: 10px; width: 100%; }
+  /* ===========================
+     Variables (compatibles con tu tema)
+     =========================== */
+  :root{
+    --coop-green-primary: #00b300;
+    --coop-green-hover: #009900;
+    --coop-green-light: rgba(0,179,0,.12);
+
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+
+    --border-soft: rgba(17,24,39,.10);
+    --shadow-soft: rgba(0,0,0,.08);
+
+    --help-bg: rgba(0,0,0,.015);
+    --help-code-bg: rgba(0,0,0,.04);
+
+    --help-accent: rgba(0,179,0,.18);
+    --help-accent-strong: rgba(0,179,0,.28);
+
+    /* Iconos (tinte sutil, no saturado) */
+    --icon-faint: rgba(0,179,0,.48);
+    --icon-soft: rgba(0,179,0,.68);
+    --icon-strong: rgba(0,179,0,.88);
+
+    --sb-track: #f1f1f1;
+    --sb-thumb: #00b300;
+    --sb-thumb-hover: #009900;
+  }
+
+  body.dark-mode{
+    --coop-green-primary: #10b981;
+    --coop-green-hover: #059669;
+    --coop-green-light: rgba(16,185,129,.18);
+
+    --card-bg: #0f1a2e;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+
+    --border-soft: rgba(255,255,255,.10);
+    --shadow-soft: rgba(0,0,0,.35);
+
+    --help-bg: rgba(255,255,255,.03);
+    --help-code-bg: rgba(255,255,255,.06);
+
+    --help-accent: rgba(16,185,129,.22);
+    --help-accent-strong: rgba(16,185,129,.34);
+
+    /* Iconos (teal en oscuro) */
+    --icon-faint: rgba(16,185,129,.48);
+    --icon-soft: rgba(16,185,129,.68);
+    --icon-strong: rgba(16,185,129,.88);
+
+    --sb-track: #1f2937;
+    --sb-thumb: #10b981;
+    --sb-thumb-hover: #059669;
+  }
+
+  /* ===========================
+     Anti-overflow global (CLAVE)
+     =========================== */
+  .help-wrap, .help-wrap *{ box-sizing: border-box; }
+  .help-wrap{ max-width: 1200px; margin: 0 auto; overflow-x: clip; }
+  /* Evita que cualquier “palabra larga/URL/stack trace” rompa el layout */
+  .help-wrap p,
+  .help-wrap a,
+  .help-wrap summary,
+  .help-wrap .help-mini,
+  .help-wrap .module-desc,
+  .help-wrap .step-t,
+  .help-wrap .step-d,
+  .help-wrap .sec-sub{
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  /* Grid/flex: permitir que el texto “se encoja” dentro del contenedor */
+  .help-grid > *{ min-width: 0; }
+  .module-top > *{ min-width: 0; }
+  .step-b{ min-width: 0; }
+
+  /* ===========================
+     Iconos (evita “negros”)
+     =========================== */
+  .help-wrap i.fas,
+  .help-wrap i.far,
+  .help-wrap i.fab{
+    color: var(--icon-soft);
+  }
+  .help-wrap .toc a i,
+  .help-wrap .help-mini i{
+    color: var(--icon-faint);
+  }
+  .help-wrap .toc a:hover i,
+  .help-wrap .toc a.active i{
+    color: var(--icon-strong);
+  }
+  .help-wrap .help-pill i,
+  .help-wrap .help-btn i,
+  .help-wrap .help-chip i{
+    color: var(--icon-strong);
+  }
+  .help-wrap .module-icon i{ color: inherit !important; }
+
+  /* ===========================
+     Scrollbar
+     =========================== */
+  @supports selector(::-webkit-scrollbar){
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar{ width:10px; height:10px; }
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track{
+      background: var(--sb-track);
+      border-radius:10px;
+      margin:4px 0;
+    }
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb{
+      background: var(--sb-thumb);
+      border-radius:10px;
+      min-height:40px;
+    }
+    html::-webkit-scrollbar-thumb:hover,
+    body::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+    *::-webkit-scrollbar{ width:10px; height:10px; }
+    *::-webkit-scrollbar-track{
+      background: var(--sb-track);
+      border-radius:10px;
+      margin:4px 0;
+    }
+    *::-webkit-scrollbar-thumb{
+      background: var(--sb-thumb);
+      border-radius:10px;
+      min-height:40px;
+    }
+    *::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+  }
+  @supports not selector(::-webkit-scrollbar){
+    html{ scrollbar-width: auto; scrollbar-color: var(--sb-thumb) var(--sb-track); }
+  }
+
+  /* ===========================
+     Progreso
+     =========================== */
+  .help-progress{
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    height: 4px;
+    background: transparent;
+    margin-bottom: .75rem;
+  }
+  .help-progress > div{
+    height: 4px;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--coop-green-primary), var(--coop-green-hover));
+    box-shadow: 0 8px 22px rgba(0,179,0,.18);
+    transition: width .1s linear;
+  }
+
+  /* ===========================
+     Hero
+     =========================== */
+  .help-hero{
+    border-radius: 22px;
+    padding: 18px 18px;
+    background:
+      radial-gradient(900px 220px at 10% 0%, rgba(0,179,0,.12), transparent 60%),
+      radial-gradient(900px 220px at 90% 0%, rgba(16,185,129,.10), transparent 55%),
+      linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+    border: 2px solid var(--border-soft);
+    box-shadow: 0 14px 40px var(--shadow-soft);
+  }
+  body.dark-mode .help-hero{
+    background:
+      radial-gradient(900px 220px at 10% 0%, rgba(16,185,129,.22), transparent 60%),
+      radial-gradient(900px 220px at 90% 0%, rgba(0,179,0,.12), transparent 55%),
+      linear-gradient(180deg, rgba(15,26,46,.94), rgba(15,26,46,.78));
+  }
+
+  .help-title{
+    font-weight: 900;
+    letter-spacing: -.3px;
+    color: var(--coop-green-primary);
+    margin: 0;
+  }
+  .help-sub{
+    margin-top: 6px;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  /* ===========================
+     Grid principal
+     =========================== */
+  .help-grid{
+    display:grid;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.68fr);
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  /* ===========================
+     Cards
+     =========================== */
+  .help-card{
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 2px solid var(--border-soft);
+    box-shadow: 0 12px 45px rgba(0,0,0,.06);
+    max-width: 100%;
+  }
+  body.dark-mode .help-card{ box-shadow: none; }
+
+  .help-card-h{
+    padding: 1.05rem 1.2rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    background: linear-gradient(135deg, rgba(0,179,0,.08), rgba(0,153,0,.06));
+    border-bottom: 2px solid var(--border-soft);
+  }
+  body.dark-mode .help-card-h{
+    background: linear-gradient(135deg, rgba(16,185,129,.10), rgba(5,150,105,.06));
+  }
+  .help-card-t{
+    margin:0;
+    font-weight: 900;
+    color: var(--text-main);
+    letter-spacing:.2px;
+  }
+  .help-card-b{ padding: 1.1rem 1.2rem; }
+
+  /* ===========================
+     Pills / búsqueda / chips
+     =========================== */
+  .help-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    padding:.38rem .7rem;
+    border-radius:999px;
+    background: rgba(0,179,0,.10);
+    color: var(--coop-green-primary);
+    border: 2px solid rgba(0,179,0,.18);
+    font-size: .82rem;
+    font-weight: 900;
+    max-width: 100%;
+  }
+  body.dark-mode .help-pill{
+    background: rgba(16,185,129,.10);
+    border-color: rgba(16,185,129,.18);
+  }
+
+  .help-search-wrap{ margin-top: .85rem; max-width: 780px; }
+  .help-search{
+    width:100%;
+    border-radius: 999px;
+    border: 2px solid var(--border-soft);
+    background: transparent;
+    padding: 12px 16px;
+    color: var(--text-main);
+    font-weight: 800;
+    outline: none;
+    transition: .2s ease;
+    min-width: 0;
+  }
+  .help-search:focus{
+    border-color: var(--coop-green-primary);
+    box-shadow: 0 0 0 5px var(--help-accent);
+  }
+
+  .help-chipbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-top: .75rem;
+    max-width: 100%;
+  }
+  .help-chip{
+    border-radius: 999px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-weight: 900;
+    padding: .36rem .7rem;
+    cursor: pointer;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    user-select: none;
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    max-width: 100%;
+  }
+  .help-chip:hover{
+    transform: translateY(-1px);
+    border-color: var(--help-accent-strong);
+    box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  }
+  .help-chip.active{
+    border-color: var(--help-accent-strong);
+    background: var(--help-bg);
+  }
+
+  .help-mini{
+    margin-top: .45rem;
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: .86rem;
+    max-width: 100%;
+  }
+  .kbd{
+    display:inline-block;
+    padding: .18rem .45rem;
+    border-radius: 10px;
+    border: 2px solid var(--border-soft);
+    background: var(--help-code-bg);
+    font-weight: 900;
+    font-size: .86rem;
+    color: var(--text-main);
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  mark.help-mark{
+    background: var(--help-accent);
+    color: inherit;
+    padding: 0 .18rem;
+    border-radius: .35rem;
+  }
+
+  /* ===========================
+     TOC
+     =========================== */
+  .toc{ position: sticky; top: 1rem; }
+  #helpToc{
+    display:flex;
+    flex-direction:column;
+    gap:.3rem;
+    max-width: 100%;
+  }
+  .toc a{
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+    padding: .55rem .75rem;
+    border-radius: 14px;
+    color: var(--text-main);
+    font-weight: 900;
+    text-decoration:none;
+    border: 2px solid transparent;
+    transition: .15s ease;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .toc a:hover{
+    background: var(--help-bg);
+    border-color: var(--help-accent-strong);
+  }
+  .toc a.active{
+    background: var(--help-bg);
+    border-color: var(--help-accent-strong);
+    box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  }
+  body.dark-mode .toc a.active{ box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+
+  .toc-badge{
+    margin-left:auto;
+    font-size:.75rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    border-radius: 999px;
+    padding: .08rem .45rem;
+    white-space: nowrap;
+  }
+
+  /* ===========================
+     Secciones / módulos / pasos
+     =========================== */
+  .help-section{
+    border: 2px solid var(--border-soft);
+    background: var(--help-bg);
+    border-radius: 18px;
+    padding: 1rem 1rem;
+    margin-bottom: 1rem;
+    max-width: 100%;
+  }
+  .sec-title{
+    margin: 0 0 .35rem 0;
+    font-weight: 900;
+    color: var(--text-main);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    max-width: 100%;
+  }
+  .sec-title > span{ min-width: 0; }
+  .sec-sub{
+    margin: 0;
+    color: var(--text-muted);
+    font-weight: 700;
+    max-width: 100%;
+  }
+
+  .module-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+    margin-top: .9rem;
+    max-width: 100%;
+  }
+  .module{
+    border-radius: 16px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    padding: .85rem .95rem;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    position: relative;
+    overflow:hidden;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .module::after{
+    content:"";
+    position:absolute;
+    right:-38px;
+    top:-38px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle at 30% 30%, var(--help-accent-strong), transparent 62%);
+    opacity:.7;
+    transform: rotate(12deg);
+    pointer-events:none;
+  }
+  .module:hover{
+    transform: translateY(-2px);
+    border-color: var(--help-accent-strong);
+    box-shadow: 0 10px 22px rgba(0,0,0,.10);
+  }
+  body.dark-mode .module:hover{ box-shadow: 0 14px 30px rgba(0,0,0,.40); }
+
+  .module-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.75rem;
+    max-width: 100%;
+  }
+  .module-name{
+    margin:0;
+    font-weight: 900;
+    color: var(--text-main);
+    max-width: 100%;
+  }
+  .module-icon{
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--coop-green-light);
+    color: var(--coop-green-primary);
+    flex: 0 0 auto;
+  }
+  .module-desc{
+    margin:.4rem 0 0 0;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: .9rem;
+    line-height: 1.25;
+    max-width: 100%;
+  }
+
+  .info-line{
+    margin:.55rem 0 0 0;
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: .88rem;
+    line-height: 1.25;
+    display:flex;
+    align-items:flex-start;
+    gap:.5rem;
+    max-width: 100%;
+  }
+  .info-dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--help-accent-strong);
+    border: 2px solid var(--border-soft);
+    flex: 0 0 auto;
+    margin-top: .28rem;
+  }
+
+  .steps{
+    margin-top: .75rem;
+    display:grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .55rem;
+    max-width: 100%;
+  }
+  .step{
+    display:flex;
+    gap:.65rem;
+    align-items:flex-start;
+    border-radius: 14px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    padding: .65rem .75rem;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .step-n{
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--help-accent);
+    color: var(--coop-green-primary);
+    font-weight: 900;
+    flex: 0 0 auto;
+  }
+  .step-t{
+    margin:0;
+    color: var(--text-main);
+    font-weight: 900;
+    line-height: 1.15;
+  }
+  .step-d{
+    margin:.25rem 0 0 0;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size:.9rem;
+    line-height: 1.25;
+  }
+
+  .help-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-top: .8rem;
+    max-width: 100%;
+  }
+  .help-btn{
+    border-radius: 999px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-weight: 900;
+    padding: .45rem .8rem;
+    cursor:pointer;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    user-select:none;
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal; /* permite saltos en pantallas pequeñas */
+    text-align: center;
+    justify-content: center;
+  }
+  .help-btn:hover{
+    transform: translateY(-1px);
+    border-color: var(--help-accent-strong);
+    box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  }
+  .help-btn.primary{
+    background: var(--coop-green-primary);
+    color:#fff;
+    border-color: transparent;
+  }
+  .help-btn.primary:hover{ background: var(--coop-green-hover); }
+
+  /* ===========================
+     FAQ (details)
+     =========================== */
+  .faq-grid{ display:grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin-top: .9rem; }
+  details.faq-item{
+    border-radius: 16px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    overflow:hidden;
+    max-width: 100%;
+  }
+  details.faq-item > summary{
+    cursor: pointer;
+    list-style: none;
+    padding: .85rem .95rem;
+    font-weight: 900;
+    color: var(--text-main);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.75rem;
+    user-select:none;
+    max-width: 100%;
+  }
+  details.faq-item > summary > span{ min-width: 0; }
+  details.faq-item > summary::-webkit-details-marker{ display:none; }
+  .faq-chevron{
+    width: 34px;
+    height: 34px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--help-bg);
+    border: 2px solid var(--border-soft);
+    color: var(--coop-green-primary);
+    transition: transform .15s ease;
+    flex: 0 0 auto;
+  }
+  details[open] .faq-chevron{ transform: rotate(180deg); }
+  .faq-body{
+    border-top: 2px solid var(--border-soft);
+    padding: .85rem .95rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    line-height: 1.35;
+    max-width: 100%;
+  }
+
+  /* ===========================
+     FAB / toast
+     =========================== */
+  .help-fab{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1050;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--coop-green-primary);
+    color: #fff;
+    font-weight: 900;
+    box-shadow: 0 14px 34px rgba(0,0,0,.22);
+    display: none;
+    align-items:center;
+    justify-content:center;
+    transition: transform .15s ease, background .15s ease, opacity .15s ease;
+  }
+  .help-fab i{ color:#fff !important; }
+  .help-fab:hover{ background: var(--coop-green-hover); transform: translateY(-2px); }
+
+  .help-toast{
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 1060;
+    padding: .55rem .85rem;
+    border-radius: 999px;
+    border: 2px solid var(--border-soft);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-weight: 900;
+    box-shadow: 0 16px 40px rgba(0,0,0,.12);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+    max-width: calc(100vw - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .help-toast.show{ opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  /* ===========================
+     Responsive
+     =========================== */
+  @media (max-width: 992px){
+    .help-grid{ grid-template-columns: 1fr; }
+    .toc{ position: static; top:auto; }
+  }
+
+  @media (max-width: 768px){
+    .help-hero{ padding: 14px 14px; border-radius: 18px; }
+    .help-card{ border-radius: 18px; }
+    .help-card-h{ padding: .9rem 1rem; }
+    .help-card-b{ padding: .95rem 1rem; }
+
+    .module-grid{ grid-template-columns: 1fr; }
+    .help-section{ padding: .9rem .9rem; }
+
+    /* Índice horizontal (scroll) */
+    #helpToc{
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      gap: .55rem;
+      padding-bottom: .25rem;
+      scroll-snap-type: x mandatory;
+    }
+    .toc a{
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      padding: .5rem .65rem;
+      border: 2px solid var(--border-soft);
+      background: var(--card-bg);
+      box-shadow: none;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .toc a.active{
+      border-color: var(--help-accent-strong);
+      background: var(--help-bg);
+      box-shadow: none;
+    }
+    .toc-badge{ display:none; }
+
+    /* Acciones: botones full-width */
+    .help-actions{ gap: .55rem; }
+    .help-btn{ width: 100%; padding: .58rem .95rem; }
+
+    /* Chips: scroll horizontal */
+    .help-chipbar{
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: .25rem;
+      scroll-snap-type: x mandatory;
+    }
+    .help-chip{ flex:0 0 auto; scroll-snap-align:start; }
+  }
+
+  @media (max-width: 576px){
+    .help-wrap.container-fluid{ padding-left: .70rem !important; padding-right: .70rem !important; }
+    .help-search{ padding: 11px 14px; }
+    .help-mini{ font-size: .84rem; }
+    .step{ padding: .6rem .65rem; }
+    .step-d{ font-size: .88rem; }
+    .help-pill{ font-size: .80rem; }
+  }
+
+  /* Ultra-small phones: <= 420px */
+  @media (max-width: 420px){
+    .help-wrap.container-fluid{ padding-left: .60rem !important; padding-right: .60rem !important; }
+    .help-hero{ padding: 12px 12px; }
+    .help-title{ font-size: 1.05rem; }
+    .help-sub{ font-size: .88rem; }
+
+    .help-card-h{ padding: .82rem .9rem; }
+    .help-card-b{ padding: .88rem .9rem; }
+
+    .help-section{ padding: .82rem .82rem; border-radius: 16px; }
+    .module{ padding: .78rem .82rem; border-radius: 14px; }
+    .module-icon{ width: 34px; height: 34px; border-radius: 12px; }
+    .module-desc{ font-size: .88rem; }
+
+    .info-line{ font-size: .86rem; }
+    .info-dot{ width: 9px; height: 9px; }
+
+    .step-n{ width: 26px; height: 26px; border-radius: 9px; }
+    .step-t{ font-size: .95rem; }
+    .step-d{ font-size: .86rem; }
+
+    details.faq-item > summary{ padding: .78rem .82rem; }
+    .faq-body{ padding: .78rem .82rem; }
+
+    .help-pill{
+      padding: .32rem .62rem;
+      border-radius: 999px;
+      max-width: 100%;
+    }
+  }
+
+  /* Ultra-small phones: <= 370px (tu caso) */
+  @media (max-width: 370px){
+    .help-wrap.container-fluid{ padding-left: .50rem !important; padding-right: .50rem !important; }
+
+    /* Hero header: evita que el pill empuje el layout */
+    .help-hero .help-pill{
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .78rem;
+    }
+
+    .help-search{ padding: 10px 12px; }
+    .help-mini{ font-size: .82rem; line-height: 1.25; }
+
+    /* Reducir un poco el “aire” interno */
+    .help-card{ border-radius: 16px; }
+    .help-section{ padding: .75rem .75rem; }
+    .module{ padding: .72rem .75rem; }
+
+    /* En ancho ultra pequeño, icono arriba para no forzar columnas */
+    .module-top{ flex-direction: column; }
+    .module-icon{ align-self: flex-start; }
+
+    /* Botones: altura cómoda y sin overflow */
+    .help-btn{ padding: .56rem .75rem; font-size: .92rem; }
+
+    /* Chips y TOC: más compactos */
+    .help-chip{ padding: .32rem .62rem; font-size: .92rem; }
+    .toc a{ padding: .46rem .58rem; font-size: .92rem; }
+
+    /* FAQ chevron más pequeño */
+    .faq-chevron{ width: 32px; height: 32px; border-radius: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .help-fab, .toc a, .module, .help-progress > div, .faq-chevron { transition: none !important; }
+  }
+
+  /* ===========================
+   FIX: Pills no chocan con títulos
+   (pegar al FINAL del CSS)
+   =========================== */
+
+/* 1) Permite wrap real en headers */
+.help-card-h,
+.sec-title{
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: .45rem;
+}
+
+/* 2) Evita que el título “empuje” al pill y cause montajes */
+.help-card-t,
+.sec-title > span{
+  min-width: 0;
+}
+
+/* 3) Pills: comportamiento seguro (no desbordan) */
+.help-pill{
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;            /* recorta si no cabe */
+  text-overflow: ellipsis;     /* indica recorte cuando aplica */
+  white-space: nowrap;         /* por defecto 1 línea (desktop) */
+  line-height: 1.1;
+}
+
+/* 4) En headers (card/section) el pill se alinea sin invadir título */
+.help-card-h .help-pill,
+.sec-title .help-pill{
+  margin-left: auto;           /* se va a la derecha si hay espacio */
+  flex: 0 0 auto;
+  max-width: 52%;
+}
+
+/* 5) Si el título ocupa mucho, el pill baja a la siguiente línea sin chocar */
+@media (max-width: 576px){
+  .help-card-h,
+  .sec-title{
+    justify-content: flex-start;  /* quita el “space-between” implícito del layout */
+  }
+
+  .help-card-h .help-pill,
+  .sec-title .help-pill{
+    margin-left: 0;              /* baja alineado al inicio */
+    max-width: 100%;
+  }
+
+  /* Más ligero en móvil */
+  .help-pill{
+    font-size: .78rem;
+    padding: .30rem .58rem;
+    gap: .35rem;
+  }
+}
+
+/* 6) Ultra pequeño: permitir 2 líneas dentro del pill para no recortar demasiado */
+@media (max-width: 370px){
+  .help-pill{
+    white-space: normal;         /* permite wrap dentro del ovalo */
+    overflow: visible;           /* evita cortes feos */
+    text-overflow: clip;
+    max-width: 100%;
+  }
+
+  .sec-title{
+    gap: .45rem;
+  }
+}
+
+/* ===========================
+   FIX #1: Chip largo “Preguntas frecuentes” (no se sale del óvalo)
+   =========================== */
+
+/* Chips siempre 1 línea + ellipsis (evita cápsulas altas por wrap) */
+.help-chip{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* requiere overflow hidden + nowrap para funcionar */
+  line-height: 1.1;
+  max-width: min(230px, 78vw);
+}
+
+/* En el chipbar (filtros), mantén todo dentro del carrusel sin deformar */
+.help-chipbar{
+  max-width: 100%;
+  overflow: hidden;         /* evita que un chip “invada” visualmente el borde del hero */
+  padding-right: .25rem;    /* pequeño colchón para que no roce */
+}
+
+/* Ultra small: más compacto */
+@media (max-width: 370px){
+  .help-chip{
+    max-width: min(200px, 72vw);
+    padding: .30rem .56rem;
+    font-size: .90rem;
+  }
+}
+
+
+/* ===========================
+   FIX #2: Glow/sombra cortada (cambiar a estilo “inset”)
+   =========================== */
+
+/* 1) Evita sombras externas dentro de contenedores con overflow hidden
+      (reemplazo por borde + inset, que NO se “corta”) */
+.toc a.active{
+  box-shadow: inset 0 0 0 2px var(--help-accent-strong);
+}
+
+.module:hover{
+  /* quita la elevación externa que puede recortarse */
+  box-shadow: inset 0 0 0 2px var(--help-accent-strong);
+}
+
+/* Si quieres mantener algo de “profundidad” sin corte: usa un fondo suave */
+.module:hover{
+  background: linear-gradient(180deg, rgba(0,0,0,.00), var(--help-bg));
+}
+body.dark-mode .module:hover{
+  background: linear-gradient(180deg, rgba(255,255,255,.00), var(--help-bg));
+}
+
+/* 2) Opcional: desactivar sombras externas en móvil (donde más se nota el recorte) */
+@media (max-width: 768px){
+  .toc a.active{ box-shadow: inset 0 0 0 2px var(--help-accent-strong); }
+  .module:hover{ box-shadow: inset 0 0 0 2px var(--help-accent-strong); }
+}
+
+/* ===========================
+   FIX: TOC “Preguntas frecuentes” no se sale del pill (móvil)
+   =========================== */
+
+/* En el carrusel de TOC (móvil), capamos el ancho de cada pill */
+@media (max-width: 768px){
+  /* A todos los pills del TOC les ponemos un ancho máximo razonable */
+  #helpToc .help-toc-link{
+    max-width: 200px;          /* evita pills gigantes */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;       /* 1 línea + ellipsis */
+  }
+
+  /* En particular, el de FAQ suele ser el más largo */
+  #helpToc .help-toc-link[href="#sec-faq"]{
+    max-width: 170px;          /* más estricto para que no “reviente” */
+  }
+}
+
+/* Ultra pequeño: aún más compacto */
+@media (max-width: 370px){
+  #helpToc .help-toc-link{ max-width: 180px; }
+  #helpToc .help-toc-link[href="#sec-faq"]{ max-width: 150px; }
+
+  /* un pelín menos padding para que quepa mejor */
+  #helpToc .help-toc-link{
+    padding: .44rem .54rem;
+    font-size: .90rem;
+  }
+}
+
+/* ===========================
+   FIX CRÍTICO: Filtros (chips) con scroll horizontal en responsive
+   =========================== */
+
+/* 1) En móvil/tablet: los filtros SIEMPRE como carrusel horizontal */
+@media (max-width: 768px){
+  .help-chipbar{
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;   /* scroll horizontal real */
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    padding-bottom: .35rem;        /* espacio para que no “corte” abajo */
+    gap: .55rem;
+    scroll-snap-type: x mandatory;
+  }
+
+  .help-chip{
+    flex: 0 0 auto;                /* evita que se aplasten o se partan raro */
+    scroll-snap-align: start;
+  }
+
+  /* Si algún fix anterior dejó overflow hidden, esto lo revierte sí o sí */
+  .help-hero .help-chipbar{ overflow: auto hidden !important; }
+}
+
+/* 2) Ultra pequeño: chips un poco más compactos para ver más */
+@media (max-width: 370px){
+  .help-chip{
+    padding: .30rem .56rem;
+    font-size: .90rem;
+  }
+}
+
+/* ===========================
+   EXTRA: El texto “Mostrando X secciones…” que no choque / se corte
+   =========================== */
+@media (max-width: 576px){
+  #helpSearchMeta{
+    display: block;                /* baja a la siguiente línea */
+    margin-left: 0 !important;
+    margin-top: .25rem;
+  }
+}
+
+
 </style>
-{% endblock %}
-B. templates/taxis/legal_list.html (El Gestor Documental)
-Botón "+" flotante y tarjetas para cada documento.
 
-xml
-{% extends 'taxis/base_presidente.html' %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-dark font-weight-bold"><i class="fas fa-folder-open text-warning"></i> Repositorio Legal</h2>
-    <a href="{% url 'legal_create' %}" class="btn btn-success btn-lg shadow-sm rounded-pill px-4">
-        <i class="fas fa-plus"></i> Subir Documento
-    </a>
-</div>
 
-<div class="row">
-    {% for doc in documentos %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 border-0 shadow-sm hover-card">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <i class="fas fa-file-pdf fa-4x text-danger"></i>
-                </div>
-                <h5 class="card-title font-weight-bold">{{ doc.titulo }}</h5>
-                <p class="card-text text-muted small">{{ doc.descripcion|default:"Sin descripción" }}</p>
-                <small class="text-muted d-block mb-3">Subido el: {{ doc.fecha_subida|date:"d M Y" }}</small>
-                
-                <div class="btn-group">
-                    <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-eye"></i> Ver
-                    </a>
-                    <a href="{% url 'legal_delete' doc.pk %}" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                </div>
+<div class="help-wrap container-fluid px-4 py-3">
+  <div class="help-progress" aria-hidden="true">
+    <div id="helpProgressBar"></div>
+  </div>
+
+  <button id="helpFab" class="help-fab" type="button" title="Volver arriba">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <div id="helpToast" class="help-toast">Copiado</div>
+
+  <div class="help-hero mb-4" id="inicio">
+    <div class="d-flex align-items-start justify-content-between flex-wrap" style="gap:.75rem;">
+      <div>
+        <h1 class="h4 help-title">Centro de ayuda</h1>
+        <div class="help-sub">
+          Manual práctico, tipo “guía de operaciones”, para usar el sistema con confianza, rapidez y orden.
+        </div>
+      </div>
+      <span class="help-pill"><i class="fas fa-book"></i>Guía interactiva</span>
+    </div>
+
+    <div class="help-search-wrap">
+      <input id="helpSearch" class="help-search" type="text"
+             placeholder="Buscar (opcional): pagos, cierre, documentos, auditoría…  (Atajo: /)"
+             autocomplete="off">
+      <div class="help-mini">
+        Atajos: <span class="kbd">/</span> buscar, <span class="kbd">Esc</span> limpiar, <span class="kbd">Alt</span> + <span class="kbd">↑</span> volver arriba.
+        <span id="helpSearchMeta" style="margin-left:.35rem;"></span>
+      </div>
+
+      <div class="help-chipbar" role="group" aria-label="Filtros rápidos">
+        <span class="help-chip active" data-chip="all"><i class="fas fa-layer-group"></i>Todo</span>
+        <span class="help-chip" data-chip="inicio"><i class="fas fa-rocket"></i>Inicio</span>
+        <span class="help-chip" data-chip="panel"><i class="fas fa-th-large"></i>Panel</span>
+        <span class="help-chip" data-chip="perfil"><i class="fas fa-user-shield"></i>Perfil</span>
+        <span class="help-chip" data-chip="afiliados"><i class="fas fa-users"></i>Afiliados</span>
+        <span class="help-chip" data-chip="vehiculos"><i class="fas fa-car"></i>Vehículos</span>
+        <span class="help-chip" data-chip="finanzas"><i class="fas fa-dollar-sign"></i>Finanzas</span>
+        <span class="help-chip" data-chip="documentos"><i class="fas fa-id-card"></i>Documentos</span>
+        <span class="help-chip" data-chip="auditoria"><i class="fas fa-clipboard-check"></i>Auditoría</span>
+        <span class="help-chip" data-chip="faq"><i class="fas fa-question-circle"></i>FAQ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-grid">
+    <!-- TOC -->
+    <div class="help-card toc">
+      <div class="help-card-h">
+        <h6 class="help-card-t">Guía rápida</h6>
+        <span class="help-pill"><i class="fas fa-compass"></i>Navegación</span>
+      </div>
+
+      <div class="help-card-b">
+        <div class="help-mini" style="margin-top:0;">
+          Consejo: usa el índice; se resalta automáticamente y en móvil se vuelve un carrusel horizontal.
+        </div>
+
+        <nav class="toc" style="margin-top:.65rem;">
+          <div id="helpToc">
+            <a class="help-toc-link" href="#sec-inicio"><i class="fas fa-rocket"></i>Inicio <span class="toc-badge" data-count="inicio">—</span></a>
+            <a class="help-toc-link" href="#sec-panel"><i class="fas fa-th-large"></i>Panel principal <span class="toc-badge" data-count="panel">—</span></a>
+            <a class="help-toc-link" href="#sec-perfil"><i class="fas fa-user-shield"></i>Mi perfil <span class="toc-badge" data-count="perfil">—</span></a>
+            <a class="help-toc-link" href="#sec-afiliados"><i class="fas fa-users"></i>Afiliados <span class="toc-badge" data-count="afiliados">—</span></a>
+            <a class="help-toc-link" href="#sec-vehiculos"><i class="fas fa-car"></i>Vehículos <span class="toc-badge" data-count="vehiculos">—</span></a>
+            <a class="help-toc-link" href="#sec-finanzas"><i class="fas fa-dollar-sign"></i>Finanzas <span class="toc-badge" data-count="finanzas">—</span></a>
+            <a class="help-toc-link" href="#sec-documentos"><i class="fas fa-id-card"></i>Documentos <span class="toc-badge" data-count="documentos">—</span></a>
+            <a class="help-toc-link" href="#sec-auditoria"><i class="fas fa-clipboard-check"></i>Auditoría <span class="toc-badge" data-count="auditoria">—</span></a>
+            <a class="help-toc-link" href="#sec-faq"><i class="fas fa-question-circle"></i>Preguntas frecuentes <span class="toc-badge" data-count="faq">—</span></a>
+          </div>
+        </nav>
+
+        <div class="help-actions" style="margin-top:.85rem;">
+          <button class="help-btn primary" type="button" id="btnExpandAll"><i class="fas fa-angle-double-down"></i>Expandir FAQ</button>
+          <button class="help-btn" type="button" id="btnCollapseAll"><i class="fas fa-angle-double-up"></i>Cerrar FAQ</button>
+          <button class="help-btn" type="button" id="btnClearFilters"><i class="fas fa-eraser"></i>Limpiar filtros</button>
+        </div>
+
+        <div class="help-mini">
+          Si algo no cuadra: revisa filtros activos, estado del afiliado/vehículo, y mensajes de validación del formulario (son tu “mapa”).
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div>
+      <!-- INICIO -->
+      <section id="sec-inicio" class="help-section help-topic" data-tags="inicio all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-rocket" style="color:var(--icon-strong);"></i> Inicio</span>
+          <span class="help-pill"><i class="fas fa-bolt"></i>Rápido</span>
+        </h5>
+        <p class="sec-sub">
+          Este módulo es un manual operativo: explica qué hace cada pantalla y te guía con pasos cortos y verificables.
+        </p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Cómo navegar sin perderte</p>
+                <p class="module-desc">Índice inteligente (sección activa) + chips (filtro rápido) + botón para subir arriba.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Tip: si estás capacitando a alguien, usa “Copiar pasos” y pégalos en WhatsApp o en un manual PDF.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-map-signs"></i></div>
             </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Elige una sección</p><p class="step-d">Panel, Perfil, Finanzas, etc.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Sigue los pasos</p><p class="step-d">Son checklist: haces 1–2–3 y confirmas.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Verifica resultado</p><p class="step-d">Revisa lista/detalle; si aplica, Auditoría para evidencia.</p></div></div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Búsqueda (opcional, pero potente)</p>
+                <p class="module-desc">Filtra secciones, resalta coincidencias y muestra cuántas secciones quedan visibles.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Ideal para soporte: “escribe ‘cierre’ y ve directo a la parte relevante”.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-search"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">/</div><div class="step-b"><p class="step-t">Abre búsqueda</p><p class="step-d">Presiona <span class="kbd">/</span> para enfocar.</p></div></div>
+              <div class="step"><div class="step-n">Esc</div><div class="step-b"><p class="step-t">Limpia rápido</p><p class="step-d">Presiona <span class="kbd">Esc</span> para limpiar y ver todo.</p></div></div>
+              <div class="step"><div class="step-n">✓</div><div class="step-b"><p class="step-t">Lee resaltados</p><p class="step-d">Las coincidencias se marcan con verde/teal suave.</p></div></div>
+            </div>
+          </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <div class="text-muted">
-            <i class="fas fa-cloud-upload-alt fa-4x mb-3"></i>
-            <h4>No hay documentos legales cargados.</h4>
-            <p>Usa el botón "Subir Documento" para comenzar.</p>
+      </section>
+
+      <!-- PANEL -->
+      <section id="sec-panel" class="help-section help-topic" data-tags="panel all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-th-large" style="color:var(--icon-strong);"></i> Panel principal</span>
+          <span class="help-pill"><i class="fas fa-eye"></i>Monitoreo</span>
+        </h5>
+        <p class="sec-sub">Tu “centro de control”: alertas, estado general y accesos rápidos.</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Alertas de vencimiento</p>
+                <p class="module-desc">Te evitan multas, atrasos y unidades fuera de regla.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Regla práctica: si vence en menos de 7 días, planifica actualización antes de operar.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+            <div class="steps" data-copy="panel-alertas">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Revisa alertas</p><p class="step-d">Cédula, RIF, seguro, patente, licencia, médico (según aplique).</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Entra al detalle</p><p class="step-d">Abre el afiliado/vehículo indicado y confirma fechas.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Actualiza y verifica</p><p class="step-d">Sube soportes; usa “Ver” para confirmar que es el archivo correcto.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="panel-alertas"><i class="fas fa-copy"></i>Copiar pasos</button>
+              <button class="help-btn" type="button" data-jump="#sec-documentos"><i class="fas fa-arrow-right"></i>Ir a Documentos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Accesos rápidos</p>
+                <p class="module-desc">Te ahorran clics: registra pagos, busca afiliados y abre reportes sin navegar tanto.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Consejo: si una acción es diaria, debe estar a máximo 2 clics.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-bolt"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Identifica la tarea</p><p class="step-d">Ej: registrar pago mensual o ubicar un afiliado.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Usa el acceso</p><p class="step-d">Evita entrar a listas largas cuando no hace falta.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Confirma resultado</p><p class="step-d">Verifica en historial/auditoría si necesitas respaldo.</p></div></div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- PERFIL -->
+      <section id="sec-perfil" class="help-section help-topic" data-tags="perfil all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-user-shield" style="color:var(--icon-strong);"></i> Mi perfil y seguridad</span>
+          <span class="help-pill"><i class="fas fa-lock"></i>Cuenta</span>
+        </h5>
+        <p class="sec-sub">Mantén datos correctos y reduce riesgos de acceso indebido.</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Actualizar datos</p>
+                <p class="module-desc">Nombres, apellidos, teléfono y foto de perfil.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Buenas prácticas: teléfono consistente (10 dígitos) y email sin espacios.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-user-edit"></i></div>
+            </div>
+            <div class="steps" data-copy="perfil-actualizar">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Edita campos</p><p class="step-d">Evita caracteres raros; revisa el correo.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Guarda cambios</p><p class="step-d">Confirma el mensaje de éxito.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Verifica visualmente</p><p class="step-d">Nombre/avatar deben verse actualizados.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="perfil-actualizar"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Contraseña y sesión</p>
+                <p class="module-desc">Una contraseña fuerte reduce soporte y riesgos.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Recomendación: 12+ caracteres y no reutilizar contraseñas.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-key"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Cambia contraseña</p><p class="step-d">Usa una nueva que no reutilices en otros sitios.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Cierra sesión si hace falta</p><p class="step-d">Especialmente en equipos compartidos.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Revisa auditoría</p><p class="step-d">Si hubo un evento raro, confirma “quién/cuándo”.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AFILIADOS -->
+      <section id="sec-afiliados" class="help-section help-topic" data-tags="afiliados all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-users" style="color:var(--icon-strong);"></i> Afiliados</span>
+          <span class="help-pill"><i class="fas fa-filter"></i>Gestión</span>
+        </h5>
+        <p class="sec-sub">Registro, edición, filtros y búsqueda rápida.</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Buscar sin perder tiempo</p>
+                <p class="module-desc">Lo más rápido es por cédula; por nombres puede haber homónimos.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Si no aparece, casi siempre es por filtros activos o estado (activo/inactivo).</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-search"></i></div>
+            </div>
+            <div class="steps" data-copy="afiliados-buscar">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Usa cédula (o placa/casco si aplica)</p><p class="step-d">Maximiza coincidencia exacta.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Revisa filtros</p><p class="step-d">Operativo/inoperativo/sin vehículo puede ocultar.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Abre el detalle</p><p class="step-d">Ahí confirmas documentos, vehículo y datos principales.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="afiliados-buscar"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Registrar / editar con consistencia</p>
+                <p class="module-desc">Evita “datos basura”: teléfono, email y RIF (si aplica) deben estar limpios.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Regla: si un dato se usa para buscar o validar, debe tener formato estándar.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-user-plus"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Completa datos base</p><p class="step-d">Cédula, nombres, apellidos, teléfono, dirección (según tu formulario).</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Valida duplicados</p><p class="step-d">Cédula, teléfono, email y RIF.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Guarda y confirma</p><p class="step-d">Corrige lo que indique el mensaje debajo del campo.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VEHÍCULOS -->
+      <section id="sec-vehiculos" class="help-section help-topic" data-tags="vehiculos all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-car" style="color:var(--icon-strong);"></i> Vehículos</span>
+          <span class="help-pill"><i class="fas fa-check-circle"></i>Control</span>
+        </h5>
+        <p class="sec-sub">Registro y control de unidades: estado y datos clave.</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Reglas de oro (integridad del sistema)</p>
+                <p class="module-desc">Duplicados generan caos: placa, casco y seriales deben ser únicos.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Si un dato identifica un vehículo, debe ser único y estable en el tiempo.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-shield-alt"></i></div>
+            </div>
+            <div class="steps" data-copy="vehiculos-reglas">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Placa única</p><p class="step-d">No debe existir en otra unidad.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Casco único</p><p class="step-d">Evita asignarlo a dos vehículos distintos.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Seriales consistentes</p><p class="step-d">Si validas NIV/serial, respeta formato y mayúsculas.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="vehiculos-reglas"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Operativo / inoperativo</p>
+                <p class="module-desc">Útil para filtrar y tomar decisiones: quién puede trabajar hoy y quién no.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Si un documento está vencido, lo recomendable es marcar inoperativo hasta regularizar.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-traffic-light"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Revisa vencimientos</p><p class="step-d">Licencia, seguro, médico, patente (según tu modelo).</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Actualiza soportes</p><p class="step-d">Sube el archivo y confirma visualizando.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Confirma en lista</p><p class="step-d">Filtra por operativo/inoperativo para validar.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINANZAS -->
+      <section id="sec-finanzas" class="help-section help-topic" data-tags="finanzas all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-dollar-sign" style="color:var(--icon-strong);"></i> Finanzas</span>
+          <span class="help-pill"><i class="fas fa-receipt"></i>Pagos</span>
+        </h5>
+        <p class="sec-sub">Registro de pagos, historial, reportes y procesos (cuando aplique).</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Registrar pago (sin errores)</p>
+                <p class="module-desc">El objetivo: pago verificable, consistente y con respaldo.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Buenas prácticas: periodo correcto, monto consistente y evidencia (si tu flujo permite adjuntar).</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-cash-register"></i></div>
+            </div>
+            <div class="steps" data-copy="finanzas-registrar">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Selecciona afiliado correcto</p><p class="step-d">Verifica cédula y, si aplica, vehículo operativo.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Define periodo</p><p class="step-d">Mes/año; si hay pago múltiple, confirma lista de meses.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Guarda y valida</p><p class="step-d">Revisa historial y/o recibo; auditoría si necesitas traza.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="finanzas-registrar"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Historial y reportes</p>
+                <p class="module-desc">Control administrativo: imprime, exporta y respalda.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Tip: exporta con filtros aplicados (mes/año) para reportes limpios.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-file-export"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Filtra por mes/año</p><p class="step-d">Evita confusiones entre periodos.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Exporta PDF/Excel</p><p class="step-d">Para imprimir o enviar a administración.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Confirma trazabilidad</p><p class="step-d">Auditoría respalda cambios y registros.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOCUMENTOS -->
+      <section id="sec-documentos" class="help-section help-topic" data-tags="documentos all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-id-card" style="color:var(--icon-strong);"></i> Documentos</span>
+          <span class="help-pill"><i class="fas fa-file-upload"></i>Soportes</span>
+        </h5>
+        <p class="sec-sub">Subida y verificación de soportes (cédula, RIF, etc.).</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Subir correctamente</p>
+                <p class="module-desc">La regla es simple: subir → guardar → verificar.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Si el archivo está pesado, usa PDF optimizado o imagen comprimida para evitar fallos.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            </div>
+            <div class="steps" data-copy="docs-subir">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Selecciona archivo</p><p class="step-d">PDF o imagen; revisa que el UI lo refleje.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Guarda el formulario</p><p class="step-d">Sin guardar, no hay cambios persistentes.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Verifica con “Ver”</p><p class="step-d">Confirma que corresponde al afiliado correcto.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="docs-subir"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Errores comunes</p>
+                <p class="module-desc">Normalmente son: formato inválido, campo requerido, o no guardaste.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Solución rápida: corrige el campo marcado y reintenta (sin cambiar todo lo demás).</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-bug"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Lee el mensaje</p><p class="step-d">Indica exactamente qué corregir.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Valida archivo</p><p class="step-d">Prueba PDF; si imagen, que no sea excesiva.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Guarda y confirma</p><p class="step-d">Después abre “Ver” para asegurar que quedó.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUDITORÍA -->
+      <section id="sec-auditoria" class="help-section help-topic" data-tags="auditoria all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-clipboard-check" style="color:var(--icon-strong);"></i> Auditoría</span>
+          <span class="help-pill"><i class="fas fa-history"></i>Trazabilidad</span>
+        </h5>
+        <p class="sec-sub">Responde: “qué pasó”, “cuándo pasó” y “quién lo hizo”.</p>
+
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Cuándo usar Auditoría</p>
+                <p class="module-desc">Pagos, cierres, cambios de estado, actualizaciones y exportaciones.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Tip: ante reclamos, Auditoría es tu evidencia “neutral”.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-user-check"></i></div>
+            </div>
+            <div class="steps" data-copy="audit-uso">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Filtra por módulo</p><p class="step-d">Finanzas, Afiliados, Vehículos, Perfiles, etc.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Busca por texto</p><p class="step-d">Nombre, cédula, acción o descripción.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Ajusta periodo</p><p class="step-d">Hoy, 7 días, mes, año.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="audit-uso"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Buenas prácticas</p>
+                <p class="module-desc">Evitan confusiones y reducen soporte.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Registra acciones críticas con descripciones claras y consistentes.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-check-double"></i></div>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-n">✓</div><div class="step-b"><p class="step-t">Exportar con filtros</p><p class="step-d">Exporta solo lo necesario (evita “ruido”).</p></div></div>
+              <div class="step"><div class="step-n">✓</div><div class="step-b"><p class="step-t">Acciones con contexto</p><p class="step-d">Incluye afiliado/vehículo/mes cuando aplique.</p></div></div>
+              <div class="step"><div class="step-n">✓</div><div class="step-b"><p class="step-t">Consistencia</p><p class="step-d">Nombres de módulos y acciones siempre igual.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="sec-faq" class="help-section help-topic" data-tags="faq all">
+        <h5 class="sec-title">
+          <span><i class="fas fa-question-circle" style="color:var(--icon-strong);"></i> Preguntas frecuentes</span>
+          <span class="help-pill"><i class="fas fa-life-ring"></i>Soporte</span>
+        </h5>
+        <p class="sec-sub">Respuestas rápidas y accionables.</p>
+
+        <div class="faq-grid" id="faqList">
+          <details class="faq-item" open>
+            <summary>
+              <span>No encuentro un afiliado, ¿qué hago?</span>
+              <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="faq-body">
+              Busca por cédula primero; luego revisa filtros activos (operativo/inoperativo/sin vehículo) porque pueden ocultar resultados.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span>Subí un documento pero no aparece “Cargado”</span>
+              <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="faq-body">
+              Revisa formato (PDF/imagen), verifica que guardaste el formulario, y confirma abriendo “Ver” para asegurar que se subió el archivo correcto.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span>¿Cómo confirmo que un pago quedó registrado?</span>
+              <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="faq-body">
+              Revisa el historial financiero filtrando por mes/año y, si existe recibo, ábrelo; para trazabilidad, valida en Auditoría.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span>Me sale un error en un formulario, ¿cómo lo soluciono rápido?</span>
+              <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="faq-body">
+              Lee el mensaje bajo el campo: indica qué falta o qué formato es inválido. Corrige ese punto, guarda, y verifica el cambio en lista/detalle.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span>¿Qué hago si el sistema “se ve raro” en el teléfono?</span>
+              <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="faq-body">
+              Usa el índice como carrusel (arriba) y los chips; ambos se pueden desplazar horizontalmente. Si estás en modo escritorio forzado, desactívalo.
+            </div>
+          </details>
+        </div>
+      </section>
     </div>
-    {% endfor %}
+  </div>
 </div>
 
-<style>
-    .hover-card { transition: transform 0.2s; cursor: default; }
-    .hover-card:hover { transform: translateY(-5px); }
-</style>
+<script>
+(function(){
+  const input = document.getElementById("helpSearch");
+  const searchMeta = document.getElementById("helpSearchMeta");
+  const topics = Array.from(document.querySelectorAll(".help-topic"));
+  const tocLinks = Array.from(document.querySelectorAll(".help-toc-link"));
+  const progress = document.getElementById("helpProgressBar");
+  const fab = document.getElementById("helpFab");
+  const toast = document.getElementById("helpToast");
+  const chips = Array.from(document.querySelectorAll(".help-chip"));
+  const faqItems = Array.from(document.querySelectorAll("#faqList details.faq-item"));
+
+  const stepsMap = new Map(); // key -> [steps]
+  document.querySelectorAll("[data-copy]").forEach(block => {
+    const key = block.getAttribute("data-copy");
+    const steps = Array.from(block.querySelectorAll(".step")).map(s => {
+      const t = (s.querySelector(".step-t")?.innerText || "").trim();
+      const d = (s.querySelector(".step-d")?.innerText || "").trim();
+      return d ? `${t}: ${d}` : t;
+    }).filter(Boolean);
+    stepsMap.set(key, steps);
+  });
+
+  function norm(s){
+    return (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function clearMarks(node){
+    node.querySelectorAll("mark.help-mark").forEach(m => {
+      const text = document.createTextNode(m.textContent);
+      m.replaceWith(text);
+    });
+  }
+
+  function markAllMatches(container, q){
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => {
+        if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (p.closest("script, style, mark")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(textNode => {
+      const raw = textNode.nodeValue;
+      const rawNorm = norm(raw);
+      let start = 0;
+      let idx = rawNorm.indexOf(q, start);
+      if (idx === -1) return;
+
+      const frag = document.createDocumentFragment();
+      while (idx !== -1){
+        const before = raw.slice(start, idx);
+        const match = raw.slice(idx, idx + q.length);
+        if (before) frag.appendChild(document.createTextNode(before));
+
+        const mark = document.createElement("mark");
+        mark.className = "help-mark";
+        mark.textContent = match;
+        frag.appendChild(mark);
+
+        start = idx + q.length;
+        idx = rawNorm.indexOf(q, start);
+      }
+      const rest = raw.slice(start);
+      if (rest) frag.appendChild(document.createTextNode(rest));
+      textNode.replaceWith(frag);
+    });
+  }
+
+  let activeChip = "all";
+
+  function getTopicTags(topic){
+    const t = topic.getAttribute("data-tags") || "all";
+    return t.split(/\s+/).map(x => x.trim()).filter(Boolean);
+  }
+
+  function applyAll(){
+    const q = input ? norm(input.value).trim() : "";
+    let visibleCount = 0;
+
+    topics.forEach(t => clearMarks(t));
+
+    topics.forEach(topic => {
+      const tags = getTopicTags(topic);
+      const chipOk = (activeChip === "all") ? true : tags.includes(activeChip);
+
+      if (!chipOk){
+        topic.style.display = "none";
+        return;
+      }
+
+      if (!q){
+        topic.style.display = "";
+        visibleCount++;
+        return;
+      }
+
+      const text = norm(topic.innerText);
+      const ok = text.includes(q);
+      topic.style.display = ok ? "" : "none";
+      if (ok){
+        visibleCount++;
+        markAllMatches(topic, q);
+      }
+    });
+
+    if (searchMeta){
+      if (!q && activeChip === "all"){
+        searchMeta.textContent = "";
+      }else{
+        const chipLabel = activeChip === "all" ? "Todo" : activeChip;
+        const qLabel = q ? ` · “${q}”` : "";
+        searchMeta.textContent = ` · Mostrando ${visibleCount} sección(es) · Filtro: ${chipLabel}${qLabel}`;
+      }
+    }
+
+    updateTocCounters();
+  }
+
+  function smoothJump(hash){
+    const target = document.querySelector(hash);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(null, "", hash);
+  }
+
+  // TOC smooth
+  tocLinks.forEach(a => {
+    a.addEventListener("click", (e) => {
+      const id = a.getAttribute("href");
+      if (!id || !id.startsWith("#")) return;
+      e.preventDefault();
+      smoothJump(id);
+    });
+  });
+
+  // Chips
+  chips.forEach(ch => {
+    ch.addEventListener("click", () => {
+      chips.forEach(x => x.classList.remove("active"));
+      ch.classList.add("active");
+      activeChip = ch.getAttribute("data-chip") || "all";
+      applyAll();
+      const firstVisible = topics.find(t => t.style.display !== "none");
+      if (firstVisible && activeChip !== "all"){
+        smoothJump("#" + firstVisible.id);
+      }
+    });
+  });
+
+  // Botones jump / copy
+  document.querySelectorAll("[data-jump]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const hash = btn.getAttribute("data-jump");
+      if (hash) smoothJump(hash);
+    });
+  });
+
+  async function showToast(msg){
+    if (!toast) return;
+    toast.textContent = msg || "Listo";
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 900);
+  }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("Copiado");
+    }catch(e){
+      showToast("No se pudo copiar");
+    }
+  }
+
+  document.querySelectorAll("[data-copy-steps]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-copy-steps");
+      const steps = stepsMap.get(key) || [];
+      if (!steps.length){
+        showToast("Sin pasos para copiar");
+        return;
+      }
+      const out = steps.map((s, i) => `${i+1}. ${s}`).join("\n");
+      copyText(out);
+    });
+  });
+
+  // Buscador
+  if (input){
+    input.addEventListener("input", applyAll);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== input){
+        e.preventDefault();
+        input.focus();
+      }
+      if (e.key === "Escape" && document.activeElement === input){
+        input.value = "";
+        applyAll();
+        input.blur();
+      }
+      if (e.altKey && (e.key === "ArrowUp")){
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        history.replaceState(null, "", "#inicio");
+      }
+    });
+  }
+
+  // Sección activa en TOC
+  const sections = Array.from(document.querySelectorAll("section.help-topic[id]"));
+  const linkById = new Map(tocLinks.map(a => [a.getAttribute("href"), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const hash = "#" + entry.target.id;
+      tocLinks.forEach(x => x.classList.remove("active"));
+      const link = linkById.get(hash);
+      if (link) link.classList.add("active");
+    });
+  }, { threshold: 0.35 });
+  sections.forEach(sec => io.observe(sec));
+
+  // Progreso + FAB
+  function onScroll(){
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const y = doc.scrollTop || document.body.scrollTop;
+    const pct = max > 0 ? (y / max) * 100 : 0;
+    if (progress) progress.style.width = pct.toFixed(2) + "%";
+    if (fab) fab.style.display = y > 550 ? "inline-flex" : "none";
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  if (fab){
+    fab.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      history.replaceState(null, "", "#inicio");
+    });
+  }
+
+  // FAQ expand/collapse
+  const btnExpandAll = document.getElementById("btnExpandAll");
+  const btnCollapseAll = document.getElementById("btnCollapseAll");
+  if (btnExpandAll){
+    btnExpandAll.addEventListener("click", () => {
+      faqItems.forEach(d => d.open = true);
+      showToast("FAQ expandido");
+    });
+  }
+  if (btnCollapseAll){
+    btnCollapseAll.addEventListener("click", () => {
+      faqItems.forEach(d => d.open = false);
+      showToast("FAQ cerrado");
+    });
+  }
+
+  // Limpiar filtros
+  const btnClear = document.getElementById("btnClearFilters");
+  if (btnClear){
+    btnClear.addEventListener("click", () => {
+      activeChip = "all";
+      chips.forEach(x => x.classList.remove("active"));
+      const allChip = chips.find(x => x.getAttribute("data-chip") === "all");
+      if (allChip) allChip.classList.add("active");
+      if (input) input.value = "";
+      applyAll();
+      showToast("Filtros limpiados");
+    });
+  }
+
+  // Contadores de TOC (cuántas secciones visibles por tag)
+  function updateTocCounters(){
+    const counts = {
+      inicio: 0, panel: 0, perfil: 0, afiliados: 0,
+      vehiculos: 0, finanzas: 0, documentos: 0, auditoria: 0, faq: 0
+    };
+
+    topics.forEach(topic => {
+      if (topic.style.display === "none") return;
+      const tags = getTopicTags(topic);
+      Object.keys(counts).forEach(k => { if (tags.includes(k)) counts[k]++; });
+    });
+
+    document.querySelectorAll(".toc-badge[data-count]").forEach(b => {
+      const k = b.getAttribute("data-count");
+      b.textContent = (k && counts[k] !== undefined) ? String(counts[k]) : "—";
+    });
+  }
+
+  // Init
+  applyAll();
+})();
+</script>
 {% endblock %}
