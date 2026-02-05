@@ -613,6 +613,26 @@
   }
 }
 
+@media (max-width: 768px){
+  /* El botón debe tener tamaño fijo, no 100% */
+  #sidebarToggleTop{
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 44px !important;
+  }
+
+  /* La topbar fija no debe “crecer” y tapar contenido */
+  .navbar.bg-white{
+    height: var(--topbar-h) !important;
+    max-height: var(--topbar-h) !important;
+    overflow: hidden !important;
+  }
+}
+
 
 </style>
 
@@ -762,232 +782,275 @@
         </div>
     </div>
 
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+   <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+<script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-    <script>
-        (function () {
-            const btn = document.getElementById("themeToggleBtn");
-            let modo = localStorage.getItem('theme') === 'dark';
-            if (modo) { document.body.classList.add('dark-mode'); }
-            btn.onclick = function () {
-                btn.classList.add('rotate-active');
-                setTimeout(() => btn.classList.remove('rotate-active'), 500);
-                modo = !modo;
-                document.body.classList.toggle('dark-mode');
-                localStorage.setItem('theme', modo ? 'dark' : 'light');
-            };
-        })();
+<script>
+/* =========================
+   1) TEMA (claro/oscuro)
+   ========================= */
+(function () {
+  const btn = document.getElementById("themeToggleBtn");
+  const root = document.documentElement;
 
-        const btnSelectFile = document.getElementById('btnSelectFile');
-        const avatarInput = document.getElementById('avatarInput');
-        const btnCapturePhoto = document.getElementById('btnCapturePhoto');
-        const btnTakeSnapshot = document.getElementById('btnTakeSnapshot');
-        const cameraStream = document.getElementById('cameraStream');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const photoCanvas = document.getElementById('photoCanvas');
-        let stream = null;
+  function applyTheme(isDark){
+    document.body.classList.toggle('dark-mode', isDark);
+    root.classList.toggle('dark-mode', isDark); // por si tu scrollbar/vars dependen de html
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
 
-        async function checkCameraAvailability() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) { disableCameraBtn(); return; }
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoInput = devices.find(device => device.kind === 'videoinput');
-                if (!videoInput) disableCameraBtn();
-            } catch (err) { disableCameraBtn(); }
-        }
-        function disableCameraBtn() {
-            btnCapturePhoto.disabled = true;
-            btnCapturePhoto.classList.add('btn-disabled-camera');
-            btnCapturePhoto.innerHTML = '<i class="fas fa-video-slash mr-2"></i>Sin Cámara';
-        }
-        document.addEventListener("DOMContentLoaded", checkCameraAvailability);
+  let isDark = localStorage.getItem('theme') === 'dark';
+  applyTheme(isDark);
 
-        if (btnSelectFile) { btnSelectFile.addEventListener('click', () => { stopCamera(); avatarInput.click(); }); }
+  if (!btn) return;
 
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    avatarPreview.src = e.target.result;
-                    document.getElementById('btnSaveAvatar').disabled = false;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+  btn.addEventListener('click', function () {
+    btn.classList.add('rotate-active');
+    setTimeout(() => btn.classList.remove('rotate-active'), 500);
+    isDark = !isDark;
+    applyTheme(isDark);
+  });
+})();
 
-        if (btnCapturePhoto) {
-            btnCapturePhoto.addEventListener('click', async () => {
-                if (btnCapturePhoto.disabled) return;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    cameraStream.srcObject = stream;
-                    cameraStream.play();
-                    cameraStream.classList.remove('d-none');
-                    avatarPreview.classList.add('d-none');
-                    btnCapturePhoto.classList.add('d-none');
-                    btnSelectFile.classList.add('d-none');
-                    btnTakeSnapshot.classList.remove('d-none');
-                } catch (err) { alert("No se pudo acceder a la cámara."); }
-            });
-        }
 
-        if (btnTakeSnapshot) {
-            btnTakeSnapshot.addEventListener('click', () => {
-                const context = photoCanvas.getContext('2d');
-                photoCanvas.width = 300; photoCanvas.height = 300;
-                context.drawImage(cameraStream, 0, 0, 300, 300);
-                photoCanvas.toBlob(blob => {
-                    const file = new File([blob], "foto.jpg", { type: "image/jpeg" });
-                    const dt = new DataTransfer(); dt.items.add(file);
-                    avatarInput.files = dt.files;
-                    avatarPreview.src = URL.createObjectURL(blob);
-                    stopCamera();
-                    document.getElementById('btnSaveAvatar').disabled = false;
-                }, 'image/jpeg');
-            });
-        }
+/* =========================
+   2) AVATAR: subir archivo / cámara
+   (con null-checks para que no rompa si no existe el modal)
+   ========================= */
+(function () {
+  const btnSelectFile = document.getElementById('btnSelectFile');
+  const avatarInput = document.getElementById('avatarInput');
+  const btnCapturePhoto = document.getElementById('btnCapturePhoto');
+  const btnTakeSnapshot = document.getElementById('btnTakeSnapshot');
+  const cameraStream = document.getElementById('cameraStream');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const photoCanvas = document.getElementById('photoCanvas');
+  const btnSaveAvatar = document.getElementById('btnSaveAvatar');
+  const form = document.getElementById('avatarUploadForm');
 
-        function stopCamera() {
-            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-            cameraStream.classList.add('d-none');
-            avatarPreview.classList.remove('d-none');
-            btnCapturePhoto.classList.remove('d-none');
-            btnSelectFile.classList.remove('d-none');
-            btnTakeSnapshot.classList.add('d-none');
-        }
+  let stream = null;
 
-        document.getElementById('btnSaveAvatar').addEventListener('click', function () {
-            const btn = this;
-            const formData = new FormData(document.getElementById('avatarUploadForm'));
-            btn.innerHTML = 'Guardando...';
-            fetch("{% url 'taxis:actualizar_avatar_presidente' %}", {
-                method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-            }).then(r => r.json()).then(data => { if (data.status === 'ok') location.reload(); });
-        });
+  function stopCamera() {
+    if (stream) {
+      try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      stream = null;
+    }
+    if (cameraStream) cameraStream.classList.add('d-none');
+    if (avatarPreview) avatarPreview.classList.remove('d-none');
+    if (btnCapturePhoto) btnCapturePhoto.classList.remove('d-none');
+    if (btnSelectFile) btnSelectFile.classList.remove('d-none');
+    if (btnTakeSnapshot) btnTakeSnapshot.classList.add('d-none');
+  }
 
-        $('#avatarModal').on('hidden.bs.modal', stopCamera);
+  async function checkCameraAvailability() {
+    if (!btnCapturePhoto) return;
 
-  (() => {
-  const sidebar = document.querySelector('.sidebar');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      disableCameraBtn();
+      return;
+    }
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInput = devices.find(d => d.kind === 'videoinput');
+      if (!videoInput) disableCameraBtn();
+    } catch (err) {
+      disableCameraBtn();
+    }
+  }
+
+  function disableCameraBtn() {
+    if (!btnCapturePhoto) return;
+    btnCapturePhoto.disabled = true;
+    btnCapturePhoto.classList.add('btn-disabled-camera');
+    btnCapturePhoto.innerHTML = '<i class="fas fa-video-slash mr-2"></i>Sin Cámara';
+  }
+
+  document.addEventListener("DOMContentLoaded", checkCameraAvailability);
+
+  if (btnSelectFile && avatarInput) {
+    btnSelectFile.addEventListener('click', () => {
+      stopCamera();
+      avatarInput.click();
+    });
+  }
+
+  // Preview cuando seleccionas archivo
+  if (avatarInput && avatarPreview && btnSaveAvatar) {
+    avatarInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarPreview.src = e.target.result;
+          btnSaveAvatar.disabled = false;
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+
+  // Abrir cámara
+  if (btnCapturePhoto && cameraStream && avatarPreview && btnTakeSnapshot && btnSelectFile) {
+    btnCapturePhoto.addEventListener('click', async () => {
+      if (btnCapturePhoto.disabled) return;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraStream.srcObject = stream;
+        await cameraStream.play();
+
+        cameraStream.classList.remove('d-none');
+        avatarPreview.classList.add('d-none');
+        btnCapturePhoto.classList.add('d-none');
+        btnSelectFile.classList.add('d-none');
+        btnTakeSnapshot.classList.remove('d-none');
+      } catch (err) {
+        alert("No se pudo acceder a la cámara.");
+      }
+    });
+  }
+
+  // Tomar foto
+  if (btnTakeSnapshot && photoCanvas && cameraStream && avatarInput && avatarPreview && btnSaveAvatar) {
+    btnTakeSnapshot.addEventListener('click', () => {
+      const ctx = photoCanvas.getContext('2d');
+      photoCanvas.width = 300;
+      photoCanvas.height = 300;
+      ctx.drawImage(cameraStream, 0, 0, 300, 300);
+
+      photoCanvas.toBlob(blob => {
+        if (!blob) return;
+        const file = new File([blob], "foto.jpg", { type: "image/jpeg" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        avatarInput.files = dt.files;
+
+        avatarPreview.src = URL.createObjectURL(blob);
+        stopCamera();
+        btnSaveAvatar.disabled = false;
+      }, 'image/jpeg');
+    });
+  }
+
+  // Guardar avatar (AJAX)
+  if (btnSaveAvatar && form) {
+    btnSaveAvatar.addEventListener('click', function () {
+      const btn = this;
+      const formData = new FormData(form);
+      const old = btn.innerHTML;
+
+      btn.innerHTML = 'Guardando...';
+      btn.disabled = true;
+
+      fetch("{% url 'taxis:actualizar_avatar_presidente' %}", {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.status === 'ok') location.reload();
+        else { btn.innerHTML = old; btn.disabled = false; }
+      })
+      .catch(() => { btn.innerHTML = old; btn.disabled = false; });
+    });
+  }
+
+  // Cuando se cierra el modal, parar cámara
+  if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+    window.jQuery(function () {
+      const $m = window.jQuery('#avatarModal');
+      if ($m.length) $m.on('hidden.bs.modal', stopCamera);
+    });
+  }
+})();
+
+
+/* =========================
+   3) SIDEBAR: SOLO abre/cierra con hamburguesa
+   - Intercepta el click en captura y anula el handler de SB-Admin
+   - Si cualquier cosa cambia clases sin el botón, lo revierte (MutationObserver)
+   ========================= */
+(function () {
+  const body = document.body;
+  const sidebar = document.getElementById('accordionSidebar') || document.querySelector('.sidebar');
+  const btnTop = document.getElementById('sidebarToggleTop');
+  const btnSide = document.getElementById('sidebarToggle');
+
   if (!sidebar) return;
 
-  const isMobile = () => window.matchMedia('(max-width: 991.98px)').matches;
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
-  const isField = (el) => {
-    if (!el) return false;
-    if (el.isContentEditable) return true;
-    return el.matches && el.matches('input, textarea, select');
-  };
+  // “Ventana” de permiso: solo durante el click real del botón
+  let allowUntil = 0;
+  const arm = () => { allowUntil = Date.now() + 800; };
+  const allowed = () => Date.now() < allowUntil;
 
-  const isLocked = () => isMobile() && isField(document.activeElement);
+  function hideSidebarCollapses(){
+    if (window.jQuery) window.jQuery('.sidebar .collapse.show').collapse('hide');
+  }
 
-  const forceClosed = () => {
-    // Estado "cerrado" típico de SB Admin 2
-    document.body.classList.add('sidebar-toggled');
-    sidebar.classList.add('toggled');
+  function setOpenMobile(open){
+    body.classList.toggle('sidebar-toggled', open);
+    // En móvil NO usamos .toggled para abrir/cerrar (evita aperturas raras)
+    sidebar.classList.remove('toggled');
+    if (!open) hideSidebarCollapses();
+  }
 
-    // Cierra sub-menús abiertos (si usas collapse)
-    if (window.jQuery) {
-      jQuery('.sidebar .collapse.show').collapse('hide');
-    }
-  };
+  function toggleDesktop(){
+    body.classList.toggle('sidebar-toggled');
+    sidebar.classList.toggle('toggled');
+    if (sidebar.classList.contains('toggled')) hideSidebarCollapses();
+  }
 
-  // Observadores: si cualquier script intenta quitar clases y abrir, lo revertimos
-  let obsBody = null;
-  let obsSidebar = null;
-
-  const startObservers = () => {
-    if (obsBody || obsSidebar) return;
-
-    const config = { attributes: true, attributeFilter: ['class'] };
-
-    obsBody = new MutationObserver(() => {
-      if (!isLocked()) return;
-      if (!document.body.classList.contains('sidebar-toggled')) forceClosed();
-    });
-
-    obsSidebar = new MutationObserver(() => {
-      if (!isLocked()) return;
-      if (!sidebar.classList.contains('toggled')) forceClosed();
-    });
-
-    obsBody.observe(document.body, config);
-    obsSidebar.observe(sidebar, config);
-  };
-
-  const stopObservers = () => {
-    if (obsBody) { obsBody.disconnect(); obsBody = null; }
-    if (obsSidebar) { obsSidebar.disconnect(); obsSidebar = null; }
-  };
-
-  // 1) Al entrar a escribir: forzar cerrado y activar “candado”
-  document.addEventListener('focusin', (e) => {
-    if (!isMobile()) return;
-    if (!isField(e.target)) return;
-
-    startObservers();
-    forceClosed();
-
-    // Refuerzo (por si el teclado dispara resize después del foco)
-    setTimeout(forceClosed, 50);
-    setTimeout(forceClosed, 250);
-  }, true);
-
-  // 2) Al salir del input: si ya no hay campos enfocados, quitar candado
-  document.addEventListener('focusout', (e) => {
-    if (!isMobile()) return;
-    if (!isField(e.target)) return;
-
-    setTimeout(() => {
-      if (!isLocked()) stopObservers();
-    }, 250);
-  }, true);
-
-  // 3) Si el teclado dispara resize y hay un input activo: mantener cerrado
-  window.addEventListener('resize', () => {
-    if (isLocked()) forceClosed();
-  }, { passive: true });
-
-  // 4) Bloquear clicks en botones de toggle mientras escribes (si existen)
-  document.addEventListener('click', (e) => {
-    if (!isLocked()) return;
-
-    const toggle = e.target.closest('#sidebarToggle, #sidebarToggleTop, .sidebar-toggle, [data-sidebar-toggle]');
-    if (!toggle) return;
-
+  function toggleFromHamburger(e){
+    // Captura antes que SB-Admin, cancelamos para que no exista “doble toggle”
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    forceClosed();
-  }, true);
-})();
 
-(() => {
-  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
-  const isField = (el) => el && (el.matches?.('input, textarea, select') || el.isContentEditable);
+    arm();
 
-  document.addEventListener('focusin', (e) => {
-    if (isMobile() && isField(e.target)) document.body.classList.add('kb-open');
-  }, true);
-
-  document.addEventListener('focusout', (e) => {
-    if (!isMobile() || !isField(e.target)) return;
-    setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove('kb-open'); }, 0);
-  }, true);
-
-  // Si el usuario toca el hamburguesa, quita el "lock" y quita foco del input
-  const btn = document.getElementById('sidebarToggleTop');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      try { document.activeElement?.blur?.(); } catch (e) {}
-      document.body.classList.remove('kb-open');
-    }, true);
+    if (isMobile()){
+      const open = !body.classList.contains('sidebar-toggled');
+      setOpenMobile(open);
+    } else {
+      toggleDesktop();
+    }
   }
+
+  // Intercepta SOLO los botones hamburguesa
+  [btnTop, btnSide].filter(Boolean).forEach(btn => {
+    btn.addEventListener('pointerdown', arm, true);
+    btn.addEventListener('touchstart', arm, { capture:true, passive:true });
+    btn.addEventListener('click', toggleFromHamburger, true);
+  });
+
+  // Si cambias entre desktop/mobile, evita que quede .toggled “ensuciando” el móvil
+  function normalizeOnResize(){
+    if (isMobile()) sidebar.classList.remove('toggled');
+  }
+  window.addEventListener('resize', normalizeOnResize, { passive:true });
+  normalizeOnResize();
+
+  // GUARDIÁN: si cualquier script/gesto intenta abrir sin botón, lo cerramos
+  const obsBody = new MutationObserver(() => {
+    if (!allowed() && body.classList.contains('sidebar-toggled')) {
+      body.classList.remove('sidebar-toggled');
+    }
+  });
+  obsBody.observe(body, { attributes:true, attributeFilter:['class'] }); // observar "class" [web:615]
+
+  const obsSidebar = new MutationObserver(() => {
+    // En desktop permitimos .toggled solo por botón; en móvil NUNCA debe quedarse
+    if (!allowed() && sidebar.classList.contains('toggled')) {
+      sidebar.classList.remove('toggled');
+    }
+  });
+  obsSidebar.observe(sidebar, { attributes:true, attributeFilter:['class'] }); // observar "class" [web:615]
 })();
-    </script>
+</script>
+
 </body>
 
 </html>

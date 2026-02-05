@@ -4,7 +4,6 @@ Configuración principal del proyecto Django 'cooperativa'.
 Optimizado para Render, desarrollo local con python-decouple.
 """
 
-
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
@@ -18,7 +17,6 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
 # -------------------------------------------------------------------
 # SEGURIDAD BÁSICA
 # -------------------------------------------------------------------
@@ -27,14 +25,13 @@ SECRET_KEY = config(
     default="django-insecure-development-key-change-in-production",
 )
 
-
 DEBUG = config("DEBUG", default="True").lower() == "true"
-
 
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     default="cooperativa-wilson.onrender.com,.onrender.com,localhost,127.0.0.1",
 ).split(",")
+
 
 # -------------------------------------------------------------------
 # CABECERAS Y COOKIES SEGURAS
@@ -45,12 +42,9 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = "DENY"
 
-
-
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default="False").lower() == "true"
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default="False").lower() == "true"
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default="False").lower() == "true"
-
 
 
 # -------------------------------------------------------------------
@@ -58,10 +52,9 @@ SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default="False").lower()
 # -------------------------------------------------------------------
 INSTALLED_APPS = [
     # TUS APPS PRIMERO
-    'taxis.apps.TaxisConfig',   
+    'taxis.apps.TaxisConfig',
     "core",
-        
-    
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -69,9 +62,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    "widget_tweaks", 
+    "widget_tweaks",
 ]
-
 
 
 # -------------------------------------------------------------------
@@ -89,13 +81,10 @@ MIDDLEWARE = [
 ]
 
 
-
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE URLS Y TEMPLATES
 # -------------------------------------------------------------------
 ROOT_URLCONF = "cooperativa.urls"
-
-
 
 TEMPLATES = [
     {
@@ -113,10 +102,7 @@ TEMPLATES = [
     },
 ]
 
-
-
 WSGI_APPLICATION = "cooperativa.wsgi.application"
-
 
 
 # -------------------------------------------------------------------
@@ -139,7 +125,6 @@ else:
     }
 
 
-
 # -------------------------------------------------------------------
 # VALIDACIÓN DE CONTRASEÑAS Y USUARIO
 # -------------------------------------------------------------------
@@ -150,10 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
 AUTH_USER_MODEL = "taxis.CustomUser"
-
 
 
 # -------------------------------------------------------------------
@@ -165,7 +147,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-
 # -------------------------------------------------------------------
 # ARCHIVOS ESTÁTICOS Y MEDIA
 # -------------------------------------------------------------------
@@ -174,15 +155,19 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-
-
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
+# ✅ FIX Render: permitir que MEDIA_ROOT sea una ruta ABSOLUTA (mount path del Disk)
+# En producción (Render) define MEDIA_ROOT como, por ejemplo:
+#   /var/data/media
+# o la ruta exacta que te muestra el Disk "Mount path" en Render.
+MEDIA_ROOT = config("MEDIA_ROOT", default=str(BASE_DIR / "media"))
+
+# Normaliza a Path por consistencia (Django acepta str, pero así evitas errores en joins)
+MEDIA_ROOT = str(Path(MEDIA_ROOT))
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 
 # -------------------------------------------------------------------
@@ -193,15 +178,10 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-
-
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="tucorreo@gmail.com")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="tu_app_password")
 
-
-
 DEFAULT_FROM_EMAIL = f"Cooperativa <{EMAIL_HOST_USER}>"
-
 
 
 # -------------------------------------------------------------------
@@ -209,10 +189,7 @@ DEFAULT_FROM_EMAIL = f"Cooperativa <{EMAIL_HOST_USER}>"
 # -------------------------------------------------------------------
 LOGIN_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/login/"
-
-# Usamos el namespace 'taxis' para evitar errores de reversa
 LOGIN_REDIRECT_URL = "taxis:panel_general"
-
 
 
 MESSAGE_TAGS = {
@@ -224,7 +201,6 @@ MESSAGE_TAGS = {
 }
 
 
-
 # -------------------------------------------------------------------
 # CONFIGURACIÓN DE CACHE (Para reenvío de correos con límite)
 # -------------------------------------------------------------------
@@ -234,7 +210,6 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
-
 
 
 # -------------------------------------------------------------------
