@@ -31,12 +31,10 @@ SECRET_KEY = config(
 DEBUG = config("DEBUG", default="True").lower() == "true"
 
 
-ALLOWED_HOSTS = [
-    "cooperativa-wilson-torres-33-rl.onrender.com",
-    "localhost",
-    "127.0.0.1",
-].split
-
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="cooperativa-wilson.onrender.com,.onrender.com,localhost,127.0.0.1",
+).split(",")
 
 # -------------------------------------------------------------------
 # CABECERAS Y COOKIES SEGURAS
