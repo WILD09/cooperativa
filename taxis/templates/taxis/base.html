@@ -791,59 +791,99 @@
         });
       }
 
-       (function () {
+       (() => {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // Botones típicos en SB Admin / similares
-  const toggleBtns = ['sidebarToggle', 'sidebarToggleTop']
-    .map(id => document.getElementById(id))
-    .filter(Boolean);
-
   const isMobile = () => window.matchMedia('(max-width: 991.98px)').matches;
 
-  function closeSidebar() {
+  const isField = (el) => {
+    if (!el) return false;
+    if (el.isContentEditable) return true;
+    return el.matches && el.matches('input, textarea, select');
+  };
+
+  const isLocked = () => isMobile() && isField(document.activeElement);
+
+  const forceClosed = () => {
+    // Estado "cerrado" típico de SB Admin 2
     document.body.classList.add('sidebar-toggled');
     sidebar.classList.add('toggled');
+
+    // Cierra sub-menús abiertos (si usas collapse)
     if (window.jQuery) {
-      jQuery('.sidebar .collapse').collapse('hide');
+      jQuery('.sidebar .collapse.show').collapse('hide');
     }
-  }
+  };
 
-  function isFormField(el) {
-    return el && el.matches && el.matches('input, textarea, select');
-  }
+  // Observadores: si cualquier script intenta quitar clases y abrir, lo revertimos
+  let obsBody = null;
+  let obsSidebar = null;
 
-  // Cuando un campo toma foco (focusin) volvemos a cerrar y re-enfocar el campo
-  document.addEventListener('focusin', function (e) {
+  const startObservers = () => {
+    if (obsBody || obsSidebar) return;
+
+    const config = { attributes: true, attributeFilter: ['class'] };
+
+    obsBody = new MutationObserver(() => {
+      if (!isLocked()) return;
+      if (!document.body.classList.contains('sidebar-toggled')) forceClosed();
+    });
+
+    obsSidebar = new MutationObserver(() => {
+      if (!isLocked()) return;
+      if (!sidebar.classList.contains('toggled')) forceClosed();
+    });
+
+    obsBody.observe(document.body, config);
+    obsSidebar.observe(sidebar, config);
+  };
+
+  const stopObservers = () => {
+    if (obsBody) { obsBody.disconnect(); obsBody = null; }
+    if (obsSidebar) { obsSidebar.disconnect(); obsSidebar = null; }
+  };
+
+  // 1) Al entrar a escribir: forzar cerrado y activar “candado”
+  document.addEventListener('focusin', (e) => {
     if (!isMobile()) return;
-    if (!isFormField(e.target)) return;
+    if (!isField(e.target)) return;
 
-    // Deshabilita el botón toggle mientras se escribe (evita taps accidentales)
-    toggleBtns.forEach(b => b.style.pointerEvents = 'none');
+    startObservers();
+    forceClosed();
 
-    // Cierra sidebar justo después del evento (por si se abrió “en el click”)
-    const target = e.target;
+    // Refuerzo (por si el teclado dispara resize después del foco)
+    setTimeout(forceClosed, 50);
+    setTimeout(forceClosed, 250);
+  }, true);
+
+  // 2) Al salir del input: si ya no hay campos enfocados, quitar candado
+  document.addEventListener('focusout', (e) => {
+    if (!isMobile()) return;
+    if (!isField(e.target)) return;
+
     setTimeout(() => {
-      closeSidebar();
-      // Recupera el foco para que no interrumpa el flujo
-      try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
-    }, 0);
-  }); // focusin existe y burbujea, útil para esto [web:535]
+      if (!isLocked()) stopObservers();
+    }, 250);
+  }, true);
 
-  // Cuando sales del input, vuelve a habilitar el toggle
-  document.addEventListener('focusout', function (e) {
-    if (!isMobile()) return;
-    if (!isFormField(e.target)) return;
-    setTimeout(() => toggleBtns.forEach(b => b.style.pointerEvents = ''), 150);
-  });
-
-  // Si el teclado dispara resize, y hay un input activo, re-cierra
-  window.addEventListener('resize', function () {
-    if (!isMobile()) return;
-    const ae = document.activeElement;
-    if (isFormField(ae)) closeSidebar();
+  // 3) Si el teclado dispara resize y hay un input activo: mantener cerrado
+  window.addEventListener('resize', () => {
+    if (isLocked()) forceClosed();
   }, { passive: true });
+
+  // 4) Bloquear clicks en botones de toggle mientras escribes (si existen)
+  document.addEventListener('click', (e) => {
+    if (!isLocked()) return;
+
+    const toggle = e.target.closest('#sidebarToggle, #sidebarToggleTop, .sidebar-toggle, [data-sidebar-toggle]');
+    if (!toggle) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    forceClosed();
+  }, true);
 })();
     </script>
 </body>
