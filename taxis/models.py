@@ -755,10 +755,11 @@ class PagoMensual(models.Model):
     Los pagos mayores a 5 años se archivan automáticamente.
     """
 
-
     conductor = models.ForeignKey(
         Conductor,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="pagos_mensuales",
         help_text="Afiliado que realizó el pago",
     )
@@ -779,7 +780,6 @@ class PagoMensual(models.Model):
         help_text="Usuario que registró el pago",
     )
 
-
     # PERIODO
     mes = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)],
@@ -790,7 +790,6 @@ class PagoMensual(models.Model):
         help_text="Año del pago",
     )
 
-
     # DATOS FINANCIEROS
     monto_usd = models.DecimalField(
         max_digits=10,
@@ -800,7 +799,6 @@ class PagoMensual(models.Model):
     )
     fecha_pago = models.DateField(help_text="Fecha en que se realizó el pago")
 
-
     # COMPROBANTE
     comprobante = models.ImageField(
         upload_to="comprobantes/pagos/",
@@ -809,11 +807,9 @@ class PagoMensual(models.Model):
         help_text="Captura de pago móvil, transferencia, etc.",
     )
 
-
     # METADATOS
     notas = models.TextField(blank=True, help_text="Observaciones adicionales")
     creado_en = models.DateTimeField(auto_now_add=True)
-
 
     # ARCHIVADO
     archivado = models.BooleanField(
@@ -823,10 +819,10 @@ class PagoMensual(models.Model):
         null=True, blank=True, help_text="Fecha en que se archivó el registro"
     )
 
-
     # CACHE
     conductor_nombre_cache = models.CharField(max_length=200, blank=True)
     conductor_cedula_cache = models.CharField(max_length=20, blank=True)
+
 
 
     class Meta:
