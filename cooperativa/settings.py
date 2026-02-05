@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
     "cooperativa-wilson-torres-33-rl.onrender.com",
     "localhost",
     "127.0.0.1",
-]
+].split
 
 
 # -------------------------------------------------------------------
