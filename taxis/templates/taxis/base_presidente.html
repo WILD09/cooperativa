@@ -582,6 +582,36 @@
       opacity: 0.9;
       letter-spacing: 0.2px;
   }
+
+  @media (max-width: 768px){
+
+  /* 1) IMPORTANTE: "toggled" en SB-Admin se usa para COLAPSAR en desktop,
+        pero tú lo estabas usando como ABIERTO en móvil. Lo neutralizamos. */
+  #accordionSidebar.sidebar.toggled{
+    transform: translateX(-100%) !important;
+  }
+
+  /* 2) En móvil, SOLO se abre cuando el BODY tenga la clase (click real al botón) */
+  body.sidebar-toggled #accordionSidebar.sidebar{
+    transform: translateX(0) !important;
+  }
+
+  /* 3) Si hay un campo enfocado (teclado abierto), CERRAR SIEMPRE el sidebar */
+  body:focus-within #accordionSidebar.sidebar{
+    transform: translateX(-100%) !important;
+  }
+
+  /* 4) Si por un instante se activó el overlay, lo desactivamos al escribir */
+  body:focus-within.sidebar-toggled::before{
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* 5) Y devolvemos scroll (para que el teclado no “bloquee” raro la página) */
+  body:focus-within.sidebar-toggled{
+    overflow: auto !important;
+  }
+}
 </style>
 
 
