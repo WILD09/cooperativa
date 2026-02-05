@@ -18,6 +18,11 @@
     --input-focus-shadow: 0 0 12px rgba(0, 179, 0, 0.25);
     --error-color: #ef4444;
     --success-color: #10b981;
+
+    /* Scrollbar (CLARO) */
+    --sb-track: #f1f1f1;
+    --sb-thumb: var(--coop-green-primary);
+    --sb-thumb-hover: var(--coop-green-hover);
 }
 
 body.dark-mode {
@@ -25,7 +30,13 @@ body.dark-mode {
     --coop-green-hover: #059669;
     --coop-green-light: rgba(16, 185, 129, 0.2);
     --input-border: #4b5563;
+
+    /* Scrollbar (OSCURO) */
+    --sb-track: #1f2937;
+    --sb-thumb: var(--coop-green-primary);
+    --sb-thumb-hover: var(--coop-green-hover);
 }
+
 
 /* WIZARD FORMS */
 .wizard-container { max-width: 950px; margin: 0 auto 3rem; }
@@ -131,18 +142,18 @@ body.dark-mode .form-card { background: #0f1a2e; border-color: #374151; box-shad
 
 /* Anti-colapso suave del step (evita que quede en una línea) */
 .wizard-step {
-  display: none !important;      /* ← IMPORTANTE: !important */
+  display: none !important;
   animation: fadeIn 0.4s ease;
   width: 100%;
-  opacity: 0;                    /* ← Añade esto */
-  transition: opacity 0.3s ease; /* ← Añade esto */
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .wizard-step.active {
-  display: block !important;     /* ← Añade !important */
+  display: block !important;
   height: auto;
   overflow: visible;
-  opacity: 1;                    /* ← Añade esto */
+  opacity: 1;
 }
 
 .section-title {
@@ -327,7 +338,7 @@ body.dark-mode .dropzone-container:hover .dropzone-text { color: #e5e7eb; }
     align-items: stretch;
     gap: 20px;
     flex-wrap: wrap;
-    margin-left: 0;   /* evita conflictos con el gutter negativo de Bootstrap */
+    margin-left: 0;
     margin-right: 0;
 }
 .row.rowstylegap > [class*="col-"] { padding-left: 0; padding-right: 0; }
@@ -429,17 +440,13 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
    (sin tocar HTML/JS)
    =========================== */
 @media (min-width: 768px) {
-    /* Centra el bloque completo (label + dropzone) */
     #dropzone-cedula-frente,
     #dropzone-cedula-reverso {
         margin-left: auto;
         margin-right: auto;
         width: 100%;
-        max-width: 520px; /* ajusta si lo quieres más ancho/angosto */
+        max-width: 520px;
     }
-
-    /* Evita que el label quede “pegado” a la izquierda del todo
-       cuando el dropzone se centra con max-width */
     #dropzone-cedula-frente,
     #dropzone-cedula-reverso {
         box-sizing: border-box;
@@ -463,7 +470,6 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
     .dropzone-icon { font-size: 2.2rem; margin-bottom: 0.3rem; }
     .dropzone-text { font-size: 0.85rem; line-height: 1.4; }
 
-    /* responsive de rowstylegap */
     .row.rowstylegap > .col-md-6 { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); display: flex; }
 
     .wizard-actions { flex-direction: column; gap: 10px; }
@@ -541,7 +547,7 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 /* Opcional: si lo quieres centrado pero con límite en pantallas grandes */
 @media (min-width: 992px){
     #dropzone-rif-archivo{
-        max-width: 900px !important;  /* ajusta a gusto */
+        max-width: 900px !important;
         margin-left: auto;
         margin-right: auto;
     }
@@ -561,7 +567,60 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
     }
 }
 
+/* ============================================================
+   SCROLLBAR MODERNO (cross-browser)
+   WebKit: ::-webkit-scrollbar*
+   Firefox: scrollbar-color / scrollbar-width
+   ============================================================ */
+
+/* Chrome/Edge/Safari (WebKit/Chromium) */
+@supports selector(::-webkit-scrollbar){
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar{ width: 10px; height: 10px; }
+
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track{
+    background: var(--sb-track);
+    border-radius: 10px;
+    margin: 4px 0;
+  }
+
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb{
+    background: var(--sb-thumb);
+    border-radius: 10px;
+    min-height: 40px;
+  }
+
+  html::-webkit-scrollbar-thumb:hover,
+  body::-webkit-scrollbar-thumb:hover{
+    background: var(--sb-thumb-hover);
+  }
+
+  /* Scrollbars internos */
+  *::-webkit-scrollbar{ width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track{
+    background: var(--sb-track);
+    border-radius: 10px;
+    margin: 4px 0;
+  }
+  *::-webkit-scrollbar-thumb{
+    background: var(--sb-thumb);
+    border-radius: 10px;
+    min-height: 40px;
+  }
+  *::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+}
+
+/* Firefox (estándar) */
+@supports not selector(::-webkit-scrollbar){
+  html{
+    scrollbar-width: auto;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+  }
+}
 </style>
+
 
 
 <div class="header-section text-center mb-5">

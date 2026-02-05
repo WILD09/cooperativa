@@ -912,6 +912,50 @@
         });
 
         $('#avatarModal').on('hidden.bs.modal', stopCamera);
+
+    (function () {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar) return; // si no hay sidebar, no hace nada
+
+  // Solo aplicar en pantallas tipo móvil/tablet (ajusta breakpoint si quieres)
+  const isMobile = () => window.matchMedia('(max-width: 991.98px)').matches;
+
+  function closeSidebar() {
+    // SB Admin 2 usa estas clases para colapsar/ocultar
+    document.body.classList.add('sidebar-toggled');
+    sidebar.classList.add('toggled');
+
+    // Si tienes submenús colapsables, esto los cierra para evitar “rebotes”
+    if (window.jQuery) {
+      jQuery('.sidebar .collapse').collapse('hide');
+    }
+  }
+
+  function isFormField(el) {
+    return el && (el.matches('input, textarea, select') || el.closest('input, textarea, select'));
+  }
+
+  // 1) Cuando el usuario entra a escribir, cerramos sidebar (evita interrupción)
+  document.addEventListener('focusin', function (e) {
+    if (!isMobile()) return;
+    if (isFormField(e.target)) closeSidebar();
+  }, true); // capture para ganarle a handlers de plantilla [web:535]
+
+  // 2) En algunos móviles el “tap” dispara eventos raros antes del foco
+  document.addEventListener('pointerdown', function (e) {
+    if (!isMobile()) return;
+    if (isFormField(e.target)) closeSidebar();
+  }, { capture: true });
+
+  // 3) El teclado suele disparar resize; si hay un input enfocado, re-cerramos
+  window.addEventListener('resize', function () {
+    if (!isMobile()) return;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) {
+      closeSidebar();
+    }
+  }, { passive: true });
+})();
     </script>
 </body>
 
