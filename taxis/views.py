@@ -2380,14 +2380,17 @@ def mi_perfil_presidente(request):
                 if "rif" in request.FILES: uploaded.append("RIF")
 
                 if uploaded:
-                    accion = "Agregó documentos de identificación" if before_empty else "Actualizó documentos de identificación"
+                    accion = "configurar"  # <- corto, dentro de ACCION_CHOICES
+                    descripcion = "Actualizó documentos de identificación. Subidos: " + ", ".join(uploaded)
+
                     registrar_movimiento(
-                        request,
-                        accion=accion,
-                        modulo="Perfiles",
-                        descripcion="; ".join(uploaded),
-                        usuario=request.user,
+                     request,
+                     accion=accion,
+                     modulo="Perfiles",
+                     descripcion=descripcion,
+                     usuario=request.user,
                     )
+
 
                 messages.success(request, "Documentos actualizados correctamente.")
                 return redirect("taxis:mi_perfil_presidente")

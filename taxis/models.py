@@ -643,7 +643,7 @@ class MovimientoAudit(models.Model):
         ('configurar', 'Configuración'),
         ('exportar', 'Exportar Reporte'),
     ]
-    accion = models.CharField(max_length=20, choices=ACCION_CHOICES)
+    accion = models.CharField(max_length=255, choices=ACCION_CHOICES)
     
     # Contexto
     modulo = models.CharField(max_length=50)  # 'afiliados', 'finanzas', 'dt5'
