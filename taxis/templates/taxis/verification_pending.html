@@ -392,9 +392,12 @@ body.modo-oscuro .modal-btn-success:hover {
         <div class="title">¡Revisa tu correo!</div>
 
         <p class="desc">
-            Hemos enviado un enlace de confirmación a tu dirección de email.
+            Hemos enviado un enlace de confirmación a tu dirección de email:
             <br>
-            <span class="email-highlight">{{ pending_email }}</span>
+            <span class="email-highlight">
+  {{ pending_email|default:"(correo no disponible)" }}
+</span>
+
         </p>
         <p class="desc-muted">
             Por favor, haz clic en él para activar tu cuenta de Presidente.

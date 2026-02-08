@@ -2293,6 +2293,11 @@ def activation_resend(request):
 class VerificationPendingView(TemplateView):
     template_name = 'taxis/verification_pending.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_email'] = self.request.session.get('pending_email', '')
+        return context
+
 
 class ActivationSuccessView(LoginRequiredMixin, TemplateView):
     template_name = 'taxis/activation_success.html'
