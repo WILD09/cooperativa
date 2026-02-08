@@ -299,7 +299,7 @@ body.dark-mode .btn-apply-filters:hover{
   box-shadow:0 4px 12px rgba(16,185,129,.3);
 }
 
-/* ===== BOTÓN PDF (como tu imagen) ===== */
+/* ===== BOTÓN PDF ===== */
 .header-actions{
   display:flex;
   align-items:center;
@@ -321,7 +321,6 @@ body.dark-mode .btn-apply-filters:hover{
   white-space:nowrap;
   border:2px solid transparent;
   transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
-
   text-decoration:none;
   line-height:1;
 }
@@ -423,6 +422,9 @@ body.dark-mode .audit-avatar{
   object-position:center;
   border-radius:50%;
 }
+
+/* ✅ FIX: el ícono SIEMPRE existe; solo se oculta si hay img real */
+.audit-avatar i{ display:block; }
 .audit-avatar.has-img i{ display:none; }
 
 .audit-row-center{
@@ -488,8 +490,6 @@ body.dark-mode .audit-meta{ color:#9ca3af; }
   min-width:0;
   flex:1 1 260px;
   flex-wrap:wrap;
-
-  /* CLAVE: NO recortar el contenedor (si no, se corta "Equipo") */
   overflow: visible;
   box-sizing: border-box;
 }
@@ -500,16 +500,15 @@ body.dark-mode .audit-chip{
 
 .audit-chip strong{
   flex-shrink:0;
-  white-space:nowrap; /* "Equipo:" y "IP:" siempre completos */
+  white-space:nowrap;
 }
 
-/* El texto VALOR es el que se encoge y se parte (no el label) */
 .audit-chip > span{
-  min-width:0;                 /* flex puede encoger [web:452] */
+  min-width:0;
   max-width:100%;
   flex:1 1 180px;
-  overflow-wrap:anywhere;      /* rompe UA largo [web:449] */
-  word-break:break-word;       /* fallback */
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 
 /* ===== botones copiar ===== */
@@ -744,9 +743,7 @@ body.dark-mode .page-item.active .page-link{
     padding:.45rem .7rem;
     flex:1 1 100%;
   }
-  .audit-chip > span{
-    flex:1 1 100%;
-  }
+  .audit-chip > span{ flex:1 1 100%; }
   .copy-btn{
     margin-left:auto;
     padding:.26rem .7rem;
@@ -888,11 +885,18 @@ body.dark-mode .sidebar-brand-container .badge{
 <div role="list">
   {% for mov in movimientos %}
     <div class="audit-row" role="listitem">
+      {# ✅ FIX AVATAR: icono por defecto + img solo si hay avatar; si img falla, vuelve al icono #}
       <div class="audit-avatar {% if mov.usuario and mov.usuario.avatar %}has-img{% endif %}">
+        <i class="fas fa-user" aria-hidden="true"></i>
+
         {% if mov.usuario and mov.usuario.avatar %}
-          <img class="audit-avatar-img" src="{{ mov.usuario.avatar.url }}?v={{ mov.usuario.avatar.name }}" alt="Avatar">
-        {% else %}
-          <i class="fas fa-user"></i>
+          <img
+            class="audit-avatar-img"
+            src="{{ mov.usuario.avatar.url }}"
+            alt=""
+            loading="lazy"
+            onerror="this.style.display='none'; this.closest('.audit-avatar').classList.remove('has-img');"
+          >
         {% endif %}
       </div>
 

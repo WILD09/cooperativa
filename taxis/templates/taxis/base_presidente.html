@@ -144,8 +144,6 @@
       transition: width var(--transition-speed) var(--transition-curve), height var(--transition-speed) var(--transition-curve);
       border-radius: 50%;
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-
-      /* ✅ FIX: NO recortar aquí, si no se corta la camarita */
       overflow: visible;
   }
 
@@ -164,8 +162,6 @@
       align-items: center;
       justify-content: center;
       transition: background 0.3s ease, border-color 0.3s ease;
-
-      /* ✅ FIX: por encima del círculo */
       z-index: 20;
   }
 
@@ -284,7 +280,7 @@
 
   /* ===========================
      DESKTOP (PC) >= 769px
-     =========================== */
+     ============================ */
   @media (min-width: 769px) {
       body.sidebar-toggled .sidebar { width: var(--sidebar-w-collapsed); }
       body.sidebar-toggled #content-wrapper { padding-left: var(--sidebar-w-collapsed); }
@@ -317,7 +313,7 @@
 
   /* ===========================
      MOBILE OVERLAY <= 768px
-     =========================== */
+     ============================ */
   @media (max-width: 768px) {
       #content-wrapper {
           padding-left: 0 !important;
@@ -435,8 +431,11 @@
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; margin: 4px 0; }
   body.dark-mode ::-webkit-scrollbar-track { background: #1f2937; }
-  ::-webkit-scrollbar-thumb { background: var(--finance-primary); border-radius: 10px; min-height: 40px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--finance-secondary); }
+
+  /* ✅ FIX: no uses var(--finance-primary) / var(--finance-secondary) (no existen aquí) */
+  ::-webkit-scrollbar-thumb { background: var(--coop-green-primary); border-radius: 10px; min-height: 40px; }
+  ::-webkit-scrollbar-thumb:hover { background: #009900; }
+  body.dark-mode ::-webkit-scrollbar-thumb { background: #10b981; }
   body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #059669; }
 
   /* =========================
@@ -446,7 +445,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      overflow: hidden; /* ✅ aquí sí recortamos el avatar */
+      overflow: hidden;
       position: relative;
       display:flex;
       align-items:center;
@@ -512,10 +511,7 @@
 
   /* =========================
    HAMBURGUESA MOBILE (FIX COLOR)
-   - Tu JS usa body.dark-mode
    ========================= */
-
-/* Base (claro) */
 @media (max-width: 768px) {
   button#sidebarToggleTop{
     background: rgba(255, 255, 255, 0.08);
@@ -552,7 +548,6 @@
     100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), inset 0 0 5px rgba(16, 185, 129, 0.2); }
   }
 
-  /* ✅ Dark mode real: body.dark-mode */
   body.dark-mode button#sidebarToggleTop{
     background: rgba(16, 185, 129, 0.08);
     color: rgba(16, 185, 129, 0.85);
@@ -573,9 +568,7 @@
     animation: none;
   }
 }
-
 </style>
-
 </head>
 
 <body id="page-top">
@@ -589,7 +582,6 @@
             <!-- AVATAR -->
             <div class="sidebar-brand-container">
                 <a href="#" class="sidebar-avatar-link" data-toggle="modal" data-target="#avatarModal">
-                    <!-- Avatar sidebar: mismo patrón img + icon -->
                     <div class="avatar-shell {% if user.avatar %}has-img{% endif %}">
                         {% if user.avatar %}
                           <img class="avatar-img"
@@ -640,7 +632,6 @@
 
             <hr class="sidebar-divider d-none d-md-block my-2">
 
-            <!-- BOTÓN TOGGLE - IGUAL QUE CERRAR SESIÓN -->
             <div class="text-center mb-3 w-100" id="toggleButtonContainer">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
@@ -690,7 +681,6 @@
                         {% csrf_token %}
 
                         <div class="mb-3 d-flex justify-content-center position-relative">
-                            <!-- CONTENEDOR PREVIEW CON FALLBACK ICON -->
                             <div id="modalAvatarShell"
                                  class="modal-avatar-shell {% if user.avatar %}has-img{% endif %}">
                                 {% if user.avatar %}
@@ -700,7 +690,6 @@
                                        alt="Avatar preview"
                                        onerror="this.style.display='none'; this.closest('.modal-avatar-shell').classList.remove('has-img');">
                                 {% else %}
-                                  <!-- img existe igual para que JS lo use -->
                                   <img id="avatarPreview"
                                        class="avatar-img"
                                        src=""
@@ -751,17 +740,26 @@
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
 <script>
+/* =========================================================
+   FLAG GLOBAL: cuando el TEMA cambia clases en <body>
+   (evita que el MutationObserver del sidebar se dispare)
+   ========================================================= */
+window.__THEME_MUTATING__ = false;
+
 /* =========================
    1) TEMA (claro/oscuro)
    ========================= */
 (function () {
   const btn = document.getElementById("themeToggleBtn");
-  const root = document.documentElement;
 
   function applyTheme(isDark){
+    window.__THEME_MUTATING__ = true;
+
     document.body.classList.toggle('dark-mode', isDark);
-    root.classList.toggle('dark-mode', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+    // Suelta el flag en el siguiente frame (cuando ya pintó)
+    requestAnimationFrame(() => { window.__THEME_MUTATING__ = false; });
   }
 
   let isDark = localStorage.getItem('theme') === 'dark';
@@ -772,6 +770,7 @@
   btn.addEventListener('click', function () {
     btn.classList.add('rotate-active');
     setTimeout(() => btn.classList.remove('rotate-active'), 500);
+
     isDark = !isDark;
     applyTheme(isDark);
   });
@@ -790,7 +789,6 @@
   const photoCanvas = document.getElementById('photoCanvas');
   const btnSaveAvatar = document.getElementById('btnSaveAvatar');
   const form = document.getElementById('avatarUploadForm');
-
   const modalShell = document.getElementById('modalAvatarShell');
 
   let stream = null;
@@ -844,7 +842,6 @@
     });
   }
 
-  // Preview cuando seleccionas archivo
   if (avatarInput && avatarPreview && btnSaveAvatar) {
     avatarInput.addEventListener('change', function () {
       if (this.files && this.files[0]) {
@@ -860,7 +857,6 @@
     });
   }
 
-  // Abrir cámara
   if (btnCapturePhoto && cameraStream && avatarPreview && btnTakeSnapshot && btnSelectFile) {
     btnCapturePhoto.addEventListener('click', async () => {
       if (btnCapturePhoto.disabled) return;
@@ -875,7 +871,6 @@
         btnSelectFile.classList.add('d-none');
         btnTakeSnapshot.classList.remove('d-none');
 
-        // Mientras está la cámara, ocultamos el icono (porque el video ya ocupa el avatar)
         setHasImg(true);
       } catch (err) {
         alert("No se pudo acceder a la cámara.");
@@ -883,7 +878,6 @@
     });
   }
 
-  // Tomar foto
   if (btnTakeSnapshot && photoCanvas && cameraStream && avatarInput && avatarPreview && btnSaveAvatar) {
     btnTakeSnapshot.addEventListener('click', () => {
       const ctx = photoCanvas.getContext('2d');
@@ -908,7 +902,6 @@
     });
   }
 
-  // Guardar avatar (AJAX)
   if (btnSaveAvatar && form) {
     btnSaveAvatar.addEventListener('click', function () {
       const btn = this;
@@ -932,14 +925,12 @@
     });
   }
 
-  // Cuando se cierra el modal, parar cámara (y restaurar fallback si no hay preview)
   if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
     window.jQuery(function () {
       const $m = window.jQuery('#avatarModal');
       if ($m.length) $m.on('hidden.bs.modal', function () {
         stopCamera();
 
-        // Si no existe avatar guardado y no hay archivo seleccionado, mostrar icono
         const hasFile = avatarInput && avatarInput.files && avatarInput.files.length > 0;
         const hasSrc = avatarPreview && !!avatarPreview.getAttribute('src') && avatarPreview.style.display !== 'none';
         if (!hasFile && !hasSrc) setHasImg(false);
@@ -1008,7 +999,10 @@
   window.addEventListener('resize', normalizeOnResize, { passive:true });
   normalizeOnResize();
 
+  /* ✅ FIX: si el cambio de clases viene del TEMA, NO toques el sidebar */
   const obsBody = new MutationObserver(() => {
+    if (window.__THEME_MUTATING__) return;
+
     if (!allowed() && body.classList.contains('sidebar-toggled')) {
       body.classList.remove('sidebar-toggled');
     }
@@ -1016,6 +1010,8 @@
   obsBody.observe(body, { attributes:true, attributeFilter:['class'] });
 
   const obsSidebar = new MutationObserver(() => {
+    if (window.__THEME_MUTATING__) return;
+
     if (!allowed() && sidebar.classList.contains('toggled')) {
       sidebar.classList.remove('toggled');
     }
@@ -1044,3 +1040,4 @@
 
 </body>
 </html>
+
