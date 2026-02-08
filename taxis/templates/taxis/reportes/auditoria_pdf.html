@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LOG DE AUDITORÍA</title>
+  <style>
+    @page { size: letter landscape; margin: 0.8cm 1cm; }
+
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; }
+
+    /* Header */
+    .header-wrap { margin-bottom: 10px; }
+    .header-table { width: 100%; border-collapse: collapse; }
+    .header-table td { border: none; vertical-align: middle; padding: 0; }
+
+    /* Logos sin deformar */
+    .logo-left,
+    .logo-right{
+      height: 85px;
+      width: auto;
+      display: block;
+    }
+
+    .title { text-align: center; }
+    .title h1 {
+      margin: 0;
+      font-size: 18pt;
+      font-weight: 800;
+      color: #00b300;
+      text-transform: uppercase;
+    }
+    .title .subtitle { margin-top: 3px; font-size: 9pt; color: #333; }
+    .title .date { margin-top: 3px; font-size: 8pt; color: #666; font-style: italic; }
+
+    /* Tabla */
+    table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+
+    .table-header{
+      background-color:#00b300;
+      color:#fff;
+      font-weight:bold;
+      text-transform:uppercase;
+      padding:9px 6px;
+      border:1px solid #d1d5db;
+      font-size:8pt;
+      text-align: center;   /* <-- encabezados centrados */
+      vertical-align: middle;
+    }
+
+    td{
+      padding:7px 6px;
+      border:1px solid #d1d5db;
+      vertical-align:top;
+      word-wrap:break-word;
+    }
+
+    tr.fila-par{ background:#f9f9f9; }
+    tr.fila-impar{ background:#fff; }
+
+    /* Columnas */
+    .num-col{ width:4%; text-align:center; vertical-align:middle; }
+    .fecha-col{ width:11%; }
+    .usuario-col{ width:16%; }
+    .accion-col{ width:11%; }
+    .modulo-col{ width:10%; }
+    .descripcion-col{ width:32%; }
+    .ip-col{ width:16%; }
+
+    .small{ font-size:6.5pt; color:#666; line-height:1.35; }
+    .bold{ font-weight:700; color:#111; }
+
+    .empty-row{
+      text-align:center;
+      padding:20px;
+      color:#999;
+      font-style:italic;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ENCABEZADO -->
+  <div class="header-wrap">
+    <table class="header-table">
+      <tr>
+        <td style="text-align:left; width:20%;">
+          <img src="{% static 'img/logo_transporte.png' %}" class="logo-left" alt="Transporte">
+        </td>
+
+        <td class="title" style="text-align:center; width:60%;">
+          <h1>Log de Auditoría</h1>
+          <div class="subtitle">Sistema de Control de Movimientos</div>
+          <div class="date">Generado: {{ fecha_generacion|date:"d/m/Y H:i" }}</div>
+        </td>
+
+        <td style="text-align:right; width:20%;">
+          <img src="{% static 'img/logo_gran_mision.png' %}" class="logo-right" alt="Gran Misión">
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TABLA -->
+  <table>
+    <tr>
+      <td class="table-header num-col">#</td>
+      <td class="table-header fecha-col">Fecha/Hora</td>
+      <td class="table-header usuario-col">Usuario</td>
+      <td class="table-header accion-col">Acción</td>
+      <td class="table-header modulo-col">Módulo</td>
+      <td class="table-header descripcion-col">Descripción</td>
+      <td class="table-header ip-col">IP / Equipo</td>
+    </tr>
+
+    {% for m in movimientos %}
+    <tr class="{% cycle 'fila-impar' 'fila-par' %}">
+      <td class="num-col">{{ forloop.counter }}</td>
+
+      <td class="fecha-col">{{ m.fecha|date:"d/m/Y H:i" }}</td>
+
+      <td class="usuario-col">
+        {% if m.usuario %}
+          <span class="bold">{{ m.usuario.get_full_name|default:m.usuario.username }}</span><br>
+          <span class="small">{{ m.usuario.email }}</span>
+        {% else %}
+          <span class="bold">SISTEMA</span><br>
+          <span class="small">Automático</span>
+        {% endif %}
+      </td>
+
+      <td class="accion-col">{{ m.get_accion_display }}</td>
+      <td class="modulo-col">{{ m.modulo }}</td>
+      <td class="descripcion-col">{{ m.descripcion|default:"—" }}</td>
+
+      <td class="ip-col small">
+        <span class="bold">IP:</span> {{ m.ip_address|default:"—" }}<br>
+        <span class="bold">Equipo:</span> {{ m.user_agent|default:"—" }}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="empty-row">No hay registros de auditoría para mostrar</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

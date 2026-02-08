@@ -23,11 +23,8 @@
 /* MODO OSCURO */
 body.dark-mode .page-title{ color:#10b981; }
 
-
 /* ============================================================
    ✅ SCROLLBAR MODERNO (NO SE PISA ENTRE MODOS)
-   - Claro: #00b300 / hover #009900
-   - Oscuro: #10b981 / hover #059669
    ============================================================ */
 
 /* Variables locales (sin :root) */
@@ -42,26 +39,21 @@ body.dark-mode{
   --sb-thumb-hover: #059669;
 }
 
-/* WebKit (Chrome/Edge/Safari): aplica a body + contenedores con scroll */
+/* WebKit */
 ::-webkit-scrollbar{ width:10px; height:10px; }
-
 ::-webkit-scrollbar-track{
   background: var(--sb-track);
   border-radius:10px;
   margin:4px 0;
 }
-
 ::-webkit-scrollbar-thumb{
   background: var(--sb-thumb);
   border-radius:10px;
   min-height:40px;
 }
+::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
 
-::-webkit-scrollbar-thumb:hover{
-  background: var(--sb-thumb-hover);
-}
-
-/* Si el scroll ocurre en contenedores internos, refuerza sin romper dark-mode */
+/* Contenedores internos */
 *::-webkit-scrollbar{ width:10px; height:10px; }
 *::-webkit-scrollbar-track{
   background: var(--sb-track);
@@ -84,9 +76,8 @@ body.dark-mode html{
   scrollbar-color: var(--sb-thumb) var(--sb-track);
 }
 
-
 /* ============================================================
-   BARRA DE BÚSQUEDA + FILTROS
+   BARRA DE BÚSQUEDA + FILTROS + BOTÓN PDF
    ============================================================ */
 .header-controls{
   display:flex;
@@ -186,12 +177,20 @@ body.dark-mode .filter-btn{
   border-color:#10b981;
 }
 
+/* FIX 1: icono visible en hover */
+.filter-btn i{ color: inherit; }
 .filter-btn:hover{
   background-color:#00b300;
   color:#fff;
   transform:rotate(15deg);
 }
-body.dark-mode .filter-btn:hover{ background-color:#10b981; }
+.filter-btn:hover i{ color:#fff; }
+
+body.dark-mode .filter-btn:hover{
+  background-color:#10b981;
+  color:#fff;
+}
+body.dark-mode .filter-btn:hover i{ color:#fff; }
 
 /* MENU DESPLEGABLE DE FILTROS */
 .filter-dropdown{
@@ -300,6 +299,65 @@ body.dark-mode .btn-apply-filters:hover{
   box-shadow:0 4px 12px rgba(16,185,129,.3);
 }
 
+/* ===== BOTÓN PDF (como tu imagen) ===== */
+.header-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  flex-shrink:0;
+  margin-left:auto;
+}
+
+.btn-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  height:48px;
+  padding:0 22px;
+  border-radius:999px;
+  font-weight:800;
+  white-space:nowrap;
+  border:2px solid transparent;
+  transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+
+  text-decoration:none;
+  line-height:1;
+}
+.btn-pill:link,
+.btn-pill:visited,
+.btn-pill:hover,
+.btn-pill:active{
+  text-decoration:none;
+}
+.btn-pill:focus,
+.btn-pill:focus-visible{
+  outline:none;
+}
+
+.btn-pill-pdf{
+  background:#fff;
+  border-color:#dc3545;
+  color:#dc3545;
+}
+.btn-pill-pdf:hover{
+  background:#dc3545;
+  color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 10px 25px rgba(220,53,69,.25);
+}
+body.dark-mode .btn-pill-pdf{
+  background:transparent;
+  border-color:#ef4444;
+  color:#ef4444;
+}
+body.dark-mode .btn-pill-pdf:hover{
+  background:#ef4444;
+  border-color:#ef4444;
+  color:#fff;
+  box-shadow:0 10px 25px rgba(239,68,68,.22);
+}
 
 /* ============================================================
    LISTADO AUDITORÍA
@@ -335,6 +393,7 @@ body.dark-mode .audit-row:hover{
   box-shadow:0 8px 15px rgba(0,0,0,.3);
 }
 
+/* ===== AVATAR ===== */
 .audit-avatar{
   width:48px;
   height:48px;
@@ -347,12 +406,24 @@ body.dark-mode .audit-row:hover{
   flex-shrink:0;
   color:#00b300;
   font-size:1.3rem;
+  position:relative;
+  overflow:hidden;
 }
 body.dark-mode .audit-avatar{
   background:rgba(16,185,129,.15);
   border-color:#10b981;
   color:#10b981;
 }
+
+.audit-avatar-img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+  border-radius:50%;
+}
+.audit-avatar.has-img i{ display:none; }
 
 .audit-row-center{
   display:flex;
@@ -362,7 +433,7 @@ body.dark-mode .audit-avatar{
   min-width:0;
 }
 
-/* Ellipsis para nombre/correo (OK) */
+/* Ellipsis para nombre/correo */
 .audit-info-main{
   font-weight:700;
   color:#00b300;
@@ -382,7 +453,7 @@ body.dark-mode .audit-info-main{ color:#10b981; }
 }
 body.dark-mode .audit-info-secondary{ color:#9ca3af; }
 
-/* Descripción: permitir cortar cualquier cadena (evita desbordes) */
+/* Descripción */
 .audit-description{
   font-size:.85rem;
   color:#6b7280;
@@ -394,6 +465,82 @@ body.dark-mode .audit-info-secondary{ color:#9ca3af; }
 }
 body.dark-mode .audit-description{ color:#d1d5db; }
 
+/* ===== chips para IP y equipo ===== */
+.audit-meta{
+  font-size:.78rem;
+  color:#6b7280;
+  display:flex;
+  gap:.5rem;
+  flex-wrap:wrap;
+  align-items:stretch;
+}
+body.dark-mode .audit-meta{ color:#9ca3af; }
+
+.audit-chip{
+  border:1px solid #e5e7eb;
+  border-radius:999px;
+  padding:.35rem .65rem;
+  background:rgba(0,179,0,.06);
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  max-width:100%;
+  min-width:0;
+  flex:1 1 260px;
+  flex-wrap:wrap;
+
+  /* CLAVE: NO recortar el contenedor (si no, se corta "Equipo") */
+  overflow: visible;
+  box-sizing: border-box;
+}
+body.dark-mode .audit-chip{
+  border-color:#374151;
+  background:rgba(16,185,129,.08);
+}
+
+.audit-chip strong{
+  flex-shrink:0;
+  white-space:nowrap; /* "Equipo:" y "IP:" siempre completos */
+}
+
+/* El texto VALOR es el que se encoge y se parte (no el label) */
+.audit-chip > span{
+  min-width:0;                 /* flex puede encoger [web:452] */
+  max-width:100%;
+  flex:1 1 180px;
+  overflow-wrap:anywhere;      /* rompe UA largo [web:449] */
+  word-break:break-word;       /* fallback */
+}
+
+/* ===== botones copiar ===== */
+.copy-btn{
+  border:1px solid #e5e7eb;
+  background:transparent;
+  color:#00b300;
+  border-radius:10px;
+  padding:.22rem .6rem;
+  font-size:.72rem;
+  font-weight:800;
+  cursor:pointer;
+  line-height:1;
+  flex:0 0 auto;
+  white-space:nowrap;
+  transition:transform .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.copy-btn:hover{
+  background:rgba(0,179,0,.12);
+  border-color:#00b300;
+  transform:translateY(-1px);
+}
+body.dark-mode .copy-btn{
+  border-color:#374151;
+  color:#10b981;
+}
+body.dark-mode .copy-btn:hover{
+  background:rgba(16,185,129,.12);
+  border-color:#10b981;
+}
+
 .audit-row-right{
   display:flex;
   flex-direction:column;
@@ -404,7 +551,7 @@ body.dark-mode .audit-description{ color:#d1d5db; }
   min-width:0;
 }
 
-/* Badge: por defecto no wrap; en ultra pequeño sí wrap (ver media queries) */
+/* Badge */
 .audit-badge{
   display:inline-flex;
   align-items:center;
@@ -421,12 +568,18 @@ body.dark-mode .audit-description{ color:#d1d5db; }
   text-overflow:ellipsis;
 }
 
+/* Light mode badges */
 .badge-success{ background:rgba(40,167,69,.15); color:#28a745; }
 .badge-danger{ background:rgba(220,53,69,.15); color:#dc3545; }
 .badge-warning{ background:rgba(255,193,7,.18); color:#856404; }
-body.dark-mode .badge-warning{ color:#fbbf24; background:rgba(251,191,36,.15); }
 .badge-info{ background:rgba(23,162,184,.15); color:#17a2b8; }
 .badge-secondary{ background:rgba(0,179,0,.15); color:#00b300; }
+
+/* Dark mode badges */
+body.dark-mode .badge-success{ background:rgba(16,185,129,.15); color:#10b981; }
+body.dark-mode .badge-danger{ background:rgba(239,68,68,.15); color:#ef4444; }
+body.dark-mode .badge-warning{ color:#fbbf24; background:rgba(251,191,36,.15); }
+body.dark-mode .badge-info{ background:rgba(56,189,248,.14); color:#38bdf8; }
 body.dark-mode .badge-secondary{ background:rgba(16,185,129,.15); color:#10b981; }
 
 .audit-timestamp{
@@ -460,7 +613,6 @@ body.dark-mode .empty-state-text{ color:#9ca3af; }
 .empty-state-link{ display:inline-block; margin-top:1rem; color:#00b300; text-decoration:none; font-weight:700; }
 body.dark-mode .empty-state-link{ color:#10b981; }
 .empty-state-link:hover{ text-decoration:underline; }
-
 
 /* ============================================================
    PAGINACIÓN
@@ -529,13 +681,15 @@ body.dark-mode .page-item.active .page-link{
   box-shadow:0 4px 15px rgba(16,185,129,.3);
 }
 
-
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 768px){
   .header-controls{ flex-direction:column; gap:10px; align-items:stretch; }
   .search-container{ width:100%; max-width:none; }
+
+  .header-actions{ width:100%; justify-content:flex-end; }
+  .btn-pill{ width:100%; }
 
   .audit-row{
     grid-template-columns:auto 1fr;
@@ -583,8 +737,21 @@ body.dark-mode .page-item.active .page-link{
   }
 
   .audit-row-right{ gap:.4rem; }
-
   .audit-timestamp{ font-size:.9rem; }
+
+  .audit-chip{
+    border-radius:18px;
+    padding:.45rem .7rem;
+    flex:1 1 100%;
+  }
+  .audit-chip > span{
+    flex:1 1 100%;
+  }
+  .copy-btn{
+    margin-left:auto;
+    padding:.26rem .7rem;
+    border-radius:12px;
+  }
 }
 
 @media (max-width: 360px){
@@ -595,13 +762,14 @@ body.dark-mode .page-item.active .page-link{
   .audit-description{ font-size:.82rem; }
   .audit-info-main{ font-size:.92rem; }
   .audit-info-secondary{ font-size:.78rem; }
+
+  .audit-meta{ font-size:.76rem; }
 }
 
 @media (max-width: 320px){
   .audit-row{ border-radius:10px; }
   .audit-badge{ padding:.45rem .75rem; font-size:.68rem; }
 }
-
 
 /* ============================================================
    FUERZA BADGE PRESIDENTE BLANCO EN AMBOS MODOS
@@ -626,247 +794,301 @@ body.dark-mode .sidebar-brand-container .badge{
 }
 </style>
 
-
-
 <h1 class="page-title">
-    <i class="fas fa-history"></i> Log de Auditoría
+  <i class="fas fa-history"></i> Log de Auditoría
 </h1>
 
 <div class="header-controls">
-    <div class="search-container">
-        <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
-            <div class="search-input-group">
-                <i class="fas fa-search search-icon"></i>
-                <input
-                    id="qInput"
-                    type="text"
-                    name="q"
-                    class="search-input"
-                    placeholder="Busca por usuario, módulo o descripción..."
-                    value="{{ request.GET.q|default:'' }}"
-                    autocomplete="off"
-                >
-            </div>
+  <div class="search-container">
+    <form method="GET" action="." class="w-100 d-flex align-items-center" id="mainFilterForm">
+      <div class="search-input-group">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          id="qInput"
+          type="text"
+          name="q"
+          class="search-input"
+          placeholder="Busca por usuario, módulo o descripción..."
+          value="{{ request.GET.q|default:'' }}"
+          autocomplete="off"
+        >
+      </div>
 
-            <div style="position: relative;">
-                <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
-                    <i class="fas fa-filter"></i>
-                </button>
+      <div style="position: relative;">
+        <button type="button" class="filter-btn" title="Filtros Avanzados" onclick="toggleFilters()">
+          <i class="fas fa-filter"></i>
+        </button>
 
-                <div class="filter-dropdown" id="filterDropdown">
-                    <div class="mb-3">
-                        <label class="filter-label">Acción</label>
-                        <select name="accion" class="filter-select" id="accionSelect">
-                            <option value="" {% if not request.GET.accion %}selected{% endif %}>Ver todas</option>
+        <div class="filter-dropdown" id="filterDropdown">
+          <div class="mb-3">
+            <label class="filter-label">Acción</label>
+            <select name="accion" class="filter-select" id="accionSelect">
+              <option value="" {% if not request.GET.accion %}selected{% endif %}>Ver todas</option>
+            </select>
+          </div>
 
-                           
-                        </select>
-                    </div>
+          <div class="mb-3">
+            <label class="filter-label">Módulo</label>
+            <select name="modulo" class="filter-select" id="moduloSelect">
+              <option value="">Todos</option>
+              {% for key, label in modulos_choices %}
+                <option value="{{ key }}" {% if request.GET.modulo == key %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                    <div class="mb-3">
-                        <label class="filter-label">Módulo</label>
-                        <select name="modulo" class="filter-select" id="moduloSelect">
-                            <option value="">Todos</option>
-                            {% for key, label in modulos_choices %}
-                                <option value="{{ key }}" {% if request.GET.modulo == key %}selected{% endif %}>
-                                    {{ label }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+          <div class="mb-3">
+            <label class="filter-label">Período</label>
+            <select name="periodo" class="filter-select" id="periodoSelect">
+              <option value="">Todos</option>
+              <option value="hoy" {% if request.GET.periodo == 'hoy' %}selected{% endif %}>Hoy</option>
+              <option value="7d" {% if request.GET.periodo == '7d' %}selected{% endif %}>Últimos 7 días</option>
+              <option value="mes" {% if request.GET.periodo == 'mes' %}selected{% endif %}>Este mes</option>
+              <option value="anio" {% if request.GET.periodo == 'anio' %}selected{% endif %}>Este año</option>
+            </select>
+          </div>
 
-                    <div class="mb-3">
-                        <label class="filter-label">Período</label>
-                        <select name="periodo" class="filter-select" id="periodoSelect">
-                            <option value="">Todos</option>
-                            <option value="hoy" {% if request.GET.periodo == 'hoy' %}selected{% endif %}>Hoy</option>
-                            <option value="7d" {% if request.GET.periodo == '7d' %}selected{% endif %}>Últimos 7 días</option>
-                            <option value="mes" {% if request.GET.periodo == 'mes' %}selected{% endif %}>Este mes</option>
-                            <option value="anio" {% if request.GET.periodo == 'anio' %}selected{% endif %}>Este año</option>
-                        </select>
-                    </div>
+          <button type="submit" class="btn-apply-filters">
+            <i class="fas fa-check me-2"></i>Aplicar Filtros
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 
-                    <button type="submit" class="btn-apply-filters">
-                        <i class="fas fa-check me-2"></i>Aplicar Filtros
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+  <!-- Botón PDF -->
+  <div class="header-actions">
+    <a
+      class="btn-pill btn-pill-pdf"
+      href="{% url 'taxis:auditoria_pdf' %}{% if query_params %}?{{ query_params }}{% endif %}"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Abrir PDF en una nueva pestaña"
+    >
+      <i class="fas fa-file-pdf"></i>
+      Generar PDF
+    </a>
+  </div>
 </div>
 
 <div class="total-indicator">
-    {% if request.GET.q or request.GET.accion or request.GET.modulo or request.GET.periodo or request.GET.anio or request.GET.mes %}
-        <i class="fas fa-filter me-2"></i>
-        Resultados Filtrados:
-        <strong>{% if is_paginated %}{{ page_obj.paginator.count }}{% else %}{{ movimientos|length }}{% endif %}</strong>
-    {% else %}
-        <i class="fas fa-list me-2"></i>
-        Total Registrado:
-        <strong>{% if is_paginated %}{{ page_obj.paginator.count }}{% else %}{{ movimientos|length }}{% endif %}</strong>
-    {% endif %}
+  {% if request.GET.q or request.GET.accion or request.GET.modulo or request.GET.periodo or request.GET.anio or request.GET.mes %}
+    <i class="fas fa-filter me-2"></i>
+    Resultados Filtrados:
+    <strong>{% if is_paginated %}{{ page_obj.paginator.count }}{% else %}{{ movimientos|length }}{% endif %}</strong>
+  {% else %}
+    <i class="fas fa-list me-2"></i>
+    Total Registrado:
+    <strong>{% if is_paginated %}{{ page_obj.paginator.count }}{% else %}{{ movimientos|length }}{% endif %}</strong>
+  {% endif %}
 </div>
 
 <div role="list">
-    {% for mov in movimientos %}
+  {% for mov in movimientos %}
     <div class="audit-row" role="listitem">
-        <div class="audit-avatar">
-            <i class="fas fa-user"></i>
-        </div>
-
-        <div class="audit-row-center">
-            {% if mov.usuario %}
-                <span class="audit-info-main">{{ mov.usuario.get_full_name|default:mov.usuario.username }}</span>
-                <span class="audit-info-secondary">{{ mov.usuario.email }}</span>
-            {% else %}
-                <span class="audit-info-main">SISTEMA</span>
-                <span class="audit-info-secondary">Automático</span>
-            {% endif %}
-
-            {% if mov.descripcion and mov.descripcion|lower != "exit" %}
-                <div class="audit-description">
-                    {{ mov.descripcion|truncatewords:15 }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="audit-row-right">
-            <div>
-                {% if mov.accion == 'login' %}
-                    <span class="audit-badge badge-success"><i class="fas fa-sign-in-alt"></i>Login</span>
-                {% elif mov.accion == 'logout' %}
-                    <span class="audit-badge badge-secondary"><i class="fas fa-sign-out-alt"></i>Logout</span>
-                {% elif mov.accion == 'crear' %}
-                    <span class="audit-badge badge-info"><i class="fas fa-plus-circle"></i>Crear</span>
-                {% elif mov.accion == 'editar' %}
-                    <span class="audit-badge badge-warning"><i class="fas fa-edit"></i>Editar</span>
-                {% elif mov.accion == 'eliminar' %}
-                    <span class="audit-badge badge-danger"><i class="fas fa-trash-alt"></i>Eliminar</span>
-                {% elif mov.accion == 'ver' %}
-                    <span class="audit-badge badge-info"><i class="fas fa-eye"></i>Ver</span>
-                {% elif mov.accion == 'listar' %}
-                    <span class="audit-badge badge-info"><i class="fas fa-list"></i>Listar</span>
-                {% elif mov.accion == 'pago_registrado' %}
-                    <span class="audit-badge badge-success"><i class="fas fa-dollar-sign"></i>Pago</span>
-                {% elif mov.accion == 'masivo' %}
-                    <span class="audit-badge badge-warning"><i class="fas fa-cogs"></i>Masivo</span>
-                {% elif mov.accion == 'configurar' %}
-                    <span class="audit-badge badge-warning"><i class="fas fa-sliders-h"></i>Config</span>
-                {% elif mov.accion == 'exportar_pdf' %}
-                    <span class="audit-badge badge-info"><i class="fas fa-file-export"></i>Export (PDF)</span>
-                {% elif mov.accion == 'exportar_excel' %}
-                    <span class="audit-badge badge-info"><i class="fas fa-file-export"></i>Export (Excel)</span>
-
-                {% else %}
-                    <span class="audit-badge badge-secondary">{{ mov.accion|default:"-" }}</span>
-                {% endif %}
-            </div>
-
-            <div>
-                <span class="audit-badge badge-secondary">
-                    <i class="fas fa-cube"></i>{{ mov.modulo|upper }}
-                </span>
-            </div>
-
-            <div class="audit-timestamp">
-                {% if mov.fecha_formato %}
-                    {{ mov.fecha_formato }}
-                {% else %}
-                    {{ mov.fecha|date:"d/m/Y H:i" }}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="empty-state">
-        <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
-        <div class="empty-state-title">Sin registros</div>
-        <div class="empty-state-text">No hay movimientos que coincidan con tu búsqueda</div>
-        {% if request.GET.urlencode %}
-            <a href="{% url 'taxis:auditoria_list' %}" class="empty-state-link">Limpiar filtros</a>
+      <div class="audit-avatar {% if mov.usuario and mov.usuario.avatar %}has-img{% endif %}">
+        {% if mov.usuario and mov.usuario.avatar %}
+          <img class="audit-avatar-img" src="{{ mov.usuario.avatar.url }}?v={{ mov.usuario.avatar.name }}" alt="Avatar">
+        {% else %}
+          <i class="fas fa-user"></i>
         {% endif %}
+      </div>
+
+      <div class="audit-row-center">
+        {% if mov.usuario %}
+          <span class="audit-info-main">{{ mov.usuario.get_full_name|default:mov.usuario.username }}</span>
+          <span class="audit-info-secondary">{{ mov.usuario.email }}</span>
+        {% else %}
+          <span class="audit-info-main">SISTEMA</span>
+          <span class="audit-info-secondary">Automático</span>
+        {% endif %}
+
+        {% if mov.descripcion and mov.descripcion|lower != "exit" %}
+          <div class="audit-description">
+            {{ mov.descripcion|truncatewords:15 }}
+          </div>
+        {% endif %}
+
+        <div class="audit-meta">
+          <span class="audit-chip">
+            <span>
+              <strong>IP:</strong> {{ mov.ip_address|default:"—" }}
+            </span>
+            <button type="button"
+                    class="copy-btn"
+                    data-copy="{{ mov.ip_address|default:'' }}"
+                    onclick="copyText(this)">
+              Copiar
+            </button>
+          </span>
+
+          <span class="audit-chip">
+            <span>
+              <strong>Equipo:</strong>
+              {% if mov.user_agent %}
+                {{ mov.user_agent|slice:":80" }}{% if mov.user_agent|length > 80 %}...{% endif %}
+              {% else %}
+                —
+              {% endif %}
+            </span>
+            <button type="button"
+                    class="copy-btn"
+                    data-copy="{{ mov.user_agent|default:'' }}"
+                    onclick="copyText(this)">
+              Copiar
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div class="audit-row-right">
+        <div>
+          {% if mov.accion == 'login' %}
+            <span class="audit-badge badge-success"><i class="fas fa-sign-in-alt"></i>Login</span>
+          {% elif mov.accion == 'logout' %}
+            <span class="audit-badge badge-secondary"><i class="fas fa-sign-out-alt"></i>Logout</span>
+          {% elif mov.accion == 'crear' %}
+            <span class="audit-badge badge-info"><i class="fas fa-plus-circle"></i>Crear</span>
+          {% elif mov.accion == 'editar' %}
+            <span class="audit-badge badge-warning"><i class="fas fa-edit"></i>Editar</span>
+          {% elif mov.accion == 'eliminar' %}
+            <span class="audit-badge badge-danger"><i class="fas fa-trash-alt"></i>Eliminar</span>
+          {% elif mov.accion == 'ver' %}
+            <span class="audit-badge badge-info"><i class="fas fa-eye"></i>Ver</span>
+          {% elif mov.accion == 'listar' %}
+            <span class="audit-badge badge-info"><i class="fas fa-list"></i>Listar</span>
+          {% elif mov.accion == 'pago_registrado' %}
+            <span class="audit-badge badge-success"><i class="fas fa-dollar-sign"></i>Pago</span>
+          {% elif mov.accion == 'masivo' %}
+            <span class="audit-badge badge-warning"><i class="fas fa-cogs"></i>Masivo</span>
+          {% elif mov.accion == 'configurar' %}
+            <span class="audit-badge badge-warning"><i class="fas fa-sliders-h"></i>Config</span>
+          {% elif mov.accion == 'exportar_pdf' %}
+            <span class="audit-badge badge-secondary"><i class="fas fa-file-export"></i>Export (PDF)</span>
+          {% elif mov.accion == 'exportar_excel' %}
+            <span class="audit-badge badge-secondary"><i class="fas fa-file-export"></i>Export (Excel)</span>
+          {% else %}
+            <span class="audit-badge badge-secondary">{{ mov.accion|default:"-" }}</span>
+          {% endif %}
+        </div>
+
+        <div>
+          <span class="audit-badge badge-secondary">
+            <i class="fas fa-cube"></i>{{ mov.modulo|upper }}
+          </span>
+        </div>
+
+        <div class="audit-timestamp">
+          {% if mov.fecha_formato %}
+            {{ mov.fecha_formato }}
+          {% else %}
+            {{ mov.fecha|date:"d/m/Y H:i" }}
+          {% endif %}
+        </div>
+      </div>
     </div>
-    {% endfor %}
+  {% empty %}
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
+      <div class="empty-state-title">Sin registros</div>
+      <div class="empty-state-text">No hay movimientos que coincidan con tu búsqueda</div>
+      {% if request.GET.urlencode %}
+        <a href="{% url 'taxis:auditoria_list' %}" class="empty-state-link">Limpiar filtros</a>
+      {% endif %}
+    </div>
+  {% endfor %}
 </div>
 
 {% if is_paginated %}
 <div class="d-flex justify-content-center mt-5">
-    <nav>
-        <ul class="pagination">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">
-                    <i class="fas fa-chevron-left me-2"></i>Anterior
-                </a>
-            </li>
-            {% endif %}
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">
+            <i class="fas fa-chevron-left me-2"></i>Anterior
+          </a>
+        </li>
+      {% endif %}
 
-            <li class="page-item disabled">
-                <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-            </li>
+      <li class="page-item disabled">
+        <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      </li>
 
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">
-                    Siguiente<i class="fas fa-chevron-right ms-2"></i>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">
+            Siguiente<i class="fas fa-chevron-right ms-2"></i>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
 {% endif %}
 
 <script>
-    function toggleFilters() {
-        const dropdown = document.getElementById('filterDropdown');
-        dropdown.classList.toggle('show');
+  function toggleFilters() {
+    const dropdown = document.getElementById('filterDropdown');
+    dropdown.classList.toggle('show');
+  }
+
+  // Cerrar al hacer click fuera
+  document.addEventListener('mouseup', function(e) {
+    const container = document.getElementById('filterDropdown');
+    const btn = document.querySelector('.filter-btn');
+    if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+      container.classList.remove('show');
+    }
+  });
+
+  // Search live (debounce) SOLO para la barra de búsqueda (q)
+  (function () {
+    const form = document.getElementById('mainFilterForm');
+    const qInput = document.getElementById('qInput');
+
+    let t = null;
+
+    function safeSubmit() {
+      if (!form) return;
+      const url = new URL(window.location.href);
+      url.searchParams.delete('page'); // al filtrar, volver a página 1
+      window.history.replaceState({}, '', url.toString());
+      form.submit();
     }
 
-    // Cerrar al hacer click fuera
-    document.addEventListener('mouseup', function(e) {
-        const container = document.getElementById('filterDropdown');
-        const btn = document.querySelector('.filter-btn');
-        if (container && !container.contains(e.target) && !btn.contains(e.target)) {
-            container.classList.remove('show');
-        }
-    });
+    if (qInput) {
+      qInput.addEventListener('input', function () {
+        clearTimeout(t);
+        t = setTimeout(function () {
+          safeSubmit();
+        }, 650);
+      });
+    }
+  })();
 
-    // Search live (debounce) + auto apply en selects
-    (function () {
-        const form = document.getElementById('mainFilterForm');
-        const qInput = document.getElementById('qInput');
-        const accion = document.getElementById('accionSelect');
-        const modulo = document.getElementById('moduloSelect');
-        const periodo = document.getElementById('periodoSelect');
+  // ===== Copiar texto (Clipboard API + fallback) =====
+  async function copyText(btn){
+    const text = (btn.getAttribute('data-copy') || '').trim();
+    if (!text) return;
 
-        let t = null;
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
 
-        function safeSubmit() {
-            if (!form) return;
-            // cuando se cambia cualquier filtro, volvemos a página 1
-            const url = new URL(window.location.href);
-            url.searchParams.delete('page');
-            window.history.replaceState({}, '', url.toString());
-            form.submit();
-        }
-
-        if (qInput) {
-            qInput.addEventListener('input', function () {
-                clearTimeout(t);
-                t = setTimeout(function () {
-                    safeSubmit();
-                }, 650);
-            });
-        }
-
-        [accion, modulo, periodo].forEach(function (el) {
-            if (!el) return;
-            el.addEventListener('change', function () {
-                safeSubmit();
-            });
-        });
-    })();
+    const old = btn.textContent;
+    btn.textContent = 'Copiado';
+    setTimeout(() => btn.textContent = old, 900);
+  }
 </script>
 
 {% endblock %}

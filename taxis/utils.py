@@ -315,7 +315,7 @@ def verify_email_code(user, code, email_type="primary"):
 # ====================================================================
 
 # Normalización (NECESARIA para que no dé "_norm_modulo no está definido")
-MODULOS_VALIDOS = {"autenticacion", "afiliados", "vehiculos", "finanzas", "perfiles"}
+MODULOS_VALIDOS = {"autenticacion", "afiliados", "vehiculos", "finanzas", "perfiles", "auditoria"}
 
 MODULO_ALIASES = {
     # finanzas
@@ -351,6 +351,11 @@ MODULO_ALIASES = {
     # dt5 -> vehiculos (compatibilidad)
     "dt5": "vehiculos",
     "modulodt5": "vehiculos",
+    #Auditoria
+    "auditoria": "auditoria",
+    "auditoría": "auditoria",     # por si llega con tilde
+    "moduloauditoria": "auditoria",
+    "Auditoría": "auditoria",
 }
 
 
@@ -475,6 +480,8 @@ def registrar_movimiento(
         cambios_despues=cambios_despues or {},
         fecha=fecha_local,
         fecha_formato=fecha_fmt,
+        ip_address=get_client_ip(request),
+        user_agent=get_user_agent(request),
     )
     return mov
 
@@ -631,6 +638,26 @@ def log_exportar(request, modulo, descripcion="", formato=None, **kwargs):
         accion=accion,
         modulo=modulo,
         descripcion=descripcion,
+    )
+
+def _get_ip(request):
+    xff = request.META.get("HTTP_X_FORWARDED_FOR")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR")
+
+def log_password_change(request, usuario_objetivo, accion, descripcion):
+    MovimientoAudit.objects.create(
+        usuario=usuario_objetivo,
+        accion=accion,
+        modulo="autenticacion",
+        objeto_tipo=usuario_objetivo.__class__.__name__,
+        objeto_id=usuario_objetivo.id,
+        objeto_nombre=getattr(usuario_objetivo, "username", "") or "",
+        descripcion=descripcion,
+        fecha=timezone.now(),
+        ip_address=_get_ip(request),
+        user_agent=(request.META.get("HTTP_USER_AGENT", "") or "")[:900],
     )
 
 

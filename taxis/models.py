@@ -642,6 +642,9 @@ class MovimientoAudit(models.Model):
         ('masivo', 'Acción Masiva'),
         ('configurar', 'Configuración'),
         ('exportar', 'Exportar Reporte'),
+        ('cambiar_password', 'Cambiar Contraseña'),
+        ('reset_password', 'Resetear Contraseña'),
+
     ]
     accion = models.CharField(max_length=255, choices=ACCION_CHOICES)
     
@@ -659,6 +662,9 @@ class MovimientoAudit(models.Model):
     # Fecha/Hora EXACTA
     fecha = models.DateTimeField(default=timezone.now)
     fecha_formato = models.CharField(max_length=50, blank=True)  # "21/01/2026 22:36"
+
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default="")
     
     class Meta:
         ordering = ['-fecha']

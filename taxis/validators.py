@@ -41,22 +41,10 @@ class CustomMinLengthValidator:
 # ====================================================================
 
 def validar_archivo_seguro(value):
-    """
-    Valida que el archivo subido sea seguro:
-    - Extensión permitida: .pdf, .jpg, .jpeg, .png
-    - Tamaño máximo: 10 MB
-
-    Nota importante:
-    - Cuando estás editando un modelo y NO subes un archivo nuevo, Django puede
-      pasar un FieldFile ya guardado (committed). En ese caso NO debemos intentar
-      leer value.size, porque si el archivo ya no existe en el storage (p.ej. en
-      Render sin Disk) revienta con FileNotFoundError.
-    """
+    
     if not value:
         return
 
-    # ✅ Si es un archivo ya guardado (edición sin re-subir), no revalidar tamaño/extensión aquí.
-    # Evita el FileNotFoundError al hacer value.size sobre archivos faltantes.
     if isinstance(value, FieldFile) and getattr(value, "_committed", False):
         return
 

@@ -3,6 +3,7 @@ import calendar
 import os
 import random
 import time
+import logging
 
 from datetime import date, timedelta
 from io import BytesIO
@@ -19,7 +20,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetConfirmView
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.mail import send_mail
@@ -34,13 +35,20 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
-from taxis.utils import registrar_movimiento, texto_filtros, log_pago
+from taxis.utils import registrar_movimiento, texto_filtros, log_pago, log_password_change
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.http import require_http_methods
+
+from django.contrib.staticfiles import finders
+from urllib.parse import urlparse
+from django.conf import settings
+from django.contrib.staticfiles import finders
+
+
 
 
 # Local
@@ -1598,6 +1606,7 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
         "vehiculos": "Vehículos",
         "finanzas": "Finanzas",
         "perfiles": "Perfiles",
+        "auditoria": "Auditoría",
     }
 
     ORDERING_MAP = {
@@ -1691,7 +1700,83 @@ class MovimientoAuditListView(LoginRequiredMixin, ListView):
         context["query_params"] = params.urlencode()
 
         return context
+    
+def link_callback(uri, rel):
+    # Quitar dominio y querystring si vinieran (por si acaso)
+    uri = urlparse(uri).path
 
+    static_url = settings.STATIC_URL or "/static/"
+    media_url = settings.MEDIA_URL or "/media/"
+
+    # Normalizar por si en settings está "static/" sin slash inicial
+    if not static_url.startswith("/"):
+        static_url = "/" + static_url
+    if not media_url.startswith("/"):
+        media_url = "/" + media_url
+
+    # 1) STATIC: /static/img/...  ->  img/...
+    if uri.startswith(static_url):
+        relative_path = uri[len(static_url):].lstrip("/")  # "img/logo.png"
+        absolute_path = finders.find(relative_path)
+        if absolute_path:
+            return os.path.realpath(absolute_path)
+        return uri
+
+    # 2) MEDIA: /media/... -> MEDIA_ROOT/...
+    if uri.startswith(media_url):
+        path = os.path.join(settings.MEDIA_ROOT, uri[len(media_url):].lstrip("/"))
+        if os.path.isfile(path):
+            return os.path.realpath(path)
+        return uri
+
+    return uri
+
+@login_required
+def auditoria_pdf(request):
+    # 1) Reusar EXACTAMENTE los filtros de la lista
+    view = MovimientoAuditListView()
+    view.request = request
+    movimientos = view.get_queryset()
+
+    # 2) Render HTML
+    context = {
+        "movimientos": movimientos,
+        "fecha_generacion": timezone.now(),
+    }
+    template = get_template("taxis/reportes/auditoria_pdf.html")
+    html = template.render(context)
+
+    # 3) Generar PDF
+    result = BytesIO()
+    pdf = pisa.pisaDocument(
+        BytesIO(html.encode("UTF-8")),
+        result,
+        encoding="UTF-8",
+        link_callback=link_callback
+    )
+
+    if pdf.err:
+        return HttpResponse("Error generando PDF", status=500)
+
+    # 4) Auditar exportación (con filtros y cantidad)
+    filtros_txt = texto_filtros({k: v for k, v in request.GET.lists()})
+
+    total = movimientos.count()
+
+    registrar_movimiento(
+        request=request,
+        accion="exportar_pdf",
+        modulo="auditoria",
+        objeto_tipo="Reporte",
+        objeto_nombre="Log de Auditoría (PDF)",
+        descripcion=f"{filtros_txt} | Registros: {total}",
+    )
+
+    # 5) Respuesta
+    response = HttpResponse(result.getvalue(), content_type="application/pdf")
+    filename = f'Auditoria_{timezone.now().strftime("%d-%m-%Y_%H-%M")}.pdf'
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response
 
 
 @login_required
@@ -2328,6 +2413,53 @@ def password_reset_resend(request):
         "remaining": remaining,
         "message": f"Correo reenviado. Te quedan {remaining} intentos."
     }, status=200)
+
+logger = logging.getLogger(__name__)
+
+class PasswordChangeAuditView(PasswordChangeView):
+    success_url = reverse_lazy("taxis:password_change_done")
+
+    def form_valid(self, form):
+        # Guarda el nuevo password y mantiene la sesión actual (comportamiento Django)
+        response = super().form_valid(form)  # form.save() + update_session_auth_hash [web:290]
+
+        # Auditoría real
+        log_password_change(
+            self.request,
+            usuario_objetivo=self.request.user,
+            accion="cambiar_password",
+            descripcion="El usuario cambió su contraseña (sesión iniciada).",
+        )
+
+        # Logging opcional (no afecta BD)
+        logger.info("AUDIT cambiar_password user_id=%s", self.request.user.id)
+        return response
+
+
+class PasswordResetConfirmAuditView(PasswordResetConfirmView):
+    success_url = reverse_lazy("taxis:password_reset_complete")
+
+    def form_valid(self, form):
+        # Django aquí hace el reset y retorna el user (form.save()) y luego redirige [web:322]
+        response = super().form_valid(form)  # guarda password / limpia session token [web:322]
+
+        # Intentar obtener usuario objetivo de forma robusta
+        usuario = getattr(self, "user", None)
+        if usuario is None:
+            # Fallback: si por alguna razón self.user no está, usa form.user si existe
+            usuario = getattr(form, "user", None)
+
+        if usuario is not None:
+            log_password_change(
+                self.request,
+                usuario_objetivo=usuario,
+                accion="reset_password",
+                descripcion="Contraseña restablecida desde enlace de recuperación.",
+            )
+            logger.info("AUDIT reset_password user_id=%s", usuario.id)
+
+        return response
+    
 
 # ====================================================================
 # PERFIL PRESIDENTE
