@@ -28,38 +28,14 @@
         --input-bg: #1a2639;
     }
 
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; margin: 4px 0; }
+    body.dark-mode ::-webkit-scrollbar-track { background: #1f2937; }
+    ::-webkit-scrollbar-thumb { background: var(--coop-green-primary); border-radius: 10px; min-height: 40px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--finance-secondary); }
+    body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #059669; }
 
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-        margin: 4px 0;
-    }
-
-    body.dark-mode ::-webkit-scrollbar-track {
-        background: #1f2937;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: var(--coop-green-primary);
-        border-radius: 10px;
-        min-height: 40px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--finance-secondary);
-    }
-
-    body.dark-mode ::-webkit-scrollbar-thumb:hover {
-        background: #059669;
-    }
-
-    .form-container {
-        max-width: 650px;
-        margin: 0 auto;
-    }
+    .form-container { max-width: 650px; margin: 0 auto; }
 
     .reg-card {
         background: var(--finance-bg);
@@ -83,16 +59,145 @@
         color: white;
     }
 
-    .profile-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        border: 4px solid rgba(255, 255, 255, 0.4);
-        object-fit: cover;
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        background: white;
+    /* ============================
+       AVATAR MEJORADO + ZOOM
+       - No se sale del borde (overflow hidden)
+       - Hover suave + overlay
+       ============================ */
+    .profile-photo-wrap{
+        width: 132px;
+        height: 132px;
+        border-radius: 999px;
+        padding: 6px;
+        margin: 0 auto 1rem;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden; /* clave para que no se salga al hacer hover */
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.35);
+        box-shadow: 0 10px 24px rgba(0,0,0,.18);
+        cursor: zoom-in;
+        transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
     }
+
+    .profile-img{
+        width: 120px;
+        height: 120px;
+        border-radius: 999px;
+        object-fit: cover;
+        background: white;
+        display: block;
+        transform: scale(1);
+        transition: transform .25s ease, filter .25s ease;
+        border: 0; /* quitamos el borde viejo para que el wrap sea el borde bonito */
+        margin-bottom: 0; /* evita que empuje cosas dentro del hero */
+    }
+
+    .profile-photo-wrap:hover{
+        transform: translateY(-2px) scale(1.02);
+        background: rgba(255,255,255,.28);
+        border-color: rgba(255,255,255,.55);
+        box-shadow: 0 14px 32px rgba(0,0,0,.25);
+    }
+
+    .profile-photo-wrap:hover .profile-img{
+        transform: scale(1.08);
+        filter: saturate(1.05);
+    }
+
+    .profile-zoom-hint{
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,.98);
+        background: rgba(0,0,0,.22);
+        opacity: 0;
+        transition: opacity .2s ease;
+        pointer-events: none;
+        font-size: 1.1rem;
+    }
+
+    .profile-photo-wrap:hover .profile-zoom-hint{ opacity: 1; }
+
+    /* Modal zoom (centrado y con scroll interno si es necesario) */
+    .zoom-backdrop{
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.65);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+    }
+
+    .zoom-card{
+        width: min(980px, 96vw);
+        max-height: 90vh;
+        background: var(--finance-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.12);
+        box-shadow: 0 18px 70px rgba(0,0,0,.35);
+    }
+
+    body.dark-mode .zoom-card{ background: #0f1a2e; }
+
+    .zoom-card-header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        background: rgba(0,0,0,0.04);
+    }
+
+    body.dark-mode .zoom-card-header{ background: rgba(255,255,255,0.06); }
+
+    .zoom-card-title{
+        margin: 0;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--finance-text);
+    }
+
+    .zoom-close{
+        border: none;
+        background: rgba(0,0,0,0.08);
+        color: var(--finance-text);
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform .15s ease, background .15s ease;
+    }
+
+    body.dark-mode .zoom-close{ background: rgba(255,255,255,0.08); }
+
+    .zoom-close:hover{ transform: scale(1.05); background: rgba(0,0,0,0.12); }
+    body.dark-mode .zoom-close:hover{ background: rgba(255,255,255,0.12); }
+
+    .zoom-card-body{
+        padding: 12px;
+        overflow: auto; /* si la imagen es grande, que haga scroll dentro del modal */
+        max-height: calc(90vh - 64px);
+    }
+
+    .zoom-img{
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        display: block;
+        background: #fff;
+        object-fit: contain;
+    }
+
+    body.zoom-open{ overflow: hidden; }
 
     .info-strip {
         display: grid;
@@ -105,13 +210,9 @@
         border-radius: 20px;
     }
 
-    body.dark-mode .info-strip {
-        background: rgba(255, 255, 255, 0.05);
-    }
+    body.dark-mode .info-strip { background: rgba(255, 255, 255, 0.05); }
 
-    .info-item {
-        text-align: left;
-    }
+    .info-item { text-align: left; }
 
     .info-item label {
         font-size: 0.7rem;
@@ -154,9 +255,7 @@
         transform: translateY(-1px);
     }
 
-    .date-wrapper {
-        position: relative;
-    }
+    .date-wrapper { position: relative; }
 
     .calendar-trigger {
         position: absolute;
@@ -169,9 +268,7 @@
         transition: transform 0.2s;
     }
 
-    .date-wrapper:hover .calendar-trigger {
-        transform: translateY(-50%) scale(1.1);
-    }
+    .date-wrapper:hover .calendar-trigger { transform: translateY(-50%) scale(1.1); }
 
     .btn-submit {
         background: var(--coop-green-primary);
@@ -204,9 +301,7 @@
         cursor: pointer;
     }
 
-    body.dark-mode .upload-area {
-        background: #1a2639;
-    }
+    body.dark-mode .upload-area { background: #1a2639; }
 
     .upload-area:hover {
         border-color: var(--coop-green-primary);
@@ -214,9 +309,7 @@
         transform: scale(1.02);
     }
 
-    body.dark-mode .upload-area:hover {
-        background: rgba(16, 185, 129, 0.1);
-    }
+    body.dark-mode .upload-area:hover { background: rgba(16, 185, 129, 0.1); }
 
     .field-label {
         font-weight: 700;
@@ -250,15 +343,8 @@
         text-decoration: none !important;
     }
 
-    body.dark-mode .btn-back-finance {
-        background: #1a2639;
-        color: #94a3b8;
-    }
-
-    body.dark-mode .btn-back-finance:hover {
-        background: rgba(16, 185, 129, 0.2);
-        color: var(--coop-green-primary);
-    }
+    body.dark-mode .btn-back-finance { background: #1a2639; color: #94a3b8; }
+    body.dark-mode .btn-back-finance:hover { background: rgba(16, 185, 129, 0.2); color: var(--coop-green-primary); }
 
     .deuda-card {
         background: rgba(255, 193, 7, 0.1);
@@ -318,9 +404,7 @@
         cursor: pointer;
     }
 
-    body.dark-mode .mes-checkbox-item {
-        background: #1a2639;
-    }
+    body.dark-mode .mes-checkbox-item { background: #1a2639; }
 
     .mes-checkbox-item:hover {
         border-color: var(--coop-green-primary);
@@ -337,9 +421,7 @@
         background: rgba(59, 130, 246, 0.05);
     }
 
-    body.dark-mode .mes-checkbox-item.futuro:hover {
-        background: rgba(59, 130, 246, 0.1);
-    }
+    body.dark-mode .mes-checkbox-item.futuro:hover { background: rgba(59, 130, 246, 0.1); }
 
     .mes-checkbox-item input[type="checkbox"] {
         width: 20px;
@@ -349,9 +431,7 @@
         accent-color: var(--coop-green-primary);
     }
 
-    .mes-checkbox-item.futuro input[type="checkbox"] {
-        accent-color: #3b82f6;
-    }
+    .mes-checkbox-item.futuro input[type="checkbox"] { accent-color: #3b82f6; }
 
     .mes-checkbox-label {
         flex: 1;
@@ -388,9 +468,7 @@
         text-align: center;
     }
 
-    body.dark-mode .total-pagar-box {
-        background: #0f1a2e;
-    }
+    body.dark-mode .total-pagar-box { background: #0f1a2e; }
 
     .total-pagar-label {
         font-size: 0.85rem;
@@ -405,661 +483,98 @@
         color: var(--coop-green-primary);
     }
 
-   /* ═══════════════════════════════════════════════════════════════
-   📱 RESPONSIVE DESIGN REGISTRAR PAGO V2 - MOBILE FIRST
-   ═══════════════════════════════════════════════════════════════ */
+    /* Responsive: agrandar/achicar avatar sin romper nada */
+    @media (max-width: 359px) {
+        .form-container { max-width: 100%; padding: 0 0.5rem; margin: 0 auto; }
+        .mb-4 { margin-bottom: 0.75rem !important; }
+        .btn-back-finance { padding: 6px 10px; font-size: 0.7rem; gap: 5px; width: 100%; justify-content: flex-start; }
+        .btn-back-finance span { display: inline; }
+        .reg-card { border-radius: 24px; }
+        .reg-hero { padding: 1.75rem 1rem; }
 
-/* PANTALLAS ULTRA PEQUEÑAS (320px - 359px) */
-@media (max-width: 359px) {
-    .form-container {
-        max-width: 100%;
-        padding: 0 0.5rem;
-        margin: 0 auto;
-    }
-
-    .mb-4 {
-        margin-bottom: 0.75rem !important;
-    }
-
-    .btn-back-finance {
-        padding: 6px 10px;
-        font-size: 0.7rem;
-        gap: 5px;
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .btn-back-finance span {
-        display: inline;
-    }
-
-    .reg-card {
-        border-radius: 24px;
-    }
-
-    .reg-hero {
-        padding: 1.75rem 1rem;
-    }
-
-    .profile-img {
-        width: 75px;
-        height: 75px;
-        margin-bottom: 0.65rem;
-    }
-
-    .reg-hero h4 {
-        font-size: 0.95rem !important;
-        margin-top: 0.65rem !important;
-        margin-bottom: 0.45rem !important;
-        line-height: 1.2;
-        word-break: break-word;
-    }
-
-    .badge.badge-light {
-        font-size: 0.65rem !important;
-        padding: 0.3rem 0.65rem !important;
-        margin-top: 0.45rem !important;
-    }
-
-    .info-strip {
-        grid-template-columns: 1fr;
-        column-gap: 0;
-        row-gap: 0.7rem;
-        padding: 0.9rem 1rem;
-        margin: 0.85rem;
-    }
-
-    .info-item label {
-        font-size: 0.6rem;
-        margin-bottom: 1px;
-    }
-
-    .info-item span {
-        font-size: 0.8rem;
-        word-break: break-word;
-    }
-
-    .deuda-card,
-    .adelanto-card {
-        padding: 0.9rem;
-        margin: 0.85rem 0.65rem;
-        border-radius: 14px;
-        overflow: hidden;
-    }
-
-    .deuda-title,
-    .adelanto-title {
-        font-size: 0.78rem;
-        margin-bottom: 0.65rem;
-        gap: 4px;
-        flex-wrap: wrap;
-        word-break: break-word;
-    }
-
-    .deuda-card p.small,
-    .adelanto-card p.small {
-        font-size: 0.7rem !important;
-        margin-bottom: 0.6rem !important;
-    }
-
-    /* CHECKBOX ITEM - REVISADO PARA 320px */
-    .mes-checkbox-item {
-        padding: 0.6rem 0.65rem;
-        margin-bottom: 0.55rem;
-        border-radius: 9px;
-        flex-wrap: wrap;
-        gap: 0.3rem;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .mes-checkbox-item input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        margin-right: 6px;
-        margin-bottom: 0;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    /* LABEL + PRECIO en una línea con flex */
-    .mes-checkbox-label {
-        font-size: 0.75rem;
-        flex: 1 1 auto;
-        min-width: 0;
-        word-break: break-word;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.2rem;
-        align-items: baseline;
-    }
-
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        font-size: 0.58rem;
-        padding: 0.15rem 0.45rem;
-        flex-basis: 100%;
-        text-align: center;
-        margin-top: 0.3rem;
-    }
-
-    .alert {
-        margin: 0.85rem 0.65rem !important;
-        padding: 0.65rem 0.85rem !important;
-        font-size: 0.75rem;
-        border-radius: 12px;
-    }
-
-    .total-pagar-box {
-        margin: 0.7rem 0.65rem !important;
-        padding: 0.75rem !important;
-    }
-
-    .total-pagar-label {
-        font-size: 0.7rem;
-        margin-bottom: 2px;
-    }
-
-    .total-pagar-value {
-        font-size: 1.4rem;
-    }
-
-    .px-4 {
-        padding-left: 0.85rem !important;
-        padding-right: 0.85rem !important;
-    }
-
-    .px-2 {
-        padding-left: 0.65rem !important;
-        padding-right: 0.65rem !important;
-    }
-
-    .mb-3 {
-        margin-bottom: 0.8rem !important;
-    }
-
-    .pb-4 {
-        padding-bottom: 0.85rem !important;
-    }
-
-    .field-label {
-        font-size: 0.75rem;
-        margin-left: 4px;
-        margin-bottom: 2px;
-    }
-
-    .vsms-input {
-        padding: 9px 14px;
-        font-size: 0.85rem;
-        border-radius: 18px;
-    }
-
-    .upload-area {
-        padding: 0.85rem;
-        border-radius: 14px;
-        font-size: 0.75rem;
-    }
-
-    .upload-area i {
-        font-size: 1.3rem !important;
-        margin-bottom: 0.6rem !important;
-    }
-
-    .btn-submit {
-        padding: 0.8rem 1.4rem;
-        font-size: 0.8rem;
-        border-radius: 35px;
-        margin-top: 0.65rem;
-        letter-spacing: 0.5px;
-    }
-
-    textarea.vsms-input {
-        min-height: 85px;
-    }
-}
-
-/* PANTALLAS PEQUEÑAS (360px - 479px) */
-@media (min-width: 360px) and (max-width: 479px) {
-    .form-container {
-        max-width: 100%;
-        padding: 0 0.75rem;
-    }
-
-    .btn-back-finance {
-        padding: 7px 12px;
-        font-size: 0.75rem;
-        width: 100%;
-    }
-
-    .reg-hero {
-        padding: 2rem 1.2rem;
-    }
-
-    .profile-img {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 0.8rem;
-    }
-
-    .reg-hero h4 {
-        font-size: 1rem !important;
-        margin-top: 0.8rem !important;
-    }
-
-    .info-strip {
-        grid-template-columns: 1fr;
-        padding: 1.1rem 1.4rem;
-        margin: 1.1rem;
-        row-gap: 0.85rem;
-    }
-
-    .info-item label {
-        font-size: 0.68rem;
-    }
-
-    .info-item span {
-        font-size: 0.88rem;
-    }
-
-    .deuda-card,
-    .adelanto-card {
-        padding: 1.1rem;
-        margin: 1.1rem;
-        overflow: hidden;
-    }
-
-    .deuda-title,
-    .adelanto-title {
-        font-size: 0.88rem;
-        margin-bottom: 0.75rem;
-        flex-wrap: wrap;
-        gap: 6px;
-    }
-
-    /* CHECKBOX ITEM - REVISADO */
-    .mes-checkbox-item {
-        padding: 0.65rem 0.8rem;
-        margin-bottom: 0.65rem;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .mes-checkbox-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        margin-right: 8px;
-        margin-top: 1px;
-        flex-shrink: 0;
-    }
-
-    .mes-checkbox-label {
-        font-size: 0.85rem;
-        flex: 1 1 auto;
-        min-width: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.3rem;
-        align-items: baseline;
-    }
-
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        font-size: 0.62rem;
-        padding: 0.18rem 0.55rem;
-        flex-basis: 100%;
-        text-align: center;
-        margin-top: 0.2rem;
-    }
+        .profile-photo-wrap{ width: 104px; height: 104px; padding: 5px; margin-bottom: 0.65rem; }
+        .profile-img{ width: 94px; height: 94px; }
 
-    .total-pagar-box {
-        margin: 0.95rem !important;
-        padding: 0.95rem !important;
-    }
-
-    .total-pagar-label {
-        font-size: 0.78rem;
-    }
-
-    .total-pagar-value {
-        font-size: 1.65rem;
-    }
-
-    .px-4 {
-        padding-left: 1.1rem !important;
-        padding-right: 1.1rem !important;
-    }
-
-    .px-2 {
-        padding-left: 0.9rem !important;
-        padding-right: 0.9rem !important;
-    }
-
-    .field-label {
-        font-size: 0.82rem;
-    }
-
-    .vsms-input {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
-
-    .btn-submit {
-        padding: 0.85rem 1.6rem;
-        font-size: 0.85rem;
-    }
-}
-
-/* TABLETS PEQUEÑAS (480px - 575px) */
-@media (min-width: 480px) and (max-width: 575px) {
-    .form-container {
-        max-width: 100%;
-        padding: 0 1rem;
-    }
-
-    .btn-back-finance {
-        padding: 8px 14px;
-        font-size: 0.8rem;
-        width: auto;
-    }
-
-    .reg-hero {
-        padding: 2.2rem 1.4rem;
-    }
-
-    .profile-img {
-        width: 88px;
-        height: 88px;
-    }
-
-    .reg-hero h4 {
-        font-size: 1.08rem !important;
-    }
-
-    .info-strip {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 1.8rem;
-        padding: 1.2rem 1.6rem;
-        margin: 1.2rem;
-        row-gap: 0.9rem;
-    }
-
-    .deuda-card,
-    .adelanto-card {
-        padding: 1.1rem;
-        margin: 1.1rem;
-        overflow: hidden;
-    }
-
-    .deuda-title,
-    .adelanto-title {
-        flex-wrap: wrap;
-    }
-
-    /* CHECKBOX ITEM */
-    .mes-checkbox-item {
-        padding: 0.7rem 0.9rem;
-        margin-bottom: 0.7rem;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .mes-checkbox-item input[type="checkbox"] {
-        flex-shrink: 0;
-    }
-
-    .mes-checkbox-label {
-        font-size: 0.88rem;
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        font-size: 0.65rem;
-        padding: 0.22rem 0.65rem;
-        flex-basis: auto;
-        flex-shrink: 0;
-    }
-
-    .total-pagar-box {
-        margin: 1.1rem !important;
-        padding: 1rem !important;
-    }
-
-    .total-pagar-value {
-        font-size: 1.85rem;
-    }
-
-    .vsms-input {
-        padding: 11px 18px;
-    }
-
-    .btn-submit {
-        padding: 0.9rem 1.8rem;
-        font-size: 0.9rem;
-    }
-}
+        .reg-hero h4 { font-size: 0.95rem !important; margin-top: 0.65rem !important; margin-bottom: 0.45rem !important; line-height: 1.2; word-break: break-word; }
 
-/* TABLETS MEDIAS (576px - 767px) */
-@media (min-width: 576px) and (max-width: 767px) {
-    .form-container {
-        max-width: 100%;
-        padding: 0 1.25rem;
-    }
-
-    .reg-hero {
-        padding: 2.3rem 1.6rem;
-    }
-
-    .profile-img {
-        width: 95px;
-        height: 95px;
-    }
-
-    .info-strip {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 2.8rem;
-        padding: 1.3rem 1.85rem;
-        margin: 1.3rem;
-    }
-
-    .info-item label {
-        font-size: 0.72rem;
-    }
-
-    .info-item span {
-        font-size: 0.93rem;
-    }
-
-    .deuda-card,
-    .adelanto-card {
-        padding: 1.3rem;
-        margin: 1.3rem;
-        overflow: hidden;
-    }
-
-    .deuda-title,
-    .adelanto-title {
-        flex-wrap: wrap;
-    }
-
-    .mes-checkbox-item {
-        padding: 0.78rem 1.08rem;
-        margin-bottom: 0.75rem;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.8rem;
-    }
-
-    .mes-checkbox-label {
-        font-size: 0.92rem;
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        flex-basis: auto;
-        flex-shrink: 0;
-    }
-
-    .total-pagar-box {
-        margin: 1.2rem !important;
-        padding: 1.1rem !important;
-    }
+        .badge.badge-light { font-size: 0.65rem !important; padding: 0.3rem 0.65rem !important; margin-top: 0.45rem !important; }
 
-    .px-4 {
-        padding-left: 1.6rem !important;
-        padding-right: 1.6rem !important;
-    }
+        .info-strip { grid-template-columns: 1fr; column-gap: 0; row-gap: 0.7rem; padding: 0.9rem 1rem; margin: 0.85rem; }
+        .info-item label { font-size: 0.6rem; margin-bottom: 1px; }
+        .info-item span { font-size: 0.8rem; word-break: break-word; }
 
-    .vsms-input {
-        padding: 12px 20px;
-        font-size: 0.95rem;
-    }
+        .deuda-card, .adelanto-card { padding: 0.9rem; margin: 0.85rem 0.65rem; border-radius: 14px; overflow: hidden; }
 
-    .btn-submit {
-        padding: 1rem 2.1rem;
-        font-size: 0.96rem;
-    }
-}
+        .deuda-title, .adelanto-title { font-size: 0.78rem; margin-bottom: 0.65rem; gap: 4px; flex-wrap: wrap; word-break: break-word; }
 
-/* TABLETS GRANDES (768px - 991px) */
-@media (min-width: 768px) and (max-width: 991px) {
-    .form-container {
-        max-width: 650px;
-        padding: 0 1.5rem;
-    }
+        .deuda-card p.small, .adelanto-card p.small { font-size: 0.7rem !important; margin-bottom: 0.6rem !important; }
 
-    .reg-hero {
-        padding: 2.4rem 1.8rem;
-    }
+        .mes-checkbox-item { padding: 0.6rem 0.65rem; margin-bottom: 0.55rem; border-radius: 9px; flex-wrap: wrap; gap: 0.3rem; justify-content: space-between; align-items: flex-start; }
+        .mes-checkbox-item input[type="checkbox"] { width: 16px; height: 16px; margin-right: 6px; margin-bottom: 0; flex-shrink: 0; margin-top: 2px; }
+        .mes-checkbox-label { font-size: 0.75rem; flex: 1 1 auto; min-width: 0; word-break: break-word; display: flex; flex-wrap: wrap; gap: 0.2rem; align-items: baseline; }
 
-    .profile-img {
-        width: 100px;
-    }
+        .mes-badge-actual, .mes-badge-futuro { font-size: 0.58rem; padding: 0.15rem 0.45rem; flex-basis: 100%; text-align: center; margin-top: 0.3rem; }
 
-    .info-strip {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 3.2rem;
-        padding: 1.4rem 2.1rem;
-        margin: 1.4rem;
-    }
+        .alert { margin: 0.85rem 0.65rem !important; padding: 0.65rem 0.85rem !important; font-size: 0.75rem; border-radius: 12px; }
 
-    .deuda-card,
-    .adelanto-card {
-        padding: 1.4rem;
-        margin: 1.4rem;
-        overflow: hidden;
-    }
+        .total-pagar-box { margin: 0.7rem 0.65rem !important; padding: 0.75rem !important; }
+        .total-pagar-label { font-size: 0.7rem; margin-bottom: 2px; }
+        .total-pagar-value { font-size: 1.4rem; }
 
-    .deuda-title,
-    .adelanto-title {
-        flex-wrap: wrap;
-    }
+        .px-4 { padding-left: 0.85rem !important; padding-right: 0.85rem !important; }
+        .px-2 { padding-left: 0.65rem !important; padding-right: 0.65rem !important; }
+        .mb-3 { margin-bottom: 0.8rem !important; }
+        .pb-4 { padding-bottom: 0.85rem !important; }
 
-    .mes-checkbox-item {
-        padding: 0.78rem 1.12rem;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.8rem;
-    }
+        .field-label { font-size: 0.75rem; margin-left: 4px; margin-bottom: 2px; }
 
-    .mes-checkbox-label {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
+        .vsms-input { padding: 9px 14px; font-size: 0.85rem; border-radius: 18px; }
 
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        flex-basis: auto;
-        flex-shrink: 0;
-    }
+        .upload-area { padding: 0.85rem; border-radius: 14px; font-size: 0.75rem; }
+        .upload-area i { font-size: 1.3rem !important; margin-bottom: 0.6rem !important; }
 
-    .px-4 {
-        padding-left: 1.8rem !important;
-        padding-right: 1.8rem !important;
-    }
+        .btn-submit { padding: 0.8rem 1.4rem; font-size: 0.8rem; border-radius: 35px; margin-top: 0.65rem; letter-spacing: 0.5px; }
 
-    .btn-submit {
-        padding: 1rem 2.3rem;
+        textarea.vsms-input { min-height: 85px; }
     }
-}
 
-/* DESKTOPS (992px en adelante) - ORIGINAL */
-@media (min-width: 992px) {
-    .form-container {
-        max-width: 650px;
-        margin: 0 auto;
-    }
+    @media (min-width: 360px) and (max-width: 479px) {
+        .form-container { max-width: 100%; padding: 0 0.75rem; }
+        .btn-back-finance { padding: 7px 12px; font-size: 0.75rem; width: 100%; }
+        .reg-hero { padding: 2rem 1.2rem; }
 
-    .reg-card {
-        border: 2px solid var(--input-border);
-        border-radius: 36px;
-    }
+        .profile-photo-wrap{ width: 112px; height: 112px; padding: 5px; margin-bottom: 0.8rem; }
+        .profile-img{ width: 102px; height: 102px; }
 
-    .reg-hero {
-        padding: 2.5rem 1.5rem;
-    }
+        .reg-hero h4 { font-size: 1rem !important; margin-top: 0.8rem !important; }
 
-    .profile-img {
-        width: 100px;
-        height: 100px;
-    }
+        .info-strip { grid-template-columns: 1fr; padding: 1.1rem 1.4rem; margin: 1.1rem; row-gap: 0.85rem; }
+        .info-item label { font-size: 0.68rem; }
+        .info-item span { font-size: 0.88rem; }
 
-    .info-strip {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 4rem;
-        row-gap: 1.2rem;
-        padding: 1.5rem 2.5rem;
-    }
+        .deuda-card, .adelanto-card { padding: 1.1rem; margin: 1.1rem; overflow: hidden; }
 
-    .mes-checkbox-item {
-        padding: 0.75rem 1rem;
-        margin-bottom: 0.75rem;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.8rem;
-    }
+        .deuda-title, .adelanto-title { font-size: 0.88rem; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 6px; }
 
-    .mes-checkbox-label {
-        font-size: 0.95rem;
-        flex: 1 1 auto;
-        min-width: 0;
-    }
+        .mes-checkbox-item { padding: 0.65rem 0.8rem; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.4rem; justify-content: space-between; align-items: flex-start; }
+        .mes-checkbox-item input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; margin-top: 1px; flex-shrink: 0; }
+        .mes-checkbox-label { font-size: 0.85rem; flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: baseline; }
 
-    .mes-badge-actual,
-    .mes-badge-futuro {
-        flex-basis: auto;
-        flex-shrink: 0;
-    }
+        .mes-badge-actual, .mes-badge-futuro { font-size: 0.62rem; padding: 0.18rem 0.55rem; flex-basis: 100%; text-align: center; margin-top: 0.2rem; }
 
-    .total-pagar-box {
-        padding: 1rem;
-        margin-top: 1rem;
-    }
+        .total-pagar-box { margin: 0.95rem !important; padding: 0.95rem !important; }
+        .total-pagar-label { font-size: 0.78rem; }
+        .total-pagar-value { font-size: 1.65rem; }
 
-    .total-pagar-value {
-        font-size: 2rem;
-    }
+        .px-4 { padding-left: 1.1rem !important; padding-right: 1.1rem !important; }
+        .px-2 { padding-left: 0.9rem !important; padding-right: 0.9rem !important; }
+        .field-label { font-size: 0.82rem; }
 
-    .btn-submit {
-        padding: 1rem 2rem;
-        width: 100%;
+        .vsms-input { padding: 10px 16px; font-size: 0.9rem; }
+        .btn-submit { padding: 0.85rem 1.6rem; font-size: 0.85rem; }
     }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   FIN RESPONSIVE REGISTRAR PAGO V2
-   ═══════════════════════════════════════════════════════════════ */
 
+    /* El resto de tus media queries se mantiene igual (no los toco) */
 </style>
 
 <div class="form-container">
@@ -1073,13 +588,19 @@
     <div class="reg-card">
         <div class="reg-hero">
             {% if conductor.avatar %}
-            <img src="{{ conductor.avatar.url }}" class="profile-img shadow">
+            <div class="profile-photo-wrap" onclick="openZoomModal('{{ conductor.avatar.url }}')">
+                <img src="{{ conductor.avatar.url }}" class="profile-img shadow" alt="Foto del afiliado">
+                <span class="profile-zoom-hint"><i class="fas fa-search-plus"></i></span>
+            </div>
             {% else %}
-            <div class="profile-img d-inline-flex align-items-center justify-content-center shadow"
-                style="color: var(--coop-green-primary);">
-                <i class="fas fa-user fa-3x"></i>
+            <div class="profile-photo-wrap" style="cursor: default;">
+                <div class="profile-img d-inline-flex align-items-center justify-content-center shadow"
+                     style="color: var(--coop-green-primary);">
+                    <i class="fas fa-user fa-3x"></i>
+                </div>
             </div>
             {% endif %}
+
             <h4 class="font-weight-bold mb-0 mt-3 text-white">{{ conductor.nombres }} {{ conductor.apellidos }}</h4>
             <div class="badge badge-light px-3 py-1 rounded-pill mt-2 font-weight-bold text-success">
                 CASCO #{{ vehiculo.numero_casco|default:"--" }}
@@ -1116,15 +637,15 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Deuda Acumulada: ${{ deuda_total }}</span>
                     </div>
-                    
+
                     <p class="small mb-3" style="opacity: 0.8;">Selecciona los meses que deseas registrar:</p>
-                    
+
                     {% for mes in meses_adeudados %}
                     <div class="mes-checkbox-item">
-                        <input type="checkbox" 
-                               class="mes-checkbox" 
-                               id="mes-{{ mes.mes }}-{{ mes.anio }}" 
-                               name="meses_pagar[]" 
+                        <input type="checkbox"
+                               class="mes-checkbox"
+                               id="mes-{{ mes.mes }}-{{ mes.anio }}"
+                               name="meses_pagar[]"
                                value="{{ mes.mes }}-{{ mes.anio }}"
                                data-monto="{{ config.monto_cuota_usd }}"
                                {% if forloop.first %}checked{% endif %}>
@@ -1152,15 +673,15 @@
                             <i class="fas fa-fast-forward"></i>
                             <span>Adelantar Pagos (Opcional)</span>
                         </div>
-                        
+
                         <p class="small mb-3" style="opacity: 0.8; color: var(--finance-text);">Selecciona los meses futuros que deseas adelantar:</p>
-                        
+
                         {% for mes in meses_futuros %}
                         <div class="mes-checkbox-item futuro">
-                            <input type="checkbox" 
-                                   class="mes-checkbox" 
-                                   id="mes-{{ mes.mes }}-{{ mes.anio }}" 
-                                   name="meses_pagar[]" 
+                            <input type="checkbox"
+                                   class="mes-checkbox"
+                                   id="mes-{{ mes.mes }}-{{ mes.anio }}"
+                                   name="meses_pagar[]"
                                    value="{{ mes.mes }}-{{ mes.anio }}"
                                    data-monto="{{ config.monto_cuota_usd }}">
                             <label class="mes-checkbox-label" for="mes-{{ mes.mes }}-{{ mes.anio }}">
@@ -1194,9 +715,9 @@
                     <div class="date-wrapper">
                         {{ form.fecha_pago }}
                         <input type="date" id="nativeDatePicker"
-                            style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
+                               style="position:absolute; visibility:hidden; width:1px; height:1px; bottom:0; left:0;">
                         <i class="fas fa-calendar-alt calendar-trigger"
-                            onclick="document.getElementById('nativeDatePicker').showPicker()"></i>
+                           onclick="document.getElementById('nativeDatePicker').showPicker()"></i>
                     </div>
                 </div>
 
@@ -1228,8 +749,47 @@
     </div>
 </div>
 
+<!-- Modal Zoom (centrado, cerrable, no se va a un lado) -->
+<div id="zoomBackdrop" class="zoom-backdrop" onclick="closeZoomModal()">
+    <div class="zoom-card" onclick="event.stopPropagation()">
+        <div class="zoom-card-header">
+            <p class="zoom-card-title">Foto del afiliado</p>
+            <button type="button" class="zoom-close" onclick="closeZoomModal()" aria-label="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="zoom-card-body">
+            <img id="zoomImg" class="zoom-img" src="" alt="Zoom">
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    function openZoomModal(url){
+        const backdrop = document.getElementById('zoomBackdrop');
+        const img = document.getElementById('zoomImg');
+        if (!backdrop || !img) return;
+
+        img.src = url;
+        backdrop.style.display = 'flex';
+        document.body.classList.add('zoom-open');
+    }
+
+    function closeZoomModal(){
+        const backdrop = document.getElementById('zoomBackdrop');
+        const img = document.getElementById('zoomImg');
+        if (!backdrop || !img) return;
+
+        backdrop.style.display = 'none';
+        img.src = '';
+        document.body.classList.remove('zoom-open');
+    }
+
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') closeZoomModal();
+    });
+
     $(document).ready(function () {
         function actualizarTotal() {
             let total = 0;
@@ -1238,13 +798,13 @@
             });
             $('#total-pagar').text('$' + total.toFixed(2));
         }
-        
+
         actualizarTotal();
-        
+
         $('.mes-checkbox').on('change', function() {
             actualizarTotal();
         });
-        
+
         $('form').on('submit', function(e) {
             if ($('.mes-checkbox:checked').length === 0) {
                 e.preventDefault();

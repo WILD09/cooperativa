@@ -8,7 +8,7 @@
 <style>
   /* ===========================
      Variables (compatibles con tu tema)
-     =========================== */
+     ============================ */
   :root{
     --coop-green-primary: #00b300;
     --coop-green-hover: #009900;
@@ -27,7 +27,6 @@
     --help-accent: rgba(0,179,0,.18);
     --help-accent-strong: rgba(0,179,0,.28);
 
-    /* Iconos (tinte sutil, no saturado) */
     --icon-faint: rgba(0,179,0,.48);
     --icon-soft: rgba(0,179,0,.68);
     --icon-strong: rgba(0,179,0,.88);
@@ -55,7 +54,6 @@
     --help-accent: rgba(16,185,129,.22);
     --help-accent-strong: rgba(16,185,129,.34);
 
-    /* Iconos (teal en oscuro) */
     --icon-faint: rgba(16,185,129,.48);
     --icon-soft: rgba(16,185,129,.68);
     --icon-strong: rgba(16,185,129,.88);
@@ -67,10 +65,10 @@
 
   /* ===========================
      Anti-overflow global (CLAVE)
-     =========================== */
+     ============================ */
   .help-wrap, .help-wrap *{ box-sizing: border-box; }
   .help-wrap{ max-width: 1200px; margin: 0 auto; overflow-x: clip; }
-  /* Evita que cualquier “palabra larga/URL/stack trace” rompa el layout */
+
   .help-wrap p,
   .help-wrap a,
   .help-wrap summary,
@@ -83,37 +81,32 @@
     word-break: break-word;
     hyphens: auto;
   }
-  /* Grid/flex: permitir que el texto “se encoja” dentro del contenedor */
   .help-grid > *{ min-width: 0; }
   .module-top > *{ min-width: 0; }
   .step-b{ min-width: 0; }
 
   /* ===========================
      Iconos (evita “negros”)
-     =========================== */
+     ============================ */
   .help-wrap i.fas,
   .help-wrap i.far,
-  .help-wrap i.fab{
-    color: var(--icon-soft);
-  }
+  .help-wrap i.fab{ color: var(--icon-soft); }
+
   .help-wrap .toc a i,
-  .help-wrap .help-mini i{
-    color: var(--icon-faint);
-  }
+  .help-wrap .help-mini i{ color: var(--icon-faint); }
+
   .help-wrap .toc a:hover i,
-  .help-wrap .toc a.active i{
-    color: var(--icon-strong);
-  }
+  .help-wrap .toc a.active i{ color: var(--icon-strong); }
+
   .help-wrap .help-pill i,
   .help-wrap .help-btn i,
-  .help-wrap .help-chip i{
-    color: var(--icon-strong);
-  }
+  .help-wrap .help-chip i{ color: var(--icon-strong); }
+
   .help-wrap .module-icon i{ color: inherit !important; }
 
   /* ===========================
      Scrollbar
-     =========================== */
+     ============================ */
   @supports selector(::-webkit-scrollbar){
     html::-webkit-scrollbar,
     body::-webkit-scrollbar{ width:10px; height:10px; }
@@ -150,7 +143,7 @@
 
   /* ===========================
      Progreso
-     =========================== */
+     ============================ */
   .help-progress{
     position: sticky;
     top: 0;
@@ -170,7 +163,7 @@
 
   /* ===========================
      Hero
-     =========================== */
+     ============================ */
   .help-hero{
     border-radius: 22px;
     padding: 18px 18px;
@@ -203,7 +196,7 @@
 
   /* ===========================
      Grid principal
-     =========================== */
+     ============================ */
   .help-grid{
     display:grid;
     grid-template-columns: minmax(0, .92fr) minmax(0, 1.68fr);
@@ -213,7 +206,7 @@
 
   /* ===========================
      Cards
-     =========================== */
+     ============================ */
   .help-card{
     border-radius: 22px;
     overflow: hidden;
@@ -246,7 +239,7 @@
 
   /* ===========================
      Pills / búsqueda / chips
-     =========================== */
+     ============================ */
   .help-pill{
     display:inline-flex;
     align-items:center;
@@ -344,7 +337,7 @@
 
   /* ===========================
      TOC
-     =========================== */
+     ============================ */
   .toc{ position: sticky; top: 1rem; }
   #helpToc{
     display:flex;
@@ -370,12 +363,13 @@
     background: var(--help-bg);
     border-color: var(--help-accent-strong);
   }
+
+  /* ✅ Fix “brillo cortado”: sin sombras externas, usamos inset */
   .toc a.active{
     background: var(--help-bg);
     border-color: var(--help-accent-strong);
-    box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    box-shadow: inset 0 0 0 2px var(--help-accent-strong);
   }
-  body.dark-mode .toc a.active{ box-shadow: 0 14px 30px rgba(0,0,0,.35); }
 
   .toc-badge{
     margin-left:auto;
@@ -391,7 +385,7 @@
 
   /* ===========================
      Secciones / módulos / pasos
-     =========================== */
+     ============================ */
   .help-section{
     border: 2px solid var(--border-soft);
     background: var(--help-bg);
@@ -430,7 +424,7 @@
     border: 2px solid var(--border-soft);
     background: var(--card-bg);
     padding: .85rem .95rem;
-    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
     position: relative;
     overflow:hidden;
     max-width: 100%;
@@ -448,12 +442,17 @@
     transform: rotate(12deg);
     pointer-events:none;
   }
+
+  /* ✅ Fix “brillo cortado”: sin shadow externa; resaltado inset */
   .module:hover{
     transform: translateY(-2px);
     border-color: var(--help-accent-strong);
-    box-shadow: 0 10px 22px rgba(0,0,0,.10);
+    box-shadow: inset 0 0 0 2px var(--help-accent-strong);
+    background: linear-gradient(180deg, rgba(0,0,0,.00), var(--help-bg));
   }
-  body.dark-mode .module:hover{ box-shadow: 0 14px 30px rgba(0,0,0,.40); }
+  body.dark-mode .module:hover{
+    background: linear-gradient(180deg, rgba(255,255,255,.00), var(--help-bg));
+  }
 
   .module-top{
     display:flex;
@@ -575,7 +574,7 @@
     gap:.45rem;
     max-width: 100%;
     min-width: 0;
-    white-space: normal; /* permite saltos en pantallas pequeñas */
+    white-space: normal;
     text-align: center;
     justify-content: center;
   }
@@ -593,7 +592,7 @@
 
   /* ===========================
      FAQ (details)
-     =========================== */
+     ============================ */
   .faq-grid{ display:grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin-top: .9rem; }
   details.faq-item{
     border-radius: 16px;
@@ -642,7 +641,7 @@
 
   /* ===========================
      FAB / toast
-     =========================== */
+     ============================ */
   .help-fab{
     position: fixed;
     right: 18px;
@@ -689,7 +688,7 @@
 
   /* ===========================
      Responsive
-     =========================== */
+     ============================ */
   @media (max-width: 992px){
     .help-grid{ grid-template-columns: 1fr; }
     .toc{ position: static; top:auto; }
@@ -704,7 +703,6 @@
     .module-grid{ grid-template-columns: 1fr; }
     .help-section{ padding: .9rem .9rem; }
 
-    /* Índice horizontal (scroll) */
     #helpToc{
       flex-direction: row;
       flex-wrap: nowrap;
@@ -724,28 +722,25 @@
       box-shadow: none;
       border-radius: 999px;
       white-space: nowrap;
-    }
-    .toc a.active{
-      border-color: var(--help-accent-strong);
-      background: var(--help-bg);
-      box-shadow: none;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .toc-badge{ display:none; }
 
-    /* Acciones: botones full-width */
     .help-actions{ gap: .55rem; }
     .help-btn{ width: 100%; padding: .58rem .95rem; }
 
-    /* Chips: scroll horizontal */
     .help-chipbar{
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      overflow-y: hidden;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: .25rem;
+      padding-bottom: .35rem;
+      gap: .55rem;
       scroll-snap-type: x mandatory;
     }
-    .help-chip{ flex:0 0 auto; scroll-snap-align:start; }
+    .help-chip{ flex: 0 0 auto; scroll-snap-align: start; }
   }
 
   @media (max-width: 576px){
@@ -755,9 +750,9 @@
     .step{ padding: .6rem .65rem; }
     .step-d{ font-size: .88rem; }
     .help-pill{ font-size: .80rem; }
+    #helpSearchMeta{ display:block; margin-left: 0 !important; margin-top: .25rem; }
   }
 
-  /* Ultra-small phones: <= 420px */
   @media (max-width: 420px){
     .help-wrap.container-fluid{ padding-left: .60rem !important; padding-right: .60rem !important; }
     .help-hero{ padding: 12px 12px; }
@@ -781,47 +776,24 @@
 
     details.faq-item > summary{ padding: .78rem .82rem; }
     .faq-body{ padding: .78rem .82rem; }
-
-    .help-pill{
-      padding: .32rem .62rem;
-      border-radius: 999px;
-      max-width: 100%;
-    }
   }
 
-  /* Ultra-small phones: <= 370px (tu caso) */
   @media (max-width: 370px){
     .help-wrap.container-fluid{ padding-left: .50rem !important; padding-right: .50rem !important; }
-
-    /* Hero header: evita que el pill empuje el layout */
-    .help-hero .help-pill{
-      max-width: 160px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: .78rem;
-    }
-
     .help-search{ padding: 10px 12px; }
     .help-mini{ font-size: .82rem; line-height: 1.25; }
 
-    /* Reducir un poco el “aire” interno */
     .help-card{ border-radius: 16px; }
     .help-section{ padding: .75rem .75rem; }
     .module{ padding: .72rem .75rem; }
 
-    /* En ancho ultra pequeño, icono arriba para no forzar columnas */
     .module-top{ flex-direction: column; }
     .module-icon{ align-self: flex-start; }
 
-    /* Botones: altura cómoda y sin overflow */
     .help-btn{ padding: .56rem .75rem; font-size: .92rem; }
 
-    /* Chips y TOC: más compactos */
-    .help-chip{ padding: .32rem .62rem; font-size: .92rem; }
-    .toc a{ padding: .46rem .58rem; font-size: .92rem; }
+    .help-chip{ padding: .30rem .56rem; font-size: .90rem; }
 
-    /* FAQ chevron más pequeño */
     .faq-chevron{ width: 32px; height: 32px; border-radius: 12px; }
   }
 
@@ -830,216 +802,71 @@
   }
 
   /* ===========================
-   FIX: Pills no chocan con títulos
-   (pegar al FINAL del CSS)
-   =========================== */
-
-/* 1) Permite wrap real en headers */
-.help-card-h,
-.sec-title{
-  flex-wrap: wrap;
-  align-items: flex-start;
-  row-gap: .45rem;
-}
-
-/* 2) Evita que el título “empuje” al pill y cause montajes */
-.help-card-t,
-.sec-title > span{
-  min-width: 0;
-}
-
-/* 3) Pills: comportamiento seguro (no desbordan) */
-.help-pill{
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;            /* recorta si no cabe */
-  text-overflow: ellipsis;     /* indica recorte cuando aplica */
-  white-space: nowrap;         /* por defecto 1 línea (desktop) */
-  line-height: 1.1;
-}
-
-/* 4) En headers (card/section) el pill se alinea sin invadir título */
-.help-card-h .help-pill,
-.sec-title .help-pill{
-  margin-left: auto;           /* se va a la derecha si hay espacio */
-  flex: 0 0 auto;
-  max-width: 52%;
-}
-
-/* 5) Si el título ocupa mucho, el pill baja a la siguiente línea sin chocar */
-@media (max-width: 576px){
+     FIX: Pills no chocan con títulos
+     ============================ */
   .help-card-h,
   .sec-title{
-    justify-content: flex-start;  /* quita el “space-between” implícito del layout */
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: .45rem;
+  }
+
+  .help-card-t,
+  .sec-title > span{ min-width: 0; }
+
+  .help-pill{
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.1;
   }
 
   .help-card-h .help-pill,
   .sec-title .help-pill{
-    margin-left: 0;              /* baja alineado al inicio */
-    max-width: 100%;
+    margin-left: auto;
+    flex: 0 0 auto;
+    max-width: 52%;
   }
 
-  /* Más ligero en móvil */
-  .help-pill{
-    font-size: .78rem;
-    padding: .30rem .58rem;
-    gap: .35rem;
-  }
-}
+  @media (max-width: 576px){
+    .help-card-h,
+    .sec-title{ justify-content: flex-start; }
 
-/* 6) Ultra pequeño: permitir 2 líneas dentro del pill para no recortar demasiado */
-@media (max-width: 370px){
-  .help-pill{
-    white-space: normal;         /* permite wrap dentro del ovalo */
-    overflow: visible;           /* evita cortes feos */
-    text-overflow: clip;
-    max-width: 100%;
+    .help-card-h .help-pill,
+    .sec-title .help-pill{
+      margin-left: 0;
+      max-width: 100%;
+    }
+
+    .help-pill{ font-size: .78rem; padding: .30rem .58rem; gap: .35rem; }
   }
 
-  .sec-title{
-    gap: .45rem;
+  @media (max-width: 370px){
+    .help-pill{
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      max-width: 100%;
+    }
+    .sec-title{ gap: .45rem; }
   }
-}
 
-/* ===========================
-   FIX #1: Chip largo “Preguntas frecuentes” (no se sale del óvalo)
-   =========================== */
-
-/* Chips siempre 1 línea + ellipsis (evita cápsulas altas por wrap) */
-.help-chip{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; /* requiere overflow hidden + nowrap para funcionar */
-  line-height: 1.1;
-  max-width: min(230px, 78vw);
-}
-
-/* En el chipbar (filtros), mantén todo dentro del carrusel sin deformar */
-.help-chipbar{
-  max-width: 100%;
-  overflow: hidden;         /* evita que un chip “invada” visualmente el borde del hero */
-  padding-right: .25rem;    /* pequeño colchón para que no roce */
-}
-
-/* Ultra small: más compacto */
-@media (max-width: 370px){
+  /* Chips largos: 1 línea + ellipsis */
   .help-chip{
-    max-width: min(200px, 72vw);
-    padding: .30rem .56rem;
-    font-size: .90rem;
-  }
-}
-
-
-/* ===========================
-   FIX #2: Glow/sombra cortada (cambiar a estilo “inset”)
-   =========================== */
-
-/* 1) Evita sombras externas dentro de contenedores con overflow hidden
-      (reemplazo por borde + inset, que NO se “corta”) */
-.toc a.active{
-  box-shadow: inset 0 0 0 2px var(--help-accent-strong);
-}
-
-.module:hover{
-  /* quita la elevación externa que puede recortarse */
-  box-shadow: inset 0 0 0 2px var(--help-accent-strong);
-}
-
-/* Si quieres mantener algo de “profundidad” sin corte: usa un fondo suave */
-.module:hover{
-  background: linear-gradient(180deg, rgba(0,0,0,.00), var(--help-bg));
-}
-body.dark-mode .module:hover{
-  background: linear-gradient(180deg, rgba(255,255,255,.00), var(--help-bg));
-}
-
-/* 2) Opcional: desactivar sombras externas en móvil (donde más se nota el recorte) */
-@media (max-width: 768px){
-  .toc a.active{ box-shadow: inset 0 0 0 2px var(--help-accent-strong); }
-  .module:hover{ box-shadow: inset 0 0 0 2px var(--help-accent-strong); }
-}
-
-/* ===========================
-   FIX: TOC “Preguntas frecuentes” no se sale del pill (móvil)
-   =========================== */
-
-/* En el carrusel de TOC (móvil), capamos el ancho de cada pill */
-@media (max-width: 768px){
-  /* A todos los pills del TOC les ponemos un ancho máximo razonable */
-  #helpToc .help-toc-link{
-    max-width: 200px;          /* evita pills gigantes */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;       /* 1 línea + ellipsis */
+    line-height: 1.1;
+    max-width: min(230px, 78vw);
   }
 
-  /* En particular, el de FAQ suele ser el más largo */
-  #helpToc .help-toc-link[href="#sec-faq"]{
-    max-width: 170px;          /* más estricto para que no “reviente” */
+  /* Asegura scroll de chipbar en hero móvil */
+  @media (max-width: 768px){
+    .help-hero .help-chipbar{ overflow: auto hidden !important; }
   }
-}
-
-/* Ultra pequeño: aún más compacto */
-@media (max-width: 370px){
-  #helpToc .help-toc-link{ max-width: 180px; }
-  #helpToc .help-toc-link[href="#sec-faq"]{ max-width: 150px; }
-
-  /* un pelín menos padding para que quepa mejor */
-  #helpToc .help-toc-link{
-    padding: .44rem .54rem;
-    font-size: .90rem;
-  }
-}
-
-/* ===========================
-   FIX CRÍTICO: Filtros (chips) con scroll horizontal en responsive
-   =========================== */
-
-/* 1) En móvil/tablet: los filtros SIEMPRE como carrusel horizontal */
-@media (max-width: 768px){
-  .help-chipbar{
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;   /* scroll horizontal real */
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-    padding-bottom: .35rem;        /* espacio para que no “corte” abajo */
-    gap: .55rem;
-    scroll-snap-type: x mandatory;
-  }
-
-  .help-chip{
-    flex: 0 0 auto;                /* evita que se aplasten o se partan raro */
-    scroll-snap-align: start;
-  }
-
-  /* Si algún fix anterior dejó overflow hidden, esto lo revierte sí o sí */
-  .help-hero .help-chipbar{ overflow: auto hidden !important; }
-}
-
-/* 2) Ultra pequeño: chips un poco más compactos para ver más */
-@media (max-width: 370px){
-  .help-chip{
-    padding: .30rem .56rem;
-    font-size: .90rem;
-  }
-}
-
-/* ===========================
-   EXTRA: El texto “Mostrando X secciones…” que no choque / se corte
-   =========================== */
-@media (max-width: 576px){
-  #helpSearchMeta{
-    display: block;                /* baja a la siguiente línea */
-    margin-left: 0 !important;
-    margin-top: .25rem;
-  }
-}
-
-
 </style>
-
 
 <div class="help-wrap container-fluid px-4 py-3">
   <div class="help-progress" aria-hidden="true">
@@ -1309,6 +1136,26 @@ body.dark-mode .module:hover{
               <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Guarda y confirma</p><p class="step-d">Corrige lo que indique el mensaje debajo del campo.</p></div></div>
             </div>
           </div>
+
+          <!-- ✅ NUEVO: Foto + zoom -->
+          <div class="module">
+            <div class="module-top">
+              <div>
+                <p class="module-name">Foto del afiliado (zoom)</p>
+                <p class="module-desc">En el detalle del afiliado puedes ver la foto y ampliarla para confirmar identidad.</p>
+                <div class="info-line"><span class="info-dot"></span><span>Si no hay foto cargada, el bloque no aparece.</span></div>
+              </div>
+              <div class="module-icon"><i class="fas fa-camera"></i></div>
+            </div>
+            <div class="steps" data-copy="afiliados-foto">
+              <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Ubica la foto</p><p class="step-d">En “Datos del afiliado” (encima de la cédula).</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Pasa el cursor</p><p class="step-d">Verás el indicador de ampliación.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Haz clic</p><p class="step-d">Se abre en un visor tipo “zoom” para verla grande.</p></div></div>
+            </div>
+            <div class="help-actions">
+              <button class="help-btn" type="button" data-copy-steps="afiliados-foto"><i class="fas fa-copy"></i>Copiar pasos</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1378,8 +1225,9 @@ body.dark-mode .module:hover{
             </div>
             <div class="steps" data-copy="finanzas-registrar">
               <div class="step"><div class="step-n">1</div><div class="step-b"><p class="step-t">Selecciona afiliado correcto</p><p class="step-d">Verifica cédula y, si aplica, vehículo operativo.</p></div></div>
-              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Define periodo</p><p class="step-d">Mes/año; si hay pago múltiple, confirma lista de meses.</p></div></div>
-              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Guarda y valida</p><p class="step-d">Revisa historial y/o recibo; auditoría si necesitas traza.</p></div></div>
+              <div class="step"><div class="step-n">2</div><div class="step-b"><p class="step-t">Verifica identidad (foto)</p><p class="step-d">En “Registrar pago” verás el avatar; puedes ampliarlo con clic.</p></div></div>
+              <div class="step"><div class="step-n">3</div><div class="step-b"><p class="step-t">Define periodo</p><p class="step-d">Mes/año; si hay pago múltiple, confirma lista de meses.</p></div></div>
+              <div class="step"><div class="step-n">4</div><div class="step-b"><p class="step-t">Guarda y valida</p><p class="step-d">Revisa historial y/o recibo; auditoría si necesitas traza.</p></div></div>
             </div>
             <div class="help-actions">
               <button class="help-btn" type="button" data-copy-steps="finanzas-registrar"><i class="fas fa-copy"></i>Copiar pasos</button>
@@ -1556,6 +1404,7 @@ body.dark-mode .module:hover{
           </details>
         </div>
       </section>
+
     </div>
   </div>
 </div>
@@ -1841,7 +1690,7 @@ body.dark-mode .module:hover{
     });
   }
 
-  // Contadores de TOC (cuántas secciones visibles por tag)
+  // Contadores de TOC
   function updateTocCounters(){
     const counts = {
       inicio: 0, panel: 0, perfil: 0, afiliados: 0,
@@ -1860,7 +1709,6 @@ body.dark-mode .module:hover{
     });
   }
 
-  // Init
   applyAll();
 })();
 </script>

@@ -310,12 +310,6 @@ def ejecutar_cierre_mensual(request):
     return redirect('taxis:panel_general')
 
 # ====================================================================
-# PERFIL Y GESTOR DOCUMENTAL
-# ====================================================================
-
-
-
-# ====================================================================
 # CONDUCTORES Y VEHÍCULOS
 # ====================================================================
 
@@ -385,43 +379,49 @@ class ConductorCreateView(LoginRequiredMixin, CreateView):
     template_name = "taxis/conductor_form.html"
     success_url = reverse_lazy("taxis:conductor_list")  # ✅ Irá aquí después de guardar
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+           form_class = self.get_form_class()
+        print("FORM_CLASS_REAL =", form_class, "FROM =", getattr(form_class, "__module__", None))
+        print("FORM_KWARGS =", self.get_form_kwargs())
+        return form_class(**self.get_form_kwargs())
+
+ 
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['is_create'] = True
+        kwargs["is_create"] = True
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['ubicacion_form'] = UbicacionGeograficaForm(self.request.POST)
+            context["ubicacion_form"] = UbicacionGeograficaForm(self.request.POST)
         else:
-            context['ubicacion_form'] = UbicacionGeograficaForm()
+            context["ubicacion_form"] = UbicacionGeograficaForm()
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
-        ubicacion_form = context['ubicacion_form']
-        
+        ubicacion_form = context["ubicacion_form"]
+
         if form.is_valid() and ubicacion_form.is_valid():
             with transaction.atomic():
                 ubicacion = ubicacion_form.save()
                 self.object = form.save(commit=False)
                 self.object.ubicacion = ubicacion
                 self.object.save()
-                
+
                 registrar_movimiento(
-                  request=self.request,
-                  accion=f"Creó afiliado {self.object.nombres}",
-                  modulo="afiliados",
+                    request=self.request,
+                    accion=f"Creó afiliado {self.object.nombres}",
+                    modulo="afiliados",
                 )
 
             messages.success(self.request, "Afiliado registrado exitosamente.")
-            
-            # ✅ NO hacer redirect manual, dejar que success_url lo haga
             return super().form_valid(form)
 
         return self.render_to_response(self.get_context_data(form=form))
-
 
 
 class ConductorUpdateView(LoginRequiredMixin, UpdateView):
@@ -429,33 +429,40 @@ class ConductorUpdateView(LoginRequiredMixin, UpdateView):
     form_class = ConductorForm
     template_name = "taxis/conductor_form.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["is_create"] = False
+        return kwargs
 
     def get_success_url(self):
         next_url = self.request.GET.get("next")
         if next_url:
             return next_url
-        return reverse_lazy('taxis:dt5_detail')
+        return reverse_lazy("taxis:dt5_detail")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['ubicacion_form'] = UbicacionGeograficaForm(self.request.POST, instance=self.object.ubicacion)
+            context["ubicacion_form"] = UbicacionGeograficaForm(
+                self.request.POST, instance=self.object.ubicacion
+            )
         else:
-            context['ubicacion_form'] = UbicacionGeograficaForm(instance=self.object.ubicacion)
+            context["ubicacion_form"] = UbicacionGeograficaForm(instance=self.object.ubicacion)
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
-        ubicacion_form = context['ubicacion_form']
+        ubicacion_form = context["ubicacion_form"]
 
         if form.is_valid() and ubicacion_form.is_valid():
             with transaction.atomic():
                 ubicacion_form.save()
                 self.object = form.save()
+
                 registrar_movimiento(
-                  request=self.request,
-                  accion=f"Actualizó afiliado {self.object.nombres}",
-                  modulo="afiliados",
+                    request=self.request,
+                    accion=f"Actualizó afiliado {self.object.nombres}",
+                    modulo="afiliados",
                 )
 
             messages.success(self.request, "Afiliado actualizado.")
@@ -468,7 +475,6 @@ class ConductorDeleteView(LoginRequiredMixin, DeleteView):
     model = Conductor
     template_name = "taxis/conductor_confirm_delete.html"
     success_url = reverse_lazy("taxis:conductor_list")
-
 
 @method_decorator(never_cache, name="dispatch")
 class VehiculoListView(LoginRequiredMixin, ListView):
@@ -573,16 +579,6 @@ class VehiculoUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-    """
-    Vista de detalle completo de un transportista (Conductor + Vehículo).
-    
-    ✅ Muestra SIEMPRE el Conductor aunque no tenga vehículo.
-    ✅ Si no hay vehículo, vehiculo=None y el template debe mostrar "Sin vehículo".
-    ✅ Preserva filtros (q, genero, edo_civil, estado, etc.) al volver.
-    ✅ Mapea módulos origen (conductores/vehiculos) a URLs seguras.
-    ✅ Detecta vencimientos de documentos en tiempo real (solo si hay vehículo).
-    ✅ VALIDA que el vehículo pertenece al conductor (FIX principal).
-    """
     template_name = "taxis/dt5_detail.html"
 
     def test_func(self):
@@ -591,117 +587,62 @@ class DT5DetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ============================
-        # ✅ Conductor SIEMPRE existe
-        # ============================
         conductor_id = kwargs.get("conductor_id")
-        vehicle_id = kwargs.get("vehicle_id")  # NUEVO: Vehículo específico (opcional)
-        
+        vehicle_id = kwargs.get("vehicle_id")
+
         conductor = get_object_or_404(
             Conductor.objects.select_related("ubicacion").prefetch_related("vehiculos"),
             pk=conductor_id
         )
 
-        # ============================
-        # ✅ VALIDACIÓN DEL VEHÍCULO (FIX PRINCIPAL)
-        # ============================
-        # Si se pasó vehicle_id, obtenerlo Y validar que pertenece al conductor
         if vehicle_id:
-            vehiculo = get_object_or_404(
-                conductor.vehiculos.all(),  # Asegurar que PERTENECE al conductor
-                pk=vehicle_id
-            )
+            vehiculo = get_object_or_404(conductor.vehiculos.all(), pk=vehicle_id)
         else:
-            # Si NO se pasó vehicle_id, tomar el primero (compatibilidad)
             vehiculo = conductor.vehiculos.order_by("id").first()
 
         context["conductor"] = conductor
         context["vehiculo"] = vehiculo
         context["sin_vehiculo"] = vehiculo is None
 
-        # ========================================
-        # ✅ Back URL según origen
-        # ========================================
+        # FOTO CONDUCTOR
+        avatar = getattr(conductor, "avatar", None)
+        context["has_conductor_avatar"] = bool(avatar)
+        context["conductor_avatar_url"] = avatar.url if avatar and hasattr(avatar, "url") else None
+
+        # Back URL
         from_module = self.request.GET.get("from", "conductores")
-        
         url_mapping = {
             "vehiculos": reverse("taxis:vehiculo_list"),
             "conductores": reverse("taxis:conductor_list"),
             "conductor_create": reverse("taxis:conductor_list"),
         }
-
         base_url = url_mapping.get(from_module, reverse("taxis:conductor_list"))
-        
+
         query_params = self.request.GET.copy()
         query_params.pop("page", None)
         query_params.pop("from", None)
-        
-        if query_params:
-            context["back_url"] = f"{base_url}?{query_params.urlencode()}"
-        else:
-            context["back_url"] = base_url
+        context["back_url"] = f"{base_url}?{query_params.urlencode()}" if query_params else base_url
 
-        # ========================================
-        # ✅ Edad
-        # ========================================
+        # Edad / fechas
         hoy = timezone.now().date()
         context["today"] = hoy
 
         if conductor.fechanacimiento:
             edad = hoy.year - conductor.fechanacimiento.year
-            if (hoy.month < conductor.fechanacimiento.month or
-                (hoy.month == conductor.fechanacimiento.month and hoy.day < conductor.fechanacimiento.day)):
+            if (hoy.month, hoy.day) < (conductor.fechanacimiento.month, conductor.fechanacimiento.day):
                 edad -= 1
             context["edad"] = edad
 
-        # ========================================
-        # ✅ Vencimientos (solo si hay vehículo)
-        # ========================================
-        if vehiculo:
-            context["cert_medico_vencido"] = (
-                vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy
-            )
-            context["patente_vencida"] = (
-                vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy
-            )
-            context["lic_circulacion_vencida"] = (
-                vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy
-            )
-            context["seguro_vencido"] = (
-                vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy
-            )
-        else:
-            context["cert_medico_vencido"] = False
-            context["patente_vencida"] = False
-            context["lic_circulacion_vencida"] = False
-            context["seguro_vencido"] = False
+        # Vencimientos conductor
+        context["conductor_cedula_vencida"] = bool(conductor.cedula_vencimiento and conductor.cedula_vencimiento < hoy)
+        context["conductor_rif_vencido"] = bool(conductor.rif_vencimiento and conductor.rif_vencimiento < hoy)
 
-            # ========================================
-        # ✅ Vencimientos del CONDUCTOR (antes de vehículos)
-        # ========================================
-        context["conductor_cedula_vencida"] = (
-            conductor.cedula_vencimiento and conductor.cedula_vencimiento < hoy
-        )
-        context["conductor_rif_vencido"] = (
-            conductor.rif_vencimiento and conductor.rif_vencimiento < hoy
-        )
-        
-        # ========================================
-        # ✅ Vencimientos del VEHÍCULO (si existe)
-        # ========================================
+        # Vencimientos vehículo
         if vehiculo:
-            context["cert_medico_vencido"] = (
-                vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy
-            )
-            context["patente_vencida"] = (
-                vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy
-            )
-            context["lic_circulacion_vencida"] = (
-                vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy
-            )
-            context["seguro_vencido"] = (
-                vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy
-            )
+            context["cert_medico_vencido"] = bool(vehiculo.medico_vencimiento and vehiculo.medico_vencimiento < hoy)
+            context["patente_vencida"] = bool(vehiculo.patente_vencimiento and vehiculo.patente_vencimiento < hoy)
+            context["lic_circulacion_vencida"] = bool(vehiculo.licencia_vencimiento and vehiculo.licencia_vencimiento < hoy)
+            context["seguro_vencido"] = bool(vehiculo.rcv_vencimiento and vehiculo.rcv_vencimiento < hoy)
         else:
             context["cert_medico_vencido"] = False
             context["patente_vencida"] = False

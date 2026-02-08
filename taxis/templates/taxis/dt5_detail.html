@@ -1469,212 +1469,232 @@ body.dark-mode .sin-vehiculo-content .btn:focus-visible {
 
 
     <div class="row">
-        <!-- COLUMNA IZQUIERDA -->
-        <div class="col-lg-6">
-         <!-- DATOS DEL AFILIADO -->
-<div class="info-card">
-    <h2 class="card-title">
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-lg-6">
+
+    <!-- DATOS DEL AFILIADO -->
+    <div class="info-card">
+      <h2 class="card-title">
         <i class="fas fa-user"></i> Datos del Afiliado
-    </h2>
-    <div class="info-grid">
-        <div class="info-item">
-            <span class="info-label">Cédula</span>
-            <span class="info-value">{{ conductor.cedula_prefijo }} - {{ conductor.cedula_identidad }}</span>
-        </div>
+      </h2>
 
-        <div class="info-item">
-            <span class="info-label">RIF</span>
-            <span class="info-value">{{ conductor.rif_prefijo }} - {{ conductor.rif }}</span>
-        </div>
+      <div class="info-grid">
 
-        <div class="info-item">
-            <span class="info-label">Fecha de Nacimiento</span>
-            <span class="info-value">{{ conductor.fechanacimiento|date:"d/m/Y" }} ({{ edad }} años)</span>
-        </div>
+        {% if conductor_avatar_url %}
+<div class="info-item" style="grid-column: 1 / -1;">
+  <span class="info-label">Foto del Afiliado</span>
 
-        <div class="info-item">
-            <span class="info-label">Género</span>
-            <span class="info-value">{{ conductor.get_sexo_display|default:"No especificado" }}</span>
-        </div>
-
-        <div class="info-item">
-            <span class="info-label">Estado Civil</span>
-            <span class="info-value">{{ conductor.get_estadocivil_display|default:"No especificado" }}</span>
-        </div>
-    </div>
+  <div class="vehicle-photo-container">
+    <img
+      src="{{ conductor_avatar_url }}"
+      alt="Foto del afiliado"
+      class="vehicle-photo"
+      onclick="openZoomModal('{{ conductor_avatar_url }}')"
+    >
+    <span class="zoom-hint">
+      <i class="fas fa-search-plus"></i> Click para ampliar
+    </span>
+  </div>
 </div>
+{% endif %}
 
-<!-- CONTACTO Y RESIDENCIA -->
-<div class="info-card">
-    <h2 class="card-title">
-        <i class="fas fa-map-marker-alt"></i> Contacto y Residencia
-    </h2>
-    <div class="info-grid">
         <div class="info-item">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ conductor.email|default:"No registrado" }}</span>
+          <span class="info-label">Cédula</span>
+          <span class="info-value">{{ conductor.cedula_prefijo }} - {{ conductor.cedula_identidad }}</span>
         </div>
 
         <div class="info-item">
-            <span class="info-label">Teléfono Principal</span>
-            <span class="info-value">{{ conductor.telefono_principal|default:"No registrado" }}</span>
+          <span class="info-label">RIF</span>
+          <span class="info-value">{{ conductor.rif_prefijo }} - {{ conductor.rif }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Fecha de Nacimiento</span>
+          <span class="info-value">{{ conductor.fechanacimiento|date:"d/m/Y" }} ({{ edad }} años)</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Género</span>
+          <span class="info-value">{{ conductor.get_sexo_display|default:"No especificado" }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Estado Civil</span>
+          <span class="info-value">{{ conductor.get_estadocivil_display|default:"No especificado" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTO Y RESIDENCIA -->
+    <div class="info-card">
+      <h2 class="card-title">
+        <i class="fas fa-map-marker-alt"></i> Contacto y Residencia
+      </h2>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ conductor.email|default:"No registrado" }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Teléfono Principal</span>
+          <span class="info-value">{{ conductor.telefono_principal|default:"No registrado" }}</span>
         </div>
 
         {% if conductor.telefono_secundario %}
         <div class="info-item">
-            <span class="info-label">Teléfono Secundario</span>
-            <span class="info-value">{{ conductor.telefono_secundario }}</span>
+          <span class="info-label">Teléfono Secundario</span>
+          <span class="info-value">{{ conductor.telefono_secundario }}</span>
         </div>
         {% endif %}
 
         {% if conductor.telefono_fijo %}
         <div class="info-item">
-            <span class="info-label">Teléfono Fijo</span>
-            <span class="info-value">{{ conductor.telefono_fijo }}</span>
+          <span class="info-label">Teléfono Fijo</span>
+          <span class="info-value">{{ conductor.telefono_fijo }}</span>
         </div>
         {% endif %}
 
         {% if conductor.ubicacion %}
-            {% if conductor.ubicacion.estado %}
-            <div class="info-item">
-                <span class="info-label">Estado</span>
-                <span class="info-value">{{ conductor.ubicacion.estado }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.estado %}
+          <div class="info-item">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ conductor.ubicacion.estado }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.municipio %}
-            <div class="info-item">
-                <span class="info-label">Municipio</span>
-                <span class="info-value">{{ conductor.ubicacion.municipio }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.municipio %}
+          <div class="info-item">
+            <span class="info-label">Municipio</span>
+            <span class="info-value">{{ conductor.ubicacion.municipio }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.parroquia %}
-            <div class="info-item">
-                <span class="info-label">Parroquia</span>
-                <span class="info-value">{{ conductor.ubicacion.parroquia }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.parroquia %}
+          <div class="info-item">
+            <span class="info-label">Parroquia</span>
+            <span class="info-value">{{ conductor.ubicacion.parroquia }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.localidad %}
-            <div class="info-item">
-                <span class="info-label">Localidad</span>
-                <span class="info-value">{{ conductor.ubicacion.localidad }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.localidad %}
+          <div class="info-item">
+            <span class="info-label">Localidad</span>
+            <span class="info-value">{{ conductor.ubicacion.localidad }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.sector %}
-            <div class="info-item">
-                <span class="info-label">Sector</span>
-                <span class="info-value">{{ conductor.ubicacion.sector }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.sector %}
+          <div class="info-item">
+            <span class="info-label">Sector</span>
+            <span class="info-value">{{ conductor.ubicacion.sector }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.zona_postal %}
-            <div class="info-item">
-                <span class="info-label">Zona Postal</span>
-                <span class="info-value">{{ conductor.ubicacion.zona_postal }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.zona_postal %}
+          <div class="info-item">
+            <span class="info-label">Zona Postal</span>
+            <span class="info-value">{{ conductor.ubicacion.zona_postal }}</span>
+          </div>
+          {% endif %}
 
-            {% if conductor.ubicacion.calle_avenida or conductor.ubicacion.numero_casa %}
-            <div class="info-item" style="grid-column: 1 / -1;">
-                <span class="info-label">Dirección Exacta</span>
-                <span class="info-value">{{ conductor.ubicacion.calle_avenida }} {{ conductor.ubicacion.numero_casa }}</span>
-            </div>
-            {% endif %}
+          {% if conductor.ubicacion.calle_avenida or conductor.ubicacion.numero_casa %}
+          <div class="info-item" style="grid-column: 1 / -1;">
+            <span class="info-label">Dirección Exacta</span>
+            <span class="info-value">{{ conductor.ubicacion.calle_avenida }} {{ conductor.ubicacion.numero_casa }}</span>
+          </div>
+          {% endif %}
         {% endif %}
+      </div>
     </div>
-</div>
 
-            <!-- DOCUMENTOS DEL CONDUCTOR -->
-{% if conductor.cedula_archivo_frente or conductor.cedula_archivo_reverso or conductor.rif_archivo %}
-<div class="info-card">
-    <h2 class="card-title">
+    <!-- DOCUMENTOS DEL CONDUCTOR -->
+    {% if conductor.cedula_archivo_frente or conductor.cedula_archivo_reverso or conductor.rif_archivo %}
+    <div class="info-card">
+      <h2 class="card-title">
         <i class="fas fa-id-card"></i> Documentos del Conductor
-    </h2>
-    <div class="doc-list">
-        <!-- CÉDULA FRENTE -->
-{% if conductor.cedula_archivo_frente %}
-<div class="doc-item">
-  <span class="doc-name">Cédula - Frente</span>
-  {% if conductor.cedula_vencimiento %}
-    {% if conductor.cedula_vencimiento <= today %}
-      <span class="doc-vencido">
-        <i class="fas fa-exclamation-circle"></i>
-        VENCIDO ({{ conductor.cedula_vencimiento|date:"d/m/Y" }})
-      </span>
-    {% else %}
-      <span class="doc-vigente">
-        <i class="fas fa-check-circle"></i>
-        Vence {{ conductor.cedula_vencimiento|date:"d/m/Y" }}
-      </span>
-    {% endif %}
-  {% else %}
-    <span class="doc-cargado">Sin fecha de vencimiento</span>
-  {% endif %}
-  <a href="{{ conductor.cedula_archivo_frente.url }}" target="_blank" class="btn-view-doc">
-    <i class="fas fa-eye"></i> Ver Frente
-  </a>
-</div>
-{% endif %}
+      </h2>
 
-        <!-- CÉDULA REVERSO -->
+      <div class="doc-list">
+        {% if conductor.cedula_archivo_frente %}
+        <div class="doc-item">
+          <span class="doc-name">Cédula - Frente</span>
+          {% if conductor.cedula_vencimiento %}
+            {% if conductor.cedula_vencimiento <= today %}
+            <span class="doc-vencido">
+              <i class="fas fa-exclamation-circle"></i>
+              VENCIDO ({{ conductor.cedula_vencimiento|date:"d/m/Y" }})
+            </span>
+            {% else %}
+            <span class="doc-vigente">
+              <i class="fas fa-check-circle"></i>
+              Vence {{ conductor.cedula_vencimiento|date:"d/m/Y" }}
+            </span>
+            {% endif %}
+          {% else %}
+            <span class="doc-cargado">Sin fecha de vencimiento</span>
+          {% endif %}
+          <a href="{{ conductor.cedula_archivo_frente.url }}" target="_blank" class="btn-view-doc">
+            <i class="fas fa-eye"></i> Ver Frente
+          </a>
+        </div>
+        {% endif %}
+
         {% if conductor.cedula_archivo_reverso %}
         <div class="doc-item">
-            <span class="doc-name">📄 Cédula - Reverso</span>
-            <span class="doc-cargado">Cargado</span>
-            <a href="{{conductor.cedula_archivo_reverso.url }}" target="_blank" class="btn-view-doc">
-                <i class="fas fa-eye"></i> Ver Reverso
-            </a>
+          <span class="doc-name">📄 Cédula - Reverso</span>
+          <span class="doc-cargado">Cargado</span>
+          <a href="{{ conductor.cedula_archivo_reverso.url }}" target="_blank" class="btn-view-doc">
+            <i class="fas fa-eye"></i> Ver Reverso
+          </a>
         </div>
         {% endif %}
 
-       <!-- RIF -->
-{% if conductor.rif_archivo %}
-<div class="doc-item">
-    <span class="doc-name">📄 RIF</span>
-    {% if conductor.rif_vencimiento %}
-        {% if conductor.rif_vencimiento <= today %}
+        {% if conductor.rif_archivo %}
+        <div class="doc-item">
+          <span class="doc-name">📄 RIF</span>
+          {% if conductor.rif_vencimiento %}
+            {% if conductor.rif_vencimiento <= today %}
             <span class="doc-vencido">
-                <i class="fas fa-exclamation-circle"></i>
-                VENCIDO ({{ conductor.rif_vencimiento|date:"d/m/Y" }})
+              <i class="fas fa-exclamation-circle"></i>
+              VENCIDO ({{ conductor.rif_vencimiento|date:"d/m/Y" }})
             </span>
-        {% else %}
+            {% else %}
             <span class="doc-vigente">
-                <i class="fas fa-check-circle"></i>
-                Vence: {{ conductor.rif_vencimiento|date:"d/m/Y" }}
+              <i class="fas fa-check-circle"></i>
+              Vence: {{ conductor.rif_vencimiento|date:"d/m/Y" }}
             </span>
+            {% endif %}
+          {% else %}
+            <span class="doc-cargado">Sin fecha de vencimiento</span>
+          {% endif %}
+          <a href="{{ conductor.rif_archivo.url }}" target="_blank" class="btn-view-doc">
+            <i class="fas fa-eye"></i> Ver Archivo
+          </a>
+        </div>
         {% endif %}
-    {% else %}
-        <span class="doc-cargado">Sin fecha de vencimiento</span>
+      </div>
+    </div>
     {% endif %}
-    <a href="{{ conductor.rif_archivo.url }}" target="_blank" class="btn-view-doc">
-        <i class="fas fa-eye"></i> Ver Archivo
-    </a>
-</div>
-{% endif %}
 
-    </div>
-</div>
-{% endif %}
-        </div>
+  </div><!-- /col-lg-6 izquierda -->
 
-        <!-- COLUMNA DERECHA -->
-<div class="col-lg-6">
+  <!-- COLUMNA DERECHA -->
+  <div class="col-lg-6">
     {% if sin_vehiculo %}
-    <div class="info-card">
+      <div class="info-card">
         <div class="alert alert-warning">
-            <i class="fas fa-car-side fa-2x mb-3 d-block"></i>
-            <h4 class="mb-3">Sin vehículo registrado</h4>
-            <div class="sin-vehiculo-content">
-                <p>Este afiliado no tiene vehículos asociados.</p>
-                <a href="{% url 'taxis:vehiculo_create' %}?conductor={{ conductor.pk }}" class="btn btn--primary">
-                    <i class="fas fa-car-plus"></i> Registrar Vehículo
-                </a>
-            </div>
+          <i class="fas fa-car-side fa-2x mb-3 d-block"></i>
+          <h4 class="mb-3">Sin vehículo registrado</h4>
+          <div class="sin-vehiculo-content">
+            <p>Este afiliado no tiene vehículos asociados.</p>
+            <a href="{% url 'taxis:vehiculo_create' %}?conductor={{ conductor.pk }}" class="btn btn--primary">
+              <i class="fas fa-car-plus"></i> Registrar Vehículo
+            </a>
+          </div>
         </div>
-    </div>
+      </div>
     {% else %}
             <!-- IDENTIDAD DEL VEHÍCULO -->
             <div class="info-card">

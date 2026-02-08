@@ -37,7 +37,6 @@ body.dark-mode {
     --sb-thumb-hover: var(--coop-green-hover);
 }
 
-
 /* WIZARD FORMS */
 .wizard-container { max-width: 950px; margin: 0 auto 3rem; }
 
@@ -276,6 +275,7 @@ body.dark-mode .wizard-actions { border-top-color: rgba(255, 255, 255, 0.1); }
 .btn-cancel:hover { background: #d32f2f; color: white !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2); }
 body.dark-mode .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
 body.dark-mode .btn-cancel:hover { background: #ef4444; color: white !important; }
+
 .btn-prev { background: #e5e7eb; color: #4b5563; }
 .btn-prev:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
@@ -302,13 +302,21 @@ body.dark-mode .btn-prev { background: #374151; color: #e5e7eb; }
     cursor: pointer;
 }
 body.dark-mode .dropzone-container { background: #1a2639; border-color: #4b5563; }
+
 .dropzone-container:hover {
     border-color: var(--coop-green-primary);
     background: #f0fdf4;
     transform: scale(1.02);
     box-shadow: 0 8px 20px rgba(0, 179, 0, 0.1);
 }
-body.dark-mode .dropzone-container:hover { background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.05); }
+
+/* ✅ FIX: en modo oscuro también debe ponerse verde el borde al hover */
+body.dark-mode .dropzone-container:hover{
+    border-color: var(--coop-green-primary) !important;
+    background: rgba(16, 185, 129, 0.15);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.05);
+}
+
 .dropzone-container.uploaded { border-color: var(--success-color); background: rgba(16, 185, 129, 0.08); }
 
 .dropzone-visuals { pointer-events: none; z-index: 5; position: relative; }
@@ -437,7 +445,6 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 
 /* ===========================
    ✅ CENTRADO DROPZONES CÉDULA
-   (sin tocar HTML/JS)
    =========================== */
 @media (min-width: 768px) {
     #dropzone-cedula-frente,
@@ -448,9 +455,7 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
         max-width: 520px;
     }
     #dropzone-cedula-frente,
-    #dropzone-cedula-reverso {
-        box-sizing: border-box;
-    }
+    #dropzone-cedula-reverso { box-sizing: border-box; }
 }
 
 /* RESPONSIVE */
@@ -537,14 +542,12 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 
 /* ===========================
    ✅ RIF: que NO se encoja con error
-   (solo por ID, no afecta otros dropzones)
    =========================== */
 #dropzone-rif-archivo{
     width: 100% !important;
     max-width: 100% !important;
 }
 
-/* Opcional: si lo quieres centrado pero con límite en pantallas grandes */
 @media (min-width: 992px){
     #dropzone-rif-archivo{
         max-width: 900px !important;
@@ -553,7 +556,6 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
     }
 }
 
-/* Que el mensaje de error debajo se alinee y tenga el mismo ancho */
 #dropzone-rif-archivo + .field-error-text{
     width: 100% !important;
     max-width: 100% !important;
@@ -569,11 +571,7 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
 
 /* ============================================================
    SCROLLBAR MODERNO (cross-browser)
-   WebKit: ::-webkit-scrollbar*
-   Firefox: scrollbar-color / scrollbar-width
    ============================================================ */
-
-/* Chrome/Edge/Safari (WebKit/Chromium) */
 @supports selector(::-webkit-scrollbar){
   html::-webkit-scrollbar,
   body::-webkit-scrollbar{ width: 10px; height: 10px; }
@@ -597,7 +595,6 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
     background: var(--sb-thumb-hover);
   }
 
-  /* Scrollbars internos */
   *::-webkit-scrollbar{ width: 10px; height: 10px; }
   *::-webkit-scrollbar-track{
     background: var(--sb-track);
@@ -612,11 +609,111 @@ body.dark-mode .progress-line-active { background-color: #10b981 !important; }
   *::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
 }
 
-/* Firefox (estándar) */
 @supports not selector(::-webkit-scrollbar){
   html{
     scrollbar-width: auto;
     scrollbar-color: var(--sb-thumb) var(--sb-track);
+  }
+}
+
+/* ===========================
+   FIX RESPONSIVO DROPZONES
+   =========================== */
+
+/* 1) Base */
+.dropzone-container{
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 2) col-md-12 */
+.row.rowstylegap > .col-md-12 .dropzone-container{
+  width: 100% !important;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 160px;
+}
+
+/* 3) col-md-6 */
+.row.rowstylegap > .col-md-6 .dropzone-container{
+  height: 150px;
+}
+
+/* 4) Dropzone avatar */
+#dropzone-avatar-conductor{
+  width: 100%;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 190px;
+}
+
+/* 5) ✅ PREVIEW AVATAR como miniatura centrada (NO full-size)
+   object-fit: contain mantiene proporción y evita recorte. [web:562][web:558]
+*/
+#avatarPreviewConductor{
+  display: none;                 /* tu JS la pone en block */
+  position: relative !important; /* deja de ser absolute full-cover */
+  inset: auto !important;
+  width: auto !important;
+  height: auto !important;
+
+  max-width: 220px;
+  max-height: 140px;
+
+  object-fit: contain;
+  object-position: center;
+
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  margin: 0 auto;
+}
+
+/* Ajuste en móvil */
+@media (max-width: 480px){
+  #avatarPreviewConductor{
+    max-width: 190px;
+    max-height: 120px;
+  }
+}
+
+/* 6) Tablet y abajo */
+@media (max-width: 768px){
+  .row.rowstylegap{ gap: 12px; }
+
+  .row.rowstylegap > .col-md-6{
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .row.rowstylegap > .col-md-6 .dropzone-container,
+  .row.rowstylegap > .col-md-12 .dropzone-container{
+    height: 140px;
+    max-width: 100%;
+  }
+
+  #dropzone-avatar-conductor{
+    height: 170px;
+    max-width: 100%;
+  }
+}
+
+/* 7) Teléfonos */
+@media (max-width: 480px){
+  .dropzone-container{
+    border-radius: 14px;
+    padding: 1rem;
+    min-height: 105px;
+  }
+
+  .row.rowstylegap > .col-md-6 .dropzone-container,
+  .row.rowstylegap > .col-md-12 .dropzone-container{
+    height: 125px;
+  }
+
+  #dropzone-avatar-conductor{
+    height: 155px;
   }
 }
 </style>
@@ -700,6 +797,58 @@ ubicacion_form.errors={{ ubicacion_form.errors }}
                         </div>
                     </div>
                 </div>
+
+                <div class="row mt-3">
+  <div class="col-md-12">
+    <div class="form-group mb-4">
+      <label class="form-label">
+        Foto del conductor <span class="text-muted">(Opcional)</span>
+      </label>
+
+      <div class="dropzone-container {% if object and object.avatar %}uploaded{% endif %}" id="dropzone-avatar-conductor">
+        <!-- Preview de imagen -->
+        <img
+          id="avatarPreviewConductor"
+          alt="Vista previa"
+          style="
+            display:{% if object and object.avatar %}block{% else %}none{% endif %};
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            border-radius:18px;
+            position:absolute;
+            inset:0;
+          "
+          {% if object and object.avatar %}src="{{ object.avatar.url }}"{% endif %}
+        >
+
+        <!-- Visuals (icono/texto) -->
+        <div class="dropzone-visuals" id="avatarDropzoneVisuals"
+             style="{% if object and object.avatar %}display:none;{% endif %}">
+          <i class="fas fa-user-circle dropzone-icon"></i>
+          <div class="dropzone-text">
+            Arrastra una imagen o click para seleccionar
+            <br>
+            <small class="text-muted" style="font-weight:400;">JPG, PNG, WEBP - Máx 10MB</small>
+          </div>
+        </div>
+
+        <div class="django-input-wrapper">
+          {% render_field form.avatar class="dropzone-input" %}
+        </div>
+      </div>
+
+      <div class="field-error-text" id="avatarErrorText"></div>
+
+      {% if form.avatar.errors %}
+        <div class="field-error-text" style="display:block;">
+          {{ form.avatar.errors|striptags }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 
                 <div class="wizard-actions">
     {% if request.GET.next %}
@@ -1776,7 +1925,73 @@ $(document).on('change', 'select[required], input[required], textarea[required]'
     if (el && el.value) el.value = el.value.replace(/\D/g, ''); // deja solo números
   });
 });
+
+// ===== Preview Dropzone Avatar Conductor (imagen) =====
+(function(){
+  const input = document.getElementById('id_conductor_avatar');
+  const img = document.getElementById('avatarPreviewConductor');
+  const visuals = document.getElementById('avatarDropzoneVisuals');
+  const container = document.getElementById('dropzone-avatar-conductor');
+  const errorBox = document.getElementById('avatarErrorText');
+
+  if(!input || !img || !visuals || !container) return;
+
+  function setError(msg){
+    if(!errorBox) return;
+    if(msg){
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+    }else{
+      errorBox.textContent = '';
+      errorBox.style.display = 'none';
+    }
+  }
+
+  input.addEventListener('change', function(){
+    const file = this.files && this.files[0];
+    setError(null);
+
+    if(!file){
+      // Si no hay archivo nuevo, no borres la foto existente (en edición)
+      if(!img.getAttribute('src')){
+        img.style.display = 'none';
+        visuals.style.display = 'block';
+        container.classList.remove('uploaded');
+      }
+      return;
+    }
+
+    // tamaño máximo 10MB (mismo criterio que tu dropzone genérico)
+    if(file.size > 10 * 1024 * 1024){
+      this.value = '';
+      setError('La imagen supera 10MB.');
+      container.classList.add('error');
+      container.classList.remove('uploaded');
+      return;
+    }
+
+    // validar tipo/extensión
+    const okTypes = ['image/jpeg','image/png','image/webp'];
+    if(!okTypes.includes(file.type)){
+      this.value = '';
+      setError('Solo se permite JPG, PNG o WEBP.');
+      container.classList.add('error');
+      container.classList.remove('uploaded');
+      return;
+    }
+
+    // preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.style.display = 'block';
+      visuals.style.display = 'none';
+      container.classList.add('uploaded');
+      container.classList.remove('error');
+      container.style.borderColor = 'var(--coop-green-primary)';
+    };
+    reader.readAsDataURL(file);
+  });
+})();
 </script>
-
-
 {% endblock %}

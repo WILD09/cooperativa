@@ -209,22 +209,34 @@ class ConductorForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # ✅ EXTRAER is_create ANTES de pasarlo a super()
-        self.is_create = kwargs.pop('is_create', not bool(self.instance.pk if args and hasattr(args[0], 'pk') else False))
-        
-        # ✅ Ahora sí llamar a super SIN el parámetro problemático
+        # ✅ 1) SIEMPRE sacar is_create ANTES de super()
+        is_create = kwargs.pop("is_create", None)
+
+        # ✅ 2) Inicializar ModelForm (aquí ya existe self.instance bien)
         super().__init__(*args, **kwargs)
 
+        # ✅ 3) Definir create/update de forma consistente
+        if is_create is None:
+            self.is_create = not bool(getattr(self.instance, "pk", None))
+        else:
+            self.is_create = bool(is_create)
+
+        # ✅ Avatar (foto conductor) opcional + solo imágenes + id fijo para preview JS
         if "avatar" in self.fields:
             self.fields["avatar"].required = False
+            self.fields["avatar"].widget.attrs["accept"] = "image/*"
+            self.fields["avatar"].widget.attrs.setdefault("id", "id_conductor_avatar")
 
+        # ✅ Clases CSS
         for field in self.fields.values():
-            if not isinstance(field.widget, forms.CheckboxInput) and not isinstance(field.widget, forms.FileInput):
+            if not isinstance(field.widget, (forms.CheckboxInput, forms.FileInput)):
                 existing_classes = field.widget.attrs.get("class", "")
-                field.widget.attrs["class"] = f"vsms-input {existing_classes}"
+                field.widget.attrs["class"] = f"vsms-input {existing_classes}".strip()
+
             if isinstance(field.widget, forms.FileInput):
                 field.widget.attrs["class"] = "dropzone-input"
 
+        # ✅ Archivos obligatorios solo en CREATE
         if self.is_create:
             self.fields["cedula_archivo_frente"].required = True
             self.fields["cedula_archivo_reverso"].required = True
@@ -235,6 +247,8 @@ class ConductorForm(forms.ModelForm):
             self.fields["rif_archivo"].required = False
 
         desactivar_autocomplete(self)
+
+
 
     def _solo_digitos(self, value):
         if not value:
